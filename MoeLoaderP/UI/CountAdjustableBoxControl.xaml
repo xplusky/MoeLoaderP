@@ -1,0 +1,32 @@
+﻿<UserControl x:Name="ControlRoot" x:Class="MoeLoader.UI.CountAdjustableBoxControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="29.54" d:DesignWidth="148.972">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="18"/>
+            <ColumnDefinition Width="18"/>
+        </Grid.ColumnDefinitions>
+        <TextBox
+            x:Name="CountTextBox"
+            x:FieldModifier="private"
+            InputMethod.IsInputMethodEnabled="False"
+            Text="{Binding NumCount,ElementName=ControlRoot,Mode=OneWay}" TextAlignment="Center" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" />
+        <Button
+            x:Name="NumUpButton"
+            x:FieldModifier="private"
+            BorderThickness="1"
+            Content="˄"
+            Grid.Column="2" Template="{DynamicResource MoeButtonControlTemplate}" />
+        <Button
+            x:Name="NumDownButton"
+            x:FieldModifier="private"
+            BorderThickness="1"
+            Content="˅"            
+            Grid.Column="1" Template="{DynamicResource MoeButtonControlTemplate}" />
+    </Grid>
+</UserControl>
