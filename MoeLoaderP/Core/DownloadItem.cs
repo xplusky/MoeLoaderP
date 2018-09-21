@@ -86,42 +86,59 @@ namespace MoeLoader.Core
         public string SaveLocation { set; get; }
         
         public CancellationTokenSource CurrentDownloadTaskCts { get; set; }
+        public DownloadItems SubItems { get; set; } = new DownloadItems();
+        public int SubIndex { get; set; }
 
         public async Task DownloadFileAsync()
         {
             CurrentDownloadTaskCts?.Cancel();
             CurrentDownloadTaskCts = new CancellationTokenSource();
             var token = CurrentDownloadTaskCts.Token;
-            try
+            if (SubItems.Count > 0)
             {
-                var hchandler = new HttpClientHandler();
-                var progressHandler = new ProgressMessageHandler(hchandler);
-                var client = new HttpClient(progressHandler);
-                // todo referer
-                if(ImageItem.Site.Referer != null) client.DefaultRequestHeaders.Referrer = new Uri(ImageItem.Site.Referer);
-                progressHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
-                
                 DownloadStatus = DownloadStatusEnum.Downloading;
-                var data = await client.GetAsync(ImageItem.OriginalUrl, token);
-                var bytes = await data.Content.ReadAsByteArrayAsync();
-                using (var fs = new FileStream(GetFilePath(), FileMode.Create))
+                for (var i = 0; i < SubItems.Count; i++)
                 {
-                    await fs.WriteAsync(bytes, 0, bytes.Length, token);
+                    var item = SubItems[i];
+                    await item.DownloadFileAsync();
+                    Progress = (i + 1d) / SubItems.Count * 100d;
                 }
-                Extend.Log("download ok");
                 DownloadStatus = DownloadStatusEnum.Success;
             }
-            catch (TaskCanceledException)
+            else
             {
-                DownloadStatus = DownloadStatusEnum.Cancel;
-                CurrentDownloadTaskCts = null;
+                try
+                {
+                    var hchandler = new HttpClientHandler();
+                    var progressHandler = new ProgressMessageHandler(hchandler);
+                    var client = new HttpClient(progressHandler);
+                    // todo referer
+                    if (ImageItem.Site.Referer != null) client.DefaultRequestHeaders.Referrer = new Uri(ImageItem.Site.Referer);
+                    progressHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
+
+                    DownloadStatus = DownloadStatusEnum.Downloading;
+                    var data = await client.GetAsync(ImageItem.OriginalUrl, token);
+                    var bytes = await data.Content.ReadAsByteArrayAsync();
+                    using (var fs = new FileStream(GetFilePath(), FileMode.Create))
+                    {
+                        await fs.WriteAsync(bytes, 0, bytes.Length, token);
+                    }
+                    Extend.Log("download ok");
+                    DownloadStatus = DownloadStatusEnum.Success;
+                }
+                catch (TaskCanceledException)
+                {
+                    DownloadStatus = DownloadStatusEnum.Cancel;
+                    CurrentDownloadTaskCts = null;
+                }
+                catch (Exception ex)
+                {
+                    Extend.Log(ex);
+                    DownloadStatus = DownloadStatusEnum.Failed;
+                    CurrentDownloadTaskCts = null;
+                }
             }
-            catch (Exception ex)
-            {
-                Extend.Log(ex);
-                DownloadStatus = DownloadStatusEnum.Failed;
-                CurrentDownloadTaskCts = null;
-            }
+            
         }
         
         public string GetFilePath()
@@ -146,7 +163,7 @@ namespace MoeLoader.Core
             set => SetField(ref _statusText, value, nameof(StatusText));
         }
 
-        public DownloadItems SubItems { get; set; }
+        
     }
 
     public class DownloadItems : ObservableCollection<DownloadItem> { }

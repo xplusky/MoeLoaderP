@@ -206,63 +206,6 @@
             </Border>
         </Grid>
     </ControlTemplate>
-    <ControlTemplate x:Key="MoeDownloadToggleButtonControlTemplate" TargetType="{x:Type ToggleButton}">
-        <Border Padding="{TemplateBinding Padding}">
-            <Grid Background="Transparent" HorizontalAlignment="Stretch" Height="Auto" Margin="0" SnapsToDevicePixels="False" VerticalAlignment="Stretch" Width="Auto">
-                <Ellipse x:Name="BackGrad" Fill="#CC34A3E0" HorizontalAlignment="Center" Height="33" Margin="52,0" Stroke="#FF34A3E0" StrokeThickness="1" VerticalAlignment="Center" Width="19"/>
-                <Ellipse x:Name="FadeMask" Fill="AliceBlue" HorizontalAlignment="Center" Height="33" Margin="52,0" Opacity="0" Stroke="Transparent" StrokeThickness="1" VerticalAlignment="Center" Width="19"/>
-                <Path x:Name="arrow" Data="M1,1.5L4.5,5 8,1.5" HorizontalAlignment="Center" Margin="0" RenderTransformOrigin="0.5,0.5" SnapsToDevicePixels="False" Stroke="White" StrokeThickness="2" VerticalAlignment="Center">
-                    <Path.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform Angle="90"/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </Path.RenderTransform>
-                </Path>
-                <Ellipse x:Name="Highlight" HorizontalAlignment="Center" Height="19" Margin="0" Stroke="Transparent" StrokeThickness="2" Visibility="Hidden" VerticalAlignment="Center" Width="19">
-                    <Ellipse.Fill>
-                        <DrawingBrush>
-                            <DrawingBrush.Drawing>
-                                <GeometryDrawing>
-                                    <GeometryDrawing.Brush>
-                                        <LinearGradientBrush EndPoint="0,1" Opacity="0.6" StartPoint="0,0">
-                                            <GradientStop Color="White" Offset="0"/>
-                                            <GradientStop Color="#CCFFFFFF" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </GeometryDrawing.Brush>
-                                    <GeometryDrawing.Geometry>
-                                        <EllipseGeometry Center="0.5,0.5" RadiusY="0.5" RadiusX="0.25"/>
-                                    </GeometryDrawing.Geometry>
-                                </GeometryDrawing>
-                            </DrawingBrush.Drawing>
-                            <DrawingBrush.RelativeTransform>
-                                <ScaleTransform CenterY="0" CenterX="0.5" ScaleY="0.6" ScaleX="1.05"/>
-                            </DrawingBrush.RelativeTransform>
-                        </DrawingBrush>
-                    </Ellipse.Fill>
-                </Ellipse>
-                <ContentPresenter x:Name="ContentSite" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" RecognizesAccessKey="True"/>
-            </Grid>
-        </Border>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsChecked" Value="True">
-                <Setter Property="RenderTransform" TargetName="arrow">
-                    <Setter.Value>
-                        <RotateTransform Angle="-90"/>
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="RenderTransform" TargetName="BackGrad">
-                    <Setter.Value>
-                        <TranslateTransform X="0" Y="1"/>
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
     <ControlTemplate x:Key="MoeKeywordTextBoxControlTemplate" TargetType="{x:Type TextBox}">
         <Grid>
             <Border x:Name="Border" BorderThickness="1" Background="{DynamicResource WindowBackgroundBrush}" CornerRadius="2" Padding="2">
@@ -940,22 +883,98 @@
         </Setter>
     </Style>
     <Style x:Key="MoeFocusVisualStyle2" TargetType="{x:Type Control}"/>
+    <ControlTemplate x:Key="DownloaderItemSubListBoxControlTemplate" TargetType="{x:Type ListBox}">
+        <Border SnapsToDevicePixels="True">
+            <ScrollViewer x:Name="DownloadListScrollViewer" HorizontalScrollBarVisibility="Disabled" Padding="{TemplateBinding Padding}" VerticalScrollBarVisibility="Auto" Template="{DynamicResource MoeScrollViewerControlTemplate}">
+                <StackPanel IsItemsHost="True"/>
+            </ScrollViewer>
+        </Border>
+    </ControlTemplate>
+    <Style x:Key="DownloaderSubListBoxItemStyle" d:IsControlPart="True" TargetType="{x:Type ListBoxItem}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                    <Grid Height="20" d:DesignWidth="163.556">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ProgressBar x:Name="DownloadProgressBar"
+                                            Value="{Binding Progress}" Template="{DynamicResource MoeProgressBarControlTemplate}" Grid.Column="1" />
+                        <TextBlock x:Name="ItemNameTextBlock" Text="{Binding FileName}" TextWrapping="NoWrap" FontSize="9" VerticalAlignment="Center" Height="11.43" Grid.Column="1" Margin="35,0,6,0"/>
+                        <Path Data="M1.0890278,-3.4839403 C0.94120593,14.046875 2.1804033,14.218884 9.037,14.000904 M6.6880001,11.782 L9.2928118,14.003873 6.6884999,16.573" HorizontalAlignment="Left" Height="20.934" Margin="0.545,-7.278,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="9.233" StrokeThickness="1.5"/>
+                        <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="1" Grid.Column="1" CornerRadius="10" HorizontalAlignment="Left" Width="16" Height="16" Margin="2,0,0,0">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FFD1D1D1" Offset="0"/>
+                                    <GradientStop Color="White" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding SubIndex}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" FontWeight="Bold"/>
+                        </Border>
+                        <TextBlock TextWrapping="Wrap" Text="{Binding DownloadStatusIconText}" Grid.Column="1" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0" TextAlignment="Center" Width="12" Height="12"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="MoeDownloaderListBoxItemStyle" d:IsControlPart="True" TargetType="{x:Type ListBoxItem}">
         <Setter Property="SnapsToDevicePixels" Value="true"/>
         <Setter Property="OverridesDefaultStyle" Value="true"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                    <Grid x:Name="Root" ToolTip="{Binding Text, ElementName=FileNameTextBlock}" Height="42" Width="Auto">
+                    <Grid x:Name="Root" ToolTip="{Binding Text, ElementName=FileNameTextBlock}" Width="Auto" d:DesignWidth="162.333" d:DesignHeight="98.444" Margin="0,0,0,3" Background="#00000000">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="42"/>
                             <ColumnDefinition Width="22"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="21"/>
+                            <RowDefinition Height="21"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0:0:0.3">
+                                        <VisualTransition.GeneratedEasingFunction>
+                                            <CircleEase EasingMode="EaseOut"/>
+                                        </VisualTransition.GeneratedEasingFunction>
+                                    </VisualTransition>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="MouseOverCoverBorder">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled"/>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="SelectionStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0:0:0.3">
+                                        <VisualTransition.GeneratedEasingFunction>
+                                            <CircleEase EasingMode="EaseOut"/>
+                                        </VisualTransition.GeneratedEasingFunction>
+                                    </VisualTransition>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Unselected"/>
+                                <VisualState x:Name="Selected">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SelectCoverBorder">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="SelectedUnfocused"/>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
                         <ProgressBar x:Name="DownloadProgressBar"
                             Value="{Binding Progress}" Template="{DynamicResource MoeProgressBarControlTemplate}" Grid.RowSpan="2" Grid.ColumnSpan="3" />
                         <Border x:Name="PreviewImageBorder" BorderBrush="{DynamicResource MoeButtonStrokeBrush}" BorderThickness="1" Grid.RowSpan="2" Margin="2" CornerRadius="4">
@@ -980,12 +999,16 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Text="{Binding StatusText}"
-                            TextWrapping="NoWrap" Grid.Row="1" Grid.Column="3" />
+                            TextWrapping="NoWrap" Grid.Row="1" Grid.Column="2" />
+                        <ListBox x:Name="SubItemListBox" Grid.ColumnSpan="3" Grid.Row="2" 
+                                 Template="{DynamicResource DownloaderItemSubListBoxControlTemplate}"
+                                 ItemsSource="{Binding SubItems}" ItemContainerStyle="{DynamicResource DownloaderSubListBoxItemStyle}"/>
+                        <Border x:Name="SelectCoverBorder" BorderBrush="#CA007CFF" BorderThickness="2" Grid.ColumnSpan="3" Grid.RowSpan="3" CornerRadius="8" Opacity="0"/>
+                        <Border x:Name="MouseOverCoverBorder" Grid.ColumnSpan="3" Grid.RowSpan="3" CornerRadius="7" Opacity="0" Background="#4CFFFFFF"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Setter Property="FocusVisualStyle" Value="{DynamicResource MoeFocusVisualStyle2}"/>
     </Style>
     <ControlTemplate x:Key="MoeContextMunuButtonControlTemplate" TargetType="{x:Type Button}">
         <Grid x:Name="Grid" UseLayoutRounding="True" d:DesignUseLayoutRounding="True">

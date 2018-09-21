@@ -166,8 +166,8 @@
     <Compile Include="Core\Site\SiteWCosplay.cs" />
     <Compile Include="Core\Site\SiteYuriimg.cs" />
     <Compile Include="Core\Site\SiteZeroChan.cs" />
-    <Compile Include="ExceptionWindow.xaml.cs">
-      <DependentUpon>ExceptionWindow.xaml</DependentUpon>
+    <Compile Include="MessageWindow.xaml.cs">
+      <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
@@ -216,7 +216,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ExceptionWindow.xaml">
+    <Page Include="MessageWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -227,6 +227,9 @@
                                 <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0" Text="反选"/>
                             </Grid>
                         </Button>
+                        <WrapPanel x:Name="TitleWrapPanel" Margin="2,4,2,2">
+                            <Button Content="Button" Template="{DynamicResource MoeTagButtonControlTemplate}" Height="19"/>
+                        </WrapPanel>
                         <WrapPanel x:Name="TagsWrapPanel" Margin="2,4,2,2">
                             <Button Content="Button" Template="{DynamicResource MoeTagButtonControlTemplate}"/>
                         </WrapPanel>

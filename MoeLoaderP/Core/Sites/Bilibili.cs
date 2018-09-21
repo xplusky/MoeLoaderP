@@ -1,6 +1,9 @@
-﻿using System.Threading;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MoeLoader.Core.Sites
 {
@@ -97,19 +100,25 @@ namespace MoeLoader.Core.Sites
                     img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                     img.Title = $"{item.item?.title}";
 
+                    var list =(JArray) item.item.pictures;
 
-                    foreach (var pic in item.item.pictures)
+                    if (list.Count > 1)
                     {
-                        var child = new ImageItem
+                        foreach (var pic in item.item.pictures)
                         {
-                            ThumbnailUrl = $"{pic.img_src}@512w_10000h_0-0-512-512a",
-                            OriginalUrl = $"{pic.img_src}",
-                        };
-                        if (pic.img_width != null) child.Width = (int) pic.img_width;
-                        if (pic.img_height != null) child.Height = (int) pic.img_height;
+                            var child = new ImageItem
+                            {
+                                ThumbnailUrl = $"{pic.img_src}@512w_10000h_0-0-512-512a",
+                                OriginalUrl = $"{pic.img_src}",
+                                Site = this,
+                            };
+                            if (pic.img_width != null) child.Width = (int)pic.img_width;
+                            if (pic.img_height != null) child.Height = (int)pic.img_height;
 
-                        img.ChilldrenItems.Add(child);
+                            img.ChilldrenItems.Add(child);
+                        }
                     }
+
                     img.Site = this;
                     items.Add(img);
                 }

@@ -166,12 +166,6 @@
                         VerticalAlignment="Bottom"
                         Content="%origin"
                         ToolTip="插入 上载时间 格式" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="49.556" Margin="4" />
-                    <Button
-                        x:Name="FNRcut"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Bottom"
-                        Content="&lt;!&lt;"
-                        ToolTip="插入 文件名裁剪符 格式" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="38" Margin="4" />
                 </WrapPanel>
             </StackPanel>
         </GroupBox>

@@ -28,6 +28,30 @@ namespace MoeLoader.Core
             set => SetField(ref _mainWindowHeight, value, nameof(MainWindowHeight));
         }
 
+        private double _mainWindowTop;
+        public double MainWindowTop
+        {
+            get
+            {
+                var sh = SystemParameters.WorkArea.Height;
+                if (Math.Abs(_mainWindowTop) < 1d) return sh / 2 - _mainWindowHeight / 2;
+                return _mainWindowTop;
+            }
+            set => SetField(ref _mainWindowTop, value, nameof(MainWindowTop));
+        }
+
+        private double _mainWindowLeft;
+        public double MainWindowLeft
+        {
+            get
+            {
+                var sw = SystemParameters.WorkArea.Width;
+                if (Math.Abs(_mainWindowLeft) < 1d) return sw / 2 - _mainWindowWidth / 2;
+                return _mainWindowLeft;
+            }
+            set => SetField(ref _mainWindowLeft, value, nameof(MainWindowLeft));
+        }
+
         private string _imageSavePath = AppRes.MoePicFolder;
         public string ImageSavePath
         {
@@ -85,7 +109,7 @@ namespace MoeLoader.Core
             set => SetField(ref _maxOnDownloadingImageCount, value, nameof(MaxOnDownloadingImageCount));
         }
 
-        private double _imageItemControlSize = 128d;
+        private double _imageItemControlSize = 192d;
 
         public double ImageItemControlSize
         {
@@ -101,7 +125,7 @@ namespace MoeLoader.Core
             set => SetField(ref _searchHistory, value, nameof(SearchHistory));
         }
 
-        private bool _isXMode = true;
+        private bool _isXMode = false;
 
         public bool IsXMode
         {
@@ -109,7 +133,15 @@ namespace MoeLoader.Core
             set => SetField(ref _isXMode, value, nameof(IsXMode));
         }
 
-        private bool _isDisplayExplicitImages;
+        private bool _haveEnteredXMode = false;
+
+        public bool HaveEnteredXMode
+        {
+            get => _haveEnteredXMode;
+            set => SetField(ref _haveEnteredXMode, value, nameof(HaveEnteredXMode));
+        }
+
+        private bool _isDisplayExplicitImages = true;
 
         public bool IsDisplayExplicitImages
         {

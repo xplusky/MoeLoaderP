@@ -15,16 +15,17 @@ namespace MoeLoader.Core.Sites
         public override string DisplayName => "sankakucomplex.com new";
 
         public override string ShortName => "sankakucomplex";
+
         public override string Referer => $"{HomeUrl}/post/show/12345";
 
         public string SitePrefix => SubListIndex == 0 ? "chan" : "idol";
 
         public override bool NeedLogin => true;
 
-        public Sankaku()
+        public Sankaku(bool isxmode)
         {
             SubMenu.Add("chan");
-            SubMenu.Add("idol");
+            if (isxmode) SubMenu.Add("idol");
         }
 
         public override string GetHintQuery(SearchPara para) => $"{HomeUrl}/tag/autosuggest?tag={para.Keyword}";

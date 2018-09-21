@@ -31,10 +31,23 @@ namespace MoeLoader.Core
         /// </summary>
         public string PreviewUrl { get; set; }
 
-        public string ImageFileType => Path.GetExtension(OriginalUrl)?.Replace(".","").ToUpper();
+        /// <summary>
+        /// 文件类型
+        /// </summary>
+        public string ImageFileType
+        {
+            get
+            {
+                var type = Path.GetExtension(OriginalUrl)?.Replace(".", "").ToUpper();
+                return type?.Length < 5 ? type : null;
+            }
+        }
 
         public List<string> Tags { get; set; } = new List<string>();
 
+        /// <summary>
+        /// 标题
+        /// </summary>
         public string Title { get; set; }
 
         /// <summary>
@@ -56,9 +69,7 @@ namespace MoeLoader.Core
         /// 多图时候所有图片列表
         /// </summary>
         public ImageItems ChilldrenItems { get; set; } = new ImageItems();
-
         public int ImagesCount => ChilldrenItems.Count;
-
         public Visibility ImagesCountVisibility => ChilldrenItems.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
 
         /// <summary>

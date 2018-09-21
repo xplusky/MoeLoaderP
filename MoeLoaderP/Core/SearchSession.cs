@@ -16,10 +16,8 @@ namespace MoeLoader.Core
         public Settings Settings { get; set; }
         public SearchPara CurrentSearchPara { get; set; }
         public SearchedPages LoadedPages { get; set; } = new SearchedPages();
-        public Exception SearchException { get; set; }
         public bool IsSearching => CurrentSearchCts != null;
         public event Action<SearchSession,string> SearchStatusChanged;
-        public event Action<SearchSession> SearchCompleted;
         public CancellationTokenSource CurrentSearchCts { get; set; }
         
         public SearchSession(Settings settings, SearchPara para)
@@ -28,13 +26,23 @@ namespace MoeLoader.Core
             CurrentSearchPara = para;
         }
 
+        public async Task<Task> TrySearchNextPageAsync()
+        {
+            CurrentSearchCts?.Cancel();
+            CurrentSearchCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+            var t = SearchNextPageAsync();
+            try { await t; }
+            catch { }
+            CurrentSearchCts = null;
+            return t;
+        }
+
         /// <summary>
         /// 搜索下一页
         /// </summary>
         public async Task SearchNextPageAsync()
         {
-            CurrentSearchCts?.Cancel();
-            CurrentSearchCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+            var cts = CurrentSearchCts;
             var mpage = new SearchedPage(); // 建立虚拟页信息
             ImageItems images;
             SearchPara temppara;
@@ -48,7 +56,6 @@ namespace MoeLoader.Core
             }
             else if (!LoadedPages.Last().HasNextPage) // 若无下一页则返回
             {
-                CurrentSearchCts = null;
                 return;
             }
             else
@@ -70,6 +77,7 @@ namespace MoeLoader.Core
             var startTime = DateTime.Now;
             while (images.Count < temppara.Count) // 当images数量不够搜索参数数量时
             {
+                cts.Token.ThrowIfCancellationRequested();
                 if (DateTime.Now - startTime > TimeSpan.FromSeconds(20)) break; // loop超时跳出循环（即使不够也跳出）
 
                 temppara.PageIndex++; // 设置新搜索参数为下一页（真）
@@ -93,13 +101,11 @@ namespace MoeLoader.Core
                     if (images.Count >= temppara.Count) break; // 数量已够参数数量，当前虚拟页完成任务
                 }
             }
-
+            cts.Token.ThrowIfCancellationRequested();
             // Loadok
             mpage.ImageItems = images;
             LoadedPages.Add(mpage);
-            CurrentSearchCts = null;
             SearchStatusChanged?.Invoke(this, "搜索完毕");
-            SearchCompleted?.Invoke(this);
         }
 
         public void Filter(ImageItems items)
@@ -127,6 +133,7 @@ namespace MoeLoader.Core
         public void StopSearch()
         {
             CurrentSearchCts?.Cancel();
+            CurrentSearchCts = null;
         }
 
         

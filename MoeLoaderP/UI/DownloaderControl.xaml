@@ -23,14 +23,12 @@
             ItemsSource="{Binding DownloadItems}"
             SelectionMode="Extended" 
             ItemContainerStyle="{DynamicResource MoeDownloaderListBoxItemStyle}" 
-            Template="{DynamicResource MoeDownloderItemsListBoxControlTemplate}" 
-            Grid.RowSpan="2">
-        </ListBox>
+            Grid.RowSpan="2" Template="{DynamicResource MoeDownloderItemsListBoxControlTemplate}"/>
         <Border
             Background="#66F5F5F5"
             BorderBrush="Black"
             BorderThickness="0"
-            CornerRadius="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,2.88">
+            CornerRadius="0" Grid.Row="1" VerticalAlignment="Center" Margin="0,2.88" Visibility="Hidden">
             <TextBlock
                 x:Name="DownloadStatusTextBlock"
                 HorizontalAlignment="Left"
@@ -61,7 +59,7 @@
                                         <ColumnDefinition Width="22"/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xF04B;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock TextWrapping="Wrap" Text="&#xf07c;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"><Run Text="打开"/><Run Text="文件"/><Run Text="位置"/></TextBlock>
                                 </Grid>
                             </Button>

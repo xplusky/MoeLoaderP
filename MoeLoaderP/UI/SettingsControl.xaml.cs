@@ -29,7 +29,6 @@ namespace MoeLoader.UI
             FNRauthor.Click += FileNameFormatButtonOnClick;
             FNRdate.Click += FileNameFormatButtonOnClick;
             FNRimgp.Click += FileNameFormatButtonOnClick;
-            FNRcut.Click += FileNameFormatButtonOnClick;
 
             SaveFolderBrowseButton.Click += SaveFolderBrowseButtonOnClick;
             ClearHistoryButton.Click += ClearHistoryButtonOnClick;

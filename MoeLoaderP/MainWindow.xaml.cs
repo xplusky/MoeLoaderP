@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,7 +32,7 @@ namespace MoeLoader
             // elements
             MoeSettingsControl.Init(Settings);
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
-            SettingsMenuCheckBox.Checked += SettingsMenuCheckBoxOnChecked;
+            SettingsMenuCheckBox.Checked += (sender, args) => SeetingsPopupGrid.LargenShowSb().Begin(); ;
             AboutMenuCheckBox.Checked += (sender, args) => AboutPopupGrid.LargenShowSb().Begin();
 
             // explorer
@@ -42,7 +41,6 @@ namespace MoeLoader
             MoeExlorer.AnyImageLoaded += MoeExlorerOnAnyImageLoaded;
             MoeExlorer.ImageItemDownloadButtonClicked += MoeExlorerOnImageItemDownloadButtonClicked;
             MoeExlorer.MouseWheel += MoeExlorerOnMouseWheel;
-            MoeExlorer.AllImagesLoaded += MoeExlorerOnAllImageLoaded;
             MoeExlorer.ContextMenuTagButtonClicked += MoeExlorerOnContextMenuTagButtonClicked;
             MoeExlorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
 
@@ -72,10 +70,7 @@ namespace MoeLoader
 
         private void MoeExlorerOnMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
-            {
-                ImageSizeSlider.Value += e.Delta;
-            }
+            if (Keyboard.IsKeyDown(Key.LeftCtrl)) ImageSizeSlider.Value += e.Delta;
         }
 
         private void MoeExlorerOnContextMenuTagButtonClicked(ImageItem arg1, string arg2)
@@ -86,13 +81,16 @@ namespace MoeLoader
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            await CheckUpdateAsync();
+            try
+            {
+                await CheckUpdateAsync();
+            }
+            catch (Exception ex)
+            {
+                Extend.Log("Updater.CheckUpdateAsync() Fail", ex);
+            }
         }
 
-        private void SettingsMenuCheckBoxOnChecked(object sender, RoutedEventArgs e)
-        {
-            SeetingsPopupGrid.LargenShowSb().Begin();
-        }
 
         private void ImageSizeSliderOnMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -111,26 +109,36 @@ namespace MoeLoader
             DownloaderMenuCheckBox.IsChecked = true;
         }
 
-        
-
         private void MoeExlorerOnAnyImageLoaded(MoeExplorerControl obj)
         {
             StatusTextBlock.Text = MoeExlorer.ImageLoadingPool.Count == 0 ? "图片加载完毕" 
-                : $"剩余{MoeExlorer.ImageLoadingPool.Count + MoeExlorer.ImageWaitForLoadingPool.Count}张图片等待加载";
+                : $"剩余 {MoeExlorer.ImageLoadingPool.Count + MoeExlorer.ImageWaitForLoadingPool.Count} 张图片等待加载";
         }
 
+        private int _f8KeyDownTimes;
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
                 case Key.F1:
-                    ShowPopupMessage($"{Settings.MaxOnLoadingImageCount}");
+                    //ShowPopupMessage($"{Settings.MaxOnLoadingImageCount}");
                     break;
                 case Key.F2:
-                    ShowPopupMessage($"{Settings.SaveFileNameFormat}");
+                    //ShowPopupMessage($"{Settings.SaveFileNameFormat}");
                     break;
                 case Key.F8:
-                    ShowPopupMessage(Settings.IsXMode ? "已关闭 X 模式" : "已开启 X 模式");
+                    if (!Settings.HaveEnteredXMode)
+                    {
+                        _f8KeyDownTimes++;
+                        if (_f8KeyDownTimes <= 3) break;
+                        if (_f8KeyDownTimes > 3 && _f8KeyDownTimes < 10)
+                        {
+                            ShowPopupMessage($"还剩 {10 - _f8KeyDownTimes} 次冲击！");
+                            break;
+                        }
+                        if (_f8KeyDownTimes >= 10) Settings.HaveEnteredXMode = true;
+                    }
+                    ShowPopupMessage(Settings.IsXMode ? "已关闭 18X 模式" : "已开启 18X 模式");
                     Settings.IsXMode = !Settings.IsXMode;
                     SiteManager.Sites.Clear();
                     SiteManager.SetDefaultSiteList();
@@ -141,22 +149,22 @@ namespace MoeLoader
 
         private async void NextPageButtonOnClick(object sender, RoutedEventArgs e)
         {
-            MoeExlorer.SearchStartedVisual(); 
-            try
+            ChangeSearchVisual(true);
+            var task = await CurrentSearch.TrySearchNextPageAsync();
+            if (task.IsCanceled)
             {
-                await CurrentSearch.SearchNextPageAsync();
+                //MessageBox.Show(t.Exception?.ToString());
             }
-            catch (TaskCanceledException ex)
+            else if (task.Exception != null)
             {
-                MessageBox.Show(ex.ToString());
+                MessageWindow.Show(task.Exception, null, this);
+                ChangeSearchVisual(false);
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
+                ChangeSearchVisual(false);
+                MoeExlorer.RefreshPaging(CurrentSearch);
             }
-
-            MoeExlorer.SearchStopedVisual();
-            VisualStateManager.GoToState(SearchControl, nameof(SearchControl.StopingState), true);
         }
 
         private void OnClosing(object sender, CancelEventArgs e)
@@ -168,54 +176,51 @@ namespace MoeLoader
             else MoeDownloaderControl.StopAll();
         }
 
-        private void MoeExlorerOnAllImageLoaded(MoeExplorerControl obj)
-        {
-            //CurrentSearch.IsSearching = false;
-        }
-
         private async void SearchButtonOnClick(object sender, RoutedEventArgs e)
         {
             if (CurrentSearch?.IsSearching == true)
             {
                 CurrentSearch.StopSearch();
-                VisualStateManager.GoToState(SearchControl, nameof(SearchControl.StopingState), true);
+                ChangeSearchVisual(false);
+                return;
+            }
+            ChangeSearchVisual(true);
+            CurrentSearch = new SearchSession(Settings, SearchControl.GetSearchPara());
+            CurrentSearch.SearchStatusChanged += (session, s) => StatusTextBlock.Text = s;
+            SiteTextBlock.Text = $"当前站点：{CurrentSearch.CurrentSearchPara.Site.DisplayName}";
+            Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
+            var t = await CurrentSearch.TrySearchNextPageAsync();
+            if (t.IsCanceled)
+            {
+                //MessageBox.Show(t.Exception?.ToString());
+            }
+            else if (t.Exception != null)
+            {
+                MessageWindow.Show(t.Exception, null, this);
+                ChangeSearchVisual(false);
             }
             else
             {
-                if (CurrentSearch == null) this.Sb("BeginSearchSb").Begin();
-                
-                MoeExlorer.SearchStartedVisual();
-                CurrentSearch = new SearchSession(Settings, SearchControl.GetSearchPara());
-                CurrentSearch.SearchCompleted += CurrentSearchOnSearchCompleted;
-                CurrentSearch.SearchStatusChanged += (session, s) => StatusTextBlock.Text = s;
-                SiteTextBlock.Text = $"当前站点：{CurrentSearch.CurrentSearchPara.Site.DisplayName}";
-                Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
-                VisualStateManager.GoToState(SearchControl, nameof(SearchControl.SearchingState), true);
-                try
-                {
-                    await CurrentSearch.SearchNextPageAsync();
-                }
-                catch (TaskCanceledException ex)
-                {
-                    MessageBox.Show(ex.ToString());
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                    if (Debugger.IsAttached) throw;
-                }
+                ChangeSearchVisual(false);
+                MoeExlorer.RefreshPaging(CurrentSearch);
+            }
+        }
 
-                CurrentSearch.StopSearch();
+        public void ChangeSearchVisual(bool isSearching)
+        {
+            if (isSearching)
+            {
+                if (CurrentSearch == null) this.Sb("BeginSearchSb").Begin();
+                VisualStateManager.GoToState(SearchControl, nameof(SearchControl.SearchingState), true);
+                MoeExlorer.SearchStartedVisual();
+            }
+            else
+            {
                 MoeExlorer.SearchStopedVisual();
                 VisualStateManager.GoToState(SearchControl, nameof(SearchControl.StopingState), true);
             }
         }
-
-        private void CurrentSearchOnSearchCompleted(SearchSession session)
-        {
-            MoeExlorer.RefreshPages(CurrentSearch);
-        }
-
+        
         public void ShowPopupMessage(string message)
         {
             PopupMessageTextBlock.Text = message;
@@ -225,18 +230,11 @@ namespace MoeLoader
         public async Task CheckUpdateAsync()
         {
             var htpp = new HttpClient();
-            try
+            var upjson = await htpp.GetStringAsync(new Uri(AppRes.AppSaeUrl + "update.json", UriKind.Absolute));
+            dynamic upobject = JsonConvert.DeserializeObject(upjson);
+            if (Version.Parse($"{upobject?.NetVersion}") > AppRes.AppVersion)
             {
-                var upjson = await htpp.GetStringAsync(new Uri(AppRes.AppSaeUrl + "update.json", UriKind.Absolute));
-                dynamic upobject = JsonConvert.DeserializeObject(upjson);
-                if (Version.Parse($"{upobject?.NetVersion}") > AppRes.AppVersion)
-                {
-                    ShowPopupMessage($"MoeLoader +1s 新版提示：{upobject?.NetVersion}({upobject?.RealeseDate})；更新内容：{upobject?.RealeseNotes}；更新请点“关于”按钮");
-                }
-            }
-            catch (Exception e)
-            {
-                Extend.Log("Updater.CheckUpdateAsync() Fail", e);
+                ShowPopupMessage($"MoeLoader +1s 新版提示：{upobject?.NetVersion}({upobject?.RealeseDate})；更新内容：{upobject?.RealeseNotes}；更新请点“关于”按钮");
             }
         }
     }

@@ -77,29 +77,76 @@ namespace MoeLoader.UI
             else if (e.Delta <0) PagingScrollViewer.LineRight();
         }
 
+        public Button GetTagButton(string text)
+        {
+            var texblock = new TextBlock
+            {
+                FontSize = 9,
+                Margin = new Thickness(2),
+                Foreground = Brushes.White,
+                Text = text
+            };
+            var button = new Button
+            {
+                Template = (ControlTemplate)FindResource("MoeTagButtonControlTemplate"),
+                Content = texblock,
+                Margin = new Thickness(1),
+            };
+            return button;
+        }
+
+        public TextBlock GetTitieTextBlock(string text)
+        {
+            var textblock = new TextBlock
+            {
+                Text = text,
+                Margin = new Thickness(2),
+                FontSize = 10,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            return textblock;
+        }
+
         private void ImageItemsScrollViewerOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (MouseOnImageControl == null) return;
             ContextMenuPopup.IsOpen = true;
             ContextMenuPopupGrid.LargenShowSb().Begin();
-            TagsWrapPanel.Children.Clear();
-            foreach (var tag in MouseOnImageControl.ImageItem.Tags)
+
+            // load tag info
+            var tags = MouseOnImageControl.ImageItem.Tags;
+            if (tags.Count > 0)
             {
-                var texblock = new TextBlock
+                TagsWrapPanel.Visibility = Visibility.Visible;
+                TagsWrapPanel.Children.Clear();
+                
+                TagsWrapPanel.Children.Add(GetTitieTextBlock("Tags:"));
+                foreach (var tag in MouseOnImageControl.ImageItem.Tags)
                 {
-                    FontSize = 9,
-                    Margin = new Thickness(2),
-                    Foreground = Brushes.White,
-                    Text = tag
-                };
-                var button = new Button
-                {
-                    Template = (ControlTemplate) FindResource("MoeTagButtonControlTemplate"),
-                    Content = texblock,
-                    Margin = new Thickness(1)
-                };
-                button.Click += (o, args) => { ContextMenuTagButtonClicked?.Invoke(MouseOnImageControl.ImageItem, tag); };
-                TagsWrapPanel.Children.Add(button);
+                    var button = GetTagButton(tag);
+                    button.Click += (o, args) => { ContextMenuTagButtonClicked?.Invoke(MouseOnImageControl.ImageItem, tag); };
+                    TagsWrapPanel.Children.Add(button);
+                }
+            }
+            else
+            {
+                TagsWrapPanel.Visibility = Visibility.Collapsed;
+            }
+
+            // load title info
+            var title = MouseOnImageControl.ImageItem.Title;
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                TitleWrapPanel.Visibility = Visibility.Visible;
+                TitleWrapPanel.Children.Clear(); 
+                TitleWrapPanel.Children.Add(GetTitieTextBlock("Title:"));
+                var btn = GetTagButton(title);
+                btn.Click += (o, args) => Clipboard.SetText(title);
+                TitleWrapPanel.Children.Add(btn);
+            }
+            else
+            {
+                TitleWrapPanel.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -169,7 +216,7 @@ namespace MoeLoader.UI
             showsb.Begin();
         }
 
-        public void RefreshPages(SearchSession session)
+        public void RefreshPaging(SearchSession session)
         {
             PagingStackPanel.Children.Clear();
             var lastpage = session.LoadedPages.Last();

@@ -17,6 +17,7 @@ namespace MoeLoader.Core
 
         public void SetDefaultSiteList()
         {
+            var x = Settings.IsXMode;
             // new
             Sites.Add(new Bilibili());
             Sites.Add(new Konachan());
@@ -24,11 +25,11 @@ namespace MoeLoader.Core
             Sites.Add(new Behoimi());
             Sites.Add(new Safebooru());
             Sites.Add(new Donmai());
-            if (Settings.IsXMode) Sites.Add(new Lolibooru());
-            if (Settings.IsXMode) Sites.Add(new Atfbooru());
-            if (Settings.IsXMode) Sites.Add(new Rule34());
+            if (x) Sites.Add(new Lolibooru());
+            if (x) Sites.Add(new Atfbooru());
+            if (x) Sites.Add(new Rule34());
             Sites.Add(new Gelbooru());
-            Sites.Add(new Sankaku());
+            Sites.Add(new Sankaku(x));
             // old
             Sites.Add(new SiteSankaku());
             Sites.Add(new SiteEshuu());

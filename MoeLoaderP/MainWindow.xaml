@@ -10,10 +10,11 @@
     Title="MoeLoader"
     Width="{Binding MainWindowWidth,Mode=TwoWay}"
     Height="{Binding MainWindowHeight,Mode=TwoWay}"
+    Top="{Binding MainWindowTop,Mode=TwoWay}"
+    Left="{Binding MainWindowLeft,Mode=TwoWay}"
     MinWidth="700"
     MinHeight="400"
-    ResizeMode="CanResizeWithGrip"
-    WindowStartupLocation="CenterScreen" 
+    ResizeMode="CanResizeWithGrip" 
     mc:Ignorable="d" d:DesignWidth="765" d:DesignHeight="523">
     <Window.Resources>
         <Storyboard x:Key="BeginSearchSb">
@@ -168,7 +169,7 @@
                 <TextBlock
                     FontSize="14"
                     Text="|" Margin="0,0,4,0" />
-                <CheckBox x:Name="DownloaderMenuCheckBox" Content="下载器" Template="{DynamicResource MoeMenuCheckBoxControlTemplate}" FontSize="14" Margin="0,0,4,0"/>
+                <CheckBox x:Name="DownloaderMenuCheckBox" Content="下载面板" Template="{DynamicResource MoeMenuCheckBoxControlTemplate}" FontSize="14" Margin="0,0,4,0"/>
                 <TextBlock
                     FontSize="14"
                     Text="|" Margin="0,0,4,0" />

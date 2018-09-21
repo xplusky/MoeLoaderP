@@ -16,12 +16,13 @@ namespace MoeLoader
             DispatcherUnhandledException += OnDispatcherUnhandledException;
         }
 
-        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             if (Debugger.IsAttached) return;
             try
             {
-                new ExceptionWindow(e.Exception).ShowDialog();
+                const string str = "非常抱歉，MoeLoader +1s 遇到致命错误，您可以将下面显示的错误信息发送至 plusky@126.com 以报告该问题。";
+                MessageWindow.Show(e.Exception, str);
             }
             catch
             {
