@@ -13,13 +13,11 @@ namespace MoeLoader.Core
     public static class Extend
     {
         /// <summary>
-        /// 纪录日志
+        /// 获取当前FrameworkElement的Storyboard资源
         /// </summary>
-        public static void Log(params object[] objs)
-        {
-            Debug.WriteLine($"{DateTime.Now:yyMMdd-HHmmss-ff}>>{objs.Aggregate((o, o1) => $"{o}\r\n{o1}")}");
-        }
-
+        /// <param name="element"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static Storyboard Sb(this FrameworkElement element,string key)
         {
             return (Storyboard) element.Resources[key];

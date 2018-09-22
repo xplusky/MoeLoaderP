@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace MoeLoader.Core
 {
-    public class AppRes
+    /// <summary>
+    /// 静态常用资源
+    /// </summary>
+    public static class Res
     {
         public static string AppDisplayName => "MoeLoader +1s";
         public static string AppName => "Leaful.MoeLoader";

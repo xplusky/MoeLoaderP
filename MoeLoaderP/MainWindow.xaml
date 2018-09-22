@@ -89,53 +89,27 @@
                 <DiscreteObjectKeyFrame KeyTime="0:0:8.4" Value="{x:Static Visibility.Collapsed}"/>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
-        <Storyboard x:Key="ShowDownloaderSb">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" 
-                                           Storyboard.TargetName="DownloaderGrid">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="220">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CubicEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
-        <Storyboard x:Key="HideDownloaderSb">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="DownloaderGrid">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CubicEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
-        <Storyboard x:Key="SettingPopupShowSb">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SeetingsPopupGrid">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="SeetingsPopupGrid">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0.9"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="SeetingsPopupGrid">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0.9"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="1">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
     </Window.Resources>
-    <Grid  Background="Transparent">
+    <Grid x:Name="LayoutRoot"  Background="Transparent">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="DownloadPanelStateGroup">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0:0:0.5">
+                        <VisualTransition.GeneratedEasingFunction>
+                            <CircleEase EasingMode="EaseOut"/>
+                        </VisualTransition.GeneratedEasingFunction>
+                    </VisualTransition>
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="HideDownloadPanelState"/>
+                <VisualState x:Name="ShowDownloadPanelState">
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="DownloaderGrid">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="220"/>
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="72"/>
             <RowDefinition/>
@@ -189,13 +163,40 @@
                                 <Border.Effect>
                                     <DropShadowEffect ShadowDepth="1" BlurRadius="11" Opacity="0.63"/>
                                 </Border.Effect>
-                                <Grid Margin="8" Height="172" Width="174"/>
+                                <StackPanel Margin="8" Width="192">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="7*"/>
+                                            <ColumnDefinition Width="21*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Image Source="Assets/m-icon.ico" Stretch="Fill" Width="32" Height="32"/>
+                                        <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" FontSize="14"><Run Text="MoeLoader "/><Run Text="P"/></TextBlock>
+                                    </Grid>
+                                    <Rectangle Opacity="0.5" Margin="8,2">
+                                        <Rectangle.Effect>
+                                            <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.8"/>
+                                        </Rectangle.Effect>
+                                        <Rectangle.Stroke>
+                                            <LinearGradientBrush EndPoint="0,0.5" MappingMode="RelativeToBoundingBox" StartPoint="1,0.5">
+                                                <GradientStop Color="#FF484848" Offset="0"/>
+                                                <GradientStop Color="#FF484848" Offset="1"/>
+                                                <GradientStop Color="Black" Offset="0.483"/>
+                                            </LinearGradientBrush>
+                                        </Rectangle.Stroke>
+                                    </Rectangle>
+                                    <TextBlock x:Name="AboutVersionTextBlock" TextWrapping="Wrap" Text="版本" Margin="8,2,8,0"/>
+                                    <StackPanel x:Name="NewVersionPanel" Margin="0,4,0,0" Background="#FFFFDEDE">
+                                        <TextBlock x:Name="NewVersionTextBlock" TextWrapping="Wrap" Text="TextBlock" Foreground="#FF9E0000" Margin="4,4,4,0"/>
+                                        <Button x:Name="NewVersionDownloadButton" Content="前往下载新版" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="4"/>
+                                    </StackPanel>
+                                    <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="MoeLoader"/><Run Text=" "/><Run Text="P"/><Run Text=" "/><Run Text="的诞生离不开"/><Run Text=" "/><Run Text="Moe"/><Run Text=" "/><Run Text="Loader"/><Run Text=" "/><Run Text="开源项目以及以下开发者的贡献：esonic"/><Run Text="、YIU"/></TextBlock>
+                                </StackPanel>
                             </Border>
                         </Grid>
                     </Popup>
                 </Grid>
             </StackPanel>
-            <Image x:Name="LogoImage" Source="Assets/logo.png" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,4"/>
+            <Image x:Name="LogoImage" Source="Assets/banner.png" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,4"/>
         </Grid>
         <Grid
                         x:Name="ContentGrid" Grid.Row="1">

@@ -7,6 +7,9 @@ using Newtonsoft.Json.Linq;
 
 namespace MoeLoader.Core.Sites
 {
+    /// <summary>
+    /// B站画友、摄影 Fixed 20180922
+    /// </summary>
     public class Bilibili : MoeSite
     {
         public override string HomeUrl => $"https://h.bilibili.com/{Cat}";

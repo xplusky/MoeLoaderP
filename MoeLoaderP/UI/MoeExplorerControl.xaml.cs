@@ -12,11 +12,13 @@ using MoeLoader.Core;
 
 namespace MoeLoader.UI
 {
+    /// <summary>
+    /// 图片列表浏览器
+    /// </summary>
     public partial class MoeExplorerControl
     {
         public List<ImageControl> ImageLoadingPool { get; set; } = new List<ImageControl>();
         public List<ImageControl> ImageWaitForLoadingPool { get; set; } = new List<ImageControl>();
-        public List<Task> DownloadsTasks { get; set; }
         public Settings Settings { get; set; }
         public bool IsLoading => ImageLoadingPool.Count != 0;
         public event Action<ImageItem, ImageSource> ImageItemDownloadButtonClicked;

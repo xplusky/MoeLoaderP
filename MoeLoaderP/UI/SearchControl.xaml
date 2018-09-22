@@ -216,7 +216,7 @@
         </Button>
         <Grid Height="32">
             <CheckBox x:Name="SearchParaCheckBox" Template="{DynamicResource SearchParaCheckBoxControlTemplate}" Margin="4,0,0,0" Height="32" Width="68" SnapsToDevicePixels="True">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" d:IsLocked="True">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Margin="0,2,0,0" ><Run Text="&#xf0b0;"/></TextBlock>
                     <TextBlock TextWrapping="Wrap" Text="参数" FontSize="14" Margin="4,0,0,0"/>
                 </StackPanel>
@@ -255,8 +255,20 @@
                                     <ui:CountAdjustableBoxControl x:Name="FilterMinHeightBox" NumCount="768" MinCount="1" MaxCount="10000" Grid.Column="1" Margin="2" Height="26" IsEnabled="{Binding IsChecked, ElementName=FilterResolutionCheckBox}"  />
                                 </Grid>
                             </StackPanel>
+                            <Grid Margin="0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="OrientationComboBox" Grid.Column="1" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Height="26" Margin="0,0,2,0" SelectedIndex="0">
+                                    <ComboBoxItem Content="任意"/>
+                                    <ComboBoxItem Content="横向"/>
+                                    <ComboBoxItem Content="纵向"/>
+                                </ComboBox>
+                                <TextBlock TextWrapping="Wrap" Text="图片方向" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
+                            </Grid>
                             <CheckBox x:Name="FilterFileTypeCheckBox" Content="过滤指定文件类型" Margin="0,6,0,0"/>
-                            <TextBox x:Name="FilterFileTypeTextBox" TextWrapping="Wrap" Text="gif;bmp" Height="24" IsEnabled="{Binding IsChecked, ElementName=FilterFileTypeCheckBox}" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Margin="2"/>
+                            <TextBox x:Name="FilterFileTypeTextBox" TextWrapping="Wrap" Text="gif;bmp" Height="24" IsEnabled="{Binding IsChecked, ElementName=FilterFileTypeCheckBox}" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Margin="2" ToolTip="输入不带点&quot;.&quot;的扩展名，用半角分号&quot;;&quot;分隔不同后缀"/>
                         </StackPanel>
                     </Border>
                 </Grid>

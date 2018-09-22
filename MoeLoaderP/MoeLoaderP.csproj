@@ -18,20 +18,30 @@
     <Utf8Output>true</Utf8Output>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <PublishUrl>D:\Code\GitHub\xplusky\app-store\trunk\moeloaderp-publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <InstallUrl>https://raw.githubusercontent.com/xplusky/app-store/master/moeloaderp-publish/</InstallUrl>
+    <SupportUrl>http://leaful.com/moeloader-p</SupportUrl>
+    <ProductName>MoeLoader P</ProductName>
+    <PublisherName>leaful.com</PublisherName>
+    <SuiteName>MoeLoader P</SuiteName>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
+    <WebPage>publish.htm</WebPage>
+    <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
+    <ApplicationRevision>10</ApplicationRevision>
+    <ApplicationVersion>9.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -56,7 +66,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Assets\m.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\m-icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <PlatformTarget>x86</PlatformTarget>
@@ -80,7 +90,7 @@
     <TargetZone>Custom</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>false</GenerateManifests>
+    <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -104,6 +114,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -133,6 +146,9 @@
     <Compile Include="Core\Sites\Bilibili.cs" />
     <Compile Include="Core\Sites\BooruSites.cs" />
     <Compile Include="Core\Sites\BooruSite.cs" />
+    <Compile Include="Core\Sites\Eshuushuu.cs" />
+    <Compile Include="Core\Sites\Kawaiinyan.cs" />
+    <Compile Include="Core\Sites\Minitokyo.cs" />
     <Compile Include="Core\Sites\Sankaku.cs" />
     <Compile Include="PreviewWindow.xaml.cs">
       <DependentUpon>PreviewWindow.xaml</DependentUpon>
@@ -146,7 +162,7 @@
       <DependentUpon>MoeExplorerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\Sites\MoeSite.cs" />
-    <Compile Include="Core\AppRes.cs" />
+    <Compile Include="Core\Res.cs" />
     <Compile Include="Core\Converters.cs" />
     <Compile Include="Core\Extend.cs" />
     <Compile Include="Core\ImageItem.cs" />
@@ -155,17 +171,11 @@
       <DependentUpon>SearchControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\SiteManager.cs" />
-    <Compile Include="Core\Site\SiteBooru.cs" />
-    <Compile Include="Core\Site\SiteEshuu.cs" />
-    <Compile Include="Core\Site\SiteKawaiinyan.cs" />
-    <Compile Include="Core\Site\SiteMiniTokyo.cs" />
-    <Compile Include="Core\Site\SiteMjvArt.cs" />
-    <Compile Include="Core\Site\SitePixiv.cs" />
-    <Compile Include="Core\Site\SiteRule34.cs" />
-    <Compile Include="Core\Site\SiteSankaku.cs" />
-    <Compile Include="Core\Site\SiteWCosplay.cs" />
-    <Compile Include="Core\Site\SiteYuriimg.cs" />
-    <Compile Include="Core\Site\SiteZeroChan.cs" />
+    <Compile Include="Core\Sites\SiteMjvArt.cs" />
+    <Compile Include="Core\Sites\SitePixiv.cs" />
+    <Compile Include="Core\Sites\SiteWCosplay.cs" />
+    <Compile Include="Core\Sites\SiteYuriimg.cs" />
+    <Compile Include="Core\Sites\SiteZeroChan.cs" />
     <Compile Include="MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
@@ -324,7 +334,7 @@
       <Version>1.8.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client">
-      <Version>5.2.3</Version>
+      <Version>5.2.6</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
@@ -340,10 +350,17 @@
     <Resource Include="Assets\fa-solid-900.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\logo.png" />
+    <Resource Include="Assets\SiteIcon\bilibili.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\SiteIcon\bilibili.ico" />
+    <Resource Include="Assets\m-icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\banner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\app.manifest" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

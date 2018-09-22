@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -55,8 +56,7 @@ namespace MoeLoader
         private void DownloaderMenuCheckBoxCheckChanged(object sender, RoutedEventArgs e)
         {
             var ischecked = DownloaderMenuCheckBox.IsChecked == true;
-            DownloaderMenuCheckBox.ToolTip = ischecked ? "隐藏下载面板" : "显示下载面板";
-            this.Sb(ischecked ? "ShowDownloaderSb" : "HideDownloaderSb").Begin();
+            VisualStateManager.GoToElementState(LayoutRoot, ischecked ? nameof(ShowDownloadPanelState) : nameof(HideDownloadPanelState), true);
         }
 
         private void DownloadSelectedImagesButtonOnClick(object sender, RoutedEventArgs e)
@@ -73,24 +73,23 @@ namespace MoeLoader
             if (Keyboard.IsKeyDown(Key.LeftCtrl)) ImageSizeSlider.Value += e.Delta;
         }
 
-        private void MoeExlorerOnContextMenuTagButtonClicked(ImageItem arg1, string arg2)
+        private void MoeExlorerOnContextMenuTagButtonClicked(ImageItem item, string str)
         {
-            SearchControl.KeywordComboBox.KeywordText = arg2;
+            SearchControl.KeywordComboBox.KeywordText = str;
         }
-
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
+            NewVersionPanel.Visibility = Visibility.Collapsed;
             try
             {
                 await CheckUpdateAsync();
             }
             catch (Exception ex)
             {
-                Extend.Log("Updater.CheckUpdateAsync() Fail", ex);
+                App.Log("Updater.CheckUpdateAsync() Fail", ex);
             }
         }
-
 
         private void ImageSizeSliderOnMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -171,7 +170,7 @@ namespace MoeLoader
         {
             Settings.Save();
             if (!MoeDownloaderControl.IsDownloading) return;
-            var result = MessageBox.Show("正在下载图片，确定要关闭程序吗？", AppRes.AppDisplayName, MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            var result = MessageBox.Show("正在下载图片，确定要关闭程序吗？", Res.AppDisplayName, MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.Cancel) e.Cancel = true;
             else MoeDownloaderControl.StopAll();
         }
@@ -230,11 +229,15 @@ namespace MoeLoader
         public async Task CheckUpdateAsync()
         {
             var htpp = new HttpClient();
-            var upjson = await htpp.GetStringAsync(new Uri(AppRes.AppSaeUrl + "update.json", UriKind.Absolute));
+            var upjson = await htpp.GetStringAsync(new Uri(Res.AppSaeUrl + "update.json", UriKind.Absolute));
             dynamic upobject = JsonConvert.DeserializeObject(upjson);
-            if (Version.Parse($"{upobject?.NetVersion}") > AppRes.AppVersion)
+            if(upobject==null)return;
+            if (Version.Parse($"{upobject.NetVersion}") > Res.AppVersion)
             {
-                ShowPopupMessage($"MoeLoader +1s 新版提示：{upobject?.NetVersion}({upobject?.RealeseDate})；更新内容：{upobject?.RealeseNotes}；更新请点“关于”按钮");
+                ShowPopupMessage($"MoeLoader +1s 新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}；更新请点“关于”按钮");
+                NewVersionTextBlock.Text = $"新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}";
+                NewVersionPanel.Visibility = Visibility.Visible;
+                NewVersionDownloadButton.Click += (sender, args) => Process.Start($"{upobject.UpdateUrl}");
             }
         }
     }

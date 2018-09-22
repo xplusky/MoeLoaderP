@@ -46,6 +46,7 @@ namespace MoeLoader.Core.Sites
 
         public int Lv3ListIndex { get; set; }
 
+        public virtual MoeNet Net { get; set; }
 
         /// <summary>
         /// 获取页面的源代码，例如HTML（已过时）

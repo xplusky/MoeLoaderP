@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -32,7 +31,10 @@ namespace MoeLoader.Core
             CurrentSearchCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
             var t = SearchNextPageAsync();
             try { await t; }
-            catch { }
+            catch
+            {
+                // ignored
+            }
             CurrentSearchCts = null;
             return t;
         }
@@ -42,7 +44,7 @@ namespace MoeLoader.Core
         /// </summary>
         public async Task SearchNextPageAsync()
         {
-            var cts = CurrentSearchCts;
+            var token = CurrentSearchCts.Token;
             var mpage = new SearchedPage(); // 建立虚拟页信息
             ImageItems images;
             SearchPara temppara;
@@ -50,7 +52,7 @@ namespace MoeLoader.Core
             {
                 temppara = CurrentSearchPara.Clone(); // 浅复制一份参数
                 mpage.LastRealPageIndex = temppara.PageIndex;
-                // 搜索起始页的所有图片（若网站查询参数支持条件过滤，则自动过滤）
+                // 搜索起始页的所有图片（若网站查询参数支持条件过滤，则在搜索时就自动过滤）
                 SearchStatusChanged?.Invoke(this, $"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
                 images = await temppara.Site.GetRealPageImagesAsync(temppara);
             }
@@ -77,7 +79,7 @@ namespace MoeLoader.Core
             var startTime = DateTime.Now;
             while (images.Count < temppara.Count) // 当images数量不够搜索参数数量时
             {
-                cts.Token.ThrowIfCancellationRequested();
+                token.ThrowIfCancellationRequested();
                 if (DateTime.Now - startTime > TimeSpan.FromSeconds(20)) break; // loop超时跳出循环（即使不够也跳出）
 
                 temppara.PageIndex++; // 设置新搜索参数为下一页（真）
@@ -101,13 +103,17 @@ namespace MoeLoader.Core
                     if (images.Count >= temppara.Count) break; // 数量已够参数数量，当前虚拟页完成任务
                 }
             }
-            cts.Token.ThrowIfCancellationRequested();
+            token.ThrowIfCancellationRequested();
             // Loadok
             mpage.ImageItems = images;
             LoadedPages.Add(mpage);
             SearchStatusChanged?.Invoke(this, "搜索完毕");
         }
 
+        /// <summary>
+        /// 本地过滤图片
+        /// </summary>
+        /// <param name="items"></param>
         public void Filter(ImageItems items)
         {
             for (var i = 0; i < items.Count; i++)
@@ -120,9 +126,29 @@ namespace MoeLoader.Core
                     if ((!Settings.IsXMode || !CurrentSearchPara.IsShowExplicit) && item.IsExplicit) del = true;
                     if (Settings.IsXMode && CurrentSearchPara.IsShowExplicitOnly && item.IsExplicit == false) del = true;
                 }
-                if (state.IsSupportResolution)
+                if (state.IsSupportResolution && CurrentSearchPara.IsFilterResolution)
                 {
                     if (item.Width < CurrentSearchPara.MinWidth || item.Height < CurrentSearchPara.MinHeight) del = true;
+                }
+                if (state.IsSupportResolution)
+                {
+                    switch (CurrentSearchPara.Orientation)
+                    {
+                        case ImageOrientation.Landscape:
+                            if (item.Height >= item.Width) del = true;
+                            break;
+                        case ImageOrientation.Portrait:
+                            if (item.Height <= item.Width) del = true;
+                            break;
+                    }
+                }
+                if (CurrentSearchPara.IsFilterFileType)
+                {
+                    foreach (var s in CurrentSearchPara.FilterFileTpyeText.Split(';'))
+                    {
+                        if (string.IsNullOrWhiteSpace(s)) continue;
+                        if (string.Equals(item.ImageFileType, s, StringComparison.CurrentCultureIgnoreCase)) del = true;
+                    }
                 }
                 if (!del) continue;
                 items.RemoveAt(i);
@@ -136,7 +162,6 @@ namespace MoeLoader.Core
             CurrentSearchCts = null;
         }
 
-        
     }
 
     /// <summary>
@@ -172,9 +197,18 @@ namespace MoeLoader.Core
         public bool IsFilterFileType { get; set; }
         public string FilterFileTpyeText { get; set; }
 
+        public ImageOrientation Orientation { get; set; } = ImageOrientation.None;
+
         public SearchPara Clone()
         {
             return (SearchPara) MemberwiseClone();
         }
+    }
+
+    public enum ImageOrientation
+    {
+        None = 0,
+        Landscape = 1,
+        Portrait = 2
     }
 }

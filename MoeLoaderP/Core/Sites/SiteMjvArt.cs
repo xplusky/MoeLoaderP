@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using MoeLoader.Core.Sites;
 
-namespace MoeLoader.Core.Site
+namespace MoeLoader.Core.Sites
 {
     public class SiteMjvArt : MoeSite
     {

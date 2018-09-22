@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("MoeLoader +1s")]
 [assembly: AssemblyDescription("MoeLoader +1s")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("esonic, Moekai, plusky")]
+[assembly: AssemblyCompany("leaful.com")]
 [assembly: AssemblyProduct("MoeLoader +1s")]
-[assembly: AssemblyCopyright("Copyright© esonic 2013, Moekai 2016-2018, plusky 2018")]
+[assembly: AssemblyCopyright("© leaful.com 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,6 +51,6 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("9.0.2.0")]
-[assembly: AssemblyFileVersion("9.0.2.0")]
+[assembly: AssemblyVersion("9.0.1.0")]
+[assembly: AssemblyFileVersion("9.0.1.0")]
 [assembly: Guid("8745D9BE-87F2-4425-9748-AAA4BCC232A3")]

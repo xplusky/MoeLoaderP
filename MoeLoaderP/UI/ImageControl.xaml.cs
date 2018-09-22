@@ -85,7 +85,7 @@ namespace MoeLoader.UI
                     }
                     catch (Exception ex)
                     {
-                        Extend.Log(ex);
+                        App.Log(ex);
                         return null;
                     }
                 }, cts.Token);
@@ -106,7 +106,7 @@ namespace MoeLoader.UI
                 //PreviewImage.Source = source;
                 //Extend.Log(e.GetType(), e);
                 this.Sb("LoadFailSb").Begin();
-                Extend.Log(ex);
+                App.Log(ex);
             }
             
             // Loaded

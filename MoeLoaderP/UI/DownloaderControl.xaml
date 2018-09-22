@@ -51,109 +51,107 @@
                     <Border.Effect>
                         <DropShadowEffect ShadowDepth="1" BlurRadius="11" Opacity="0.63"/>
                     </Border.Effect>
-                    <Grid Margin="4" Width="147">
-                        <StackPanel>
-                            <Button x:Name="OpenFolderButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xf07c;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"><Run Text="打开"/><Run Text="文件"/><Run Text="位置"/></TextBlock>
+                    <StackPanel Margin="4" Width="158">
+                        <Button x:Name="OpenFolderButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22" d:IsLocked="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="&#xF07C;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"><Run Text="打开"/><Run Text="文件"/><Run Text="位置"/></TextBlock>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="SelectAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22" d:IsLocked="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="&#xF0CA;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock TextWrapping="Wrap" Text="全选" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="StartButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22" d:IsLocked="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="&#xF04B;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock TextWrapping="Wrap" Text="开始" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="StopButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22" d:IsLocked="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="&#xF04D;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock TextWrapping="Wrap" Text="停止" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="DeleteButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="&#xF1F8;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock TextWrapping="Wrap" Text="删除" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="RetryButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="&#xF0E2;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock TextWrapping="Wrap" Text="重试" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="StartAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="全部开始" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                <Grid>
+                                    <TextBlock TextWrapping="Wrap" Text="&#xF04B;" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,7" FontFamily="{DynamicResource FontAwesomeSolid}"/>
+                                    <TextBlock TextWrapping="Wrap" Text="ALL" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8" Margin="0,12,0,0"/>
                                 </Grid>
-                            </Button>
-                            <Button x:Name="SelectAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xF0CA;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock TextWrapping="Wrap" Text="全选" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="StopAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="全部停止" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                <Grid>
+                                    <TextBlock TextWrapping="Wrap" Text="&#xF04D;" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,7" FontFamily="{DynamicResource FontAwesomeSolid}"/>
+                                    <TextBlock TextWrapping="Wrap" Text="ALL" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8" Margin="0,12,0,0"/>
                                 </Grid>
-                            </Button>
-                            <Button x:Name="StartButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xF04B;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock TextWrapping="Wrap" Text="开始" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </Grid>
+                        </Button>
+                        <Button x:Name="DeleteAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                            <Grid Height="22">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"><Run Text="删除"/><Run Text="全部"/><Run Text="已完成"/></TextBlock>
+                                <Grid>
+                                    <TextBlock TextWrapping="Wrap" Text="&#xF1F8;" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,7" FontFamily="{DynamicResource FontAwesomeSolid}"/>
+                                    <TextBlock TextWrapping="Wrap" Text="ALL" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8" Margin="0,12,0,0"/>
                                 </Grid>
-                            </Button>
-                            <Button x:Name="StopButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xF04D;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock TextWrapping="Wrap" Text="停止" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                </Grid>
-                            </Button>
-                            <Button x:Name="DeleteButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xF1F8;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock TextWrapping="Wrap" Text="删除" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                </Grid>
-                            </Button>
-                            <Button x:Name="RetryButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="&#xF0E2;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock TextWrapping="Wrap" Text="重试" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                </Grid>
-                            </Button>
-                            <Button x:Name="StartAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="全部开始" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                    <Grid>
-                                        <TextBlock TextWrapping="Wrap" Text="&#xF04B;" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,7" FontFamily="{DynamicResource FontAwesomeSolid}"/>
-                                        <TextBlock TextWrapping="Wrap" Text="ALL" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8" Margin="0,12,0,0"/>
-                                    </Grid>
-                                </Grid>
-                            </Button>
-                            <Button x:Name="StopAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Text="全部停止" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                    <Grid>
-                                        <TextBlock TextWrapping="Wrap" Text="&#xF04D;" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,7" FontFamily="{DynamicResource FontAwesomeSolid}"/>
-                                        <TextBlock TextWrapping="Wrap" Text="ALL" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8" Margin="0,12,0,0"/>
-                                    </Grid>
-                                </Grid>
-                            </Button>
-                            <Button x:Name="DeleteAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
-                                <Grid Height="22">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="22"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"><Run Text="删除"/><Run Text="全部"/><Run Text="已完成"/></TextBlock>
-                                    <Grid>
-                                        <TextBlock TextWrapping="Wrap" Text="&#xF1F8;" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,7" FontFamily="{DynamicResource FontAwesomeSolid}"/>
-                                        <TextBlock TextWrapping="Wrap" Text="ALL" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="8" Margin="0,12,0,0"/>
-                                    </Grid>
-                                </Grid>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
+                            </Grid>
+                        </Button>
+                    </StackPanel>
                 </Border>
             </Grid>
         </Popup>

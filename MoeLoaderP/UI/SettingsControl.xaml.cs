@@ -8,19 +8,13 @@ using MoeLoader.Core;
 
 namespace MoeLoader.UI
 {
-    /// <summary>
-    /// SettingsControl.xaml 的交互逻辑
-    /// </summary>
-    public partial class SettingsControl : UserControl
+    public partial class SettingsControl
     {
         private Settings Settings { get; set; }
 
         public SettingsControl()
         {
             InitializeComponent();
-
-            FileNamePatternTextBox.ToolTip = "【以下必须是小写英文】\r\n%site 站点名\r\n%id 编号\r\n%tag 标签\r\n%desc 描述\r\n%author 作者名\r\n%date 上载时间\r\n%imgp[3] 图册页数[页数总长度(补0)]\r\n\r\n" +
-                                             "<!< 裁剪符号【注意裁剪符号 <!< 只能有一个】\r\n表示从 <!< 左边所有名称进行过长裁剪、避免路径过长问题\r\n建议把裁剪符号写在 标签%tag 或 描述%desc 后面";
 
             FNRsite.Click += FileNameFormatButtonOnClick;
             FNRid.Click += FileNameFormatButtonOnClick;
@@ -111,20 +105,10 @@ namespace MoeLoader.UI
 
         public bool VerifyFileNamePattern()
         {
-            if (FileNamePatternTextBox.Text.Trim().Length > 0)
-            {
-                foreach (char rInvalidChar in System.IO.Path.GetInvalidFileNameChars())
-                {
-                    if (!rInvalidChar.Equals('<') && FileNamePatternTextBox.Text.Contains(rInvalidChar.ToString()))
-                    {
-                        MessageBox.Show( "文件命名格式不正确，不能含有 \\ / : * ? \" > | 等路径不支持的字符",
-                            AppRes.AppDisplayName, MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+            if (FileNamePatternTextBox.Text.Trim().Length <= 0) return true;
+            if (!Path.GetInvalidFileNameChars().Any(rInvalidChar => !rInvalidChar.Equals('<') && FileNamePatternTextBox.Text.Contains(rInvalidChar.ToString()))) return true;
+            MessageBox.Show( "文件命名格式不正确，不能含有 \\ / : * ? \" > | 等路径不支持的字符",Res.AppDisplayName, MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
         }
 
         
@@ -134,22 +118,16 @@ namespace MoeLoader.UI
         private void FileNameFormatButtonOnClick(object sender, RoutedEventArgs e)
         {
             var btn = (Button)sender;
-            string format = btn.Content.ToString();
-            int selectstart = FileNamePatternTextBox.SelectionStart;
+            var format = btn.Content.ToString();
+            var selectstart = FileNamePatternTextBox.SelectionStart;
 
             if (string.IsNullOrWhiteSpace(FileNamePatternTextBox.SelectedText))
             {
-                if (format.Contains("imgp"))
-                    FileNamePatternTextBox.Text = FileNamePatternTextBox.Text.Insert(selectstart, format.Replace("n", "3"));
-                else
-                    FileNamePatternTextBox.Text = FileNamePatternTextBox.Text.Insert(selectstart, format);
+                FileNamePatternTextBox.Text = FileNamePatternTextBox.Text.Insert(selectstart, format.Contains("imgp") ? format.Replace("n", "3") : format);
             }
             else
             {
-                if (format.Contains("imgp"))
-                    FileNamePatternTextBox.SelectedText = format.Replace("n", "3");
-                else
-                    FileNamePatternTextBox.SelectedText = format;
+                FileNamePatternTextBox.SelectedText = format.Contains("imgp") ? format.Replace("n", "3") : format;
                 FileNamePatternTextBox.SelectionLength = 0;
             }
             FileNamePatternTextBox.SelectionStart = selectstart + format.Length;

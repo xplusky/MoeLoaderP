@@ -15,7 +15,6 @@ namespace MoeLoader.UI
         public Settings Settings { get; set; }
         public AutoHintItems HintItems { get; set; } = new AutoHintItems();
         
-
         public SearchControl()
         {
             InitializeComponent();
@@ -147,7 +146,7 @@ namespace MoeLoader.UI
                     }
                     AddHistoryItems();
                 }
-                Extend.Log($"AutoPredict 搜索完成 结果个数{list.Count}");
+                App.Log($"AutoPredict 搜索完成 结果个数{list.Count}");
                 
             }
             catch (TaskCanceledException) // 任务取消
@@ -156,7 +155,7 @@ namespace MoeLoader.UI
             }
             catch (Exception e)
             {
-                Extend.Log(e.Message);
+                App.Log(e.Message);
             }
 
             this.Sb("SearchingSpinSb").Stop();
@@ -187,7 +186,9 @@ namespace MoeLoader.UI
                 IsFilterResolution = FilterResolutionCheckBox.IsChecked == true,
                 MinWidth = FilterMinWidthBox.NumCount,
                 MinHeight = FilterMinHeightBox.NumCount,
-                
+                Orientation = (ImageOrientation) OrientationComboBox.SelectedIndex,
+                IsFilterFileType = FilterFileTypeCheckBox.IsChecked == true,
+                FilterFileTpyeText = FilterFileTypeTextBox.Text
             };
             return para;
         }

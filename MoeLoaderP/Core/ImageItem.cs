@@ -2,24 +2,22 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows;
 using MoeLoader.Core.Sites;
 
 namespace MoeLoader.Core
 {
-    public class ImageItems : ObservableCollection<ImageItem> { }
-
     /// <summary>
-    /// 表示一张图片及其相关信息
+    /// 表示一张图片（或一组图片）及其相关信息
     /// </summary>
     public class ImageItem : NotifyBase
     {
         public MoeSite Site { get; set; }
+
+        public MoeNet Net { get; set; }
+
+        public string Referer { get; set; }
 
         /// <summary>
         /// 原图地址
@@ -141,12 +139,14 @@ namespace MoeLoader.Core
         /// <summary>
         /// 作品作者
         /// </summary>
-        public string Author { get; set; } = "UnkwnAuthor";
+        public string Author { get; set; } = "UnknownAuthor";
         
         /// <summary>
         /// 不对下载的图标进行完整性验证（对于无法获取原文件大小的站点）
         /// </summary>
         public bool NoVerify { get; set; }
+
+        public string Md5 { get; set; }
 
         /// <summary>
         /// 若图片的某些信息需要单独获取（例如原图URL可能位于第二层页面），则实现该接口，将网络操作、提取信息操作置于此处
@@ -162,4 +162,6 @@ namespace MoeLoader.Core
             if(GetDetailAction!=null) await Task.Run(GetDetailAction);
         }
     }
+
+    public class ImageItems : ObservableCollection<ImageItem> { }
 }

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// Booru 引擎站点基类 Fixed 20180917
+    /// Booru 引擎站点基类 Fixed 20180922
     /// </summary>
     public abstract class BooruSite : MoeSite
     {
@@ -17,13 +17,7 @@ namespace MoeLoader.Core.Sites
         public virtual SiteTypeEnum SiteType => SiteTypeEnum.Xml;
 
         public abstract string GetHintQuery(SearchPara para);
-
-        public virtual bool NeedLogin => false;
-
-        public bool IsLogin { get; set; } = false;
-
-        public virtual Task LoginAsync() => null;
-
+        
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var list = new AutoHintItems();
@@ -69,11 +63,6 @@ namespace MoeLoader.Core.Sites
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
         {
-            if (NeedLogin)
-            {
-                if (!IsLogin) await LoginAsync();
-                if (!IsLogin) return null;
-            }
             switch (SiteType)
             {
                 case SiteTypeEnum.Xml: return await GetRealPageImagesAsyncFromXml(para);
@@ -84,6 +73,7 @@ namespace MoeLoader.Core.Sites
 
         public async Task<ImageItems> GetRealPageImagesAsyncFromXml(SearchPara para)
         {
+            
             var client = new MoeNet(Settings).Client;
             var query = GetPageQuery(para);
             var xmlstr = await client.GetStreamAsync(query);
@@ -121,6 +111,8 @@ namespace MoeLoader.Core.Sites
                     if (creatat > 0) img.CreatTime = new DateTime(1970, 1, 1, 0, 0, 0, 0) + TimeSpan.FromSeconds(creatat);
                     int.TryParse(post.Attribute("score")?.Value, out var score);
                     img.Score = score;
+                    img.Referer = img.DetailUrl;
+
                     imageitems.Add(img);
                 }
                 return imageitems;

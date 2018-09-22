@@ -112,8 +112,8 @@ namespace MoeLoader.Core
                     var hchandler = new HttpClientHandler();
                     var progressHandler = new ProgressMessageHandler(hchandler);
                     var client = new HttpClient(progressHandler);
-                    // todo referer
-                    if (ImageItem.Site.Referer != null) client.DefaultRequestHeaders.Referrer = new Uri(ImageItem.Site.Referer);
+
+                    if (ImageItem.Referer != null) client.DefaultRequestHeaders.Referrer = new Uri(ImageItem.Referer);
                     progressHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
 
                     DownloadStatus = DownloadStatusEnum.Downloading;
@@ -123,7 +123,7 @@ namespace MoeLoader.Core
                     {
                         await fs.WriteAsync(bytes, 0, bytes.Length, token);
                     }
-                    Extend.Log("download ok");
+                    App.Log("download ok");
                     DownloadStatus = DownloadStatusEnum.Success;
                 }
                 catch (TaskCanceledException)
@@ -133,7 +133,7 @@ namespace MoeLoader.Core
                 }
                 catch (Exception ex)
                 {
-                    Extend.Log(ex);
+                    App.Log(ex);
                     DownloadStatus = DownloadStatusEnum.Failed;
                     CurrentDownloadTaskCts = null;
                 }

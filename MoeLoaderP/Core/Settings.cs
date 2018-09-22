@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace MoeLoader.Core
 {
+    /// <inheritdoc />
     /// <summary>
     /// 用于存储设置、绑定及运行时参数传递
     /// </summary>
@@ -52,20 +53,13 @@ namespace MoeLoader.Core
             set => SetField(ref _mainWindowLeft, value, nameof(MainWindowLeft));
         }
 
-        private string _imageSavePath = AppRes.MoePicFolder;
+        private string _imageSavePath = Res.MoePicFolder;
         public string ImageSavePath
         {
             get => _imageSavePath;
             set => SetField(ref _imageSavePath, value, nameof(ImageSavePath));
         }
         
-        private bool _isSaveFolderSeparateByTag;
-        public bool IsSaveFolderSeparateByTag
-        {
-            get => _isSaveFolderSeparateByTag;
-            set => SetField(ref _isSaveFolderSeparateByTag, value, nameof(IsSaveFolderSeparateByTag));
-        }
-
         private string _saveFileNameFormat= "%origin";
 
         public string SaveFileNameFormat
@@ -180,10 +174,11 @@ namespace MoeLoader.Core
             }
         }
 
+        
         public void Save()
         {
             var json = JsonConvert.SerializeObject(this);
-            File.WriteAllText(AppRes.AppSettingJsonFilePath, json);
+            File.WriteAllText(Res.AppSettingJsonFilePath, json);
         }
 
         public static Settings Load()
@@ -191,9 +186,9 @@ namespace MoeLoader.Core
             Settings settings;
             try
             {
-                if (File.Exists(AppRes.AppSettingJsonFilePath))
+                if (File.Exists(Res.AppSettingJsonFilePath))
                 {
-                    var json = File.ReadAllText(AppRes.AppSettingJsonFilePath);
+                    var json = File.ReadAllText(Res.AppSettingJsonFilePath);
                     settings = JsonConvert.DeserializeObject<Settings>(json);
                 }
                 else
@@ -204,13 +199,14 @@ namespace MoeLoader.Core
             catch (Exception ex)
             {
                 MessageBox.Show("设置读取失败，将读取默认设置");
-                Extend.Log(ex);
+                App.Log(ex);
                 settings = new Settings();
             }
             return settings;
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// 提供绑定所需的通知接口
     /// </summary>

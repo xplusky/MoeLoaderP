@@ -23,6 +23,77 @@ namespace MoeLoader.UI
             DownloadItemsListBox.ItemsSource = DownloadItems;
             DownloadItemsListBox.MouseRightButtonUp += DownloadItemsListBoxOnMouseRightButtonUp;
             OpenFolderButton.Click += OpenFolderButtonOnClick;
+            DeleteAllButton.Click += DeleteAllButtonOnClick;
+            DeleteButton.Click += DeleteButtonOnClick;
+            StopButton.Click += StopButtonOnClick;
+            StartButton.Click += StartButtonOnClick;
+            SelectAllButton.Click += SelectAllButtonOnClick;
+        }
+
+        private void SelectAllButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            DownloadItemsListBox.SelectAll();
+        }
+
+        private void StartButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            for (var i = 0; i < DownloadItemsListBox.SelectedItems.Count; i++)
+            {
+                var item = DownloadItemsListBox.SelectedItems[i];
+                var index = DownloadItemsListBox.Items.IndexOf(item);
+                if (index == -1) continue;
+                if (DownloadItems[index].DownloadStatus != DownloadStatusEnum.Downloading &&
+                    DownloadItems[index].DownloadStatus != DownloadStatusEnum.WaitForDownload &&
+                    DownloadItems[index].DownloadStatus != DownloadStatusEnum.Success)
+                {
+                    AddDownload(DownloadItems[index]);
+                    DownloadItems[index].DownloadStatus = DownloadStatusEnum.WaitForDownload;
+                }
+            }
+            ContextMenuPopup.IsOpen = false;
+        }
+
+        private void StopButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            for (var i = 0; i < DownloadItemsListBox.SelectedItems.Count; i++)
+            {
+                var item = DownloadItemsListBox.SelectedItems[i];
+                var index = DownloadItemsListBox.Items.IndexOf(item);
+                if (index == -1) continue;
+                if (DownloadItems[index].DownloadStatus != DownloadStatusEnum.Success)
+                {
+                    DownloadItems[index].CurrentDownloadTaskCts?.Cancel();
+                    DownloadItems[index].DownloadStatus = DownloadStatusEnum.Cancel;
+                }
+            }
+            ContextMenuPopup.IsOpen = false;
+        }
+
+        private void DeleteButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            for (var i = 0; i < DownloadItemsListBox.SelectedItems.Count; i++)
+            {
+                var item = DownloadItemsListBox.SelectedItems[i];
+                var index = DownloadItemsListBox.Items.IndexOf(item);
+                if (index == -1) continue;
+                DownloadItems[index].CurrentDownloadTaskCts?.Cancel();
+                DownloadItems[index].DownloadStatus = DownloadStatusEnum.Cancel;
+                DownloadItems.RemoveAt(index);
+            }
+            ContextMenuPopup.IsOpen = false;
+        }
+
+        private void DeleteAllButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            for (var i = 0; i < DownloadItems.Count; i++)
+            {
+                var item = DownloadItems[i];
+                if (item.DownloadStatus == DownloadStatusEnum.Success)
+                {
+                    DownloadItems.Remove(item);
+                }
+            }
+            ContextMenuPopup.IsOpen = false;
         }
 
         private void OpenFolderButtonOnClick(object sender, RoutedEventArgs e)
@@ -44,6 +115,23 @@ namespace MoeLoader.UI
         public void Init(Settings settings)
         {
             Settings = settings;
+        }
+
+        public void AddDownload(DownloadItem downitem)
+        {
+            downitem.DownloadStatusChanged += di => DownloadStatusChanged();
+            DownloadItems.Add(downitem);
+            //DownloadItemsListBox.Items.Refresh();
+            if (DownloadingItemsPool.Count < Settings.MaxOnDownloadingImageCount)
+            {
+                DownloadingItemsPool.Add(downitem);
+            }
+            else
+            {
+                WaitForDownloadItemsPool.Add(downitem);
+            }
+            DownloadStatusChanged();
+            
         }
 
         public void AddDownload(ImageItem item,ImageSource img)
@@ -70,19 +158,8 @@ namespace MoeLoader.UI
                     downitem.SubItems.Add(downsubitem);
                 }
             }
-            downitem.DownloadStatusChanged += di => DownloadStatusChanged();
-            DownloadItems.Add(downitem);
-            //DownloadItemsListBox.Items.Refresh();
-            if (DownloadingItemsPool.Count < Settings.MaxOnDownloadingImageCount)
-            {
-                DownloadingItemsPool.Add(downitem);
-            }
-            else
-            {
-                WaitForDownloadItemsPool.Add(downitem);
-            }
-            DownloadStatusChanged();
-            var sv = (ScrollViewer) DownloadItemsListBox.Template.FindName("DownloadListScrollViewer", DownloadItemsListBox);
+            AddDownload(downitem);
+            var sv = (ScrollViewer)DownloadItemsListBox.Template.FindName("DownloadListScrollViewer", DownloadItemsListBox);
             sv.ScrollToEnd();
         }
         

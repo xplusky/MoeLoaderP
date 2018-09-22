@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using MoeLoader.Core.Sites;
 
-namespace MoeLoader.Core.Site
+namespace MoeLoader.Core.Sites
 {
     public class SiteWCosplay : MoeSite
     {

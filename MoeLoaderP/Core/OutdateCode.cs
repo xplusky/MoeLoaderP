@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using MoeLoader.Core.Sites;
 
+// 过时代码，逐步移除
 namespace MoeLoader.Core
 {
     /// <summary>
@@ -22,8 +18,7 @@ namespace MoeLoader.Core
     {
         private static CookieContainer m_Cookie = new CookieContainer();
 
-        private static string[] UAs = new string[]
-        {
+        private static string[] UAs = {
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.21 (KHTML, like Gecko) Chrome/53.0.1271.64 Safari/537.21",
             "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36",
             "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_2 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A421",
@@ -33,15 +28,6 @@ namespace MoeLoader.Core
         /// 提供UA
         /// </summary>
         public static string DefUA { get; } = UAs[new Random().Next(0, UAs.Length - 1)];
-
-        /// <summary>
-        /// Cookie集合
-        /// </summary>
-        public CookieContainer CookieContainer
-        {
-            get => m_Cookie;
-            set => m_Cookie = value;
-        }
 
         public MoeSession()
         {
@@ -69,28 +55,6 @@ namespace MoeLoader.Core
         }
         //##############################################################################
         //#############################   GET   #################################################
-        /// <summary>
-        /// Get访问,便捷
-        /// </summary>
-        /// <param name="url">网址</param>
-        /// <param name="proxy">代理</param>
-        /// <param name="pageEncoding">编码</param>
-        /// <returns>网页内容</returns>
-        public string Get(string url, IWebProxy proxy, string pageEncoding)
-        {
-            return Get(url, proxy, pageEncoding, new SessionHeadersCollection());
-        }
-
-        /// <summary>
-        /// Get访问,便捷,默认UTF-8编码
-        /// </summary>
-        /// <param name="url">网址</param>
-        /// <param name="proxy">代理</param>
-        /// <returns>网页内容</returns>
-        public string Get(string url, IWebProxy proxy)
-        {
-            return Get(url, proxy, "UTF-8", new SessionHeadersCollection());
-        }
 
         /// <summary>
         /// Get访问
@@ -183,56 +147,9 @@ namespace MoeLoader.Core
             return GetWebResponse(url, proxy, shc.Timeout, shc);
         }
 
-        /// <summary>
-        /// Create HttpWebRequest
-        /// </summary>
-        /// <param name="url">网址</param>
-        /// <param name="proxy">代理</param>
-        /// <param name="shc">Headers</param>
-        /// <returns>HttpWebRequest</returns>
-        public HttpWebRequest CreateWebRequest(string url, IWebProxy proxy, SessionHeadersCollection shc)
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            try
-            {
-                SetHeader(request, url, proxy, shc);
-
-                request.CookieContainer = m_Cookie;
-                request.ReadWriteTimeout = 20000;
-            }
-            catch { }
-            return request;
-        }
-
         //########################################################################################
 
         //#############################   POST   #################################################
-        /// <summary>
-        /// Post访问,便捷
-        /// </summary>
-        /// <param name="url">网址</param>
-        /// <param name="postData">Post数据</param>
-        /// <param name="proxy">代理</param>
-        /// <param name="pageEncoding">编码</param>
-        public string Post(string url, string postData, IWebProxy proxy, string pageEncoding)
-        {
-            return Post(url, postData, proxy, pageEncoding, new SessionHeadersCollection());
-        }
-
-        /// <summary>
-        /// Post访问,自定义UA
-        /// </summary>
-        /// <param name="url">网址</param>
-        /// <param name="postData">Post数据</param>
-        /// <param name="proxy">代理</param>
-        /// <param name="pageEncoding">编码</param>
-        /// <param name="UA">User-Agent</param>
-        public string Post(string url, string postData, IWebProxy proxy, string pageEncoding, string UA)
-        {
-            SessionHeadersCollection shc = new SessionHeadersCollection();
-            shc.UserAgent = UA;
-            return Post(url, postData, proxy, pageEncoding, shc);
-        }
 
         /// <summary>
         /// Post访问,默认UTF-8编码
@@ -294,24 +211,6 @@ namespace MoeLoader.Core
 
         //########################################################################################
         //#############################   Cookies   #################################################
-        /// <summary>
-        /// 取CookieContainer中所有站点Cookies
-        /// </summary>
-        /// <returns>全部Cookie值</returns>
-        public string GetAllCookies()
-        {
-            return _GetCookieValue(m_Cookie);
-        }
-
-        /// <summary>
-        /// 取CookieContainer中所有站点Cookies 自定CookieContainer
-        /// </summary>
-        /// <param name="cc">CookieContainer</param>
-        /// <returns></returns>
-        public string GetAllCookies(CookieContainer cc)
-        {
-            return _GetCookieValue(cc);
-        }
 
         /// <summary>
         /// 取此CookieContainer中指定站点Cookies
@@ -322,157 +221,6 @@ namespace MoeLoader.Core
         {
             return m_Cookie.GetCookieHeader(new Uri(url));
         }
-
-        /// <summary>
-        /// 取CookieContainer中指定站点Cookies 自定CookieContainer
-        /// </summary>
-        /// <param name="url">域名</param>
-        /// <param name="cc">CookieContainer</param>
-        /// <returns></returns>
-        public string GetURLCookies(string url, CookieContainer cc)
-        {
-            return cc.GetCookieHeader(new Uri(url));
-        }
-
-        /// <summary>
-        /// 取Cookie中键的值 当前访问的网站
-        /// </summary>
-        /// <param name="CookieKey">Cookie键</param>
-        /// <returns>Cookie键对应值</returns>
-        public string GetCookieValue(string CookieKey)
-        {
-            return _GetCookieValue(CookieKey, m_Cookie, 1);
-        }
-
-        /// <summary>
-        /// 写出指定CookieContainer到文件
-        /// </summary>
-        /// <param name="file">文件保存路径</param>
-        /// <param name="cc">CookieContainer</param>
-        public static void WriteCookiesToFile(string file, CookieContainer cc)
-        {
-            using (Stream stream = File.Create(file))
-            {
-                try
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    formatter.Serialize(stream, cc);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(e.Message);
-                }
-            }
-        }
-        /// <summary>
-        /// 写出当前CookieContainer到文件
-        /// </summary>
-        /// <param name="file">文件保存路径</param>
-        public static void WriteCookiesToFile(string file)
-        {
-            WriteCookiesToFile(file, m_Cookie);
-        }
-
-        /// <summary>
-        /// 从文件读入Cookies
-        /// </summary>
-        /// <param name="file">Cookies文件</param>
-        public static void ReadCookiesFromFile(string file)
-        {
-            try
-            {
-                using (Stream stream = File.Open(file, FileMode.Open))
-                {
-                    BinaryFormatter formatter = new BinaryFormatter();
-                    m_Cookie = (CookieContainer)formatter.Deserialize(stream);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        /// <summary>
-        /// 取Cookie中键的值 自定CookieContainer
-        /// </summary>
-        /// <param name="CookieKey">Cookie键</param>
-        /// <param name="cc">Cookie集合对象</param>
-        /// <returns>Cookie键对应值</returns>
-        public string GetCookieValue(string CookieKey, CookieContainer cc)
-        {
-            return _GetCookieValue(CookieKey, cc, 1);
-        }
-
-        /// <summary>
-        /// 私有处理Cookie集合的方法 默认取全部Cookie值
-        /// </summary>
-        /// <param name="cc">Cookie集合对象</param>
-        /// <returns></returns>
-        private static string _GetCookieValue(CookieContainer cc)
-        {
-            return _GetCookieValue("", cc, 0);
-        }
-
-        /// <summary>
-        /// 私有处理Cookie集合的方法
-        /// </summary>
-        /// <param name="CookieKey">Cookie键</param>
-        /// <param name="cc">Cookie集合对象</param>
-        /// <param name="mode">处理方式 0取所有站点全部值 1取指定键的值</param>
-        /// <returns>Cookie对应值</returns>
-        private static string _GetCookieValue(string CookieKey, CookieContainer cc, int mode)
-        {
-            try
-            {
-                List<Cookie> lstCookies = new List<Cookie>();
-                System.Collections.Hashtable table = (System.Collections.Hashtable)cc.GetType().InvokeMember("m_domainTable",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField |
-                    System.Reflection.BindingFlags.Instance, null, cc, new object[] { });
-
-                foreach (object pathList in table.Values)
-                {
-                    System.Collections.SortedList lstCookieCol = (System.Collections.SortedList)pathList.GetType().InvokeMember("m_list",
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField
-                        | System.Reflection.BindingFlags.Instance, null, pathList, new object[] { });
-                    foreach (CookieCollection colCookies in lstCookieCol.Values)
-                        foreach (Cookie c1 in colCookies) lstCookies.Add(c1);
-                }
-
-                string ret = "", uri = "";
-                switch (mode)
-                {
-                    default:
-                        foreach (Cookie cookie in lstCookies)
-                        {
-                            if (uri != cookie.Domain)
-                            {
-                                uri = cookie.Domain;
-                                ret += string.IsNullOrWhiteSpace(ret) ? "" : "$";
-                                ret += uri + ";";
-                            }
-
-                            ret += cookie.Name + "=" + cookie.Value + ";";
-
-                        }
-                        break;
-                    case 1:
-                        var model = lstCookies.Find(p => p.Name == CookieKey);
-                        if (model != null)
-                        {
-                            ret = model.Value;
-                        }
-                        ret = string.Empty;
-                        break;
-                }
-                return ret;
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-        }
-
     }
 
     //########################################################################################
@@ -654,181 +402,7 @@ namespace MoeLoader.Core
         }
 
     }
-
-
-
-
-    /*
-     *  by YIU
-     *  Last 180619
-     */
-    public class DataHelpers
-    {
-        [DllImport("shell32.dll")]
-        public static extern int FindExecutableA(string lpFile, string lpDirectory, StringBuilder lpResult);
-
-        /// <summary>
-        /// 查找字节数组,失败未找到返回-1
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="search"></param>
-        /// <returns></returns>
-        public static int SearchBytes(byte[] bytes, byte[] search)
-        {
-            try
-            {
-                var i = bytes.Select((t, index) =>
-                new { t = t, index = index }).FirstOrDefault(t =>
-                bytes.Skip(t.index).Take(search.Length).SequenceEqual(search)).index;
-                return i;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
-
-        /// <summary> 
-        /// MemoryStream 保存到文件
-        /// </summary> 
-        public static void MemoryStreamToFile(MemoryStream stream, string fileName)
-        {
-            FileStream fs = new FileStream(fileName, FileMode.Create);
-            BinaryWriter bw = new BinaryWriter(fs);
-            bw.Write(stream.ToArray());
-            bw.Close();
-            fs.Close();
-        }
-
-        #region image数据保存
-        public enum ImageFormat { JPG, BMP, PNG, GIF }
-        /// <summary>
-        /// 将图片保存到文件
-        /// </summary>
-        /// <param name="bitmap">BitmapSource</param>
-        /// <param name="format">图像类型</param>
-        /// <param name="fileName">保存文件名</param>
-        public static void ImageToFile(BitmapSource bitmap, ImageFormat format, string fileName)
-        {
-            BitmapEncoder encoder;
-
-            switch (format)
-            {
-                case ImageFormat.JPG:
-                    encoder = new JpegBitmapEncoder();
-                    break;
-                case ImageFormat.PNG:
-                    encoder = new PngBitmapEncoder();
-                    break;
-                case ImageFormat.BMP:
-                    encoder = new BmpBitmapEncoder();
-                    break;
-                case ImageFormat.GIF:
-                    encoder = new GifBitmapEncoder();
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            FileStream fs = new FileStream(fileName, FileMode.Create);
-            encoder.Frames.Add(BitmapFrame.Create(bitmap));
-            encoder.Save(fs);
-            fs.Dispose();
-            fs.Close();
-        }
-
-        /// <summary>
-        /// 将图片保存到文件
-        /// </summary>
-        /// <param name="bitmap">BitmapSource</param>
-        /// <param name="format">图像类型</param>
-        /// <param name="fileName">保存文件名</param>
-        public static void ImageToFile(BitmapSource bitmap, string format, string fileName)
-        {
-            ImageFormat ifo = ImageFormat.JPG;
-            switch (format)
-            {
-                case "jpg":
-                    break;
-                case "png":
-                    ifo = ImageFormat.PNG;
-                    break;
-                case "bmp":
-                    ifo = ImageFormat.BMP;
-                    break;
-                case "gif":
-                    ifo = ImageFormat.GIF;
-                    break;
-                default:
-                    throw new Exception("ImageFormat incorrect type");
-            }
-            ImageToFile(bitmap, ifo, fileName);
-        }
-        #endregion
-
-        /// <summary>
-        /// 获取文件关联的程序
-        /// </summary>
-        /// <param name="extension">File extension,文件后缀</param>
-        /// <returns></returns>
-        public static string GetFileExecutable(string extension)
-        {
-            if (string.IsNullOrWhiteSpace(extension)) return null;
-
-            string tmpFile = Path.GetTempPath() + "t." + extension;
-            StringBuilder Executable = new StringBuilder(260);
-
-            try
-            {
-                File.WriteAllBytes(tmpFile, new byte[] { });
-                FindExecutableA(tmpFile, null, Executable);
-                File.Delete(tmpFile);
-                return Executable.ToString();
-            }
-            catch
-            {
-                File.Delete(tmpFile);
-                return null;
-            }
-
-        }
-    }
-
-
-    public class DataConverter
-    {
-        /// <summary>
-        /// 本地Stream转一段字节数组
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="length">指定转换长度</param>
-        /// <returns></returns>
-        public static byte[] LocalStreamToByte(Stream stream, long length)
-        {
-            byte[] bytes = new byte[length < 1 ? 1 : length];
-            stream.Read(bytes, 0, bytes.Length);
-            stream.Seek(0, SeekOrigin.Begin);
-            return bytes;
-        }
-
-        /// <summary>
-        /// 十六进制字符串转字节数组
-        /// </summary>
-        /// <param name="hexString"></param>
-        /// <returns></returns>
-        public static byte[] strHexToByte(string hexString)
-        {
-            hexString = hexString.Replace(" ", "");
-            if ((hexString.Length % 2) != 0)
-                hexString += " ";
-            byte[] returnBytes = new byte[hexString.Length / 2];
-            for (int i = 0; i < returnBytes.Length; i++)
-                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
-            return returnBytes;
-        }
-
-    }
-
+    
     public class PreLoader
     {
         public PreLoader(IWebProxy proxy)

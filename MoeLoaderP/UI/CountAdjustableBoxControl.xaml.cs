@@ -6,9 +6,9 @@ using System.Windows.Input;
 namespace MoeLoader.UI
 {
     /// <summary>
-    /// CountAjdaustableBoxControl.xaml 的交互逻辑
+    /// 自带调整按钮的数字文本框
     /// </summary>
-    public partial class CountAdjustableBoxControl : UserControl
+    public partial class CountAdjustableBoxControl
     {
         public CountAdjustableBoxControl()
         {
@@ -16,23 +16,10 @@ namespace MoeLoader.UI
             
             NumUpButton.Click+= NumUpButtonOnClick;
             NumDownButton.Click += NumDownButtonOnClick;
-            CountTextBox.TextChanged += CountTextBoxOnTextChanged;
             CountTextBox.LostFocus += CountTextBoxOnLostFocus;
-            CountTextBox.GotKeyboardFocus += CountTextBoxOnGotKeyboardFocus;
-            CountTextBox.PreviewKeyDown += CountTextBoxOnPreviewKeyDown;
             
         }
-
-        private void CountTextBoxOnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            
-        }
-
-        private void CountTextBoxOnPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            // todo
-        }
-
+        
         private void CountTextBoxOnLostFocus(object sender, RoutedEventArgs e)
         {
             try
@@ -49,10 +36,6 @@ namespace MoeLoader.UI
             }
         }
 
-        private void CountTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            
-        }
 
         private void NumDownButtonOnClick(object sender, RoutedEventArgs e)
         {

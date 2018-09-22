@@ -7,10 +7,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Script.Serialization;
 using HtmlAgilityPack;
-using MoeLoader.Core.Sites;
 using Newtonsoft.Json.Linq;
 
-namespace MoeLoader.Core.Site
+namespace MoeLoader.Core.Sites
 {
     /// <summary>
     /// PIXIV
@@ -100,7 +99,7 @@ namespace MoeLoader.Core.Site
                 }
                 if (SubListIndex == 1)
                 {
-                    int memberId = 0;
+                    var memberId = 0;
                     if (keyWord.Trim().Length == 0 || !int.TryParse(keyWord.Trim(), out memberId))
                     {
                         throw new Exception("必须在关键词中指定画师 id；若需要使用标签进行搜索请使用 www.pixiv.net [TAG]");
@@ -124,16 +123,16 @@ namespace MoeLoader.Core.Site
             shc.Remove("X-Requested-With");
             shc.Remove("Accept-Ranges");
             shc.ContentType = SessionHeadersValue.AcceptTextHtml;
-            string pageString = Sweb.Get(url, proxy, shc);
+            var pageString = Sweb.Get(url, proxy, shc);
 
             return pageString;
         }
 
         public override List<ImageItem> GetImages(string pageString, IWebProxy proxy)
         {
-            List<ImageItem> imgs = new List<ImageItem>();
+            var imgs = new List<ImageItem>();
 
-            HtmlDocument doc = new HtmlDocument();
+            var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
 
             //retrieve all elements via xpath
@@ -158,7 +157,7 @@ namespace MoeLoader.Core.Site
                     if (!(Regex.Match(pageString, @"<h2.*?/h2>").Value.Contains("错误")))
                     {
                         tempPage = pageString;
-                        int mangaCount = 1;
+                        var mangaCount = 1;
                         string id, SampleUrl;
                         id = SampleUrl = string.Empty;
 
@@ -168,33 +167,32 @@ namespace MoeLoader.Core.Site
                             SampleUrl = doc.DocumentNode.SelectSingleNode("/html/head/meta[@property='og:image']").Attributes["content"].Value;
                             id = SampleUrl.Substring(SampleUrl.LastIndexOf("/") + 1, SampleUrl.IndexOf("_") - SampleUrl.LastIndexOf("/") - 1);
 
-                            string dimension = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[2]").InnerText;
+                            var dimension = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[2]").InnerText;
                             if (dimension.EndsWith("P"))
                                 mangaCount = int.Parse(Regex.Match(dimension, @"\d+").Value);
                         }
                         else
                         {
                             //----- 新版 -----
-                            Match strRex = Regex.Match(pageString, @"(?<=(?:,illust\:.{.))\d+(?=(?:\:.))");
+                            var strRex = Regex.Match(pageString, @"(?<=(?:,illust\:.{.))\d+(?=(?:\:.))");
                             id = strRex.Value;
 
                             strRex = Regex.Match(pageString, @"(?<=(?:" + id + ":.)).*?(?=(?:.},user))");
 
-                            JObject jobj = JObject.Parse(strRex.Value);
+                            var jobj = JObject.Parse(strRex.Value);
                             try { mangaCount = int.Parse(jobj["pageCount"].ToString()); } catch { }
 
                             jobj = JObject.Parse(jobj["urls"].ToString());
                             SampleUrl = jobj["thumb"].ToString();
                         }
 
-                        string detailUrl = HomeUrl + "/member_illust.php?mode=medium&illust_id=" + id;
-                        for (int i = 0; i < mangaCount; i++)
+                        var detailUrl = HomeUrl + "/member_illust.php?mode=medium&illust_id=" + id;
+                        for (var i = 0; i < mangaCount; i++)
                         {
-                            ImageItem img = GenerateImg(detailUrl, SampleUrl.Replace("_p0_", "_p" + i.ToString() + "_"), id);
-                            StringBuilder sb = new StringBuilder();
+                            var img = GenerateImg(detailUrl, SampleUrl.Replace("_p0_", "_p" + i.ToString() + "_"), id);
+                            var sb = new StringBuilder();
                             sb.Append("P");
                             sb.Append(i.ToString());
-                            //todo img.DimensionString = sb.ToString();
                             if (img != null) imgs.Add(img);
                         }
                         return imgs;
@@ -227,11 +225,11 @@ namespace MoeLoader.Core.Site
             //Tag search js-mount-point-search-related-tags Json
             if (SubListIndex == 0 || SubListIndex==5)
             {
-                string jsonData = tagNode.Attributes["data-items"].Value.Replace("&quot;", "\"");
-                object[] array = (new JavaScriptSerializer()).DeserializeObject(jsonData) as object[];
-                foreach (object o in array)
+                var jsonData = tagNode.Attributes["data-items"].Value.Replace("&quot;", "\"");
+                var array = (new JavaScriptSerializer()).DeserializeObject(jsonData) as object[];
+                foreach (var o in array)
                 {
-                    Dictionary<string, object> obj = o as Dictionary<string, object>;
+                    var obj = o as Dictionary<string, object>;
                     string
                         detailUrl = "",
                         SampleUrl = "",
@@ -245,17 +243,17 @@ namespace MoeLoader.Core.Site
                     {
                         SampleUrl = obj["url"].ToString();
                     }
-                    ImageItem img = GenerateImg(detailUrl, SampleUrl, id);
+                    var img = GenerateImg(detailUrl, SampleUrl, id);
                     if (img != null) imgs.Add(img);
                 }
             }
             else
             {
-                foreach (HtmlNode imgNode in nodes)
+                foreach (var imgNode in nodes)
                 {
                     try
                     {
-                        HtmlNode anode = imgNode.SelectSingleNode("a");
+                        var anode = imgNode.SelectSingleNode("a");
                         if (SubListIndex ==2 || SubListIndex == 3 || SubListIndex == 4)
                         {
                             anode = imgNode.SelectSingleNode(".//div[@class='ranking-image-item']").SelectSingleNode("a");
@@ -263,8 +261,8 @@ namespace MoeLoader.Core.Site
                         //details will be extracted from here
                         //eg. member_illust.php?mode=medium&illust_id=29561307&ref=rn-b-5-thumbnail
                         //sampleUrl 正则 @"https://i\.pximg\..+?(?=")"
-                        string detailUrl = anode.Attributes["href"].Value.Replace("amp;", "");
-                        string sampleUrl = "";
+                        var detailUrl = anode.Attributes["href"].Value.Replace("amp;", "");
+                        var sampleUrl = "";
                         sampleUrl = anode.SelectSingleNode(".//img").Attributes["src"].Value;
 
                         if (sampleUrl.ToLower().Contains("images/common"))
@@ -275,10 +273,10 @@ namespace MoeLoader.Core.Site
 
                         //extract id from detail url
                         //string id = detailUrl.Substring(detailUrl.LastIndexOf('=') + 1);
-                        string id = Regex.Match(detailUrl, @"illust_id=\d+").Value;
+                        var id = Regex.Match(detailUrl, @"illust_id=\d+").Value;
                         id = id.Substring(id.IndexOf('=') + 1);
 
-                        ImageItem img = GenerateImg(detailUrl, sampleUrl, id);
+                        var img = GenerateImg(detailUrl, sampleUrl, id);
                         if (img != null) imgs.Add(img);
                     }
                     catch
@@ -294,26 +292,26 @@ namespace MoeLoader.Core.Site
 
         public override List<AutoHintItem> GetAutoHintItems(string word, IWebProxy proxy)
         {
-            List<AutoHintItem> re = new List<AutoHintItem>();
+            var re = new List<AutoHintItem>();
 
             if (SubListIndex == 0 || SubListIndex == 5)
             {
-                Dictionary<string, object> tags = new Dictionary<string, object>();
-                Dictionary<string, object> tag = new Dictionary<string, object>();
+                var tags = new Dictionary<string, object>();
+                var tag = new Dictionary<string, object>();
 
-                string url = string.Format(HomeUrl + "/rpc/cps.php?keyword={0}", word);
+                var url = string.Format(HomeUrl + "/rpc/cps.php?keyword={0}", word);
 
                 shc.Referer = referer;
                 //shc.ContentType = SessionHeadersValue.AcceptAppJson;
                 shc.Remove("Accept-Ranges");
-                string json = Sweb.Get(url, proxy, shc);
+                var json = Sweb.Get(url, proxy, shc);
 
-                object[] array = (new JavaScriptSerializer()).DeserializeObject(json) as object[];
+                var array = (new JavaScriptSerializer()).DeserializeObject(json) as object[];
 
                 tags = (new JavaScriptSerializer()).DeserializeObject(json) as Dictionary<string, object>;
                 if (tags.ContainsKey("candidates"))
                 {
-                    foreach (object obj in tags["candidates"] as object[])
+                    foreach (var obj in tags["candidates"] as object[])
                     {
                         tag = obj as Dictionary<string, object>;
                         re.Add(new AutoHintItem() { Word = tag["tag_name"].ToString() });
@@ -328,7 +326,7 @@ namespace MoeLoader.Core.Site
             shc.Add("Accept-Ranges", "bytes");
             shc.ContentType = SessionHeadersValue.ContentTypeAuto;
 
-            int intId = int.Parse(id);
+            var intId = int.Parse(id);
 
             if (!detailUrl.StartsWith("http") && !detailUrl.StartsWith("/"))
                 detailUrl = "/" + detailUrl;
@@ -347,7 +345,7 @@ namespace MoeLoader.Core.Site
             //http://i1.pixiv.net/img03/img/tukumo/34912478_m.png
             //http://i1.pixiv.net/img03/img/tukumo/34912478.png
 
-            ImageItem img = new ImageItem()
+            var img = new ImageItem()
             {
                 //Date = "N/A",
                 //FileSize = file_size.ToUpper(),
@@ -368,7 +366,7 @@ namespace MoeLoader.Core.Site
             {
                 var i = img;
                 var p = Settings.Proxy;
-                int pageCount = 1;
+                var pageCount = 1;
                 string page, dimension, Pcount;
                 page = dimension = string.Empty;
                 if (SubListIndex == 6)
@@ -377,9 +375,9 @@ namespace MoeLoader.Core.Site
                 else
                     page = Sweb.Get(i.DetailUrl, p, shc);
 
-                Regex reg = new Regex(@"^「(?<Desc>.*?)」/「(?<Author>.*?)」");
-                HtmlDocument doc = new HtmlDocument();
-                HtmlDocument ds = new HtmlDocument();
+                var reg = new Regex(@"^「(?<Desc>.*?)」/「(?<Author>.*?)」");
+                var doc = new HtmlDocument();
+                var ds = new HtmlDocument();
                 doc.LoadHtml(page);
                 Pcount = Regex.Match(i.ThumbnailUrl, @"(?<=_p)\d+(?=_)").Value;
 
@@ -388,7 +386,7 @@ namespace MoeLoader.Core.Site
                 //标题中取名字和作者
                 try
                 {
-                    MatchCollection mc = reg.Matches(doc.DocumentNode.SelectSingleNode("//title").InnerText);
+                    var mc = reg.Matches(doc.DocumentNode.SelectSingleNode("//title").InnerText);
                     if (SubListIndex == 6)
                         i.Description = mc[0].Groups["Desc"].Value + "P" + Pcount;
                     else
@@ -408,7 +406,7 @@ namespace MoeLoader.Core.Site
                     //URLS
                     //http://i2.pixiv.net/c/600x600/img-master/img/2014/10/08/06/13/30/46422743_p0_master1200.jpg
                     //http://i2.pixiv.net/img-original/img/2014/10/08/06/13/30/46422743_p0.png
-                    Regex rx = new Regex(@"/\d+x\d+/");
+                    var rx = new Regex(@"/\d+x\d+/");
                     i.PreviewUrl = rx.Replace(i.ThumbnailUrl, "/1200x1200/");
                     i.JpegUrl = i.PreviewUrl;
                     try
@@ -431,9 +429,9 @@ namespace MoeLoader.Core.Site
                 else
                 {
                     //+++++新版详情页+++++
-                    Match strRex = Regex.Match(page, @"(?<=(?:" + i.Id + ":.)).*?(?=(?:.},user))");
+                    var strRex = Regex.Match(page, @"(?<=(?:" + i.Id + ":.)).*?(?=(?:.},user))");
 
-                    JObject jobj = JObject.Parse(strRex.Value);
+                    var jobj = JObject.Parse(strRex.Value);
 
                     i.Date = jobj["uploadDate"].ToString();
 
@@ -447,7 +445,7 @@ namespace MoeLoader.Core.Site
                     catch { }
 
                     jobj = JObject.Parse(jobj["urls"].ToString());
-                    Regex rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
+                    var rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
                     i.PreviewUrl = rex.Replace(jobj["regular"].ToString(), "p" + Pcount);
                     i.JpegUrl = rex.Replace(jobj["small"].ToString(), "p" + Pcount);
                     i.OriginalUrl = rex.Replace(jobj["original"].ToString(), "p" + Pcount);
@@ -461,16 +459,16 @@ namespace MoeLoader.Core.Site
                         //i.JpegUrl = i.OriginalUrl;
                         //manga list
                         //漫画 6P
-                        string oriul = "";
-                        int mangaCount = pageCount;
+                        var oriul = "";
+                        var mangaCount = pageCount;
                         if (pageCount > 1)
                         {
                             mangaCount = pageCount;
                         }
                         else
                         {
-                            int index = dimension.IndexOf(' ') + 1;
-                            string mangaPart = dimension.Substring(index, dimension.IndexOf('P') - index);
+                            var index = dimension.IndexOf(' ') + 1;
+                            var mangaPart = dimension.Substring(index, dimension.IndexOf('P') - index);
                             mangaCount = int.Parse(mangaPart);
                         }
                         if (SubListIndex == 6)
@@ -485,8 +483,8 @@ namespace MoeLoader.Core.Site
                         }
                         else
                         {
-                            //todo i.DimensionString = "Manga " + mangaCount + "P";
-                            for (int j = 0; j < mangaCount; j++)
+                            // i.DimensionString = "Manga " + mangaCount + "P";
+                            for (var j = 0; j < mangaCount; j++)
                             {
                                 //保存漫画时优先下载原图 找不到原图则下jpg
                                 try
@@ -520,7 +518,7 @@ namespace MoeLoader.Core.Site
         {
             if (!string.IsNullOrWhiteSpace(cookie)) return;
 
-            string ck = Sweb.GetURLCookies(HomeUrl);
+            var ck = Sweb.GetURLCookies(HomeUrl);
             cookie = string.IsNullOrWhiteSpace(ck) ? ck : cookie;
         }
 
@@ -530,7 +528,7 @@ namespace MoeLoader.Core.Site
             {
                 try
                 {
-                    HtmlDocument hdoc = new HtmlDocument();
+                    var hdoc = new HtmlDocument();
 
                     cookie = "";
                     string
@@ -539,7 +537,7 @@ namespace MoeLoader.Core.Site
                         loginpost = "https://accounts.pixiv.net/api/login?lang=zh",
                         loginurl = "https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=";
 
-                    int index = rand.Next(0, user.Length);
+                    var index = rand.Next(0, user.Length);
 
                     shc.Referer = Referer;
                     shc.Remove("X-Requested-With");
@@ -551,7 +549,7 @@ namespace MoeLoader.Core.Site
                     hdoc.LoadHtml(data);
                     post_key = hdoc.DocumentNode.SelectSingleNode("//input[@name='post_key']").Attributes["value"].Value;
                     if (post_key.Length < 9)
-                        Extend.Log(ShortName, "自动登录失败 ");
+                        App.Log(ShortName, "自动登录失败 ");
 
                     //请求2 POST取登录Cookie
                     shc.ContentType = SessionHeadersValue.ContentTypeFormUrlencoded;
@@ -564,15 +562,15 @@ namespace MoeLoader.Core.Site
                     cookie = Sweb.GetURLCookies(HomeUrl);
 
                     if (!data.Contains("success"))
-                        Extend.Log(ShortName, "自动登录失败 " + data);
+                        App.Log(ShortName, "自动登录失败 " + data);
                     else if (cookie.Length < 9)
-                        Extend.Log(ShortName, "自动登录失败 ");
+                        App.Log(ShortName, "自动登录失败 ");
                     else
                         cookie = "pixiv;" + cookie;
                 }
                 catch (Exception e)
                 {
-                    Extend.Log(ShortName, e, "可能无法连接到服务器");
+                    App.Log(ShortName, e, "可能无法连接到服务器");
                 }
             }
         }
