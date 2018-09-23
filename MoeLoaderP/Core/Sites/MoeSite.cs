@@ -53,9 +53,7 @@ namespace MoeLoader.Core.Sites
         {
             await Task.Delay(1, token);
             return new AutoHintItems();
-
         }
-        
 
         public BitmapImage Icon => new BitmapImage(new Uri($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative));
 

@@ -1,34 +1,34 @@
 # MoeLoader-P
 
 ***
-## ��װ & ʹ�� & ���¼�¼
+## 安装 & 使用 & 更新记录
 
 > http://leaful.com/moeloader-p
 
-## ���� MoeLoader-P 
+## 关于 MoeLoader-P 
 
-MoeLoader-P ȫ��Ϊ MoeLoader PlusOneSecond�������� 2018 Sept. ��Ϊ Moeloader ͼƬ������ռ����ߵ�������֧�����棬��ԭ MoeLoader ��������˴����ع��������˲��ֹ��ܣ���ǿ��ʵ�ù��ܣ������˽��档 MoeLoader ԭ����Ϊ esonic ����Ŀ��ַΪ https://github.com/esonic/moe-loader-v7 ���Ѷ���δ���£�����Ŀ�ο��˷ǹٷ��� MoeLoader �� ��Ŀ���룬����Ϊ YIU ����Ŀ��ַΪ https://github.com/usaginya/MoeLoader-Delta ��
+MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018 Sept. ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，已多年未更新，本项目参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
 
-## MoeLoader-P �ص�
+## MoeLoader-P 特点
 
-- ������ȫ�ع�����ԭ�����Զ���վ�����Ŀ MoeSite ��SitePack ���ϵ�ԭ��Ŀ�У�ʹ���µ��﷨����⣬���ʹ�����϶ȣ��������﷨�淶��ʹ�� Task ���� Thred �� HttpClient ���� WebClient �ȡ�
+- 代码完全重构，将原来的自定义站点的项目 MoeSite 、SitePack 整合到原项目中，使用新的语法与类库，降低代码耦合度，更符合语法规范，使用 Task 代替 Thred ， HttpClient 代替 WebClient 等。
 
-- �����ع���ʹ���˸�������Ԫ�أ�ʹ���� Storyboard ��Effect ��VisualStateManager ��Fontawesome ��FluentWpf ���������������������֧�� Win10 �ǿ���Ч����
+- 界面重构，使用了更多美化元素，使用了 Storyboard 、Effect 、VisualStateManager 、Fontawesome 、FluentWpf 等组件对软件进行美化，支持 Win10 亚克力效果。
 
-- ������ҳ�뵼������ǩʶ��Ԥ��ͼ���ŵȹ��ܣ������������������������ֱ��ʡ���ʽ�������ȣ������������Ż���
+- 增加了页码导航、标签识别、预览图缩放等功能，对搜索参数、过滤条件（分辨率、格式、评级等）进行了整合优化。
 
-- �Ż��Ҽ��˵���֧�ֱ�ǩ��ը�������ֱ����������������֧�ֶ�ҳ����Ŀ����̬��ʾ���ȡ�
+- 优化右键菜单，支持标签大爆炸，点击后直接上搜索栏；下载支持多页子项目、动态显示进度。
 
-- ������Bվ���ѡ���Ӱվ�㡣
+- 增加了B站画友、摄影站点。
 
-- ��ʱ�Ƴ��˵��������б����������Ԥ�����ڡ��Զ���վ�㡢����ͼ�Ĺ��ܣ��������ܳ����Ż��С�
+- 暂时移除了导出下载列表、已浏览、预览窗口、自定义站点、背景图的功能，其他功能持续优化中。
 
-- booru ����վ���������ع�������վ��½�����������С�
+- booru 类型站点引擎已重构，其他站点陆续跟进更新中。
 
-- ��ӭ�ṩ���飬���ش��룺 { hit F8 ten times }
+- 欢迎提供建议，神秘代码： { hit F8 ten times }
  
-## ��֪Bug���ƻ���ʵ�ֹ���
+## 已知Bug及计划中实现功能
 
-- �����ļ��������Զ���
+- 下载文件名规则自定义
 
-- ����վ������ͼƬ����
+- 部分站点下载图片出错

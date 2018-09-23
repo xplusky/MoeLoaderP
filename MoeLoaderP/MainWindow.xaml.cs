@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using MoeLoader.Core;
@@ -89,7 +90,10 @@ namespace MoeLoader
             NewVersionPanel.Visibility = Visibility.Collapsed;
             try
             {
-                await CheckUpdateAsync();
+                var updateTask =  CheckUpdateAsync();
+                var thankTask = CheckThankListAsync();
+                await updateTask;
+                await thankTask;
             }
             catch (Exception ex)
             {
@@ -244,6 +248,19 @@ namespace MoeLoader
                 NewVersionTextBlock.Text = $"新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}";
                 NewVersionPanel.Visibility = Visibility.Visible;
                 NewVersionDownloadButton.Click += (sender, args) => Process.Start($"{upobject.UpdateUrl}");
+            }
+        }
+
+        public async Task CheckThankListAsync()
+        {
+            var htpp = new HttpClient();
+            var upjson = await htpp.GetStringAsync(new Uri(App.SaeUrl + "thanklist.json", UriKind.Absolute));
+            dynamic jobject = JsonConvert.DeserializeObject(upjson);
+            if (jobject == null) return;
+            foreach (var user in jobject)
+            {
+                var button = new Button();
+
             }
         }
     }

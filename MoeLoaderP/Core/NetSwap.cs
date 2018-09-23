@@ -47,9 +47,9 @@ namespace MoeLoader.Core
             Client.DefaultRequestHeaders.UserAgent.ParseAdd(ua);
         }
 
-        public void SetTimeOut(double Sec)
+        public void SetTimeOut(double sec)
         {
-            Client.Timeout = TimeSpan.FromSeconds(Sec);
+            Client.Timeout = TimeSpan.FromSeconds(sec);
         }
     }
 }

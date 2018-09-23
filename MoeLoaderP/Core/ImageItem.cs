@@ -9,7 +9,7 @@ using MoeLoader.Core.Sites;
 namespace MoeLoader.Core
 {
     /// <summary>
-    /// 表示一张图片（或一组图片）及其相关信息
+    /// 表示一张图片（可以包含一组子图片册）及其相关信息
     /// </summary>
     public class ImageItem : BindingObject
     {

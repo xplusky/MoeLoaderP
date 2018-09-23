@@ -24,10 +24,8 @@ namespace MoeLoader.Core
         }
 
         /// <summary>
-        /// 设置popup显示动画
+        /// 设置popup显示动画（右键菜单出现动画等）
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
         public static Storyboard LargenShowSb(this FrameworkElement target)
         {
             var sb = new Storyboard();

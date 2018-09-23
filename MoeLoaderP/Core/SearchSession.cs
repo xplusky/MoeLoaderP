@@ -77,16 +77,16 @@ namespace MoeLoader.Core
 
              // 进入 loop 循环
             var startTime = DateTime.Now;
-            while (images.Count < temppara.Count) // 当images数量不够搜索参数数量时
+            while (images.Count < temppara.Count) // 当images数量不够搜索参数数量时循环
             {
-                token.ThrowIfCancellationRequested();
-                if (DateTime.Now - startTime > TimeSpan.FromSeconds(20)) break; // loop超时跳出循环（即使不够也跳出）
+                token.ThrowIfCancellationRequested(); // 整体Task的取消Token，取消时会抛出异常
+                if (DateTime.Now - startTime > TimeSpan.FromSeconds(20)) break; // loop超时跳出循环（即使不够数量也跳出）
 
                 temppara.PageIndex++; // 设置新搜索参数为下一页（真）
                 mpage.LastRealPageIndex = temppara.PageIndex;
                 SearchStatusChanged?.Invoke(this, $"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
                 var imagesNextRPage = await temppara.Site.GetRealPageImagesAsync(temppara); // 搜索下一页（真）的所有图片
-                if (imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未过滤图片数量为0时，表示已经搜索完了
+                if (imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
                 {
                     mpage.HasNextPage = false; // 没有下一页
                     mpage.LastRealPageIndex = temppara.PageIndex;
@@ -97,8 +97,8 @@ namespace MoeLoader.Core
                     Filter(imagesNextRPage); // 本地过滤下一页（真）
                     foreach (var item in imagesNextRPage)
                     {
-                        if (images.Count < temppara.Count) images.Add(item);
-                        else mpage.PreLoadNextPageItems.Add(item);
+                        if (images.Count < temppara.Count) images.Add(item); // 添加图片数量直到够参数设定的图片数量为止
+                        else mpage.PreLoadNextPageItems.Add(item); // 多出来的图片存在另一个对象中，下一虚拟页可以调用
                     }
                     if (images.Count >= temppara.Count) break; // 数量已够参数数量，当前虚拟页完成任务
                 }
@@ -113,26 +113,26 @@ namespace MoeLoader.Core
         /// <summary>
         /// 本地过滤图片
         /// </summary>
-        /// <param name="items"></param>
         public void Filter(ImageItems items)
         {
+            var para = CurrentSearchPara;
             for (var i = 0; i < items.Count; i++)
             {
                 var del = false;
                 var item = items[i];
                 var state = item.Site.SurpportState;
-                if (state.IsSupportRating)
+                if (state.IsSupportRating) // 过滤Explicit评级图片
                 {
-                    if ((!Settings.IsXMode || !CurrentSearchPara.IsShowExplicit) && item.IsExplicit) del = true;
-                    if (Settings.IsXMode && CurrentSearchPara.IsShowExplicitOnly && item.IsExplicit == false) del = true;
+                    if ((!Settings.IsXMode || !para.IsShowExplicit) && item.IsExplicit) del = true;
+                    if (Settings.IsXMode && para.IsShowExplicitOnly && item.IsExplicit == false) del = true;
                 }
-                if (state.IsSupportResolution && CurrentSearchPara.IsFilterResolution)
+                if (state.IsSupportResolution && para.IsFilterResolution) // 过滤分辨率
                 {
-                    if (item.Width < CurrentSearchPara.MinWidth || item.Height < CurrentSearchPara.MinHeight) del = true;
+                    if (item.Width < para.MinWidth || item.Height < para.MinHeight) del = true;
                 }
-                if (state.IsSupportResolution)
+                if (state.IsSupportResolution) // 过滤图片方向
                 {
-                    switch (CurrentSearchPara.Orientation)
+                    switch (para.Orientation)
                     {
                         case ImageOrientation.Landscape:
                             if (item.Height >= item.Width) del = true;
@@ -142,9 +142,9 @@ namespace MoeLoader.Core
                             break;
                     }
                 }
-                if (CurrentSearchPara.IsFilterFileType)
+                if (para.IsFilterFileType) // 过滤图片扩展名
                 {
-                    foreach (var s in CurrentSearchPara.FilterFileTpyeText.Split(';'))
+                    foreach (var s in para.FilterFileTpyeText.Split(';'))
                     {
                         if (string.IsNullOrWhiteSpace(s)) continue;
                         if (string.Equals(item.FileType, s, StringComparison.CurrentCultureIgnoreCase)) del = true;
@@ -161,11 +161,10 @@ namespace MoeLoader.Core
             CurrentSearchCts?.Cancel();
             CurrentSearchCts = null;
         }
-
     }
 
     /// <summary>
-    /// 搜索的一页（虚拟页）
+    /// 搜索的其中一页（虚拟页）
     /// </summary>
     public class SearchedPage
     {
@@ -198,10 +197,10 @@ namespace MoeLoader.Core
         public string FilterFileTpyeText { get; set; }
 
         public ImageOrientation Orientation { get; set; } = ImageOrientation.None;
-
+        
         public SearchPara Clone()
         {
-            return (SearchPara) MemberwiseClone();
+            return (SearchPara) MemberwiseClone(); // 浅克隆
         }
     }
 

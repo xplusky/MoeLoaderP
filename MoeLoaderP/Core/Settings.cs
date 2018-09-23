@@ -201,9 +201,6 @@ namespace MoeLoader.Core
             get => _historyKeywords;
             set => SetField(ref _historyKeywords, value, nameof(HistoryKeywords));
         }
-
-        
-
         
         public void Save()
         {
