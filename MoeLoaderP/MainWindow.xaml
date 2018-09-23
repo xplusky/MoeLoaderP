@@ -163,34 +163,41 @@
                                 <Border.Effect>
                                     <DropShadowEffect ShadowDepth="1" BlurRadius="11" Opacity="0.63"/>
                                 </Border.Effect>
-                                <StackPanel Margin="8" Width="192">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="7*"/>
-                                            <ColumnDefinition Width="21*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Image Source="Assets/m-icon.ico" Stretch="Fill" Width="32" Height="32"/>
-                                        <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" FontSize="14"><Run Text="MoeLoader "/><Run Text="P"/></TextBlock>
-                                    </Grid>
-                                    <Rectangle Opacity="0.5" Margin="8,2">
-                                        <Rectangle.Effect>
-                                            <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.8"/>
-                                        </Rectangle.Effect>
-                                        <Rectangle.Stroke>
-                                            <LinearGradientBrush EndPoint="0,0.5" MappingMode="RelativeToBoundingBox" StartPoint="1,0.5">
-                                                <GradientStop Color="#FF484848" Offset="0"/>
-                                                <GradientStop Color="#FF484848" Offset="1"/>
-                                                <GradientStop Color="Black" Offset="0.483"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Stroke>
-                                    </Rectangle>
-                                    <TextBlock x:Name="AboutVersionTextBlock" TextWrapping="Wrap" Text="版本" Margin="8,2,8,0"/>
-                                    <StackPanel x:Name="NewVersionPanel" Margin="0,4,0,0" Background="#FFFFDEDE">
-                                        <TextBlock x:Name="NewVersionTextBlock" TextWrapping="Wrap" Text="TextBlock" Foreground="#FF9E0000" Margin="4,4,4,0"/>
-                                        <Button x:Name="NewVersionDownloadButton" Content="前往下载新版" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="4"/>
+                                <Grid Margin="8" Width="215">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="7*"/>
+                                                <ColumnDefinition Width="21*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image Source="Assets/m-icon.ico" Stretch="Fill" Width="32" Height="32"/>
+                                            <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" FontSize="14"><Run Text="MoeLoader "/><Run Text="P"/></TextBlock>
+                                        </Grid>
+                                        <Rectangle Opacity="0.5" Margin="8,2">
+                                            <Rectangle.Effect>
+                                                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.8"/>
+                                            </Rectangle.Effect>
+                                            <Rectangle.Stroke>
+                                                <LinearGradientBrush EndPoint="0,0.5" MappingMode="RelativeToBoundingBox" StartPoint="1,0.5">
+                                                    <GradientStop Color="#FF484848" Offset="0"/>
+                                                    <GradientStop Color="#FF484848" Offset="1"/>
+                                                    <GradientStop Color="Black" Offset="0.483"/>
+                                                </LinearGradientBrush>
+                                            </Rectangle.Stroke>
+                                        </Rectangle>
+                                        <TextBlock x:Name="AboutVersionTextBlock" TextWrapping="Wrap" Text="版本" Margin="16,2,16,0"/>
+                                        <StackPanel x:Name="NewVersionPanel" Margin="0,4,0,0" Background="#FFFFDEDE">
+                                            <TextBlock x:Name="NewVersionTextBlock" TextWrapping="Wrap" Text="TextBlock" Foreground="#FF9E0000" Margin="4,4,4,0"/>
+                                            <Button x:Name="NewVersionDownloadButton" Content="前往下载新版" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="4"/>
+                                        </StackPanel>
+                                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="MoeLoader"/><Run Text=" "/><Run Text="P"/><Run Text=" "/><Run Text="的诞生离不开"/><Run Text=" "/><Run Text="Moe"/><Run Text=" "/><Run Text="Loader"/><Run Text=" "/><Run Text="开源项目以及以下开发者的贡献：esonic"/><Run Text="、YIU"/></TextBlock>
+                                        <Button x:Name="AboutHomeLinkButton" Content="使用帮助/更新记录" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
+                                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="若你喜欢本软件的话可以对本软件捐助哦~支付宝账号"/><Run Text="plusky@live.com" TextDecorations="Underline" x:Name="AboutDonateLink" Cursor="Hand"/><Run Text="，可以备注昵称和网址。"/></TextBlock>
                                     </StackPanel>
-                                    <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="MoeLoader"/><Run Text=" "/><Run Text="P"/><Run Text=" "/><Run Text="的诞生离不开"/><Run Text=" "/><Run Text="Moe"/><Run Text=" "/><Run Text="Loader"/><Run Text=" "/><Run Text="开源项目以及以下开发者的贡献：esonic"/><Run Text="、YIU"/></TextBlock>
-                                </StackPanel>
+                                    <Grid x:Name="AboutDonateImageGrid" Visibility="Collapsed">
+                                        <Image x:Name="AboutDonateImage" Source="Assets/alipay-qrcode.png"/>
+                                    </Grid>
+                                </Grid>
                             </Border>
                         </Grid>
                     </Popup>

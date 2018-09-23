@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
 using MoeLoader.Core;
@@ -11,6 +12,39 @@ namespace MoeLoader
 {
     public partial class App
     {
+        public static string DisplayName => "MoeLoader +1s";
+        public static string Name => "Leaful.MoeLoader";
+        public static Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+        public static DateTime CompileTime => File.GetLastWriteTime(ExeDir);
+        public static string SettingJsonFilePath => Path.Combine(AppDataDir, "Settings.json");
+
+        public static string AppDataDir
+        {
+            get
+            {
+                var path = Path.Combine(SysAppDataDir, Name);
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+
+        public static string ExeDir => Directory.GetParent(Process.GetCurrentProcess().MainModule.FileName).FullName;
+
+        public static string SysAppDataDir => Environment.GetEnvironmentVariable("APPDATA");
+
+        public static string UserSkinDir
+        {
+            get
+            {
+                var path = Path.Combine(AppDataDir, "Skin");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+
+        public static string MoePicFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), DisplayName);
+        public static string SaeUrl => "http://sae.leaful.com/moeloader/";
+
         public App()
         {
             DispatcherUnhandledException += OnDispatcherUnhandledException;

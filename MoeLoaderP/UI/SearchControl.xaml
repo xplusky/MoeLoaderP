@@ -245,7 +245,7 @@
                                 <CheckBox x:Name="ShowExlicitOnlyCheckBox" Content="仅显示Explicit评级图片" Visibility="{Binding Visibility, ElementName=FilterExlicitCheckBox}" Margin="0,4,0,0"/>
                             </StackPanel>
                             <StackPanel x:Name="FilterResolutionGroup" Orientation="Vertical">
-                                <CheckBox x:Name="FilterResolutionCheckBox" Content="过滤此分辨率以下图片（宽/高）" Margin="0,4,0,0"/>
+                                <CheckBox x:Name="FilterResolutionCheckBox" Content="过滤掉此分辨率以下图片（宽/高）" Margin="0,4,0,0"/>
                                 <Grid Margin="0,2,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
@@ -267,7 +267,7 @@
                                 </ComboBox>
                                 <TextBlock TextWrapping="Wrap" Text="图片方向" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
                             </Grid>
-                            <CheckBox x:Name="FilterFileTypeCheckBox" Content="过滤指定文件类型" Margin="0,6,0,0"/>
+                            <CheckBox x:Name="FilterFileTypeCheckBox" Content="过滤掉指定文件类型" Margin="0,6,0,0"/>
                             <TextBox x:Name="FilterFileTypeTextBox" TextWrapping="Wrap" Text="gif;bmp" Height="24" IsEnabled="{Binding IsChecked, ElementName=FilterFileTypeCheckBox}" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Margin="2" ToolTip="输入不带点&quot;.&quot;的扩展名，用半角分号&quot;;&quot;分隔不同后缀"/>
                         </StackPanel>
                     </Border>

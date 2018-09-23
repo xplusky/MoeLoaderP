@@ -11,8 +11,7 @@ namespace MoeLoader
             OkButton.Click += (sender, args) => Close(); 
             MouseLeftButtonDown += (sender, args) => DragMove();
         }
-
-
+        
         public static bool? Show(Exception ex,string mes = null,Window owner = null)
         {
             var wnd = new MessageWindow();

@@ -20,8 +20,8 @@ namespace MoeLoader.Core
         public void SetDefaultSiteList()
         {
             var x = Settings.IsXMode;
-            // new
-            Sites.Add(new Bilibili());
+            
+            Sites.Add(new BilibiliSite());
             Sites.Add(new Konachan());
             Sites.Add(new Yande());
             Sites.Add(new Behoimi());
@@ -31,16 +31,15 @@ namespace MoeLoader.Core
             if (x) Sites.Add(new Atfbooru());
             if (x) Sites.Add(new Rule34());
             Sites.Add(new Gelbooru());
-            Sites.Add(new Sankaku(x));
-            Sites.Add(new Kawaiinyan());
-            Sites.Add(new MiniTokyo());
-            Sites.Add(new Eshuushuu());
-            // old
-            Sites.Add(new SiteZeroChan());
-            Sites.Add(new SiteMjvArt());
-            Sites.Add(new SiteWCosplay());
-            Sites.Add(new SitePixiv());
-            if (x) Sites.Add(new SiteYuriimg());
+            Sites.Add(new SankakuSite(x));
+            Sites.Add(new KawaiinyanSite());
+            Sites.Add(new MiniTokyoSite());
+            Sites.Add(new EshuuSite());
+            if (x) Sites.Add(new YuriimgSite());
+            Sites.Add(new ZeroChanSite());
+            Sites.Add(new PixivSite());
+            Sites.Add(new AnimePicsSite());
+            Sites.Add(new WCosplaySite());
         }
     }
 }

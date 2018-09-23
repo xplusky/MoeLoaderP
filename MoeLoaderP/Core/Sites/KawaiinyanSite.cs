@@ -10,7 +10,7 @@ namespace MoeLoader.Core.Sites
     /// <summary>
     /// kawaiinyan.com Fixed 20180922
     /// </summary>
-    public class Kawaiinyan : MoeSite
+    public class KawaiinyanSite : MoeSite
     {
         public override string HomeUrl => "https://kawaiinyan.com";
 
@@ -18,7 +18,7 @@ namespace MoeLoader.Core.Sites
 
         public override string ShortName => "kawaiinyan";
 
-        public Kawaiinyan()
+        public KawaiinyanSite()
         {
             SurpportState.IsSupportRating = false;
             SurpportState.IsSupportAutoHint = false;
@@ -26,7 +26,7 @@ namespace MoeLoader.Core.Sites
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
         {
-            var net = new MoeNet(Settings);
+            var net = new NetSwap(Settings);
             var client = net.Client;
             var size = "";
             if (para.IsFilterResolution)
@@ -73,10 +73,10 @@ namespace MoeLoader.Core.Sites
                 var big = $"{image.big}";
                 if (!string.IsNullOrWhiteSpace(orig))
                 {
-                    img.OriginalUrl = $"{sub}{UrlInner($"{id}")}/orig.{orig}";
+                    img.FileUrl = $"{sub}{UrlInner($"{id}")}/orig.{orig}";
                 }else if (!string.IsNullOrWhiteSpace(big))
                 {
-                    img.OriginalUrl = $"{sub}{UrlInner($"{id}")}/big.{big}";
+                    img.FileUrl = $"{sub}{UrlInner($"{id}")}/big.{big}";
                 }
                 img.DetailUrl = $"{HomeUrl}/image?id={id}";
                 

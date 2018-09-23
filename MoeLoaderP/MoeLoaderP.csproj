@@ -38,7 +38,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>10</ApplicationRevision>
-    <ApplicationVersion>9.0.1.%2a</ApplicationVersion>
+    <ApplicationVersion>9.0.2.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -140,16 +140,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Core\MoeNet.cs" />
-    <Compile Include="Core\OutdateCode.cs" />
+    <Compile Include="Core\NetSwap.cs" />
     <Compile Include="Core\SearchSession.cs" />
-    <Compile Include="Core\Sites\Bilibili.cs" />
+    <Compile Include="Core\Sites\AnimePicsSite.cs" />
+    <Compile Include="Core\Sites\BilibiliSite.cs" />
     <Compile Include="Core\Sites\BooruSites.cs" />
     <Compile Include="Core\Sites\BooruSite.cs" />
-    <Compile Include="Core\Sites\Eshuushuu.cs" />
-    <Compile Include="Core\Sites\Kawaiinyan.cs" />
-    <Compile Include="Core\Sites\Minitokyo.cs" />
-    <Compile Include="Core\Sites\Sankaku.cs" />
+    <Compile Include="Core\Sites\EshuuSite.cs" />
+    <Compile Include="Core\Sites\KawaiinyanSite.cs" />
+    <Compile Include="Core\Sites\MiniTokyoSite.cs" />
+    <Compile Include="Core\Sites\PixivSite.cs" />
+    <Compile Include="Core\Sites\SankakuSite.cs" />
+    <Compile Include="Core\Sites\WCosplaySite.cs" />
+    <Compile Include="Core\Sites\YuriimgSite.cs" />
+    <Compile Include="Core\Sites\ZeroChanSite.cs" />
     <Compile Include="PreviewWindow.xaml.cs">
       <DependentUpon>PreviewWindow.xaml</DependentUpon>
     </Compile>
@@ -162,7 +166,6 @@
       <DependentUpon>MoeExplorerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\Sites\MoeSite.cs" />
-    <Compile Include="Core\Res.cs" />
     <Compile Include="Core\Converters.cs" />
     <Compile Include="Core\Extend.cs" />
     <Compile Include="Core\ImageItem.cs" />
@@ -171,11 +174,6 @@
       <DependentUpon>SearchControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\SiteManager.cs" />
-    <Compile Include="Core\Sites\SiteMjvArt.cs" />
-    <Compile Include="Core\Sites\SitePixiv.cs" />
-    <Compile Include="Core\Sites\SiteWCosplay.cs" />
-    <Compile Include="Core\Sites\SiteYuriimg.cs" />
-    <Compile Include="Core\Sites\SiteZeroChan.cs" />
     <Compile Include="MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
@@ -270,9 +268,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\m.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\SiteIcon\atfbooru.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -360,6 +355,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\alipay-qrcode.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

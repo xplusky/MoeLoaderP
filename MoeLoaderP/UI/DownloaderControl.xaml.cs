@@ -15,7 +15,7 @@ namespace MoeLoader.UI
         public DownloadItems DownloadItems { get; set; } = new DownloadItems();
         public DownloadItems DownloadingItemsPool { get; set; } = new DownloadItems();
         public DownloadItems WaitForDownloadItemsPool { get; set; } = new DownloadItems();
-        public bool IsDownloading { get; set; }
+        public bool IsDownloading => WaitForDownloadItemsPool.Count > 0;
 
         public DownloaderControl()
         {
@@ -141,7 +141,7 @@ namespace MoeLoader.UI
                 Settings = Settings,
                 ImageSource = img,
                 ImageItem = item,
-                FileName = Path.GetFileName(item.OriginalUrl)
+                FileName = Path.GetFileName(item.FileUrl)
             };
             if (item.ChilldrenItems.Count > 0)
             {
@@ -152,7 +152,7 @@ namespace MoeLoader.UI
                     {
                         Settings = Settings,
                         ImageItem = subitem,
-                        FileName = Path.GetFileName(subitem.OriginalUrl),
+                        FileName = Path.GetFileName(subitem.FileUrl),
                         SubIndex = i + 1
                     };
                     downitem.SubItems.Add(downsubitem);

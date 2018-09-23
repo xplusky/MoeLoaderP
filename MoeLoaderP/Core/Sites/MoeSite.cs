@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace MoeLoader.Core.Sites
@@ -12,7 +9,7 @@ namespace MoeLoader.Core.Sites
     /// <summary>
     /// 图片站点基类
     /// </summary>
-    public abstract class MoeSite : NotifyBase
+    public abstract class MoeSite
     {
         /// <summary>
         /// 站点URL，用于打开该站点主页。eg. http://yande.re
@@ -35,115 +32,35 @@ namespace MoeLoader.Core.Sites
         /// </summary>
         public MoeSiteSurpportState SurpportState { get; set; } = new MoeSiteSurpportState();
         
-        /// <summary>
-        /// 向该站点发起请求时需要伪造的Referer，若不需要则保持null
-        /// </summary>
-        public virtual string Referer => null;
-
         public MoeSiteSubMenu SubMenu { get; set; } = new MoeSiteSubMenu();
 
         public int SubListIndex { get; set; }
 
         public int Lv3ListIndex { get; set; }
 
-        public virtual MoeNet Net { get; set; }
-
-        /// <summary>
-        /// 获取页面的源代码，例如HTML（已过时）
-        /// </summary>
-        /// <param name="page">页码</param>
-        /// <param name="count">单页数量（可能不支持）</param>
-        /// <param name="keyWord">关键词</param>
-        /// <param name="proxy">全局的代理设置，进行网络操作时请使用该代理</param>
-        /// <returns>页面源代码</returns>
-        public virtual string GetPageString(int page, int count, string keyWord, IWebProxy proxy)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// 从页面源代码获取图片列表（已过时）
-        /// </summary>
-        /// <param name="pageString">页面源代码</param>
-        /// <param name="proxy">全局的代理设置，进行网络操作时请使用该代理</param>
-        /// <returns>图片信息列表</returns>
-        public virtual List<ImageItem> GetImages(string pageString, IWebProxy proxy)
-        {
-            return null;
-        }
-
+        public virtual NetSwap Net { get; set; }
+        
         /// <summary>
         /// 异步获取图片列表
         /// </summary>
-        /// <param name="para"></param>
-        /// <returns></returns>
-        public virtual async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
-        {
-            // page source
-            var pre = new PreLoader(Settings.Proxy);
-            var pageString = await Task.Run(() => pre.GetPreFetchedPage(para.PageIndex, para.Count, Uri.EscapeDataString(para.Keyword), this));
-            List<ImageItem> list;
-            if (pageString == null)
-            {
-                list = await Task.Run(() => GetImages(para.PageIndex, para.Count, para.Keyword, Settings.Proxy));
-            }
-            else
-            {
-                list = await Task.Run(() => GetImages(pageString, Settings.Proxy));
-            }
-            var items = new ImageItems();
-            foreach (var item in list)
-            {
-                item.Site = this;
-                items.Add(item);
-            }
-            return items;
-        }
+        public abstract Task<ImageItems> GetRealPageImagesAsync(SearchPara para);
 
-        /// <summary>
-        /// 获取关键词自动提示列表（已过时）
-        /// </summary>
-        /// <param name="word">关键词</param>
-        /// <param name="proxy">全局的代理设置，进行网络操作时请使用该代理</param>
-        /// <returns>提示列表项集合</returns>
-        public virtual List<AutoHintItem> GetAutoHintItems(string word, IWebProxy proxy)
-        {
-            return new List<AutoHintItem>();
-        }
 
         /// <summary>
         /// 获取关键词自动提示列表
         /// </summary>
-        /// <param name="para"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public virtual async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para,CancellationToken token)
+        public virtual async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            var tagss = await Task.Run(() =>
-            {
-                var tags = GetAutoHintItems(para.Keyword, para.Site.Settings.Proxy);
-                return tags;
-            }, token);
-            token.ThrowIfCancellationRequested();
-            var tagsc = new AutoHintItems();
-            foreach (var tag in tagss)
-            {
-                tagsc.Add(tag);
-            }
-            return tagsc;
+            await Task.Delay(1, token);
+            return new AutoHintItems();
+
         }
         
 
         public BitmapImage Icon => new BitmapImage(new Uri($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative));
 
-        public virtual List<ImageItem> GetImages(int page, int count, string keyWord, IWebProxy proxy)
-        {
-            return GetImages(GetPageString(page, count, keyWord, proxy), proxy);
-        }
-
-
         public Settings Settings { get; set; }
-        public Visibility KeywordVisible => SurpportState.IsSupportKeyword ? Visibility.Visible : Visibility.Collapsed;
+
     }
 
     
@@ -165,11 +82,6 @@ namespace MoeLoader.Core.Sites
         public bool IsSupportResolution { get; set; } = true;
         
         /// <summary>
-        /// 是否支持预览图，若为false则缩略图上无查看预览图的按钮
-        /// </summary>
-        public bool IsSupportPreview { get; set; } = true;
-
-        /// <summary>
         /// 是否支持搜索框自动提示，若为false则输入关键词时无自动提示
         /// </summary>
         public bool IsSupportAutoHint { get; set; } = true;
@@ -178,8 +90,6 @@ namespace MoeLoader.Core.Sites
         /// 是否支持关键字搜索
         /// </summary>
         public bool IsSupportKeyword { get; set; } = true;
-
-        
     }
 
     public class MoeSites : ObservableCollection<MoeSite>

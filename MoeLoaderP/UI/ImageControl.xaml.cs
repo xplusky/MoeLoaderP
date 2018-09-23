@@ -56,27 +56,25 @@ namespace MoeLoader.UI
             loadingsb.Begin();
 
             // client
-            var net = new MoeNet(Settings);
-            var client = net.Client;
-            client.Timeout = TimeSpan.FromSeconds(10);
-            if (ImageItem.Site.Referer != null)
-            {
-                client.DefaultRequestHeaders.Referrer = new Uri(ImageItem.Site.Referer);
-            }
-
+            var net = ImageItem.Net ?? new NetSwap(Settings);
+            net.SetTimeOut(15);
+            net.SetReferer(ImageItem.ThumbnailReferer);
+            Exception loadex = null;
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             try
             {
                 var getDetaiTask = ImageItem.GetDetailAsync();
-                var response = await client.GetAsync(ImageItem.ThumbnailUrl, cts.Token);
+                var response = await net.Client.GetAsync(ImageItem.ThumbnailUrl, cts.Token);
                 var stream = await response.Content.ReadAsStreamAsync();
-                PreviewImage.Source = await Task.Run(() =>
+                var source = await Task.Run(() =>
                 {
                     try
                     {
-                        var bitm = new BitmapImage();
-                        bitm.CacheOption = BitmapCacheOption.OnLoad;
-                        bitm.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                        var bitm = new BitmapImage
+                        {
+                            CacheOption = BitmapCacheOption.OnLoad,
+                            CreateOptions = BitmapCreateOptions.IgnoreImageCache
+                        };
                         bitm.BeginInit();
                         bitm.StreamSource = stream;
                         bitm.EndInit();
@@ -89,31 +87,31 @@ namespace MoeLoader.UI
                         return null;
                     }
                 }, cts.Token);
+                if(source ==null) loadex = new Exception("imagesource is null");
+                else PreviewImage.Source = source;
                 await getDetaiTask;
             }
-            catch (AggregateException ex)
+            catch (Exception ex)
             {
-                //source = await Task.Run(() =>
-                //{
-                //    var bitm = new BitmapImage();
-                //    bitm.CacheOption = BitmapCacheOption.OnLoad;
-                //    bitm.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                //    bitm.BeginInit();
-                //    bitm.UriSource = new Uri(ImageItem.ThumbnailUrl);
-                //    bitm.EndInit();
-                //    return bitm;
-                //});
-                //PreviewImage.Source = source;
-                //Extend.Log(e.GetType(), e);
-                this.Sb("LoadFailSb").Begin();
-                App.Log(ex);
+                loadex = ex;
             }
-            
+
+            if (loadex != null)
+            {
+                App.Log(loadex);
+                var loadfsb = this.Sb("LoadFailSb");
+                loadfsb.Completed += (sender, args) => loadingsb.Stop();
+                loadfsb.Begin();
+            }
+            else
+            {
+                var loadsb = this.Sb("LoadedSb");
+                loadsb.Completed += (sender, args) => loadingsb.Stop();
+                loadsb.Begin();
+            }
+
             // Loaded
             ImageLoaded?.Invoke(this);
-            var loadsb = this.Sb("LoadedSb");
-            loadsb.Completed += (sender, args) => loadingsb.Stop();
-            loadsb.Begin();
         }
     }
 }

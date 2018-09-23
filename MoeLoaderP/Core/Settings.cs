@@ -9,11 +9,10 @@ using Newtonsoft.Json;
 
 namespace MoeLoader.Core
 {
-    /// <inheritdoc />
     /// <summary>
     /// 用于存储设置、绑定及运行时参数传递
     /// </summary>
-    public class Settings : NotifyBase
+    public class Settings : BindingObject
     {
         private double _mainWindowWidth = 1060d;
         public double MainWindowWidth 
@@ -53,13 +52,21 @@ namespace MoeLoader.Core
             set => SetField(ref _mainWindowLeft, value, nameof(MainWindowLeft));
         }
 
-        private string _imageSavePath = Res.MoePicFolder;
+        private string _imageSavePath = App.MoePicFolder;
         public string ImageSavePath
         {
             get => _imageSavePath;
             set => SetField(ref _imageSavePath, value, nameof(ImageSavePath));
         }
-        
+
+        private bool _isUseCustomFileNameFormat;
+
+        public bool IsUseCustomFileNameFormat
+        {
+            get => _isUseCustomFileNameFormat;
+            set => SetField(ref _isUseCustomFileNameFormat, value, nameof(IsUseCustomFileNameFormat));
+        }
+
         private string _saveFileNameFormat= "%origin";
 
         public string SaveFileNameFormat
@@ -68,7 +75,12 @@ namespace MoeLoader.Core
             set => SetField(ref _saveFileNameFormat, value, nameof(SaveFileNameFormat));
         }
 
-        public enum ProxyModeEnum { System,Costom,None}
+        public enum ProxyModeEnum
+        {
+            System = 0,
+            None = 1,
+            Custom = 2
+        }
 
         private ProxyModeEnum _proxyMode = ProxyModeEnum.System;
 
@@ -76,6 +88,37 @@ namespace MoeLoader.Core
         {
             get => _proxyMode;
             set => SetField(ref _proxyMode, value, nameof(ProxyMode));
+        }
+
+        [JsonIgnore]
+        public IWebProxy Proxy
+        {
+            get
+            {
+                switch (ProxyMode)
+                {
+                    case ProxyModeEnum.System: return WebRequest.DefaultWebProxy;
+                    case ProxyModeEnum.None: return new WebProxy();
+                    case ProxyModeEnum.Custom:
+                    {
+                        try
+                        {
+                            var strs = ProxySetting.Split(':');
+                            var port = int.Parse(strs[1]);
+                            var address = IPAddress.Parse(strs[0]);
+                            var porxy = new WebProxy(address.ToString(), port);
+                            return porxy;
+                        }
+                        catch (Exception e)
+                        {
+                            App.Log(e);
+                            return WebRequest.DefaultWebProxy;
+                        }
+                    }
+
+                }
+                return null;
+            }
         }
 
         private string _proxySetting = "127.0.0.1:1080";
@@ -87,7 +130,7 @@ namespace MoeLoader.Core
         }
         
 
-        private int _maxOnLoadingImageCount = 10;
+        private int _maxOnLoadingImageCount = 8;
 
         public int MaxOnLoadingImageCount   
         {
@@ -159,26 +202,13 @@ namespace MoeLoader.Core
             set => SetField(ref _historyKeywords, value, nameof(HistoryKeywords));
         }
 
-        [JsonIgnore]
-        public IWebProxy Proxy
-        {
-            get
-            {
-                switch (ProxyMode)
-                {
-                    case ProxyModeEnum.None: return new WebProxy();
-                    case ProxyModeEnum.Costom: return new WebProxy(new Uri(ProxySetting), false);
-                    case ProxyModeEnum.System: return WebRequest.DefaultWebProxy;
-                }
-                return null;
-            }
-        }
+        
 
         
         public void Save()
         {
             var json = JsonConvert.SerializeObject(this);
-            File.WriteAllText(Res.AppSettingJsonFilePath, json);
+            File.WriteAllText(App.SettingJsonFilePath, json);
         }
 
         public static Settings Load()
@@ -186,9 +216,9 @@ namespace MoeLoader.Core
             Settings settings;
             try
             {
-                if (File.Exists(Res.AppSettingJsonFilePath))
+                if (File.Exists(App.SettingJsonFilePath))
                 {
-                    var json = File.ReadAllText(Res.AppSettingJsonFilePath);
+                    var json = File.ReadAllText(App.SettingJsonFilePath);
                     settings = JsonConvert.DeserializeObject<Settings>(json);
                 }
                 else
@@ -206,11 +236,10 @@ namespace MoeLoader.Core
         }
     }
 
-    /// <inheritdoc />
     /// <summary>
-    /// 提供绑定所需的通知接口
+    /// 实现绑定所需的属性值变更通知接口
     /// </summary>
-    public class NotifyBase : INotifyPropertyChanged
+    public class BindingObject : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         protected bool SetField<T>(ref T field, T value, string propertyName)

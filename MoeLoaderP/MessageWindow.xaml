@@ -22,8 +22,8 @@
                 </TransformGroup>
             </TextBlock.RenderTransform><Run Text="&#xf071;"/></TextBlock>
 
-        <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" Margin="102.667,28,24,10" ><Run Text="非常抱歉，MoeLoader +1"/><Run Text="s"/><Run Text=" 遇到致命错误，您可以将下面显示的错误信息发送至 plusky@126.com 以报告该问题。"/></TextBlock>
-        <Expander x:Name="MessageTextBoxExpander" Header="展开详细信息" Grid.Row="1">
+        <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" Margin="113,28,24,10" ><Run Text="非常抱歉，MoeLoader +1"/><Run Text="s"/><Run Text=" 遇到致命错误，您可以将下面显示的错误信息发送至 plusky@126.com 以报告该问题。"/></TextBlock>
+        <Expander x:Name="MessageTextBoxExpander" Header="展开详细异常信息" Grid.Row="1">
             <Grid Background="#FFE5E5E5">
                 <TextBox x:Name="MessageTextBox" TextWrapping="Wrap" Text="TextBox" Height="300" VerticalScrollBarVisibility="Auto" FontSize="10" IsReadOnly="True"  />
             </Grid>

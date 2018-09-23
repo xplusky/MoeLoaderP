@@ -1,10 +1,13 @@
 # MoeLoader-P
 
 ***
+## 安装 & 使用 & 更新记录
+
+> http://leaful.com/moeloader-p
 
 ## 关于 MoeLoader-P 
 
-MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 8102-90 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，已多年未更新，本项目参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
+MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018 Sept. ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，已多年未更新，本项目参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
 
 ## MoeLoader-P 特点
 
@@ -22,12 +25,10 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 8102-90 ，为 Moeloader 图片浏
 
 - booru 类型站点引擎已重构，其他站点陆续跟进更新中。
 
-- 欢迎提供建议，软件神秘代码： { hit F8 10 times }
+- 欢迎提供建议，神秘代码： { hit F8 ten times }
+ 
+## 已知Bug及计划中实现功能
 
-## 下载 MoeLoader-P
+- 下载文件名规则自定义
 
-> 下载地址 https://github.com/xplusky/app-store/blob/master/moeloaderp-publish/setup.exe?raw=true
-
-## 计划中实现功能
-
-- 下载文件名自定义
+- 部分站点下载图片出错

@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MoeLoader.Core;
 
@@ -11,32 +12,91 @@ namespace MoeLoader.UI
     public partial class SettingsControl
     {
         private Settings Settings { get; set; }
-
+        private string _tempCustomProxyText;
+        private string _tempNameFormatText;
         public SettingsControl()
         {
             InitializeComponent();
 
-            FNRsite.Click += FileNameFormatButtonOnClick;
-            FNRid.Click += FileNameFormatButtonOnClick;
-            FNRtag.Click += FileNameFormatButtonOnClick;
-            FNRdesc.Click += FileNameFormatButtonOnClick;
-            FNRauthor.Click += FileNameFormatButtonOnClick;
-            FNRdate.Click += FileNameFormatButtonOnClick;
-            FNRimgp.Click += FileNameFormatButtonOnClick;
+            foreach (Button button in NameFormatPanel.Children)
+            {
+                button.Click += FileNameFormatButtonOnClick;
+            }
 
             SaveFolderBrowseButton.Click += SaveFolderBrowseButtonOnClick;
             ClearHistoryButton.Click += ClearHistoryButtonOnClick;
+
+            CustomProxyTextBox.GotFocus += (sender, args) => _tempCustomProxyText = CustomProxyTextBox.Text;
+            CustomProxyTextBox.LostFocus += CustomProxyTextBlockOnLostFocus;
+            ProxyModeComboBox.SelectionChanged += ProxyModeComboBoxOnSelectionChanged;
+            FileNameFormatTextBox.GotFocus += (sender, args) => _tempNameFormatText = FileNameFormatTextBox.Text;
+            FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
+
+            
+        }
+
+        private void FileNameFormatTextBoxOnLostFocus(object sender, RoutedEventArgs e)
+        {
+            var isbad = false;
+            var output = FileNameFormatTextBox.Text.Trim();
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                if (!output.Contains(c)) continue;
+                isbad = true;
+                output = output.Replace($"{c}", "");
+            }
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                FileNameFormatTextBox.Text = _tempNameFormatText;
+                return;
+            }
+            if(isbad) ShowMessagePopup("文件名包含非法字符，已自动去除");
+            FileNameFormatTextBox.Text = output;
+        }
+
+        private void ProxyModeComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CustomProxyTextBox.IsEnabled = ProxyModeComboBox.SelectedIndex == 2;
+        }
+
+        private void CustomProxyTextBlockOnLostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var strs = CustomProxyTextBox.Text.Split(':');
+                var port = int.Parse(strs[1]);
+                var address = IPAddress.Parse(strs[0]);
+                var _ = new WebProxy(address.ToString(), port);
+                Settings.ProxySetting = CustomProxyTextBox.Text;
+            }
+            catch
+            {
+                ShowMessagePopup("代理地址格式不正确，应类似于 127.0.0.1:1080 形式");
+                CustomProxyTextBox.Text = _tempCustomProxyText;
+            }
+        }
+
+        private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Settings.ProxyMode))
+            {
+                
+            }
         }
 
         private void ClearHistoryButtonOnClick(object sender, RoutedEventArgs e)
         {
             Settings.HistoryKeywords.Clear();
+            ShowMessagePopup("已清除历史记录");
         }
 
         public void Init(Settings settings)
         {
             Settings = settings;
             DataContext = Settings;
+            Settings.PropertyChanged += SettingsOnPropertyChanged;
+
+            CustomProxyTextBox.Text = Settings.ProxySetting;
         }
 
         private void SaveFolderBrowseButtonOnClick(object sender, RoutedEventArgs e)
@@ -52,65 +112,6 @@ namespace MoeLoader.UI
                 Settings.ImageSavePath = diaglog.FileNames.ToArray()[0];
             }
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-            //if (txtProxy.Text.Trim().Length > 0)
-            //{
-            //    string add = txtProxy.Text.Trim();
-            //    bool right = false;
-            //    if (System.Text.RegularExpressions.Regex.IsMatch(add, @"^.+:(\d+)$"))
-            //    {
-            //        int port;
-            //        if (int.TryParse(add.Substring(add.IndexOf(':') + 1), out port))
-            //        {
-            //            if (port > 0 && port < 65535)
-            //            {
-            //                // todo MainWindow.Proxy = txtProxy.Text.Trim();
-            //                right = true;
-            //            }
-            //        }
-            //    }
-            //    if (!right)
-            //    {
-            //        MessageBox.Show(this, "代理地址格式不正确，应类似于 127.0.0.1:1080 形式",
-            //            AppRes.ProgramName, MessageBoxButton.OK, MessageBoxImage.Warning);
-            //        return;
-            //    }
-            //}
-            //else
-            //    MainWindow.Proxy = "";
-
-
-
-            //if (rtNoProxy.IsChecked.Value)
-            //{
-            //    MainWindow.ProxyType = ProxyType.None;
-            //}
-            //else if (rtSystem.IsChecked.Value)
-            //{
-            //    MainWindow.ProxyType = ProxyType.System;
-            //}
-            //else
-            //{
-            //    MainWindow.ProxyType = ProxyType.Custom;
-            //}
-
-            //MainWindow.BossKey = (System.Windows.Forms.Keys)Enum.Parse(typeof(System.Windows.Forms.Keys), txtBossKey.Text);
-            // MainWindow.namePatter = txtPattern.Text.Replace(";", "；").Trim();
-            
-            
-        }
-
-        public bool VerifyFileNamePattern()
-        {
-            if (FileNamePatternTextBox.Text.Trim().Length <= 0) return true;
-            if (!Path.GetInvalidFileNameChars().Any(rInvalidChar => !rInvalidChar.Equals('<') && FileNamePatternTextBox.Text.Contains(rInvalidChar.ToString()))) return true;
-            MessageBox.Show( "文件命名格式不正确，不能含有 \\ / : * ? \" > | 等路径不支持的字符",Res.AppDisplayName, MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-
         
         /// <summary>
         /// 插入格式到规则文本框
@@ -119,21 +120,25 @@ namespace MoeLoader.UI
         {
             var btn = (Button)sender;
             var format = btn.Content.ToString();
-            var selectstart = FileNamePatternTextBox.SelectionStart;
+            var selectstart = FileNameFormatTextBox.SelectionStart;
 
-            if (string.IsNullOrWhiteSpace(FileNamePatternTextBox.SelectedText))
+            if (string.IsNullOrWhiteSpace(FileNameFormatTextBox.SelectedText))
             {
-                FileNamePatternTextBox.Text = FileNamePatternTextBox.Text.Insert(selectstart, format.Contains("imgp") ? format.Replace("n", "3") : format);
+                FileNameFormatTextBox.Text = FileNameFormatTextBox.Text.Insert(selectstart, format.Contains("imgp") ? format.Replace("n", "3") : format);
             }
             else
             {
-                FileNamePatternTextBox.SelectedText = format.Contains("imgp") ? format.Replace("n", "3") : format;
-                FileNamePatternTextBox.SelectionLength = 0;
+                FileNameFormatTextBox.SelectedText = format.Contains("imgp") ? format.Replace("n", "3") : format;
+                FileNameFormatTextBox.SelectionLength = 0;
             }
-            FileNamePatternTextBox.SelectionStart = selectstart + format.Length;
-            FileNamePatternTextBox.Focus();
+            FileNameFormatTextBox.SelectionStart = selectstart + format.Length;
+            FileNameFormatTextBox.Focus();
         }
 
-        
+        public void ShowMessagePopup(string message)
+        {
+            PopupMessageTextBlock.Text = message;
+            this.Sb("ShowMesaageSb").Begin();
+        }
     }
 }

@@ -32,50 +32,11 @@ namespace MoeLoader.Core
         {
             var sb = new Storyboard();
             // opacity
-            var opacitykeyframes = new DoubleAnimationUsingKeyFrames
-            {
-                KeyFrames = {
-                    new EasingDoubleKeyFrame(0d,KeyTime.FromTimeSpan(TimeSpan.Zero)),
-                    new EasingDoubleKeyFrame(1d,KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.3d)))
-                    {
-                        EasingFunction = new ExponentialEase{ EasingMode = EasingMode.EaseOut}
-                    }
-                },
-            };
-            Storyboard.SetTargetProperty(opacitykeyframes, new PropertyPath("(UIElement.Opacity)"));
-            Storyboard.SetTarget(opacitykeyframes,target);
-            sb.Children.Add(opacitykeyframes);
-
+            sb.Children.Add(EasyDoubleTimeLine(target, 0, 1, 0.3, "(UIElement.Opacity)"));
             // scale x
-            var scalexframes = new DoubleAnimationUsingKeyFrames
-            {
-                KeyFrames = {
-                    new EasingDoubleKeyFrame(0.9d,KeyTime.FromTimeSpan(TimeSpan.Zero)),
-                    new EasingDoubleKeyFrame(1d,KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.3d)))
-                    {
-                        EasingFunction = new ExponentialEase{ EasingMode = EasingMode.EaseOut}
-                    }
-                },
-            };
-            Storyboard.SetTargetProperty(scalexframes, new PropertyPath("(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"));
-            Storyboard.SetTarget(scalexframes, target);
-            sb.Children.Add(scalexframes);
-
+            sb.Children.Add(EasyDoubleTimeLine(target, 0.9, 1, 0.3, "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"));
             // scale y
-            var scaleyframes = new DoubleAnimationUsingKeyFrames
-            {
-                KeyFrames = {
-                    new EasingDoubleKeyFrame(0.9d,KeyTime.FromTimeSpan(TimeSpan.Zero)),
-                    new EasingDoubleKeyFrame(1d,KeyTime.FromTimeSpan(TimeSpan.FromSeconds(0.3d)))
-                    {
-                        EasingFunction = new ExponentialEase{ EasingMode = EasingMode.EaseOut}
-                    }
-                },
-            };
-            Storyboard.SetTargetProperty(scaleyframes, new PropertyPath("(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"));
-            Storyboard.SetTarget(scaleyframes, target);
-            sb.Children.Add(scaleyframes);
-
+            sb.Children.Add(EasyDoubleTimeLine(target, 0.9, 1, 0.3, "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"));
             return sb;
         }
 
@@ -87,6 +48,23 @@ namespace MoeLoader.Core
         public static string ToDecodedUrl(this string orgstr)
         {
             return HttpUtility.UrlDecode(orgstr);
+        }
+
+        private static DoubleAnimationUsingKeyFrames EasyDoubleTimeLine(DependencyObject target,double fromValue, double toValue, double timeSec,string path)
+        {
+            var frames = new DoubleAnimationUsingKeyFrames
+            {
+                KeyFrames = {
+                    new EasingDoubleKeyFrame(fromValue,KeyTime.FromTimeSpan(TimeSpan.Zero)),
+                    new EasingDoubleKeyFrame(toValue,KeyTime.FromTimeSpan(TimeSpan.FromSeconds(timeSec)))
+                    {
+                        EasingFunction = new ExponentialEase{ EasingMode = EasingMode.EaseOut}
+                    }
+                },
+            };
+            Storyboard.SetTargetProperty(frames,new PropertyPath(path));
+            Storyboard.SetTarget(frames,target);
+            return frames;
         }
     }
 

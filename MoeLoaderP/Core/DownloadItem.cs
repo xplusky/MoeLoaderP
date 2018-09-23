@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Handlers;
 using System.Threading;
@@ -11,7 +9,10 @@ using System.Windows.Media;
 
 namespace MoeLoader.Core
 {
-    public class DownloadItem : NotifyBase
+    /// <summary>
+    /// 表示下载列表中的单个项目（可以有多个子项目）
+    /// </summary>
+    public class DownloadItem : BindingObject
     {
         public Settings Settings { get; set; }
         public ImageItem ImageItem { get; set; }
@@ -24,11 +25,9 @@ namespace MoeLoader.Core
         }
 
         public string FileName { get; set; }
-        public string Host { get; set; }
         public string LocalFileShortName { get; set; }
         public string LocalFileFullName { get; set; }
         public string Referer { get; set; }
-        public bool NoVerify { get; set; }
 
         public event Action<DownloadItem> DownloadStatusChanged; 
 
@@ -109,21 +108,30 @@ namespace MoeLoader.Core
             {
                 try
                 {
-                    var hchandler = new HttpClientHandler();
-                    var progressHandler = new ProgressMessageHandler(hchandler);
-                    var client = new HttpClient(progressHandler);
-
-                    if (ImageItem.Referer != null) client.DefaultRequestHeaders.Referrer = new Uri(ImageItem.Referer);
-                    progressHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
+                    NetSwap net;
+                    if (ImageItem.Net == null)
+                    {
+                        net = new NetSwap(Settings);
+                        if (ImageItem.FileReferer != null) net.SetReferer(ImageItem.FileReferer);
+                        net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
+                    }
+                    else
+                    {
+                        net = ImageItem.Net;
+                        net.SetReferer(ImageItem.FileReferer);
+                        net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
+                    }
+                    net.SetTimeOut(500);
 
                     DownloadStatus = DownloadStatusEnum.Downloading;
-                    var data = await client.GetAsync(ImageItem.OriginalUrl, token);
+                    var data = await net.Client.GetAsync(ImageItem.FileUrl, token);
                     var bytes = await data.Content.ReadAsByteArrayAsync();
                     using (var fs = new FileStream(GetFilePath(), FileMode.Create))
                     {
                         await fs.WriteAsync(bytes, 0, bytes.Length, token);
                     }
-                    App.Log("download ok");
+                    Progress = 100;
+                    App.Log($"{ImageItem.FileUrl} download ok");
                     DownloadStatus = DownloadStatusEnum.Success;
                 }
                 catch (TaskCanceledException)
@@ -143,12 +151,12 @@ namespace MoeLoader.Core
         
         public string GetFilePath()
         {
-            var org = Path.GetFileName(ImageItem.OriginalUrl);
+            var org = Path.GetFileName(ImageItem.FileUrl);
             if (org == null)
             {
                 return null;
             }
-            var txt = Path.GetExtension(ImageItem.OriginalUrl);
+            var txt = Path.GetExtension(ImageItem.FileUrl);
 
             var folder = Path.Combine(Settings.ImageSavePath, ImageItem.Site.ShortName);
             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);

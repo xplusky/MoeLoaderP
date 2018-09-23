@@ -1,5 +1,6 @@
 ﻿namespace MoeLoader.Core.Sites
 {
+    // Booru 类型站点集合
     public class Konachan : BooruSite
     {
         public override string HomeUrl => "https://konachan.com";
@@ -31,7 +32,7 @@
         public override string HomeUrl => "http://behoimi.org";
         public override string DisplayName => "Behoimi";
         public override string ShortName => "behoimi";
-        public override string Referer => "http://behoimi.org/post";
+        public override string GetThumbnailReferer(ImageItem item) => "http://behoimi.org/post";
 
         public override string GetHintQuery(SearchPara para)
             => $"{HomeUrl}/tag/index.xml?limit=8&order=count&name={para.Keyword}";
@@ -59,7 +60,6 @@
         public override string HomeUrl => "https://donmai.us";
         public override string DisplayName => "Donmai";
         public override string ShortName => "donmai";
-        public override string Referer => "https://donmai.us/";
 
         public override string GetHintQuery(SearchPara para)
             => $"{HomeUrl}/tags/autocomplete.json?search%5Bname_matches%5D={para.Keyword}";
@@ -85,7 +85,6 @@
         public override string GetPageQuery(SearchPara para)
             => $"{HomeUrl}/post.xml?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
-        public override string Referer => "https://lolibooru.moe";
     }
 
     public class Atfbooru : BooruSite
@@ -101,7 +100,6 @@
             => $"{HomeUrl}/posts.json?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
         public override SiteTypeEnum SiteType => SiteTypeEnum.Json;
-        public override string Referer => "https://atfbooru.ninja";
     }
 
     public class Rule34 : BooruSite

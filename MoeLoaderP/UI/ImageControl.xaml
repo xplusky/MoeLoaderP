@@ -77,6 +77,13 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LoadingAnimeGrid">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
     </UserControl.Resources>
@@ -160,7 +167,7 @@
                             <GradientStop Color="#A8404040" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
-                    <TextBlock x:Name="ResolutionTextBlock" Text="{Binding ImageItem.DimensionString}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ResolutionTextBlock" Text="{Binding ImageItem.ResolutionText}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Orientation="Horizontal" Margin="4,4,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <Border x:Name="ScoreBorder" Visibility="Visible" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" Margin="0,0,4,0" >
@@ -189,7 +196,7 @@
                             <GradientStop Color="#A8404040" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
-                    <TextBlock x:Name="FileTypeTextBlock" Text="{Binding ImageItem.ImageFileType}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="FileTypeTextBlock" Text="{Binding ImageItem.FileType}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
             </Grid>
         </CheckBox>

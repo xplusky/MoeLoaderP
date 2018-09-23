@@ -10,7 +10,7 @@ namespace MoeLoader.Core.Sites
     /// <summary>
     /// e-shuushuu.net Fixed 20180922
     /// </summary>
-    public class Eshuushuu : MoeSite
+    public class EshuuSite : MoeSite
     {
         public override string HomeUrl => "http://e-shuushuu.net";
 
@@ -18,7 +18,7 @@ namespace MoeLoader.Core.Sites
 
         public override string ShortName => "e-shu";
 
-        public Eshuushuu()
+        public EshuuSite()
         {
             SurpportState.IsSupportScore = false;
 
@@ -34,7 +34,7 @@ namespace MoeLoader.Core.Sites
             var url =  $"{HomeUrl}/?page={para.PageIndex}";
             if (Net == null)
             {
-                Net = new MoeNet(Settings);
+                Net = new NetSwap(Settings);
             }
 
             if (!string.IsNullOrWhiteSpace(para.Keyword))
@@ -58,29 +58,17 @@ namespace MoeLoader.Core.Sites
                         break;
                 }
 
-                //e-shuushuu需要将关键词转换为tag id，然后进行搜索
-                var req = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
-                req.UserAgent = MoeSession.DefUA;
-                req.Proxy = Settings.Proxy;
-                req.Timeout = 8000;
-                req.Method = "POST";
-                //prevent 303
-                req.AllowAutoRedirect = false;
-                var buf = Encoding.UTF8.GetBytes(data);
-                req.ContentType = "application/x-www-form-urlencoded";
-                req.ContentLength = buf.Length;
-                var str = req.GetRequestStream();
-                str.Write(buf, 0, buf.Length);
-                str.Close();
-                var rsp = req.GetResponse();
+                //e-shuushuu需要将关键词转换为tag id，然后进行搜索 todo 这里要测试
+                var net = new NetSwap(Settings);
+                net.HttpClientHandler.AllowAutoRedirect = false; //prevent 303
+                var res = await net.Client.GetAsync(url);
+                var loc = res.Headers.Location;
+
                 //http://e-shuushuu.net/search/results/?tags=2
-                //HTTP 303然后返回实际地址
-                var location = rsp.Headers["Location"];
-                rsp.Close();
-                if (!string.IsNullOrEmpty(location))
+                if (!string.IsNullOrEmpty(loc.OriginalString))
                 {
                     //非完整地址，需要前缀
-                    url = rsp.Headers["Location"] + "&page=" + para.PageIndex;
+                    url = loc + "&page=" + para.PageIndex;
                 }
                 else
                 {
@@ -109,7 +97,7 @@ namespace MoeLoader.Core.Sites
                 var imgHref = imgNode.SelectSingleNode(".//a[@class='thumb_image']");
                 var fileUrl = imgHref.Attributes["href"].Value;
                 if (fileUrl.StartsWith("/")) fileUrl = HomeUrl + fileUrl;
-                item.OriginalUrl = fileUrl;
+                item.FileUrl = fileUrl;
                 var previewUrl = imgHref.SelectSingleNode("img").Attributes["src"].Value;
                 if (previewUrl.StartsWith("/")) previewUrl = HomeUrl + previewUrl;
                 item.ThumbnailUrl = previewUrl;

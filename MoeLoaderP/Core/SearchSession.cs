@@ -52,7 +52,7 @@ namespace MoeLoader.Core
             {
                 temppara = CurrentSearchPara.Clone(); // 浅复制一份参数
                 mpage.LastRealPageIndex = temppara.PageIndex;
-                // 搜索起始页的所有图片（若网站查询参数支持条件过滤，则在搜索时就自动过滤）
+                // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就自动过滤）
                 SearchStatusChanged?.Invoke(this, $"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
                 images = await temppara.Site.GetRealPageImagesAsync(temppara);
             }
@@ -147,7 +147,7 @@ namespace MoeLoader.Core
                     foreach (var s in CurrentSearchPara.FilterFileTpyeText.Split(';'))
                     {
                         if (string.IsNullOrWhiteSpace(s)) continue;
-                        if (string.Equals(item.ImageFileType, s, StringComparison.CurrentCultureIgnoreCase)) del = true;
+                        if (string.Equals(item.FileType, s, StringComparison.CurrentCultureIgnoreCase)) del = true;
                     }
                 }
                 if (!del) continue;

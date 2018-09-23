@@ -72,4 +72,23 @@ namespace MoeLoader.Core
             throw new NotImplementedException();
         }
     }
+
+    [ValueConversion(typeof(Settings.ProxyModeEnum), typeof(int))]
+    public class ProxyModeToSelectIndexConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if(value == null) throw new Exception("badvalue");
+            var index = (int) (Settings.ProxyModeEnum) value;
+            return index;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) throw new Exception("badvalue");
+            var e = (Settings.ProxyModeEnum) (int) value;
+            return e;
+        }
+    }
+
 }

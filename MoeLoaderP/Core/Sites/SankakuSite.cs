@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.UI.WebControls;
 using System.Windows;
 using Newtonsoft.Json;
 
 namespace MoeLoader.Core.Sites
 {
-    public class Sankaku  : MoeSite
+    public class SankakuSite  : MoeSite
     {
         public override string HomeUrl => $"https://{SitePrefix}.sankakucomplex.com";
 
@@ -22,21 +16,21 @@ namespace MoeLoader.Core.Sites
 
         public override string ShortName => "sankakucomplex";
 
-        public override string Referer => $"{HomeUrl}/post/show/12345";
+        public string Referer => $"{HomeUrl}/post/show/12345";
 
         public string SitePrefix => SubListIndex == 0 ? "chan" : "idol";
 
-        public override MoeNet Net
+        public override NetSwap Net
         {
             get => SubListIndex == 0 ? _chanNet : _idolNet;
             set => base.Net = value;
         }
 
-        private MoeNet _chanNet =null, _idolNet=null;
+        private NetSwap _chanNet, _idolNet;
         private bool _isChanLogin, _isIdolLogin;
         private string _chanQuery, _idolQuery;
 
-        public Sankaku(bool isxmode)
+        public SankakuSite(bool isxmode)
         {
             SubMenu.Add("chan");
             if (isxmode) SubMenu.Add("idol");
@@ -46,8 +40,8 @@ namespace MoeLoader.Core.Sites
         {
             if (channel == "chan")
             {
-                _chanNet = new MoeNet(Settings, HomeUrl);
-                var loginhost = $"https://capi-beta.sankakucomplex.com";
+                _chanNet = new NetSwap(Settings, HomeUrl);
+                const string loginhost = "https://capi-beta.sankakucomplex.com";
                 var accountIndex = new Random().Next(0, _user.Length);
                 var tempuser = _user[accountIndex];
                 var temppass = GetSankakuPwHash(_pass[accountIndex]);
@@ -77,8 +71,8 @@ namespace MoeLoader.Core.Sites
             }
             if (channel == "idol")
             {
-                _idolNet = new MoeNet(Settings, HomeUrl);
-                var loginhost = $"https://iapi.sankakucomplex.com";
+                _idolNet = new NetSwap(Settings, HomeUrl);
+                const string loginhost = "https://iapi.sankakucomplex.com";
                 var accountIndex = new Random().Next(0, _user.Length);
                 var tempuser = _user[accountIndex];
                 var temppass = GetSankakuPwHash(_pass[accountIndex]);
@@ -110,7 +104,7 @@ namespace MoeLoader.Core.Sites
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
         {
             var channel = SitePrefix;
-            var query = "";
+            string query;
             HttpClient client;
             switch (channel)
             {
@@ -148,7 +142,7 @@ namespace MoeLoader.Core.Sites
             {
                 var img = new ImageItem();
                 img.ThumbnailUrl = $"{https}{item.preview_url}";
-                img.OriginalUrl = $"{https}{item.file_url}";
+                img.FileUrl = $"{https}{item.file_url}";
                 img.Width = (int)item.width;
                 img.Height = (int)item.height;
                 img.Id = (int)item.id;
@@ -160,6 +154,8 @@ namespace MoeLoader.Core.Sites
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
                 img.Site = this;
+                img.Net = Net;
+                img.ThumbnailReferer = Referer;
 
                 imageitems.Add(img);
             }

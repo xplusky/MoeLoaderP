@@ -17,11 +17,14 @@ namespace MoeLoader.Core.Sites
         public virtual SiteTypeEnum SiteType => SiteTypeEnum.Xml;
 
         public abstract string GetHintQuery(SearchPara para);
-        
+
+        public virtual string GetThumbnailReferer(ImageItem item) => HomeUrl;
+        public virtual string GetFileReferer(ImageItem item) => item.DetailUrl;
+
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var list = new AutoHintItems();
-            var client = new MoeNet(Settings).Client;
+            var client = new NetSwap(Settings).Client;
             switch (SiteType)
             {
                 case SiteTypeEnum.Xml:
@@ -74,7 +77,7 @@ namespace MoeLoader.Core.Sites
         public async Task<ImageItems> GetRealPageImagesAsyncFromXml(SearchPara para)
         {
             
-            var client = new MoeNet(Settings).Client;
+            var client = new NetSwap(Settings).Client;
             var query = GetPageQuery(para);
             var xmlstr = await client.GetStreamAsync(query);
 
@@ -104,14 +107,16 @@ namespace MoeLoader.Core.Sites
                     img.Author = post.Attribute("author")?.Value;
                     img.Source = post.Attribute("source")?.Value;
                     img.IsExplicit = post.Attribute("rating")?.Value.ToLower() != "s";
-                    img.OriginalUrl = UrlPre + post.Attribute("file_url")?.Value;
+                    img.FileUrl = UrlPre + post.Attribute("file_url")?.Value;
                     img.DetailUrl = GetDetailPageUrl(img);
                     img.Site = this;
                     double.TryParse(post.Attribute("created_at")?.Value, out var creatat);
                     if (creatat > 0) img.CreatTime = new DateTime(1970, 1, 1, 0, 0, 0, 0) + TimeSpan.FromSeconds(creatat);
                     int.TryParse(post.Attribute("score")?.Value, out var score);
                     img.Score = score;
-                    img.Referer = img.DetailUrl;
+                    img.FileReferer = img.DetailUrl;
+                    img.ThumbnailReferer = GetThumbnailReferer(img);
+                   // img.Net = Net;
 
                     imageitems.Add(img);
                 }
@@ -121,7 +126,7 @@ namespace MoeLoader.Core.Sites
 
         public async Task<ImageItems> GetRealPageImagesAsyncFromJson(SearchPara para)
         {
-            var client = new MoeNet(Settings).Client;
+            var client = new NetSwap(Settings).Client;
             var query = GetPageQuery(para);
             var jsonStr = await client.GetStringAsync(query);
             dynamic list = JsonConvert.DeserializeObject(jsonStr);
@@ -131,7 +136,7 @@ namespace MoeLoader.Core.Sites
             {
                 var img = new ImageItem();
                 img.ThumbnailUrl = $"{item.preview_file_url}";
-                img.OriginalUrl = $"{item.large_file_url}";
+                img.FileUrl = $"{item.large_file_url}";
                 img.Width = (int) item.image_width;
                 img.Height = (int) item.image_height;
                 img.Id = (int) item.id;
@@ -144,7 +149,10 @@ namespace MoeLoader.Core.Sites
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
                 img.Site = this;
-
+                img.DetailUrl = GetDetailPageUrl(img);
+                img.FileReferer = img.DetailUrl;
+                img.ThumbnailReferer = GetThumbnailReferer(img);
+                //img.Net = Net;
                 imageitems.Add(img);
             }
 

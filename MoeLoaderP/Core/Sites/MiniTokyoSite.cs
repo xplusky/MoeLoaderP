@@ -8,7 +8,10 @@ using HtmlAgilityPack;
 
 namespace MoeLoader.Core.Sites
 {
-    public class MiniTokyo : MoeSite
+    /// <summary>
+    /// www.minitokyo.net fixed 20180923
+    /// </summary>
+    public class MiniTokyoSite : MoeSite
     {
         public override string HomeUrl => "http://www.minitokyo.net";
 
@@ -21,7 +24,7 @@ namespace MoeLoader.Core.Sites
 
         private string Type => SubListIndex == 0 ? "wallpapers" : "scans";// 1 搜索壁纸  2搜索扫描图
         
-        public MiniTokyo()
+        public MiniTokyoSite()
         {
             SubMenu.Add("壁纸");
             SubMenu.Add("扫描图");
@@ -32,7 +35,7 @@ namespace MoeLoader.Core.Sites
             if (Net == null)
             {
                 // login
-                Net = new MoeNet(Settings, HomeUrl);
+                Net = new NetSwap(Settings, HomeUrl);
                 var accIndex = new Random().Next(0, _user.Length);
                 var content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
@@ -58,12 +61,12 @@ namespace MoeLoader.Core.Sites
                 url += "&order=id&display=extensive&page=" + page;
                 query = url.Replace("&amp;", "&");
             }
-            var pageSource = await Net.Client.GetStringAsync(query);
-            
-            // load imageitems
-            var imgs = new ImageItems();
+            var imgs = new ImageItems(); 
             var doc = new HtmlDocument();
-            doc.LoadHtml(pageSource);
+            using (var pagestream = await Net.Client.GetStreamAsync(query))
+            {
+                doc.Load(pagestream);
+            }
             //retrieve all elements via xpath
             var wallNode = doc.DocumentNode.SelectSingleNode("//ul[@class='wallpapers']");
             var imgNodes = wallNode.SelectNodes(".//li");
@@ -90,7 +93,7 @@ namespace MoeLoader.Core.Sites
                 //http://static.minitokyo.net/downloads/24/25/583774.jpg   full
                 var previewUrl = "http://static2.minitokyo.net/view" + sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5));
                 var fileUrl = "http://static.minitokyo.net/downloads" + previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5));
-                item.OriginalUrl = fileUrl;
+                item.FileUrl = fileUrl;
                 // \n\tMasaru -\n\tMasaru \n\tSubmitted by\n\t\tadri24rukiachan\n\t4200x6034, 4 Favorites\n
                 var info = imgNode.SelectSingleNode(".//div").InnerText;
                 var infomc = Regex.Match(info, @"^\n\t(?<title>.*?)\s-\n.*?\n\t.*?by\n\t\t(?<author>.*?)\n\t(?<size>\d+x\d+),\s(?<score>\d+)\s");
@@ -110,6 +113,7 @@ namespace MoeLoader.Core.Sites
                 
                 int.TryParse(infomc.Groups["score"].Value,out var score);
                 item.Score = score;
+                item.ThumbnailReferer = HomeUrl;
                 item.Site = this;
                 imgs.Add(item);
             }

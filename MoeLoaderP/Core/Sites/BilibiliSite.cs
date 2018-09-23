@@ -10,15 +10,13 @@ namespace MoeLoader.Core.Sites
     /// <summary>
     /// B站画友、摄影 Fixed 20180922
     /// </summary>
-    public class Bilibili : MoeSite
+    public class BilibiliSite : MoeSite
     {
         public override string HomeUrl => $"https://h.bilibili.com/{Cat}";
 
         public override string DisplayName => "哔哩哔哩";
 
         public override string ShortName => "bilibili";
-
-        public override string Referer => HomeUrl;
 
         public string Cat
         {
@@ -33,7 +31,7 @@ namespace MoeLoader.Core.Sites
             }
         }
 
-        public Bilibili()
+        public BilibiliSite()
         {
             SubMenu.Add("画友",new MoeSiteSubMenu(
                 new MoeSiteSubMenuItem("最新"), 
@@ -73,7 +71,7 @@ namespace MoeLoader.Core.Sites
                     query = $"{api}/Photo/list?category=sifu&type={type}&page_num={para.PageIndex - 1}&page_size={count}";
                     break;
             }
-            var net = new MoeNet(Settings);
+            var net = new NetSwap(Settings);
             var jsonstr = await net.Client.GetStringAsync(query);
 
             return await Task.Run(() =>
@@ -98,7 +96,7 @@ namespace MoeLoader.Core.Sites
                     {
                         img.ThumbnailUrl = $"{i0?.img_src}@512w_512h_1e";
                     }
-                    img.OriginalUrl = $"{i0?.img_src}";
+                    img.FileUrl = $"{i0?.img_src}";
                     img.Id = (int) item.item.doc_id;
                     img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                     img.Title = $"{item.item?.title}";
@@ -112,7 +110,7 @@ namespace MoeLoader.Core.Sites
                             var child = new ImageItem
                             {
                                 ThumbnailUrl = $"{pic.img_src}@512w_10000h_0-0-512-512a",
-                                OriginalUrl = $"{pic.img_src}",
+                                FileUrl = $"{pic.img_src}",
                                 Site = this,
                             };
                             if (pic.img_width != null) child.Width = (int)pic.img_width;
@@ -123,6 +121,8 @@ namespace MoeLoader.Core.Sites
                     }
 
                     img.Site = this;
+                    img.Net = null;
+                    img.ThumbnailReferer = HomeUrl;
                     items.Add(img);
                 }
                 return items;
