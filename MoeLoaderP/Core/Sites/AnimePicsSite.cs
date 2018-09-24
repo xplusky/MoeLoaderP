@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -31,13 +30,20 @@ namespace MoeLoader.Core.Sites
 
         public async Task LoginAsync()
         {
-            var index = new Random().Next(0, _user.Length);
-            //http://mjv-art.org/login/submit
+            
             Net = new NetSwap(Settings, HomeUrl);
-
-            var buf = Encoding.UTF8.GetBytes("login=" + _user[index] + "&password=" + _pass[index]);
-            var respose = await Net.Client.PostAsync(HomeUrl + "/login/submit", new ByteArrayContent(buf));
-            if (respose.IsSuccessStatusCode) IsLogon = true;
+            Net.SetTimeOut(20);
+            var index = new Random().Next(0, _user.Length);
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"login",_user[index] },
+                {"password",_pass[index] }
+            });
+            var respose = await Net.Client.PostAsync($"{HomeUrl}/login/submit", content); // http://mjv-art.org/login/submit
+            if (respose.IsSuccessStatusCode)
+            {
+                IsLogon = true;
+            }
             else
             {
                 App.Log("https://anime-pictures.net 登陆失败");
@@ -54,13 +60,14 @@ namespace MoeLoader.Core.Sites
 
             // pages source
             //http://mjv-art.org/pictures/view_posts/0?lang=en
-            var url = HomeUrl + "/pictures/view_posts/" + (para.PageIndex - 1) + "?lang=en";
+            var url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?lang=en";
 
             if (para.Keyword.Length > 0)
             {
                 //http://mjv-art.org/pictures/view_posts/0?search_tag=suzumiya%20haruhi&order_by=date&ldate=0&lang=en
-                url = HomeUrl + "/pictures/view_posts/" + (para.PageIndex - 1) + "?search_tag=" + para.Keyword + "&order_by=date&ldate=0&lang=en";
+                url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
             }
+            
             var pageString = await Net.Client.GetStringAsync(url);
 
             // images
@@ -68,37 +75,59 @@ namespace MoeLoader.Core.Sites
 
             var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
-            //retrieve all elements via xpath
-            var nodes = doc.DocumentNode.SelectSingleNode("//div[@id='posts']").SelectNodes(".//span[@class='img_block_big']");
-            if (nodes == null)
+            var pre = "https:";
+            var listnode = doc.DocumentNode.SelectNodes("//*[@id='posts']/div[@class='posts_block']/span[@class='img_block_big']");
+            if (listnode == null) return imgs;
+            foreach (var node in listnode)
             {
-                return imgs;
-            }
-
-            foreach (var imgNode in nodes)
-            {
-                var anode = imgNode.SelectSingleNode("a");
-                //details will be extracted from here
-                //eg. http://mjv-art.org/pictures/view_post/181876?lang=en
-                var detailUrl = anode.Attributes["href"].Value;
-                //eg. Anime picture 2000x3246 withblack hair,brown eyes
-                var title = anode.Attributes["title"]?.Value;
-                var sampleUrl = anode.SelectSingleNode("picture/source/img")?.Attributes["src"].Value;
-
-                //extract id from detail url
-                var id = Regex.Match(detailUrl.Substring(detailUrl.LastIndexOf('/') + 1), @"\d+").Value;
-                var index = Regex.Match(title??"", @"\d+").Index;
-
-                var dimension = title?.Substring(index);
-                var tags = "";
-                //if (title.IndexOf(' ', index) > -1)
-                //{
-                //dimension = title.Substring(index, title.IndexOf(' ', index) - index);
-                //tags = title.Substring(title.IndexOf(' ', index) + 1);
-                //}
-
-                var img = GenerateImg(detailUrl, sampleUrl, dimension, tags.Trim(), id);
-                if (img != null) imgs.Add(img);
+                var img = new ImageItem();
+                //img.Net = Net;
+                img.Site = this;
+                var imgnode = node.SelectSingleNode("a/picture/img");
+                var idattr = imgnode.GetAttributeValue("id", "0");
+                int.TryParse(Regex.Match(idattr, @"[^0-9]+").Value, out var id);
+                img.Id = id;
+                var src = imgnode.GetAttributeValue("src", "");
+                if (!string.IsNullOrWhiteSpace(src)) img.ThumbnailUrl = $"{pre}{src}";
+                var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
+                int.TryParse(resstrs[0], out var width);
+                int.TryParse(resstrs[1], out var height);
+                img.Width = width;
+                img.Height = height;
+                img.ThumbnailReferer = "https://anime-pictures.net/pictures/view_posts/";
+                var scorestr = node.SelectSingleNode("div[@class='img_block_text']/span")?.InnerText.Trim();
+                int.TryParse(Regex.Match(scorestr??"0", @"[^0-9]+").Value, out var score);
+                img.Score = score;
+                var detail = node.SelectSingleNode("a").GetAttributeValue("href", "");
+                if (!string.IsNullOrWhiteSpace(detail))
+                {
+                    img.DetailUrl = $"{HomeUrl}{detail}";
+                    img.GetDetailAction = async () =>
+                    {
+                        var detialurl = img.DetailUrl;
+                        var net = new NetSwap(Settings);
+                        net.SetTimeOut(25);
+                        try
+                        {
+                            var detailPageStr = await net.Client.GetStringAsync(detialurl);
+                            var subdoc = new HtmlDocument();
+                            subdoc.LoadHtml(detailPageStr);
+                            var downnode = subdoc.DocumentNode?.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");
+                            var fileurl = downnode?.GetAttributeValue("href", "");
+                            if (!string.IsNullOrWhiteSpace(fileurl))
+                            {
+                                img.FileUrl = $"{HomeUrl}{fileurl}";
+                                img.FileReferer = detialurl;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            App.Log(e);
+                        }
+                    };
+                }
+                
+                imgs.Add(img);
             }
 
             return imgs;

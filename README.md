@@ -1,6 +1,9 @@
+[![Pull Request Welcome](https://img.shields.io/badge/Pull%20request-welcome-brightgreen.svg)](#)
+[![license](https://img.shields.io/github/license/Bililive/BililiveRecorder.svg)](#)
+
 # MoeLoader-P
 
-***
+
 ## 安装 & 使用 & 更新记录
 
 > http://leaful.com/moeloader-p
@@ -19,13 +22,13 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018 Sept. ，为 Moel
 
 - 优化右键菜单，支持标签大爆炸，点击后直接上搜索栏；下载支持多页子项目、动态显示进度。
 
-- 增加了B站画友、摄影站点。
+- 增加了B站bilibili画友、摄影站点。
 
 - 暂时移除了导出下载列表、已浏览、预览窗口、自定义站点、背景图的功能，其他功能持续优化中。
 
 - booru 类型站点引擎已重构，其他站点陆续跟进更新中。
 
-- 欢迎提供建议，神秘代码： { hit F8 ten times }
+- 欢迎提供建议，Pull Request Welcome ，神秘代码： { hit F8 ten times }
  
 ## 已知Bug及计划中实现功能
 

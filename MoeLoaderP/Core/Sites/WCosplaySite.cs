@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MoeLoader.Core.Sites
 {
+    // todo 清理中
     public class WCosplaySite : MoeSite
     {
         public override string HomeUrl => "https://worldcosplay.net";

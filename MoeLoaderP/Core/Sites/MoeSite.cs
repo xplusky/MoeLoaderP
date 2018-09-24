@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// 图片站点基类
+    /// 图片站点基类，需要开发新站点的请继承此类
     /// </summary>
     public abstract class MoeSite
     {
@@ -41,7 +41,7 @@ namespace MoeLoader.Core.Sites
         public virtual NetSwap Net { get; set; }
         
         /// <summary>
-        /// 异步获取图片列表
+        /// 异步获取图片列表，开发者需实现该功能
         /// </summary>
         public abstract Task<ImageItems> GetRealPageImagesAsync(SearchPara para);
 

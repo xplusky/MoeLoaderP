@@ -12,7 +12,7 @@ using HtmlAgilityPack;
 
 namespace MoeLoader.Core.Sites
 {
-    // todo 修复下载问题
+    // todo 需修复下载问题 清理中
     public class ZeroChanSite : MoeSite
     {
         public override string HomeUrl => "http://www.zerochan.net";
@@ -135,7 +135,7 @@ namespace MoeLoader.Core.Sites
 
             var txt = await Net.Client.GetStringAsync(url);
 
-            var lines = txt.Split(new char[] { '\n' });
+            var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)
             {
                 //Tony Taka|Mangaka|

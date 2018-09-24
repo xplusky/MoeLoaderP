@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 namespace MoeLoader.Core.Sites
 {
+    /// <summary>
+    /// sankakucomplex.com fixed 20180924
+    /// </summary>
     public class SankakuSite  : MoeSite
     {
         public override string HomeUrl => $"https://{SitePrefix}.sankakucomplex.com";

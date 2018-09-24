@@ -32,7 +32,19 @@ namespace MoeLoader.Core
         public string PreviewUrl { get; set; } // 中等
         public string JpegUrl { get; set; }
         public string FileReferer { get; set; }
-        public string FileUrl { get; set; } //最大
+        private string _fileUrl;
+
+        public string FileUrl
+        {
+            get => _fileUrl;
+            set
+            {
+                _fileUrl = value; 
+                OnPropertyChanged(nameof(FileUrl));
+                OnPropertyChanged(nameof(FileType));
+            } 
+        } //最大
+
         public string FileType
         {
             get
@@ -70,15 +82,17 @@ namespace MoeLoader.Core
 
         public async Task GetDetailAsync()
         {
-            if (GetDetailAction == null) return;
-            try
+            await Task.Run(() =>
             {
-                await Task.Run(GetDetailAction);
-            }
-            catch (Exception e)
-            {
-                App.Log(e);
-            }
+                try
+                {
+                    GetDetailAction?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    App.Log(e);
+                }
+            });
         }
     }
 
