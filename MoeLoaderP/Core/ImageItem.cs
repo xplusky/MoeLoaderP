@@ -34,7 +34,7 @@ namespace MoeLoader.Core
         public string FileReferer { get; set; }
         private string _fileUrl;
 
-        public string FileUrl
+        public string FileUrl //最大
         {
             get => _fileUrl;
             set
@@ -43,7 +43,7 @@ namespace MoeLoader.Core
                 OnPropertyChanged(nameof(FileUrl));
                 OnPropertyChanged(nameof(FileType));
             } 
-        } //最大
+        }
 
         public string FileType
         {
@@ -74,9 +74,9 @@ namespace MoeLoader.Core
         public ImageItems ChilldrenItems { get; set; } = new ImageItems();
         public int ImagesCount => ChilldrenItems.Count;
         public Visibility ImagesCountVisibility => ChilldrenItems.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
-        
+
         /// <summary>
-        /// 若图片的某些信息需要单独获取（例如原图URL可能位于详情页面），实现提取信息操作
+        /// 获取详细信息委托 (若图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
         public Action GetDetailAction { get; set; }
 

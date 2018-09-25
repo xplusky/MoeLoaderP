@@ -12,7 +12,9 @@ using HtmlAgilityPack;
 
 namespace MoeLoader.Core.Sites
 {
-    // todo 需修复下载问题 清理中
+    /// <summary>
+    /// zerochan.net site todo 需修复下载问题 清理中
+    /// </summary>
     public class ZeroChanSite : MoeSite
     {
         public override string HomeUrl => "http://www.zerochan.net";
@@ -25,9 +27,6 @@ namespace MoeLoader.Core.Sites
         private readonly string[] _pass = { "zeropass" };
         private string _beforeWord = "", _beforeUrl = "";
 
-        /// <summary>
-        /// zerochan.net site
-        /// </summary>
         public ZeroChanSite()
         {
             SurpportState.IsSupportScore = false;
@@ -196,8 +195,5 @@ namespace MoeLoader.Core.Sites
 
             return img;
         }
-        
-        
-
     }
 }

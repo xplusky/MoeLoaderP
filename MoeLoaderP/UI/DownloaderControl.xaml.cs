@@ -101,7 +101,7 @@ namespace MoeLoader.UI
             if (DownloadItemsListBox.SelectedIndex >= 0)
             {
                 var path = Path.GetDirectoryName(DownloadItems[DownloadItemsListBox.SelectedIndex].GetFilePath());
-                if (path != null) Process.Start(path);
+                path?.Go();
             }
             ContextMenuPopup.IsOpen = false;
         }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MoeLoader.Core;
 
@@ -28,23 +24,13 @@ namespace MoeLoader.UI
             DataContext = this;
             InitializeComponent();
 
-            MouseEnter += OnMouseEnter;
+            MouseEnter += (sender, args) => VisualStateManager.GoToState(this, nameof(MouseOverState), true);
             MouseLeave += (sender, args) => VisualStateManager.GoToState(this, nameof(NormalState), true);
 
             ScoreBorder.Visibility = item.Site.SurpportState.IsSupportScore ? Visibility.Visible : Visibility.Collapsed;
             ResolutionBorder.Visibility = item.Site.SurpportState.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
-            DetailPageLinkButton.Click += DetailPageLinkButtonOnClick;
 
-        }
-
-        private void DetailPageLinkButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            Process.Start(ImageItem.DetailUrl);
-        }
-
-        private void OnMouseEnter(object sender, MouseEventArgs e)
-        {
-            VisualStateManager.GoToState(this, nameof(MouseOverState), true);
+            DetailPageLinkButton.Click += (sender, args) => ImageItem.DetailUrl.Go(); ;
         }
 
         public async Task LoadImageAsync()
@@ -79,6 +65,7 @@ namespace MoeLoader.UI
                         bitm.StreamSource = stream;
                         bitm.EndInit();
                         bitm.Freeze();
+                        stream.Dispose();
                         return bitm;
                     }
                     catch (Exception ex)

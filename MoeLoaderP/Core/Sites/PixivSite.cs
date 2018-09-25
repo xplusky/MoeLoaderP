@@ -21,7 +21,7 @@ namespace MoeLoader.Core.Sites
 
         public override string HomeUrl => "https://www.pixiv.net";
 
-        public override string DisplayName => "pixiv.net";
+        public override string DisplayName => "Pixiv";
 
         public override string ShortName => "pixiv";
         public string Referer => _referer;
@@ -73,7 +73,7 @@ namespace MoeLoader.Core.Sites
             // 请求2
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                {"pixiv_id=", _user[index]},
+                {"pixiv_id", _user[index]},
                 {"captcha", ""},
                 {"password", _pass[index]},
                 {"post_key", postKey},

@@ -54,7 +54,7 @@ namespace MoeLoader.Core
             Client.Timeout = TimeSpan.FromSeconds(sec);
         }
 
-        public NetSwap CreatNewWithCopyCookie()
+        public NetSwap CreatNewWithRelatedCookie()
         {
             var net = new NetSwap(Settings);
             net.HttpClientHandler.CookieContainer = HttpClientHandler.CookieContainer;

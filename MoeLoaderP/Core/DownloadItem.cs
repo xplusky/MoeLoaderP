@@ -176,6 +176,11 @@ namespace MoeLoader.Core
         {
             return null;
         }
+
+        public void AutoRename()
+        {
+
+        }
     }
 
     public class DownloadItems : ObservableCollection<DownloadItem> { }

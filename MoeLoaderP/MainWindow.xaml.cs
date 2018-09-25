@@ -57,7 +57,7 @@ namespace MoeLoader
             AboutVersionTextBlock.Text = $"版本：{App.Version.ToString(3)} ({App.CompileTime:yyyy/MM/dd})";
             AboutDonateLink.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Visible;
             AboutDonateImage.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Collapsed;
-            AboutHomeLinkButton.Click += (sender, args) => Process.Start("http://leaful.com/moeloader-p");
+            AboutHomeLinkButton.Click += (sender, args) => "http://leaful.com/moeloader-p".Go();
         }
 
         private void DownloaderMenuCheckBoxCheckChanged(object sender, RoutedEventArgs e)
@@ -247,7 +247,7 @@ namespace MoeLoader
                 ShowPopupMessage($"软件新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}；更新请点“关于”按钮");
                 NewVersionTextBlock.Text = $"新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}";
                 NewVersionPanel.Visibility = Visibility.Visible;
-                NewVersionDownloadButton.Click += (sender, args) => Process.Start($"{upobject.UpdateUrl}");
+                NewVersionDownloadButton.Click += (sender, args) => $"{upobject.UpdateUrl}".Go();
             }
         }
 

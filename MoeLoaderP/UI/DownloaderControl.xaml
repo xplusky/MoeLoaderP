@@ -37,7 +37,7 @@
                 TextWrapping="Wrap"
                 d:LayoutOverrides="Height" Margin="4,0,0,0" />
         </Border>
-        <Popup x:Name="ContextMenuPopup" IsOpen="{Binding IsChecked, ElementName=SettingsMenuCheckBox}" Placement="Mouse" VerticalOffset="-11" Focusable="True" StaysOpen="False" AllowsTransparency="True" Margin="0,0,0,32">
+        <Popup x:Name="ContextMenuPopup" Placement="Mouse" VerticalOffset="-11" Focusable="True" StaysOpen="False" AllowsTransparency="True" Margin="0,0,0,32">
             <Grid x:Name="ContextMenuPopupGrid" RenderTransformOrigin="0.5,0.5">
                 <Grid.RenderTransform>
                     <TransformGroup>

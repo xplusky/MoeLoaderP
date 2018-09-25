@@ -15,9 +15,6 @@ namespace MoeLoader.Core
         /// <summary>
         /// 获取当前FrameworkElement的Storyboard资源
         /// </summary>
-        /// <param name="element"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static Storyboard Sb(this FrameworkElement element,string key)
         {
             return (Storyboard) element.Resources[key];
@@ -29,12 +26,9 @@ namespace MoeLoader.Core
         public static Storyboard LargenShowSb(this FrameworkElement target)
         {
             var sb = new Storyboard();
-            // opacity
-            sb.Children.Add(EasyDoubleTimeLine(target, 0, 1, 0.3, "(UIElement.Opacity)"));
-            // scale x
-            sb.Children.Add(EasyDoubleTimeLine(target, 0.9, 1, 0.3, "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"));
-            // scale y
-            sb.Children.Add(EasyDoubleTimeLine(target, 0.9, 1, 0.3, "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"));
+            sb.AddEasyDoubleAnime(target, 0, 1, 0.3, "opacity");
+            sb.AddEasyDoubleAnime(target, 0.9, 1, 0.3, "scale-x");
+            sb.AddEasyDoubleAnime(target, 0.9, 1, 0.3, "scale-y");
             return sb;
         }
 
@@ -48,9 +42,34 @@ namespace MoeLoader.Core
             return HttpUtility.UrlDecode(orgstr);
         }
 
-        private static DoubleAnimationUsingKeyFrames EasyDoubleTimeLine(DependencyObject target,double fromValue, double toValue, double timeSec,string path)
+        public static void Go(this string url)
         {
-            var frames = new DoubleAnimationUsingKeyFrames
+            try
+            {
+                Process.Start(url);
+            }
+            catch 
+            {
+                // go fail
+            }
+        }
+
+        public static void AddEasyDoubleAnime(this Storyboard sb, DependencyObject target, double fromValue, double toValue, double timeSec, string property)
+        {
+            var path="";
+            switch (property)
+            {
+                case "opacity":
+                    path = "(UIElement.Opacity)";
+                    break;
+                case "scale-x":
+                    path = "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)";
+                    break;
+                case "scale-y":
+                    path = "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)";
+                    break;
+            }
+            var animation = new DoubleAnimationUsingKeyFrames
             {
                 KeyFrames = {
                     new EasingDoubleKeyFrame(fromValue,KeyTime.FromTimeSpan(TimeSpan.Zero)),
@@ -60,9 +79,9 @@ namespace MoeLoader.Core
                     }
                 },
             };
-            Storyboard.SetTargetProperty(frames,new PropertyPath(path));
-            Storyboard.SetTarget(frames,target);
-            return frames;
+            Storyboard.SetTargetProperty(animation, new PropertyPath(path));
+            Storyboard.SetTarget(animation, target);
+            sb.Children.Add(animation);
         }
     }
 

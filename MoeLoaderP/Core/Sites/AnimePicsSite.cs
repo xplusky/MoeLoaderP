@@ -26,6 +26,7 @@ namespace MoeLoader.Core.Sites
         public AnimePicsSite()
         {
             SurpportState.IsSupportScore = false;
+            SurpportState.IsSupportRating = false;
         }
 
         public async Task LoginAsync()
@@ -50,6 +51,8 @@ namespace MoeLoader.Core.Sites
                 throw new Exception("网站登陆失败");
             }
         }
+
+        public NetSwap AutoHintNet { get; set; }
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
         {
@@ -135,19 +138,22 @@ namespace MoeLoader.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (!IsLogon)
-            {
-                await LoginAsync();
-            }
+            if(AutoHintNet==null)AutoHintNet = new NetSwap(Settings,HomeUrl);
+            AutoHintNet.SetReferer(HomeUrl);
             //http://mjv-art.org/pictures/autocomplete_tag POST
             var re = new AutoHintItems();
             //no result with length less than 3
             if (para.Keyword.Length < 3) return re;
-
-            var url = HomeUrl + "/pictures/autocomplete_tag";
-            var txt = await Net.Client.GetStringAsync(url);
-
+            var mcontent = new MultipartFormDataContent("---------------" + DateTime.Now.Ticks.ToString("x"));
+            mcontent.Add(new StringContent($"Content-Disposition: form-data; name=\"tag\"\r\n\r\n{para.Keyword}"));
+            var url = $"{HomeUrl}/pictures/autocomplete_tag";
+            var response = await AutoHintNet.Client.PostAsync(url, mcontent, token);
+            // todo 这里post数据失败，希望有大神能够解决
+            if (!response.IsSuccessStatusCode) return new AutoHintItems();
+            
+            var txt = await response.Content.ReadAsStringAsync();
             //JSON format response
+
             //{"tags_list": [{"c": 3, "t": "suzumiya <b>haruhi</b> no yuutsu"}, {"c": 1, "t": "suzumiya <b>haruhi</b>"}]}
             var tagList = ((new System.Web.Script.Serialization.JavaScriptSerializer()).DeserializeObject(txt) as Dictionary<string, object>)?["tags_list"] as object[];
             for (var i = 0; i < tagList.Length && i < 8; i++)
