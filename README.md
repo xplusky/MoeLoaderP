@@ -1,5 +1,4 @@
 [![Pull Request Welcome](https://img.shields.io/badge/Pull%20request-welcome-brightgreen.svg)](#)
-[![license](https://img.shields.io/github/license/Bililive/BililiveRecorder.svg)](#)
 
 # MoeLoader-P
 
@@ -10,11 +9,11 @@
 
 ## 关于 MoeLoader-P 
 
-MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018 Sept. ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，已多年未更新，本项目参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
+MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，作者已销声匿迹失多年，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
 
 ## MoeLoader-P 特点
 
-- 代码完全重构，将原来的自定义站点的项目 MoeSite 、SitePack 整合到原项目中，使用新的语法与类库，降低代码耦合度，更符合语法规范，使用 Task 代替 Thred ， HttpClient 代替 WebClient 等。
+- 代码完全重构，将原来的自定义站点的项目 MoeSite 、SitePack 整合到原项目中，使用新的语法与类库，降低代码耦合度，更符合语法规范，使用 Task 代替 Thred ， HttpClient 代替 WebClient 等，尽量减少不必要的静态类的使用。
 
 - 界面重构，使用了更多美化元素，使用了 Storyboard 、Effect 、VisualStateManager 、Fontawesome 、FluentWpf 等组件对软件进行美化，支持 Win10 亚克力效果。
 
@@ -28,7 +27,9 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018 Sept. ，为 Moel
 
 - booru 类型站点引擎已重构，其他站点陆续跟进更新中。
 
-- 欢迎提供建议，Pull Request Welcome ，神秘代码： { hit F8 ten times }
+- 欢迎提供建议，需要自己开发站点可以 Fork 本项目到您自己的 Repositories 中，修改您自己的版本，可以从 Core\Sites\MoeSite.cs 开始上手，若开发好了站点功能需要加入 Master Branch 的敬请 Pull Request。
+
+- 软件神秘代码： ( smash F8 ten times )
  
 ## 已知Bug及计划中实现功能
 

@@ -142,7 +142,7 @@ namespace MoeLoader
                         if (_f8KeyDownTimes <= 3) break;
                         if (_f8KeyDownTimes > 3 && _f8KeyDownTimes < 10)
                         {
-                            ShowPopupMessage($"还剩 {10 - _f8KeyDownTimes} 次冲击！");
+                            ShowPopupMessage($"还剩 {10 - _f8KeyDownTimes} 次粉碎！");
                             break;
                         }
                         if (_f8KeyDownTimes >= 10) Settings.HaveEnteredXMode = true;

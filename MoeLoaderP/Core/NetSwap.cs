@@ -13,6 +13,7 @@ namespace MoeLoader.Core
         public HttpClientHandler HttpClientHandler { get; set; }
         public ProgressMessageHandler ProgressMessageHandler { get; set; }
         public HttpClient Client { get; set; }
+        public Settings Settings { get; set; }
 
         public NetSwap()
         {
@@ -23,6 +24,7 @@ namespace MoeLoader.Core
 
         public NetSwap(Settings settings,string cookieurl = null)
         {
+            Settings = settings;
             HttpClientHandler = new HttpClientHandler {Proxy = settings.Proxy};
             if (cookieurl != null)
             {
@@ -50,6 +52,13 @@ namespace MoeLoader.Core
         public void SetTimeOut(double sec)
         {
             Client.Timeout = TimeSpan.FromSeconds(sec);
+        }
+
+        public NetSwap CreatNewWithCopyCookie()
+        {
+            var net = new NetSwap(Settings);
+            net.HttpClientHandler.CookieContainer = HttpClientHandler.CookieContainer;
+            return net;
         }
     }
 }

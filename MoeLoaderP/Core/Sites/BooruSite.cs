@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// Booru 引擎站点基类 Fixed 20180922
+    /// Booru 引擎图片站点基类 Fixed 20180922
     /// </summary>
     public abstract class BooruSite : MoeSite
     {

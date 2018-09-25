@@ -10,7 +10,7 @@ using System.Windows.Media;
 namespace MoeLoader.Core
 {
     /// <summary>
-    /// 表示下载列表中的单个项目（可以有多个子项目）
+    /// 表示下载列表中的单个项目（可以有一组子项目）
     /// </summary>
     public class DownloadItem : BindingObject
     {
@@ -25,9 +25,10 @@ namespace MoeLoader.Core
         }
 
         public string FileName { get; set; }
-        public string LocalFileShortName { get; set; }
-        public string LocalFileFullName { get; set; }
-        public string Referer { get; set; }
+        public string LocalFileShortNameWithoutExt { get; set; }
+
+        public string LocalFileFullPath =>
+            Path.Combine(Settings.ImageSavePath, ImageItem.Site.ShortName, $"{LocalFileShortNameWithoutExt}.{ImageItem.FileType.ToLower()}");
 
         public event Action<DownloadItem> DownloadStatusChanged; 
 
@@ -171,9 +172,21 @@ namespace MoeLoader.Core
             set => SetField(ref _statusText, value, nameof(StatusText));
         }
 
-        
+        public string GenFileNameWithouExt()
+        {
+            return null;
+        }
     }
 
     public class DownloadItems : ObservableCollection<DownloadItem> { }
-    public enum DownloadStatusEnum { Success, Failed, Cancel, IsExist, Downloading, WaitForDownload }
+
+    public enum DownloadStatusEnum
+    {
+        Success,
+        Failed,
+        Cancel,
+        IsExist,
+        Downloading,
+        WaitForDownload
+    }
 }
