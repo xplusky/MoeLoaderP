@@ -89,5 +89,11 @@ namespace MoeLoader
         {
             Debug.WriteLine($"{DateTime.Now:yyMMdd-HHmmss-ff}>>{objs.Aggregate((o, o1) => $"{o}\r\n{o1}")}");
         }
+
+        public static Action<string> ShowMessageAction;
+        public static void ShowMessage(string message)
+        {
+            ShowMessageAction?.Invoke(message);
+        }
     }
 }

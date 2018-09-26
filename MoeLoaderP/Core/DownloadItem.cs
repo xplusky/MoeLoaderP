@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Handlers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace MoeLoader.Core
@@ -118,7 +117,7 @@ namespace MoeLoader.Core
                     }
                     else
                     {
-                        net = ImageItem.Net;
+                        net = ImageItem.Net.CreatNewWithRelatedCookie();
                         net.SetReferer(ImageItem.FileReferer);
                         net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
                     }
@@ -172,12 +171,31 @@ namespace MoeLoader.Core
             set => SetField(ref _statusText, value, nameof(StatusText));
         }
 
-        public string GenFileNameWithouExt()
+        public void GenFileNameWithouExt()
         {
-            return null;
+            var set = Settings;
+            if (set.IsUseCustomFileNameFormat)
+            {
+
+            }
+            else
+            {
+                if (SubItems.Count > 1)
+                {
+                    foreach (var child in SubItems)
+                    {
+                        child.LocalFileShortNameWithoutExt = $"{ImageItem.Site.ShortName} {ImageItem.Id}-{child.SubIndex}";
+                    }
+                }
+                else
+                {
+                    LocalFileShortNameWithoutExt = $"{ImageItem.Site.ShortName} {ImageItem.Id}";
+                }
+                
+            }
         }
 
-        public void AutoRename()
+        public void AutoRename(int seed)
         {
 
         }

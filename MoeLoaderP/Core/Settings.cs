@@ -77,8 +77,8 @@ namespace MoeLoader.Core
 
         public enum ProxyModeEnum
         {
-            System = 0,
-            None = 1,
+            None = 0,
+            System = 1,
             Custom = 2
         }
 
@@ -97,8 +97,8 @@ namespace MoeLoader.Core
             {
                 switch (ProxyMode)
                 {
-                    case ProxyModeEnum.System: return WebRequest.DefaultWebProxy;
                     case ProxyModeEnum.None: return new WebProxy();
+                    case ProxyModeEnum.System: return WebRequest.DefaultWebProxy;
                     case ProxyModeEnum.Custom:
                     {
                         try

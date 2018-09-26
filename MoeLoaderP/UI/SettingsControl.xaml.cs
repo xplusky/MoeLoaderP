@@ -50,7 +50,7 @@ namespace MoeLoader.UI
                 FileNameFormatTextBox.Text = _tempNameFormatText;
                 return;
             }
-            if(isbad) ShowMessagePopup("文件名包含非法字符，已自动去除");
+            if(isbad) App.ShowMessage("文件名包含非法字符，已自动去除");
             FileNameFormatTextBox.Text = output;
         }
 
@@ -71,7 +71,7 @@ namespace MoeLoader.UI
             }
             catch
             {
-                ShowMessagePopup("代理地址格式不正确，应类似于 127.0.0.1:1080 形式");
+                App.ShowMessage("代理地址格式不正确，应类似于 127.0.0.1:1080 形式");
                 CustomProxyTextBox.Text = _tempCustomProxyText;
             }
         }
@@ -87,7 +87,7 @@ namespace MoeLoader.UI
         private void ClearHistoryButtonOnClick(object sender, RoutedEventArgs e)
         {
             Settings.HistoryKeywords.Clear();
-            ShowMessagePopup("已清除历史记录");
+            App.ShowMessage("已清除历史记录");
         }
 
         public void Init(Settings settings)

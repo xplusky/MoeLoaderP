@@ -30,7 +30,7 @@ namespace MoeLoader.Core.Sites
             SubMenu.Add("扫描图");
         }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             if (Net == null)
             {
@@ -43,7 +43,7 @@ namespace MoeLoader.Core.Sites
                     {"password", _pass[accIndex]}
                 });
                 // Net.Client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-                await Net.Client.PostAsync("http://my.minitokyo.net/login", content);
+                await Net.Client.PostAsync("http://my.minitokyo.net/login", content, token);
 
             }
 

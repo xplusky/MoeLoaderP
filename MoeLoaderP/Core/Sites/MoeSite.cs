@@ -23,15 +23,18 @@ namespace MoeLoader.Core.Sites
 
         /// <summary>
         /// 站点的短名称，将作为站点的唯一标识，eg. yande
-        /// 提示：可以在程序集中加入以短名称作为文件名的ico图标（eg. yande.ico），该图标会自动作为该站点的图标显示在站点列表中。
+        /// 提示：可以在Assets\SiteIcon中加入加入以短名称作为文件名的ico图标（eg. yande.ico），该图标会作为该站点的图标显示在站点列表中。
         /// </summary>
         public abstract string ShortName { get; }
         
         /// <summary>
-        /// 站点支持情况
+        /// 站点支持的功能情况
         /// </summary>
         public MoeSiteSurpportState SurpportState { get; set; } = new MoeSiteSurpportState();
         
+        /// <summary>
+        /// 附加菜单，若不需要则无需设置
+        /// </summary>
         public MoeSiteSubMenu SubMenu { get; set; } = new MoeSiteSubMenu();
 
         public int SubListIndex { get; set; }
@@ -43,16 +46,15 @@ namespace MoeLoader.Core.Sites
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
         /// </summary>
-        public abstract Task<ImageItems> GetRealPageImagesAsync(SearchPara para);
+        public abstract Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token);
 
 
         /// <summary>
         /// 获取关键词自动提示列表
         /// </summary>
-        public virtual async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
+        public virtual Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            await Task.Delay(1, token);
-            return new AutoHintItems();
+            return null;
         }
 
         public BitmapImage Icon => new BitmapImage(new Uri($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative));

@@ -74,8 +74,8 @@
                 </Grid.RowDefinitions>
                 <ComboBox x:Name="ProxyModeComboBox" Margin="4" SelectedIndex="{Binding ProxyMode, Converter={StaticResource ProxyModeToSelectIndexConverter}, Mode=TwoWay}" Height="24" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
                           ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}">
-                    <ComboBoxItem Content="使用IE代理" />
                     <ComboBoxItem Content="不使用代理" />
+                    <ComboBoxItem Content="使用IE代理" />                    
                     <ComboBoxItem Content="自定义" />
                 </ComboBox>
                 <TextBox

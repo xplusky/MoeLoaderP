@@ -54,7 +54,7 @@ namespace MoeLoader.Core.Sites
 
         public NetSwap AutoHintNet { get; set; }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             if (!IsLogon)
             {
@@ -164,138 +164,6 @@ namespace MoeLoader.Core.Sites
             }
 
             return re;
-        }
-
-        private ImageItem GenerateImg(string detailUrl, string sampleUrl, string dimension, string tags, string id)
-        {
-            var intId = int.Parse(id);
-
-            int width = 0, height = 0;
-            try
-            {
-                //706x1000
-                width = int.Parse(dimension.Substring(0, dimension.IndexOf('x')));
-                height = int.Parse(dimension.Substring(dimension.IndexOf('x') + 1));
-            }
-            catch { }
-
-            //convert relative url to absolute
-            detailUrl = FormattedImgUrl(HomeUrl, detailUrl);
-            sampleUrl = FormattedImgUrl(HomeUrl, sampleUrl);
-
-            var img = new ImageItem()
-            {
-                //Date = "N/A",
-                //FileSize = file_size.ToUpper(),
-                //Desc = tags,
-                Id = intId,
-                //JpegUrl = preview_url,
-                //OriginalUrl = preview_url,
-                //PreviewUrl = preview_url,
-                ThumbnailUrl = sampleUrl,
-                //Score = 0,
-                Width = width,
-                Height = height,
-                //Tags = tags,
-                DetailUrl = detailUrl,
-            };
-
-            img.GetDetailAction = async () =>
-            {
-                var i = img;
-                var p = Settings.Proxy;
-                //retrieve details
-                
-                var response = await Net.Client.GetAsync(i.DetailUrl);
-                if(!response.IsSuccessStatusCode) return;
-                var page = await response.Content.ReadAsStringAsync();
-                //<b>Size:</b> 326.0KB<br>
-                var index = page.IndexOf("<b>Size");
-                var fileSize = page.Substring(index + 12, page.IndexOf('<', index + 12) - index - 12).Trim();
-                //<b>Date Published:</b> 2/24/12 4:57 PM
-                index = page.IndexOf("<b>Date Published");
-                var date = page.Substring(index + 22, page.IndexOf('<', index + 22) - index - 22).Trim();
-
-                var doc = new HtmlDocument();
-                doc.LoadHtml(page);
-                //retrieve rating node
-                var ratnode = doc.DocumentNode.SelectSingleNode("//span[@id='rating']");
-                int.TryParse(ratnode?.SelectSingleNode("//*[@id='score_n']")?.InnerText, out var score);
-                i.Score = score;
-
-                i.FileUrl = FormattedImgUrl(HomeUrl, ratnode?.SelectSingleNode("a")?.Attributes["href"].Value);
-
-                //retrieve img node
-                var imgnode = doc.DocumentNode.SelectSingleNode("//div[@id='big_preview_cont']");
-                var jpgUrl = FormattedImgUrl(HomeUrl, imgnode.SelectSingleNode("a").Attributes["href"].Value);
-                var previewUrl = FormattedImgUrl(HomeUrl, imgnode.SelectSingleNode("a/picture/source/img")?.Attributes["src"].Value);
-
-                // todo i.TagsText = imgnode.SelectSingleNode("a/picture/source/img")?.Attributes["alt"].Value;
-                //var sb = new StringBuilder(i.TagsText);
-                //sb.Replace("\n", " ");
-                //sb.Replace("\t", " ");
-                //var rx = new Regex("Anime.*with");
-                //if (rx.IsMatch(sb.ToString()))
-                //    i.TagsText = rx.Replace(sb.ToString(), "").Trim();
-
-                try
-                {
-                    i.Author = doc.DocumentNode.SelectSingleNode("//div[@id='cont']/div[2]/div[1]/div[1]/a/span")?.InnerText;
-                }
-                catch
-                {
-                    try
-                    {
-                        i.Author = doc.DocumentNode.SelectSingleNode("//div[@id='cont']/div[2]/div[1]/a[1]")?.InnerText;
-                    }
-                    catch { }
-                }
-
-                // i.Description = i.TagsText;
-                i.Date = date;
-                i.FileSize = fileSize;
-                i.JpegUrl = jpgUrl;
-                i.PreviewUrl = previewUrl;
-            };
-            img.Site = this;
-            img.FileReferer = HomeUrl;
-            return img;
-        }
-
-        /// <summary>
-        /// 图片地址格式化
-        /// 2016年12月对带域名型地址格式化
-        /// by YIU
-        /// </summary>
-        /// <param name="prHost">图站域名</param>
-        /// <param name="prUrl">预处理的URL</param>
-        /// <returns>处理后的图片URL</returns>
-        private static string FormattedImgUrl(string prHost, string prUrl)
-        {
-            try
-            {
-                var po = prHost.IndexOf("//");
-                var phh = prHost.Substring(0, prHost.IndexOf(':') + 1);
-                var phu = prHost.Substring(po, prHost.Length - po);
-
-                //地址中有主域名 去掉主域名
-                if (prUrl.StartsWith(phu))
-                    return prHost + prUrl.Replace(phu, "");
-
-                //地址中有子域名 补完子域名
-                else if (prUrl.StartsWith("//"))
-                    return phh + prUrl;
-
-                //地址没有域名 补完地址
-                else if (prUrl.StartsWith("/"))
-                    return prHost + prUrl;
-
-                return prUrl;
-            }
-            catch
-            {
-                return prUrl;
-            }
         }
     }
 }

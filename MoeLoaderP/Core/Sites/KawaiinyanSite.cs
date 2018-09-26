@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -24,7 +21,7 @@ namespace MoeLoader.Core.Sites
             SurpportState.IsSupportAutoHint = false;
         }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             var net = new NetSwap(Settings);
             var client = net.Client;

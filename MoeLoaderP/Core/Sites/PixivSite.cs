@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,7 +12,9 @@ using Newtonsoft.Json.Linq;
 
 namespace MoeLoader.Core.Sites
 {
-    // todo 需要优化
+    /// <summary>
+    /// pixiv  todo 需要优化 清理中
+    /// </summary>
     public class PixivSite : MoeSite
     {
         //标签, 完整标签, 作者id, 日榜, 周榜, 月榜, 作品id
@@ -24,13 +25,13 @@ namespace MoeLoader.Core.Sites
         public override string DisplayName => "Pixiv";
 
         public override string ShortName => "pixiv";
-        public string Referer => _referer;
+        public string Referer { get; private set; } = "https://www.pixiv.net/";
+
         public virtual string SubReferer => ShortName + ",pximg";
         
         private readonly string[] _user = { "moe1user", "moe3user", "a-rin-a" };
         private readonly string[] _pass = { "630489372", "1515817701", "2422093014" };
         private static string _tempPage = null;
-        private string _referer = "https://www.pixiv.net/";
 
         private bool IsLogin { get; set; }
 
@@ -39,7 +40,6 @@ namespace MoeLoader.Core.Sites
         /// </summary>
         public PixivSite()
         {
-
             SurpportState.IsSupportResolution = false;
             SurpportState.IsSupportScore = false;
 
@@ -54,15 +54,33 @@ namespace MoeLoader.Core.Sites
 
         private async Task LoginAsync()
         {
+            Net.Client.DefaultRequestHeaders.Referrer = new Uri(Referer);
+            Net.SetTimeOut(20);
+
             var hdoc = new HtmlDocument();
             
             const string loginpost = "https://accounts.pixiv.net/api/login?lang=zh";
             const string loginurl = "https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=";
 
             var index = new Random().Next(0, _user.Length);
-
             
-            Net.Client.DefaultRequestHeaders.Referrer = new Uri(Referer);
+            // get 测试网络
+            var homeseucess = false;
+            try
+            {
+                var homerespose = await Net.Client.GetAsync("https://www.pixiv.net/");
+                homeseucess = homerespose.IsSuccessStatusCode;
+            }
+            catch (Exception e)
+            {
+                App.Log(e);
+                homeseucess = false;
+            }
+            if (!homeseucess)
+            {
+                App.ShowMessage("无法连接至https://www.pixiv.net，请检查代理设置");
+                return ;
+            }
             // todo POST取登录Cookie
             //请求1 获取post_key
             var data = await Net.Client.GetStringAsync(loginurl);
@@ -81,19 +99,20 @@ namespace MoeLoader.Core.Sites
                 {"return_to", "https%3A%2F%2Fwww.pixiv.net%2F"}
             });
 
-            var respose = await Net.Client.PostAsync(loginpost, content);
-            if (respose.IsSuccessStatusCode) IsLogin = true;
+            var response = await Net.Client.PostAsync(loginpost, content);
+            if (response.IsSuccessStatusCode) IsLogin = true;
             else
             {
                 App.Log(ShortName, "自动登录失败 ");
             }
         }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             if(Net == null) Net = new NetSwap(Settings, HomeUrl);
 
             if (!IsLogin) await LoginAsync();
+            if (!IsLogin) return new ImageItems();
 
             // --------------------------page-------------------
             //if (page > 1000) throw new Exception("页码过大，若需浏览更多图片请使用关键词限定范围");
@@ -116,30 +135,28 @@ namespace MoeLoader.Core.Sites
                 if (keyWord.Length > 0)
                 {
                     //http://www.pixiv.net/search.php?s_mode=s_tag&word=hatsune&order=date_d&p=2
-                    query = $"{HomeUrl}/search.php?s_mode=s_tag" + (SubListIndex == 5 ? "_full" : "")
-                    + "&word=" + keyWord + "&order=date_d&p=" + page;
+                    query = $"{HomeUrl}/search.php?s_mode=s_tag{(SubListIndex == 5 ? "_full" : "")}&word={keyWord}&order=date_d&p={page}";
                 }
                 if (SubListIndex == 1)
                 {
-                    var memberId = 0;
-                    if (keyWord.Trim().Length == 0 || !int.TryParse(keyWord.Trim(), out memberId))
+                    if (keyWord.Trim().Length == 0 || !int.TryParse(keyWord.Trim(), out var memberId))
                     {
                         throw new Exception("必须在关键词中指定画师 id；若需要使用标签进行搜索请使用 www.pixiv.net [TAG]");
                     }
                     //member id
-                    query = HomeUrl + "/member_illust.php?id=" + memberId + "&p=" + page;
+                    query = $"{HomeUrl}/member_illust.php?id={memberId}&p={page}";
                 }
                 else if (SubListIndex == 2)
                 {
-                    query = HomeUrl + "/ranking.php?mode=daily&p=" + page;
+                    query = $"{HomeUrl}/ranking.php?mode=daily&p={page}";
                 }
                 else if (SubListIndex == 3)
                 {
-                    query = HomeUrl + "/ranking.php?mode=weekly&p=" + page;
+                    query = $"{HomeUrl}/ranking.php?mode=weekly&p={page}";
                 }
                 else if (SubListIndex == 4)
                 {
-                    query = HomeUrl + "/ranking.php?mode=monthly&p=" + page;
+                    query = $"{HomeUrl}/ranking.php?mode=monthly&p={page}";
                 }
             }
             var pageString = await Net.Client.GetStringAsync(query);
@@ -205,7 +222,7 @@ namespace MoeLoader.Core.Sites
                         var detailUrl = HomeUrl + "/member_illust.php?mode=medium&illust_id=" + id;
                         for (var i = 0; i < mangaCount; i++)
                         {
-                            var img = GenerateImg(detailUrl, sampleUrl.Replace("_p0_", "_p" + i.ToString() + "_"), id);
+                            var img = GenerateImg(detailUrl, sampleUrl.Replace("_p0_", $"_p{i}_"), id);
                             var sb = new StringBuilder();
                             sb.Append("P");
                             sb.Append(i.ToString());
@@ -253,7 +270,7 @@ namespace MoeLoader.Core.Sites
                     if (obj["illustId"] != null)
                     {
                         id = obj["illustId"].ToString();
-                        detailUrl = HomeUrl + "/member_illust.php?mode=medium&illust_id=" + id;
+                        detailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
                     }
                     if (obj["url"] != null)
                     {
@@ -320,7 +337,7 @@ namespace MoeLoader.Core.Sites
 
                 var url = string.Format(HomeUrl + "/rpc/cps.php?keyword={0}", para.Keyword);
 
-                Net.Client.DefaultRequestHeaders.Referrer = new Uri(_referer);
+                Net.Client.DefaultRequestHeaders.Referrer = new Uri(Referer);
                 var json = await Net.Client.GetStringAsync(url);
 
                 tags = (new JavaScriptSerializer()).DeserializeObject(json) as Dictionary<string, object>;
@@ -351,7 +368,7 @@ namespace MoeLoader.Core.Sites
             if (sampleUrl.StartsWith("/"))
                 sampleUrl = HomeUrl + sampleUrl;
 
-            _referer = detailUrl;
+            Referer = detailUrl;
             //string fileUrl = preview_url.Replace("_s.", ".");
             //string sampleUrl = preview_url.Replace("_s.", "_m.");
 

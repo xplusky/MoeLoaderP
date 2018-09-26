@@ -28,7 +28,7 @@ namespace MoeLoader.Core.Sites
             SubMenu.Add("角色");
         }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             // page source
             var url =  $"{HomeUrl}/?page={para.PageIndex}";
@@ -39,7 +39,7 @@ namespace MoeLoader.Core.Sites
 
             if (!string.IsNullOrWhiteSpace(para.Keyword))
             {
-                url = HomeUrl + "/search/process/";
+                url = $"{HomeUrl}/search/process/";
                 //multi search
                 string data;
                 switch (SubListIndex)
@@ -68,7 +68,7 @@ namespace MoeLoader.Core.Sites
                 if (!string.IsNullOrEmpty(loc.OriginalString))
                 {
                     //非完整地址，需要前缀
-                    url = loc + "&page=" + para.PageIndex;
+                    url = $"{loc}&page={para.PageIndex}";
                 }
                 else
                 {
@@ -79,14 +79,14 @@ namespace MoeLoader.Core.Sites
             var pageString = await Net.Client.GetStringAsync(url);
 
             // images
-            var imgs = new ImageItems();
+            var images = new ImageItems();
             var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
             //retrieve all elements via xpath
             var nodes = doc.DocumentNode.SelectNodes("//div[@class='image_thread display']");
             if (nodes == null)
             {
-                return imgs;
+                return images;
             }
             foreach (var imgNode in nodes)
             {
@@ -127,10 +127,10 @@ namespace MoeLoader.Core.Sites
                 item.DetailUrl = $"{HomeUrl}/image/{ido}";
                 item.Site = this;
 
-                imgs.Add(item);
+                images.Add(item);
             }
 
-            return imgs;
+            return images;
         }
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)

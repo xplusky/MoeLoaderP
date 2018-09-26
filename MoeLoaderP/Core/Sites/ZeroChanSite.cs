@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +29,7 @@ namespace MoeLoader.Core.Sites
 
         private bool IsLogon { get; set; }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             // logon
             if (!IsLogon)
@@ -43,11 +38,12 @@ namespace MoeLoader.Core.Sites
                 var index = new Random().Next(0, _user.Length);
                 var loginurl = "https://www.zerochan.net/login";
 
-                var response = await Net.Client.PostAsync(loginurl, new StringContent($"ref=%2F&login=Login&name={_user[index]}&password={_pass[index]}"));
+                var response = await Net.Client.PostAsync(loginurl, 
+                    new StringContent($"ref=%2F&login=Login&name={_user[index]}&password={_pass[index]}"), token);
 
                 if (response.IsSuccessStatusCode) IsLogon = true;
             }
-            if(!IsLogon)return new ImageItems();
+            if(!IsLogon) return new ImageItems();
 
             // get page source
             var pageString = "";
@@ -94,7 +90,6 @@ namespace MoeLoader.Core.Sites
 
             foreach (var imgNode in nodes)
             {
-                //   /12123123
                 var strId = imgNode.SelectSingleNode("a").Attributes["href"].Value;
                 int.TryParse(strId.Substring(1),out var id);
                 var imgHref = imgNode.SelectSingleNode(".//img");
@@ -139,7 +134,7 @@ namespace MoeLoader.Core.Sites
             {
                 //Tony Taka|Mangaka|
                 if (lines[i].Trim().Length > 0)
-                    re.Add(new AutoHintItem() { Word = lines[i].Substring(0, lines[i].IndexOf('|')).Trim() });
+                    re.Add(new AutoHintItem { Word = lines[i].Substring(0, lines[i].IndexOf('|')).Trim() });
             }
 
             return re;

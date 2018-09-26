@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
@@ -30,7 +31,7 @@ namespace MoeLoader.Core.Sites
 
         private bool IsLogin { get; set; }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             if (!IsLogin)
             {
@@ -38,13 +39,10 @@ namespace MoeLoader.Core.Sites
                 const string loginUrl = "http://yuriimg.com/account/login";
 
                 string
-                    boundary = "---------------" + DateTime.Now.Ticks.ToString("x"), //开始边界符
-                    pboundary = "--" + boundary, //分隔边界符
-                    endBoundary = "--" + boundary + "--\r\n", // 结束边界符
-                    postData = pboundary + "\r\nContent-Disposition: form-data; name=\"username\"\r\n\r\n"
-                                         + User + "\r\n" + pboundary
-                                         + "\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\n"
-                                         + Pass + "\r\n" + endBoundary;
+                    boundary = $"---------------{DateTime.Now.Ticks:x}", //开始边界符
+                    pboundary = $"--{boundary}", //分隔边界符
+                    endBoundary = $"--{boundary}--\r\n", // 结束边界符
+                    postData = $"{pboundary}\r\nContent-Disposition: form-data; name=\"username\"\r\n\r\n{User}\r\n{pboundary}\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\n{Pass}\r\n{endBoundary}";
 
                 var respose = await Net.Client.PostAsync(loginUrl, new StringContent(postData));
                 if (respose.IsSuccessStatusCode) IsLogin = true;
@@ -62,13 +60,13 @@ namespace MoeLoader.Core.Sites
                 //}
             }
 
-            var url = HomeUrl + "/post/" + para.PageIndex + ".html";
+            var url = $"{HomeUrl}/post/{para.PageIndex}.html";
             // string url = "http://yuriimg.com/show/ge407xd5o.jpg";
 
             if (para.Keyword.Length > 0)
             {
                 //http://yuriimg.com/search/index/tags/?/p/?.html
-                url = HomeUrl + "/search/index/tags/" + para.Keyword + "/p/" + para.PageIndex + ".html";
+                url = $"{HomeUrl}/search/index/tags/{para.Keyword}/p/{para.PageIndex}.html";
             }
 
             var pageSource = await Net.Client.GetStringAsync(url);

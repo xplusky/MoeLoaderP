@@ -154,9 +154,6 @@
     <Compile Include="Core\Sites\WCosplaySite.cs" />
     <Compile Include="Core\Sites\YuriimgSite.cs" />
     <Compile Include="Core\Sites\ZeroChanSite.cs" />
-    <Compile Include="PreviewWindow.xaml.cs">
-      <DependentUpon>PreviewWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\CountAdjustableBoxControl.xaml.cs">
       <DependentUpon>CountAdjustableBoxControl.xaml</DependentUpon>
     </Compile>
@@ -180,10 +177,6 @@
     <Compile Include="UI\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
-    <Page Include="PreviewWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Assets\Simple Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

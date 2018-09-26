@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,6 +30,7 @@ namespace MoeLoader
             MouseLeftButtonDown += (sender, args) => DragMove();
             DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
             DownloaderMenuCheckBox.Unchecked += DownloaderMenuCheckBoxCheckChanged;
+            App.ShowMessageAction += ShowPopupMessage;
             // elements
             MoeSettingsControl.Init(Settings);
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
@@ -43,7 +43,7 @@ namespace MoeLoader
             MoeExlorer.AnyImageLoaded += MoeExlorerOnAnyImageLoaded;
             MoeExlorer.ImageItemDownloadButtonClicked += MoeExlorerOnImageItemDownloadButtonClicked;
             MoeExlorer.MouseWheel += MoeExlorerOnMouseWheel;
-            MoeExlorer.ContextMenuTagButtonClicked += MoeExlorerOnContextMenuTagButtonClicked;
+            MoeExlorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordComboBox.KeywordText = s;
             MoeExlorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
 
             // downloader
@@ -80,10 +80,6 @@ namespace MoeLoader
             if (Keyboard.IsKeyDown(Key.LeftCtrl)) ImageSizeSlider.Value += e.Delta;
         }
 
-        private void MoeExlorerOnContextMenuTagButtonClicked(ImageItem item, string str)
-        {
-            SearchControl.KeywordComboBox.KeywordText = str;
-        }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -118,10 +114,10 @@ namespace MoeLoader
             DownloaderMenuCheckBox.IsChecked = true;
         }
 
-        private void MoeExlorerOnAnyImageLoaded(MoeExplorerControl obj)
+        private void MoeExlorerOnAnyImageLoaded(MoeExplorerControl ctrl)
         {
-            StatusTextBlock.Text = MoeExlorer.ImageLoadingPool.Count == 0 ? "图片加载完毕" 
-                : $"剩余 {MoeExlorer.ImageLoadingPool.Count + MoeExlorer.ImageWaitForLoadingPool.Count} 张图片等待加载";
+            StatusTextBlock.Text = ctrl.ImageLoadingPool.Count == 0 ? "图片加载完毕" 
+                : $"剩余 {ctrl.ImageLoadingPool.Count + ctrl.ImageWaitForLoadingPool.Count} 张图片等待加载";
         }
 
         private int _f8KeyDownTimes;
@@ -260,7 +256,6 @@ namespace MoeLoader
             foreach (var user in jobject)
             {
                 var button = new Button();
-
             }
         }
     }

@@ -64,7 +64,7 @@ namespace MoeLoader.Core.Sites
 
         public abstract string GetPageQuery(SearchPara para);
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             switch (SiteType)
             {
@@ -116,7 +116,7 @@ namespace MoeLoader.Core.Sites
                     img.Score = score;
                     img.FileReferer = img.DetailUrl;
                     img.ThumbnailReferer = GetThumbnailReferer(img);
-                   // img.Net = Net;
+                    // img.Net = Net;
 
                     imageitems.Add(img);
                 }

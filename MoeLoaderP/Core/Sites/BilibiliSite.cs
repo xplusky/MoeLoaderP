@@ -53,7 +53,7 @@ namespace MoeLoader.Core.Sites
             return null;
         }
 
-        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para)
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             string query;
             const string api = "https://api.vc.bilibili.com/link_draw/v2";
@@ -126,7 +126,7 @@ namespace MoeLoader.Core.Sites
                     items.Add(img);
                 }
                 return items;
-            });
+            }, token);
         }
     }
 }
