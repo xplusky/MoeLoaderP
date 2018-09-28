@@ -8,7 +8,7 @@ using HtmlAgilityPack;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// zerochan.net site todo 需修复下载问题 清理中
+    /// zerochan.net site fixed 20180928
     /// </summary>
     public class ZeroChanSite : MoeSite
     {
@@ -24,7 +24,7 @@ namespace MoeLoader.Core.Sites
 
         public ZeroChanSite()
         {
-            SurpportState.IsSupportScore = false;
+
         }
 
         private bool IsLogon { get; set; }
@@ -90,8 +90,15 @@ namespace MoeLoader.Core.Sites
 
             foreach (var imgNode in nodes)
             {
+                var img = new ImageItem();
                 var strId = imgNode.SelectSingleNode("a").Attributes["href"].Value;
                 int.TryParse(strId.Substring(1),out var id);
+                var fav = imgNode.SelectSingleNode("a/span")?.InnerText;
+                if (!string.IsNullOrWhiteSpace(fav))
+                {
+                    int.TryParse(Regex.Replace(fav, @"[^0-9]+", ""), out var score);
+                    img.Score = score;
+                }
                 var imgHref = imgNode.SelectSingleNode(".//img");
                 var previewUrl = imgHref?.Attributes["src"]?.Value;
                 //http://s3.zerochan.net/Morgiana.240.1355397.jpg   preview
@@ -99,20 +106,56 @@ namespace MoeLoader.Core.Sites
                 //http://static.zerochan.net/Morgiana.full.1355397.jpg   full
                 //先加前一个，再加后一个  范围都是00-49
                 //string folder = (id % 2500 % 50).ToString("00") + "/" + (id % 2500 / 50).ToString("00");
-                var sample_url = previewUrl?.Replace("240", "600");
-                var fileUrl = imgNode.SelectSingleNode("p//img")?.ParentNode?.Attributes["href"]?.Value;
-                var title = imgHref?.Attributes["title"].Value;
-                var dimension = title?.Substring(0, title.IndexOf(' '));
-                var fileSize = title?.Substring(title.IndexOf(' ')).Trim();
-                var tags = imgHref?.Attributes["alt"].Value;
-
-                var img = GenerateImg(fileUrl, sample_url, previewUrl, dimension, tags?.Trim(), fileSize, id);
-
-                if (img != null)
+                var sampleUrl = "";
+                var fileUrl = "";
+                if (!string.IsNullOrWhiteSpace(previewUrl))
                 {
-                    img.Site = this;
-                    imgs.Add(img);
+                    sampleUrl = previewUrl?.Replace("240", "600");
+                    fileUrl = Regex.Replace(previewUrl, "^(.+?)zerochan.net/", "https://static.zerochan.net/").Replace("240", "full");
                 }
+                
+                var resandfilesize = imgHref?.Attributes["title"].Value;
+                var dimension = resandfilesize?.Substring(0, resandfilesize.IndexOf(' '));
+                var fileSize = resandfilesize?.Substring(resandfilesize.IndexOf(' ')).Trim();
+                var title = imgHref?.Attributes["alt"].Value;
+
+                int width = 0, height = 0;
+                try
+                {
+                    //706x1000
+                    width = int.Parse(dimension.Substring(0, dimension.IndexOf('x')));
+                    height = int.Parse(dimension.Substring(dimension.IndexOf('x') + 1));
+                }
+                catch { }
+
+                //convert relative url to absolute
+                if (!string.IsNullOrWhiteSpace(fileUrl) && fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
+                if (sampleUrl != null && sampleUrl.StartsWith("/")) sampleUrl = HomeUrl + sampleUrl;
+
+                img.FileSize = fileSize?.ToUpper();
+                img.Description = title;
+                img.Title = title;
+                img.Id = id;
+                img.JpegUrl = fileUrl;
+                img.FileUrl = fileUrl;
+                img.PreviewUrl = sampleUrl;
+                img.ThumbnailUrl = previewUrl;
+                img.Width = width;
+                img.Height = height;
+                img.DetailUrl = $"{HomeUrl}/{id}";
+
+                if (fileSize != null)
+                {
+                    img.FileSize = new Regex(@"\d+").Match(img.FileSize).Value;
+                    var fs = Convert.ToInt32(img.FileSize);
+                    img.FileSize = (fs > 1024 ? (fs / 1024.0).ToString("0.00MB") : fs.ToString("0KB"));
+
+                }
+                img.FileReferer = img.DetailUrl;
+                img.ThumbnailReferer = HomeUrl;
+                img.Site = this;
+
+                imgs.Add(img);
             }
 
             return imgs;
@@ -123,7 +166,7 @@ namespace MoeLoader.Core.Sites
             //http://www.zerochan.net/suggest?q=tony&limit=8
             var re = new AutoHintItems();
 
-            var url = HomeUrl + "/suggest?limit=8&q=" + para.Keyword;
+            var url = $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
 
             Net.Client.DefaultRequestHeaders.Referrer =  new Uri(HomeUrl);
 
@@ -133,62 +176,11 @@ namespace MoeLoader.Core.Sites
             for (var i = 0; i < lines.Length && i < 8; i++)
             {
                 //Tony Taka|Mangaka|
-                if (lines[i].Trim().Length > 0)
-                    re.Add(new AutoHintItem { Word = lines[i].Substring(0, lines[i].IndexOf('|')).Trim() });
+                if (lines[i].Trim().Length > 0) re.Add(new AutoHintItem { Word = lines[i].Substring(0, lines[i].IndexOf('|')).Trim() });
             }
 
             return re;
         }
 
-
-        private ImageItem GenerateImg(string file_url, string sample_url, string preview_url, string dimension, string tags, string file_size, int id)
-        {
-            //int intId = int.Parse(id.Substring(1));
-
-            int width = 0, height = 0;
-            try
-            {
-                //706x1000
-                width = int.Parse(dimension.Substring(0, dimension.IndexOf('x')));
-                height = int.Parse(dimension.Substring(dimension.IndexOf('x') + 1));
-            }
-            catch { }
-
-            //convert relative url to absolute
-            if (!string.IsNullOrWhiteSpace(file_url) && file_url.StartsWith("/"))
-                file_url = HomeUrl + file_url;
-            if (sample_url!=null && sample_url.StartsWith("/"))
-                sample_url = HomeUrl + sample_url;
-
-            var img = new ImageItem()
-            {
-                //Date = "N/A",
-                FileSize = file_size?.ToUpper(),
-                Description = tags,
-                Id = id,
-                //IsViewed = isViewed,
-                JpegUrl = file_url,
-                FileUrl = file_url,
-                PreviewUrl = sample_url,
-                ThumbnailUrl = preview_url,
-                //Score = 0,
-                //Size = width + " x " + height,
-                Width = width,
-                Height = height,
-                //Source = "",
-                // todo TagsText = tags,
-                DetailUrl = HomeUrl + "/" + id,
-            };
-            if (file_size != null)
-            {
-                img.FileSize = new Regex(@"\d+").Match(img.FileSize).Value;
-                var fs = Convert.ToInt32(img.FileSize);
-                img.FileSize = (fs > 1024 ? (fs / 1024.0).ToString("0.00MB") : fs.ToString("0KB"));
-                
-            }
-            img.FileReferer = HomeUrl;
-
-            return img;
-        }
     }
 }

@@ -40,6 +40,7 @@ namespace MoeLoader.Core
 
         public void SetReferer(string rfurl)
         {
+            if (string.IsNullOrWhiteSpace(rfurl)) return;
             Client.DefaultRequestHeaders.Referrer = new Uri(rfurl);
         }
 

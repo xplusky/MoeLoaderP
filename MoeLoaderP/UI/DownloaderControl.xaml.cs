@@ -100,7 +100,7 @@ namespace MoeLoader.UI
         {
             if (DownloadItemsListBox.SelectedIndex >= 0)
             {
-                var path = Path.GetDirectoryName(DownloadItems[DownloadItemsListBox.SelectedIndex].GetFilePath());
+                var path = Path.GetDirectoryName(DownloadItems[DownloadItemsListBox.SelectedIndex].LocalFileFullPath);
                 path?.Go();
             }
             ContextMenuPopup.IsOpen = false;
@@ -141,7 +141,7 @@ namespace MoeLoader.UI
                 Settings = Settings,
                 ImageSource = img,
                 ImageItem = item,
-                FileName = Path.GetFileName(item.FileUrl)
+                OriginFileName = Path.GetFileName(item.FileUrl)
             };
             if (item.ChilldrenItems.Count > 0)
             {
@@ -152,12 +152,13 @@ namespace MoeLoader.UI
                     {
                         Settings = Settings,
                         ImageItem = subitem,
-                        FileName = Path.GetFileName(subitem.FileUrl),
+                        OriginFileName = Path.GetFileName(subitem.FileUrl),
                         SubIndex = i + 1
                     };
                     downitem.SubItems.Add(downsubitem);
                 }
             }
+            downitem.GenFileNameWithouExt();
             AddDownload(downitem);
             var sv = (ScrollViewer)DownloadItemsListBox.Template.FindName("DownloadListScrollViewer", DownloadItemsListBox);
             sv.ScrollToEnd();

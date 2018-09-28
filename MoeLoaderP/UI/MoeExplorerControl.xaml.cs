@@ -267,7 +267,7 @@ namespace MoeLoader.UI
             for (var i = 0; i < ImageLoadingPool.Count; i++)
             {   
                 var item = ImageLoadingPool[i];
-                item.ImageLoaded += ItemOnImageLoaded;
+                item.ImageLoadRanToComplete += ItemOnImageLoaded;
                 var unused = item.LoadImageAsync();
             }
         }
@@ -283,7 +283,7 @@ namespace MoeLoader.UI
                 var item = ImageWaitForLoadingPool[0];
                 ImageWaitForLoadingPool.Remove(item);
                 ImageLoadingPool.Add(item);
-                item.ImageLoaded += ItemOnImageLoaded;
+                item.ImageLoadRanToComplete += ItemOnImageLoaded;
                 var unused = item.LoadImageAsync();
             }
             

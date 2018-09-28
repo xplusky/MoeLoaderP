@@ -101,6 +101,7 @@ namespace MoeLoader.Core.Sites
                 var previewUrl = imgHref.SelectSingleNode("img").Attributes["src"].Value;
                 if (previewUrl.StartsWith("/")) previewUrl = HomeUrl + previewUrl;
                 item.ThumbnailUrl = previewUrl;
+                item.ThumbnailReferer = HomeUrl;
                 var meta = imgNode.SelectSingleNode(".//div[@class='meta']");
                 var date = meta.SelectSingleNode(".//dd[2]").InnerText;
                 var fileSize = meta.SelectSingleNode(".//dd[3]").InnerText;
@@ -123,7 +124,7 @@ namespace MoeLoader.Core.Sites
                         item.Tags.Add(match.Value);
                     }
                 }
-                catch {/*..*/ }
+                catch { /*..*/ }
                 item.DetailUrl = $"{HomeUrl}/image/{ido}";
                 item.Site = this;
 

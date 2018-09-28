@@ -19,10 +19,6 @@ namespace MoeLoader.UI
             set => EditTextBox.Text = value;
         }
 
-        public KeywordComboBox()
-        {
-            Loaded += OnLoaded;
-        }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
@@ -34,9 +30,5 @@ namespace MoeLoader.UI
             base.OnPreviewMouseWheel(new MouseWheelEventArgs(e.MouseDevice, 0, 0));
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

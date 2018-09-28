@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using MoeLoader.Core;
 using MoeLoader.Core.Sites;
 
@@ -14,34 +15,51 @@ namespace MoeLoader.UI
         public MoeSite CurrentSelectedSite { get; set; }
         public Settings Settings { get; set; }
         public AutoHintItems HintItems { get; set; } = new AutoHintItems();
+
+        public TextBox KeywordTextBox => (TextBox) KeywordComboBox?.Template.FindName(nameof(KeywordTextBox), KeywordComboBox);
         
         public SearchControl()
         {
             InitializeComponent();
-
             MoeSitesComboBox.SelectionChanged += MoeSitesComboBoxOnSelectionChanged;
-            
-            KeywordComboBox.GotFocus += KeywordComboBoxOnGotFocus;
             KeywordComboBox.ItemsSource = HintItems;
             SearchParaCheckBox.Checked += SearchParaCheckBoxOnChecked;
             ShowExlicitOnlyCheckBox.Checked += (sender, args) => FilterExlicitCheckBox.IsChecked = true;
             FilterExlicitCheckBox.Unchecked += (sender, args) => ShowExlicitOnlyCheckBox.IsChecked = false;
             KeywordComboBox.SelectionChanged += KeywordComboBoxOnSelectionChanged;
-            KeywordComboBox.Loaded += KeywordComboBoxOnLoaded;
             MoeSitesSubComboBox.SelectionChanged += MoeSitesSubComboBoxOnSelectionChanged;
             MoeSitesLv3ComboBox.SelectionChanged += MoeSitesLv3ComboBoxOnSelectionChanged;
+            Loaded += (sender, args) =>
+            {
+                HintItems.Clear();
+                AddHistoryItems();
+                KeywordTextBox.TextChanged += KeywordTextBoxOnTextChanged;
+                KeywordTextBox.GotFocus += KeywordTextBoxOnGotFocus;
+            };
+
+            
+        }
+
+        private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (CurrentTaskCts == null) this.Sb("SearchingSpinSb").Begin();
+            CurrentTaskCts?.Cancel();
+            CurrentTaskCts = new CancellationTokenSource();
+
+            await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, CurrentTaskCts.Token);
+        }
+
+        private void KeywordTextBoxOnGotFocus(object sender, RoutedEventArgs e)
+        {
+            
+            KeywordComboBox.IsDropDownOpen = KeywordTextBox.IsFocused;
         }
 
         private void MoeSitesLv3ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CurrentSelectedSite.Lv3ListIndex = MoeSitesLv3ComboBox.SelectedIndex;
         }
-
-        private void KeywordComboBoxOnLoaded(object sender, RoutedEventArgs e)
-        {
-            KeywordComboBox.EditTextBox.TextChanged += KeywordTextBoxOnTextChanged;
-        }
-
+        
         private void MoeSitesSubComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CurrentSelectedSite.SubListIndex = MoeSitesSubComboBox.SelectedIndex;
@@ -68,7 +86,8 @@ namespace MoeLoader.UI
             if (KeywordComboBox.SelectedIndex < 0) return;
             var item = HintItems[KeywordComboBox.SelectedIndex];
             if (!item.IsEnable) return;
-            KeywordComboBox.KeywordText = item.Word;
+            KeywordTextBox.Text = item.Word;
+            KeywordTextBox.Focus();
         }
 
         public void Init(SiteManager manager,Settings settings)
@@ -79,33 +98,15 @@ namespace MoeLoader.UI
             DataContext = Settings;
         }
 
-        
-        private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            if(CurrentTaskCts==null) this.Sb("SearchingSpinSb").Begin();
-            CurrentTaskCts?.Cancel();
-            CurrentTaskCts = new CancellationTokenSource();
-            await ShowKeywordComboBoxItemsAsync(KeywordComboBox.KeywordText, CurrentTaskCts.Token);
-
-        }
-
         private void SearchParaCheckBoxOnChecked(object sender, RoutedEventArgs e)
         {
             SearchParaPopupGrid.LargenShowSb().Begin();
         }
 
-        private void KeywordComboBoxOnGotFocus(object sender, RoutedEventArgs e)
-        {
-            var box = (ComboBox)sender;
-            var textbox = (TextBox)box.Template.FindName("EditableTextBox", box);
-            textbox.Focus();
-            HintItems.Clear();
-            AddHistoryItems();
-        }
-        
         
         private void MoeSitesComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if(KeywordTextBox!=null) KeywordTextBox.Text = "";
             var index = MoeSitesComboBox.SelectedIndex;
             CurrentSelectedSite = index >= 0 ? SiteManager.Sites[index] : null;
             if(CurrentSelectedSite == null)return;
@@ -123,6 +124,7 @@ namespace MoeLoader.UI
             VisualStateManager.GoToState(this, CurrentSelectedSite.SurpportState.IsSupportKeyword ? nameof(SurportKeywordState) : nameof(NotSurportKeywordState), true);
             FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.SurpportState.IsSupportResolution;
             FilterExlicitGroup.IsEnabled = CurrentSelectedSite.SurpportState.IsSupportRating;
+            KeywordComboBox.Text = "";
         }
 
         private CancellationTokenSource CurrentTaskCts { get; set; }
@@ -133,7 +135,7 @@ namespace MoeLoader.UI
             {
                 HintItems.Clear();
                 AddHistoryItems();
-                await Task.Delay(1000, token); // 等待1s再开始获取，避免每输入一个字都进行网络操作
+                await Task.Delay(600, token); // 等待0.6再开始获取，避免每输入一个字都进行网络操作
                 if (string.IsNullOrWhiteSpace(keyword)) throw new Exception("keyword is empty");
                 // 开始搜索
                 var list = await CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
@@ -162,16 +164,17 @@ namespace MoeLoader.UI
             CurrentTaskCts = null;
         }
         
-        
         private void AddHistoryItems()
         {
             HintItems.Add(new AutoHintItem { Word = "---------历史记录---------", IsEnable = false });
-            foreach (var kitem in Settings.HistoryKeywords)
+            if (Settings.HistoryKeywords.Count > 0)
             {
-                HintItems.Add(kitem);
+                foreach (var kitem in Settings.HistoryKeywords)
+                {
+                    HintItems.Add(kitem);
+                }
             }
         }
-
 
         public SearchPara GetSearchPara()
         {
@@ -180,7 +183,7 @@ namespace MoeLoader.UI
                 Site = CurrentSelectedSite,
                 Count = FilterCountBox.NumCount,
                 PageIndex = FilterStartPageBox.NumCount,
-                Keyword = KeywordComboBox.KeywordText,
+                Keyword = KeywordTextBox.Text,
                 IsShowExplicit = FilterExlicitCheckBox.IsChecked == true,
                 IsShowExplicitOnly = ShowExlicitOnlyCheckBox.IsChecked == true,
                 IsFilterResolution = FilterResolutionCheckBox.IsChecked == true,

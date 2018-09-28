@@ -88,7 +88,8 @@ namespace MoeLoader.Core.Sites
                 img.Site = this;
                 var imgnode = node.SelectSingleNode("a/picture/img");
                 var idattr = imgnode.GetAttributeValue("id", "0");
-                int.TryParse(Regex.Match(idattr, @"[^0-9]+").Value, out var id);
+                var reg = Regex.Replace(idattr, @"[^0-9]+", "");
+                int.TryParse(reg, out var id);
                 img.Id = id;
                 var src = imgnode.GetAttributeValue("src", "");
                 if (!string.IsNullOrWhiteSpace(src)) img.ThumbnailUrl = $"{pre}{src}";

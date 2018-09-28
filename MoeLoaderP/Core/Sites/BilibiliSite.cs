@@ -83,6 +83,7 @@ namespace MoeLoader.Core.Sites
                 {
                     var img = new ImageItem();
                     img.Author = $"{item.user?.name}";
+                    img.Id = (int)item.item.doc_id;
                     var i0 = item.item?.pictures[0];
                     if (i0?.img_width != null) img.Width = (int) i0.img_width;
                     if (i0?.img_height != null) img.Height = (int) i0.img_height;
@@ -97,7 +98,7 @@ namespace MoeLoader.Core.Sites
                         img.ThumbnailUrl = $"{i0?.img_src}@512w_512h_1e";
                     }
                     img.FileUrl = $"{i0?.img_src}";
-                    img.Id = (int) item.item.doc_id;
+                    
                     img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                     img.Title = $"{item.item?.title}";
 
@@ -109,7 +110,7 @@ namespace MoeLoader.Core.Sites
                         {
                             var child = new ImageItem
                             {
-                                ThumbnailUrl = $"{pic.img_src}@512w_10000h_0-0-512-512a",
+                                ThumbnailUrl = $"{pic.img_src}@512w_512h_1e",
                                 FileUrl = $"{pic.img_src}",
                                 Site = this,
                             };

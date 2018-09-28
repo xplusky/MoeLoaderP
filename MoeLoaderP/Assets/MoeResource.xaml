@@ -240,21 +240,33 @@
         </Grid>
     </ControlTemplate>
     <ControlTemplate x:Key="MoeKeywordTextBoxControlTemplate2" TargetType="{x:Type TextBox}">
-        <Grid>
-            <Border x:Name="Border" Padding="2" CornerRadius="2" BorderThickness="1" VerticalAlignment="Stretch">
-                <ScrollViewer x:Name="PART_ContentHost" Style="{DynamicResource SimpleScrollViewer}" Margin="0" VerticalAlignment="Center"/>
-            </Border>
-        </Grid>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Background" TargetName="Border" Value="{DynamicResource DisabledBackgroundBrush}"/>
-                <Setter Property="BorderBrush" TargetName="Border" Value="{DynamicResource DisabledBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource DisabledForegroundBrush}"/>
-            </Trigger>
-        </ControlTemplate.Triggers>
+        <Border x:Name="Border" Padding="6,2" CornerRadius="2" BorderThickness="1" VerticalAlignment="Stretch" Height="30" Width="175.667" Background="#00000000">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualStateGroup.Transitions>
+                        <VisualTransition GeneratedDuration="0:0:0.2">
+                            <VisualTransition.GeneratedEasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </VisualTransition.GeneratedEasingFunction>
+                        </VisualTransition>
+                    </VisualStateGroup.Transitions>
+                    <VisualState x:Name="Normal"/>
+                    <VisualState x:Name="Disabled">
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="PART_ContentHost">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="0.5"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="ReadOnly"/>
+                    <VisualState x:Name="MouseOver"/>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <ScrollViewer x:Name="PART_ContentHost" Style="{DynamicResource SimpleScrollViewer}" Margin="0" VerticalAlignment="Center"/>
+        </Border>
     </ControlTemplate>
     <ControlTemplate x:Key="MoeKeywordComboBoxControlTemplate" TargetType="{x:Type ComboBox}">
-        <Grid>
+        <Grid x:Name="LayoutRoot">
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualStateGroup.Transitions>
@@ -276,17 +288,16 @@
                     <DropShadowEffect Color="{DynamicResource MoeShadowColor}" ShadowDepth="0" Opacity="0"/>
                 </ToggleButton.Effect>
             </ToggleButton>
-            <ContentPresenter x:Name="ContentSite" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Content="{TemplateBinding SelectionBoxItem}" HorizontalAlignment="Left" IsHitTestVisible="False" Margin="3,3,23,3" VerticalAlignment="Center" Visibility="Collapsed"/>
-            <TextBox x:Name="EditableTextBox" Background="Transparent" Focusable="True" HorizontalAlignment="Stretch" InputMethod.IsInputMethodEnabled="True" IsReadOnly="{TemplateBinding IsReadOnly}" Style="{x:Null}" Template="{DynamicResource MoeKeywordTextBoxControlTemplate2}" Visibility="Visible" VerticalAlignment="Stretch"/>
-            <Popup x:Name="Popup" AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsKeyboardFocused, ElementName=EditableTextBox, Mode=OneWay}" PopupAnimation="Fade" Placement="Bottom">
+            <TextBox x:Name="KeywordTextBox" Text="{TemplateBinding Text}" TextWrapping="NoWrap" Margin="0" VerticalAlignment="Stretch" Background="{x:Null}" BorderBrush="{x:Null}" Template="{DynamicResource MoeKeywordTextBoxControlTemplate2}" />
+            <Popup x:Name="Popup" AllowsTransparency="True" Focusable="False" IsOpen="{TemplateBinding IsDropDownOpen}" PopupAnimation="Fade" Placement="Bottom" StaysOpen="{TemplateBinding StaysOpenOnEdit}">
                 <Grid x:Name="DropDown" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{TemplateBinding ActualWidth}" SnapsToDevicePixels="True">
                     <Border x:Name="DropDownBorder" BorderBrush="{DynamicResource SolidBorderBrush}" BorderThickness="1" Background="{DynamicResource WindowBackgroundBrush}"/>
-                    <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto" Margin="4,6" Style="{DynamicResource SimpleScrollViewer}" SnapsToDevicePixels="True" VerticalScrollBarVisibility="Auto">
-                        <StackPanel x:Name="DropDownStackPanel" KeyboardNavigation.DirectionalNavigation="Contained" IsItemsHost="True"/>
+                    <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto" Margin="4,6" Style="{DynamicResource SimpleScrollViewer}" SnapsToDevicePixels="True" VerticalScrollBarVisibility="Auto" Focusable="False">
+                        <StackPanel x:Name="DropDownStackPanel" IsItemsHost="True"/>
                     </ScrollViewer>
                 </Grid>
             </Popup>
-            <TextBlock x:Name="OverflowTextBlock" TextWrapping="NoWrap" Text="请输入关键字或留空" VerticalAlignment="Center" Margin="8,0" Opacity="0.5" Visibility="{Binding Text, Converter={StaticResource MoeSearchKeywordFlowTextVisibilityConverter}, ElementName=EditableTextBox}"/>
+            <TextBlock x:Name="OverflowTextBlock" TextWrapping="NoWrap" Text="请输入关键字或留空" VerticalAlignment="Center" Opacity="0.5" Visibility="{Binding Text, Converter={StaticResource MoeSearchKeywordFlowTextVisibilityConverter}, ElementName=KeywordTextBox}" IsHitTestVisible="False" Margin="8,0"/>
         </Grid>
     </ControlTemplate>
     <ControlTemplate x:Key="MoeSitesToggleButtonControlTemplate" TargetType="{x:Type ToggleButton}">
@@ -942,7 +953,7 @@
                         </Grid.ColumnDefinitions>
                         <ProgressBar x:Name="DownloadProgressBar"
                                             Value="{Binding Progress}" Template="{DynamicResource MoeProgressBarControlTemplate}" Grid.Column="1" />
-                        <TextBlock x:Name="ItemNameTextBlock" Text="{Binding FileName}" TextWrapping="NoWrap" FontSize="9" VerticalAlignment="Center" Height="11.43" Grid.Column="1" Margin="35,0,6,0"/>
+                        <TextBlock x:Name="ItemNameTextBlock" Text="{Binding LocalFileShortNameWithoutExt}" TextWrapping="NoWrap" FontSize="9" VerticalAlignment="Center" Height="11.43" Grid.Column="1" Margin="35,0,6,0"/>
                         <Path Data="M1.0890278,-3.4839403 C0.94120593,14.046875 2.1804033,14.218884 9.037,14.000904 M6.6880001,11.782 L9.2928118,14.003873 6.6884999,16.573" HorizontalAlignment="Left" Height="20.934" Margin="0.545,-7.278,0,0" Stretch="Fill" Stroke="Black" VerticalAlignment="Top" Width="9.233" StrokeThickness="1.5"/>
                         <Border BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="1" Grid.Column="1" CornerRadius="10" HorizontalAlignment="Left" Width="16" Height="16" Margin="2,0,0,0">
                             <Border.Background>
@@ -1085,7 +1096,7 @@
                         </Border>
                         <TextBlock x:Name="FileNameTextBlock"
                             Grid.ColumnSpan="2"
-                            Text="{Binding FileName}"
+                            Text="{Binding LocalFileShortNameWithoutExt}"
                             TextTrimming="CharacterEllipsis"
                             TextWrapping="NoWrap" Grid.RowSpan="1" Grid.Column="1" 
                             VerticalAlignment="Center" Margin="2,0" />

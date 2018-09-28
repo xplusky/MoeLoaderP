@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// pixiv  todo 需要优化 清理中
+    /// pixiv.net  todo 需要优化 清理中 网络环境较差，不好测试
     /// </summary>
     public class PixivSite : MoeSite
     {

@@ -132,7 +132,7 @@ namespace MoeLoader.Core.Sites
             }
 
             // get images
-            var response = await client.GetAsync(query);
+            var response = await client.GetAsync(query, token);
             if (!response.IsSuccessStatusCode)
             {
                 MessageBox.Show(response.ReasonPhrase);

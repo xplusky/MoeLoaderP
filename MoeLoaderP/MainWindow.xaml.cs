@@ -43,7 +43,7 @@ namespace MoeLoader
             MoeExlorer.AnyImageLoaded += MoeExlorerOnAnyImageLoaded;
             MoeExlorer.ImageItemDownloadButtonClicked += MoeExlorerOnImageItemDownloadButtonClicked;
             MoeExlorer.MouseWheel += MoeExlorerOnMouseWheel;
-            MoeExlorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordComboBox.KeywordText = s;
+            MoeExlorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordComboBox.Text = s;
             MoeExlorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
 
             // downloader
@@ -126,7 +126,7 @@ namespace MoeLoader
             switch (e.Key)
             {
                 case Key.F1: // 用于测试功能
-                    ShowPopupMessage($"{Settings.ProxyMode}");
+                    ShowPopupMessage($"{Settings.SaveFileNameFormat}");
                     break;
                 case Key.F2:
                     //ShowPopupMessage($"{Settings.SaveFileNameFormat}");

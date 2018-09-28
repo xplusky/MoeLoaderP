@@ -31,8 +31,6 @@ namespace MoeLoader.UI
             ProxyModeComboBox.SelectionChanged += ProxyModeComboBoxOnSelectionChanged;
             FileNameFormatTextBox.GotFocus += (sender, args) => _tempNameFormatText = FileNameFormatTextBox.Text;
             FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
-
-            
         }
 
         private void FileNameFormatTextBoxOnLostFocus(object sender, RoutedEventArgs e)
@@ -50,8 +48,9 @@ namespace MoeLoader.UI
                 FileNameFormatTextBox.Text = _tempNameFormatText;
                 return;
             }
-            if(isbad) App.ShowMessage("文件名包含非法字符，已自动去除");
-            FileNameFormatTextBox.Text = output;
+            
+            Settings.SaveFileNameFormat = output;
+            if (isbad) App.ShowMessage("文件名包含非法字符，已自动去除");
         }
 
         private void ProxyModeComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -135,10 +134,5 @@ namespace MoeLoader.UI
             FileNameFormatTextBox.Focus();
         }
 
-        public void ShowMessagePopup(string message)
-        {
-            PopupMessageTextBlock.Text = message;
-            this.Sb("ShowMesaageSb").Begin();
-        }
     }
 }

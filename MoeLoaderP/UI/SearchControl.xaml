@@ -90,13 +90,7 @@
                 <VisualState x:Name="SurportKeywordState"/>
                 <VisualState x:Name="NotSurportKeywordState">
                     <Storyboard>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="KeywordComboBox">
-                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="KeywordComboBox">
-                            <EasingThicknessKeyFrame KeyTime="0" Value="0"/>
-                        </ThicknessAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="KeywordComboBox">
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="KeywordGrid">
                             <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
@@ -135,10 +129,11 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <ComboBox Style="{DynamicResource SimpleComboBox}" Height="32" Width="72" Margin="0,4" Visibility="Collapsed"/>
-        <Grid Height="32">
-            <ui:KeywordComboBox x:Name="KeywordComboBox" Height="32"  Width="168" Template="{DynamicResource MoeKeywordComboBoxControlTemplate}" Margin="4,0,0,0" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" IsEditable="True" >
-                <ui:KeywordComboBox.FocusVisualStyle>
+        <Grid x:Name="KeywordGrid" Height="32" Width="172">
+            <ComboBox x:Name="KeywordComboBox" Height="32" Template="{DynamicResource MoeKeywordComboBoxControlTemplate}" Margin="4,0,0,0" 
+                      ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" StaysOpenOnEdit="True" 
+                      IsDropDownOpen="{Binding IsFocused, ElementName=KeywordTextBox,Mode=OneWay}" >
+                <ComboBox.FocusVisualStyle>
                     <Style>
                         <Setter Property="Control.Template">
                             <Setter.Value>
@@ -148,8 +143,8 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
-                </ui:KeywordComboBox.FocusVisualStyle>
-                <ui:KeywordComboBox.ItemTemplate>
+                </ComboBox.FocusVisualStyle>
+                <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <Grid x:Name="Root" d:DesignWidth="129.778" d:DesignHeight="28.667" Height="20" IsEnabled="{Binding IsEnable}">
                             <Grid.ColumnDefinitions>
@@ -180,9 +175,9 @@
                             <TextBlock TextWrapping="NoWrap" Text="{Binding Count}" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="1" Foreground="#FF0086C0" FontWeight="Bold" Margin="0,0,4,0"/>
                         </Grid>
                     </DataTemplate>
-                </ui:KeywordComboBox.ItemTemplate>
-            </ui:KeywordComboBox>
-            <TextBlock x:Name="SpinTextBlock" TextWrapping="Wrap" Text="&#xF1CE;" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="18" RenderTransformOrigin="0.5,0.5" Margin="0,0,7,0" Visibility="Collapsed">
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock x:Name="SpinTextBlock" TextWrapping="Wrap" Text="&#xF1CE;" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="18" RenderTransformOrigin="0.5,0.5" Margin="0,0,7,0" Visibility="Collapsed" IsHitTestVisible="False">
                 <TextBlock.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>

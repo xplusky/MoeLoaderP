@@ -23,11 +23,17 @@ namespace MoeLoader.Core
             set => SetField(ref _imageSource, value, nameof(ImageSource));
         }
 
-        public string FileName { get; set; }
-        public string LocalFileShortNameWithoutExt { get; set; }
+        public string OriginFileName { get; set; }
+        private string _localFileShortNameWithoutExt;
+
+        public string LocalFileShortNameWithoutExt
+        {
+            get => _localFileShortNameWithoutExt;
+            set => SetField(ref _localFileShortNameWithoutExt, value, nameof(LocalFileShortNameWithoutExt));
+        }
 
         public string LocalFileFullPath =>
-            Path.Combine(Settings.ImageSavePath, ImageItem.Site.ShortName, $"{LocalFileShortNameWithoutExt}.{ImageItem.FileType.ToLower()}");
+            Path.Combine(Settings.ImageSavePath, ImageItem.Site.ShortName, $"{LocalFileShortNameWithoutExt}{_autoRenameSuffix}.{ImageItem.FileType.ToLower()}");
 
         public event Action<DownloadItem> DownloadStatusChanged; 
 
@@ -93,6 +99,7 @@ namespace MoeLoader.Core
             CurrentDownloadTaskCts?.Cancel();
             CurrentDownloadTaskCts = new CancellationTokenSource();
             var token = CurrentDownloadTaskCts.Token;
+            
             if (SubItems.Count > 0)
             {
                 DownloadStatus = DownloadStatusEnum.Downloading;
@@ -126,7 +133,10 @@ namespace MoeLoader.Core
                     DownloadStatus = DownloadStatusEnum.Downloading;
                     var data = await net.Client.GetAsync(ImageItem.FileUrl, token);
                     var bytes = await data.Content.ReadAsByteArrayAsync();
-                    using (var fs = new FileStream(GetFilePath(), FileMode.Create))
+                    AutoRename();
+                    var dir = Path.GetDirectoryName(LocalFileFullPath);
+                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
+                    using (var fs = new FileStream(LocalFileFullPath, FileMode.Create))
                     {
                         await fs.WriteAsync(bytes, 0, bytes.Length, token);
                     }
@@ -148,21 +158,6 @@ namespace MoeLoader.Core
             }
             
         }
-        
-        public string GetFilePath()
-        {
-            var org = Path.GetFileName(ImageItem.FileUrl);
-            if (org == null)
-            {
-                return null;
-            }
-            var txt = Path.GetExtension(ImageItem.FileUrl);
-
-            var folder = Path.Combine(Settings.ImageSavePath, ImageItem.Site.ShortName);
-            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-            var path = Path.Combine(Settings.ImageSavePath, ImageItem.Site.ShortName, org);
-            return path;
-        }
 
         private string _statusText;
         public string StatusText
@@ -180,24 +175,29 @@ namespace MoeLoader.Core
             }
             else
             {
+                LocalFileShortNameWithoutExt = $"{ImageItem.Site.ShortName} {ImageItem.Id}";
                 if (SubItems.Count > 1)
                 {
-                    foreach (var child in SubItems)
+                    for (var i = 0; i < SubItems.Count; i++)
                     {
-                        child.LocalFileShortNameWithoutExt = $"{ImageItem.Site.ShortName} {ImageItem.Id}-{child.SubIndex}";
+                        var child = SubItems[i];
+                        child.LocalFileShortNameWithoutExt = $"{ImageItem.Site.ShortName} {ImageItem.Id} item-{child.SubIndex}";
                     }
-                }
-                else
-                {
-                    LocalFileShortNameWithoutExt = $"{ImageItem.Site.ShortName} {ImageItem.Id}";
                 }
                 
             }
         }
 
-        public void AutoRename(int seed)
-        {
+        private string _autoRenameSuffix = "";
 
+        public void AutoRename()
+        {
+            var i = 2;
+            while (File.Exists(LocalFileFullPath))
+            {
+                _autoRenameSuffix = $"-{i}";
+                i++;
+            }
         }
     }
 

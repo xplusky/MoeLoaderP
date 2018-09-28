@@ -15,7 +15,7 @@ namespace MoeLoader.UI
         public ImageItem ImageItem { get; set; }
         public Settings Settings { get; set; }
 
-        public event Action<ImageControl> ImageLoaded;
+        public event Action<ImageControl> ImageLoadRanToComplete;
 
         public ImageControl(Settings settings , ImageItem item)
         {
@@ -36,17 +36,15 @@ namespace MoeLoader.UI
         public async Task LoadImageAsync()
         {
             var loadingsb = this.Sb("LoadingSb");
-            var startloadingsb = this.Sb("LoadingStartSb");
-            
-            startloadingsb.Begin();
             loadingsb.Begin();
+            this.Sb("LoadingStartSb").Begin();
 
             // client
             var net = ImageItem.Net ?? new NetSwap(Settings);
             net.SetTimeOut(15);
             net.SetReferer(ImageItem.ThumbnailReferer);
             Exception loadex = null;
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             try
             {
                 var getDetaiTask = ImageItem.GetDetailAsync();
@@ -83,22 +81,22 @@ namespace MoeLoader.UI
                 loadex = ex;
             }
 
-            if (loadex != null)
+            if (loadex == null)
+            {
+                var loadsb = this.Sb("LoadedSb");
+                loadsb.Completed += (sender, args) => loadingsb.Stop();
+                loadsb.Begin();
+            }
+            else
             {
                 App.Log(loadex);
                 var loadfsb = this.Sb("LoadFailSb");
                 loadfsb.Completed += (sender, args) => loadingsb.Stop();
                 loadfsb.Begin();
             }
-            else
-            {
-                var loadsb = this.Sb("LoadedSb");
-                loadsb.Completed += (sender, args) => loadingsb.Stop();
-                loadsb.Begin();
-            }
 
             // Loaded
-            ImageLoaded?.Invoke(this);
+            ImageLoadRanToComplete?.Invoke(this);
         }
     }
 }

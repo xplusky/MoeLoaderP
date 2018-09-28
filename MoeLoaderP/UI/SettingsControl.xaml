@@ -10,36 +10,6 @@
              d:DesignHeight="479.952" d:DesignWidth="380.882" Width="294" >
     <UserControl.Resources>
         <core:ProxyModeToSelectIndexConverter x:Key="ProxyModeToSelectIndexConverter"/>
-        <Storyboard x:Key="ShowMesaageSb">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="PopupMessageBorder">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:6" Value="0.995"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:6.4" Value="0">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="PopupMessageBorder">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="40">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:6" Value="40"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:6.4" Value="0">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <CircleEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
     </UserControl.Resources>
     <StackPanel>
         <GroupBox Header="搜索设置" Template="{DynamicResource MoeGroupBoxControlTemplate}">
@@ -75,7 +45,7 @@
                 <ComboBox x:Name="ProxyModeComboBox" Margin="4" SelectedIndex="{Binding ProxyMode, Converter={StaticResource ProxyModeToSelectIndexConverter}, Mode=TwoWay}" Height="24" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
                           ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}">
                     <ComboBoxItem Content="不使用代理" />
-                    <ComboBoxItem Content="使用IE代理" />                    
+                    <ComboBoxItem Content="使用IE代理" />
                     <ComboBoxItem Content="自定义" />
                 </ComboBox>
                 <TextBox
@@ -179,26 +149,6 @@
                 </WrapPanel>
             </StackPanel>
         </GroupBox>
-        <Border x:Name="PopupMessageBorder" BorderBrush="{DynamicResource MoeButtonStrokeBrush}" BorderThickness="1" Grid.RowSpan="3" VerticalAlignment="Bottom" CornerRadius="12" RenderTransformOrigin="0.5,0.5" Height="0" Padding="10,4">
-            <Border.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Border.RenderTransform>
-            <Border.Effect>
-                <DropShadowEffect ShadowDepth="2" Opacity="0.295"/>
-            </Border.Effect>
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFFFD849" Offset="0"/>
-                    <GradientStop Color="#FFFFF05F" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <TextBlock x:Name="PopupMessageTextBlock" TextWrapping="Wrap" Text="TextBlock" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Border>
 
     </StackPanel>
 </UserControl>
