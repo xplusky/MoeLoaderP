@@ -4,10 +4,12 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using MoeLoader.Core;
 
 namespace MoeLoader.UI
@@ -31,14 +33,135 @@ namespace MoeLoader.UI
             InitializeComponent();
             KeyDown += OnKeyDown;
             ImageItemsScrollViewer.MouseRightButtonUp += ImageItemsScrollViewerOnMouseRightButtonDown;
+            ImageItemsWrapPanel.PreviewMouseLeftButtonDown += ImageItemsWrapPanelOnPreviewMouseLeftButtonDown;
+            ImageItemsWrapPanel.PreviewMouseMove += ImageItemsWrapPanelOnPreviewMouseMove;
+            ImageItemsWrapPanel.PreviewMouseLeftButtonUp += ImageItemsWrapPanelOnPreviewMouseLeftButtonUp;
             PagingStackPanel.MouseWheel += PagingStackPanelOnMouseWheel;
             SelectedImageControls.CollectionChanged += SelectedImageControlsOnCollectionChanged;
             ContextSelectAllButton.Click += ContextSelectAllButtonOnClick;
             ContextSelectNoneButton.Click += ContextSelectNoneButtonOnClick;
             ContextSelectReverseButton.Click += ContextSelectReverseButtonOnClick;
+
             VisualStateManager.GoToState(this, nameof(NoNextPageState), true);
             VisualStateManager.GoToState(this, nameof(NoSelectedItemState), true);
+
+            _padTimer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(20)};
+            _padTimer.Tick += PadTimerOnTick;
         }
+
+        private void PadTimerOnTick(object sender, EventArgs e)
+        {
+            if (_lineupdown < 0)
+            {
+                ImageItemsScrollViewer.LineUp();
+            }
+            else if(_lineupdown > 0)
+            {
+                ImageItemsScrollViewer.LineDown();
+            }
+        }
+
+        private void ImageItemsWrapPanelOnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if(!_isChoosing)return;
+            _isChoosing = false;
+            CalculateChoosedItem();
+            ChooseBox.Visibility = Visibility.Collapsed;
+            _padTimer.Stop();
+            _lineupdown = 0;
+        }
+
+        public void CalculateChoosedItem()
+        {
+            // ChooseBox pos
+            var xl = Canvas.GetLeft(ChooseBox);
+            var xr = Canvas.GetLeft(ChooseBox) + ChooseBox.Width;
+            var yt = Canvas.GetTop(ChooseBox);
+            var yb = Canvas.GetTop(ChooseBox) + ChooseBox.Height;
+            var ctrlDown = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.LeftAlt);
+            foreach (ImageControl child in ImageItemsWrapPanel.Children)
+            {
+                var isin = false;
+                var pointLeftTop = child.TranslatePoint(new Point(), ImageItemsWrapPanel);
+                var pointRightTop = child.TranslatePoint(new Point(child.Width,0), ImageItemsWrapPanel);
+                var pointRightBottom = child.TranslatePoint(new Point(child.Width, child.Height), ImageItemsWrapPanel);
+                var pointLeftBtttom = child.TranslatePoint(new Point(0, child.Height), ImageItemsWrapPanel);
+                var pointCenter = child.TranslatePoint(new Point(child.Width/2, child.Height/2), ImageItemsWrapPanel);
+                var plist = new List<Point>{ pointLeftTop , pointRightTop , pointRightBottom , pointLeftBtttom , pointCenter };
+                
+                foreach (var point in plist)
+                {
+                    if (point.X > xl && point.X < xr && point.Y > yt && point.Y < yb)
+                    {
+                        isin = true;
+                        break;
+                    }
+                }
+                if (isin) child.ImageCheckBox.IsChecked = !ctrlDown;
+            }
+        }
+
+        private void ImageItemsWrapPanelOnPreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Released) return;
+            if(ChooseBox.Visibility == Visibility.Collapsed) ChooseBox.Visibility = Visibility.Visible;
+            var movep = e.GetPosition(ChooseCanvasRoot);
+            var vx = movep.X - _chooseStartPoint.X;
+            if (vx < 0)
+            {
+                Canvas.SetLeft(ChooseBox, movep.X);
+                ChooseBox.Width = -vx;
+            }
+            else
+            {
+                Canvas.SetLeft(ChooseBox, _chooseStartPoint.X);
+                ChooseBox.Width = vx;
+            }
+
+            var vy = movep.Y - _chooseStartPoint.Y;
+            if (vy < 0)
+            {
+                Canvas.SetTop(ChooseBox, movep.Y);
+                ChooseBox.Height = -vy;
+            }
+            else
+            {
+                Canvas.SetTop(ChooseBox, _chooseStartPoint.Y);
+                ChooseBox.Height = vy;
+            }
+            _isChoosing = true;
+
+            if(!_padTimer.IsEnabled) _padTimer.Start();
+             var pointToViewer = e.GetPosition(ImageItemsScrollViewer);
+            if (pointToViewer.Y < 0)
+            {
+                _lineupdown = -1;
+                
+            }
+            else if(pointToViewer.Y > ImageItemsScrollViewer.ActualHeight)
+            {
+                _lineupdown = 1;
+            }
+            else
+            {
+                _lineupdown = 0;
+            }
+        }
+
+        private readonly DispatcherTimer _padTimer;
+        private Point _chooseStartPoint;
+        private bool _isChoosing;
+        private int _lineupdown;
+
+        private void ImageItemsWrapPanelOnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _chooseStartPoint = e.GetPosition(ChooseCanvasRoot);
+            ChooseBox.Width = 0;
+            ChooseBox.Height = 0;
+            Canvas.SetLeft(ChooseBox, _chooseStartPoint.X);
+            Canvas.SetTop(ChooseBox, _chooseStartPoint.Y);
+        }
+
 
         private void ContextSelectReverseButtonOnClick(object sender, RoutedEventArgs e)
         {

@@ -47,8 +47,8 @@ namespace MoeLoader.Core.Sites
             }
             else
             {
-                App.Log("https://anime-pictures.net 登陆失败");
-                throw new Exception("网站登陆失败");
+                App.Log("https://anime-pictures.net 网站登陆失败");
+                return;
             }
         }
 

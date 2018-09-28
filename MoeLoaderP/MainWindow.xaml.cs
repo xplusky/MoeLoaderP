@@ -126,10 +126,10 @@ namespace MoeLoader
             switch (e.Key)
             {
                 case Key.F1: // 用于测试功能
-                    ShowPopupMessage($"{Settings.SaveFileNameFormat}");
+                    ShowPopupMessage($"{MoeExlorer.ImageItemsScrollViewer.Height}");
                     break;
                 case Key.F2:
-                    //ShowPopupMessage($"{Settings.SaveFileNameFormat}");
+                    ShowPopupMessage($"{MoeExlorer.ImageItemsScrollViewer.ActualHeight}");
                     break;
                 case Key.F8:
                     if (!Settings.HaveEnteredXMode)
