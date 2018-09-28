@@ -17,7 +17,7 @@ namespace MoeLoader.Core.Sites
         public override string HomeUrl => "https://anime-pictures.net";
         public override string DisplayName => "Anime-Pictures";
 
-        public override string ShortName => "mjv-art";
+        public override string ShortName => "anime-pictures";
 
         private readonly string[] _user = { "mjvuser1" };
         private readonly string[] _pass = { "mjvpass" };

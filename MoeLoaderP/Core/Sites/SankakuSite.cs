@@ -16,7 +16,7 @@ namespace MoeLoader.Core.Sites
     {
         public override string HomeUrl => $"https://{SitePrefix}.sankakucomplex.com";
 
-        public override string DisplayName => "Sankakucomplex";
+        public override string DisplayName => "SankakuComplex";
 
         public override string ShortName => "sankakucomplex";
 
@@ -36,8 +36,8 @@ namespace MoeLoader.Core.Sites
 
         public SankakuSite(bool isxmode)
         {
-            SubMenu.Add("chan");
-            if (isxmode) SubMenu.Add("idol");
+            SubMenu.Add("Chan");
+            if (isxmode) SubMenu.Add("Idol");
         }
 
         public async Task LoginAsync(string channel)
@@ -158,7 +158,7 @@ namespace MoeLoader.Core.Sites
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
                 img.Site = this;
-                img.Net = Net;
+                img.Net = Net.CreatNewWithRelatedCookie();
                 img.ThumbnailReferer = Referer;
 
                 imageitems.Add(img);

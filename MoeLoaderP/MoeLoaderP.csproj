@@ -158,7 +158,6 @@
       <DependentUpon>CountAdjustableBoxControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\DownloadItem.cs" />
-    <Compile Include="UI\KeywordComboBox.cs" />
     <Compile Include="UI\MoeExplorerControl.xaml.cs">
       <DependentUpon>MoeExplorerControl.xaml</DependentUpon>
     </Compile>
@@ -291,7 +290,7 @@
     <Resource Include="Assets\SiteIcon\minitokyo.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\SiteIcon\mjv-art.ico" />
+    <Resource Include="Assets\SiteIcon\anime-pictures.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\pixiv.ico" />

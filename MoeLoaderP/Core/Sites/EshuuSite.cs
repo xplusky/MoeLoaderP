@@ -8,7 +8,7 @@ using HtmlAgilityPack;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// e-shuushuu.net Fixed 20180922
+    /// e-shuushuu.net Fixed 20180928
     /// </summary>
     public class EshuuSite : MoeSite
     {
@@ -21,7 +21,7 @@ namespace MoeLoader.Core.Sites
         public EshuuSite()
         {
             SurpportState.IsSupportScore = false;
-
+            SurpportState.IsSupportKeyword = false;
             SubMenu.Add("标签");
             SubMenu.Add("来源");
             SubMenu.Add("画师");
@@ -61,7 +61,7 @@ namespace MoeLoader.Core.Sites
                 //e-shuushuu需要将关键词转换为tag id，然后进行搜索 todo 这里要测试
                 var net = new NetSwap(Settings);
                 net.HttpClientHandler.AllowAutoRedirect = false; //prevent 303
-                var res = await net.Client.GetAsync(url);
+                var res = await net.Client.GetAsync(url, token);
                 var loc = res.Headers.Location;
 
                 //http://e-shuushuu.net/search/results/?tags=2
@@ -72,7 +72,8 @@ namespace MoeLoader.Core.Sites
                 }
                 else
                 {
-                    throw new Exception("没有搜索到关键词相关的图片（每个关键词前后需要加双引号如 \"sakura\"））");
+                    App.ShowMessage("没有搜索到关键词相关的图片（每个关键词前后需要加双引号如 \"sakura\"）");
+                    return new ImageItems();
                 }
             }
             

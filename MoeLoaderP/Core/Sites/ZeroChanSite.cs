@@ -52,12 +52,13 @@ namespace MoeLoader.Core.Sites
             if (!_beforeWord.Equals(para.Keyword, StringComparison.CurrentCultureIgnoreCase))
             {
                 // 301
-                var respose = await Net.Client.GetAsync(url);
+                var respose = await Net.Client.GetAsync(url, token);
                 if (respose.IsSuccessStatusCode)
                     _beforeUrl = respose.Headers.Location.AbsoluteUri;
                 else
                 {
-                    throw new Exception("搜索失败，请检查您输入的关键词");
+                    App.ShowMessage("搜索失败，请检查您输入的关键词");
+                    return new ImageItems();
                 }
 
                 pageString = await respose.Content.ReadAsStringAsync();
@@ -85,7 +86,8 @@ namespace MoeLoader.Core.Sites
             }
             catch
             {
-                throw new Exception("没有搜索到图片");
+                App.ShowMessage("没有搜索到图片");
+                return new ImageItems();
             }
 
             foreach (var imgNode in nodes)

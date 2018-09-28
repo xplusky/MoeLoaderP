@@ -39,6 +39,11 @@ namespace MoeLoader.Core
             return t;
         }
 
+        public void SearchStatusChange(string message)
+        {
+            SearchStatusChanged?.Invoke(this,message);
+        }
+
         /// <summary>
         /// 搜索下一页
         /// </summary>
@@ -53,15 +58,13 @@ namespace MoeLoader.Core
                 temppara = CurrentSearchPara.Clone(); // 浅复制一份参数
                 mpage.LastRealPageIndex = temppara.PageIndex;
                 // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动过滤相关条件）
-                SearchStatusChanged?.Invoke(this, $"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
+                SearchStatusChange($"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
                 images = await temppara.Site.GetRealPageImagesAsync(temppara,token);
-                if (images == null)
+                if (images == null || images.Count == 0)
                 {
-                    SearchStatusChanged?.Invoke(this, "搜索失败");
-                }
-                else if (images.Count == 0)
-                {
-                    //App.ShowMessage("无搜索结果");
+                    App.ShowMessage("无搜索结果");
+                    SearchStatusChange("无搜索结果");
+                    return;
                 }
             }
             else if (!LoadedPages.Last().HasNextPage) // 若无下一页则返回
@@ -85,13 +88,13 @@ namespace MoeLoader.Core
 
              // 进入 loop 循环
             var startTime = DateTime.Now;
-            while (images?.Count < temppara.Count) // 当images数量不够搜索参数数量时循环
+            while (images.Count < temppara.Count) // 当images数量不够搜索参数数量时循环
             {
                 token.ThrowIfCancellationRequested(); // 整体Task的取消Token，取消时会抛出异常
                 
                 temppara.PageIndex++; // 设置新搜索参数为下一页（真）
                 mpage.LastRealPageIndex = temppara.PageIndex;
-                SearchStatusChanged?.Invoke(this, $"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
+                SearchStatusChange($"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
                 var imagesNextRPage = await temppara.Site.GetRealPageImagesAsync(temppara,token); // 搜索下一页（真）的所有图片
                 if (imagesNextRPage==null || imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
                 {
@@ -112,10 +115,10 @@ namespace MoeLoader.Core
                 if (DateTime.Now - startTime > TimeSpan.FromSeconds(20)) break; // loop超时跳出循环（即使不够数量也跳出）
             }
             token.ThrowIfCancellationRequested();
-            // Loadok
+            // Loadend
             mpage.ImageItems = images;
             LoadedPages.Add(mpage);
-            SearchStatusChanged?.Invoke(this, "搜索完毕");
+            SearchStatusChange("搜索完毕");
         }
 
         /// <summary>

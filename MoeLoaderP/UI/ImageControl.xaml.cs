@@ -15,7 +15,7 @@ namespace MoeLoader.UI
         public ImageItem ImageItem { get; set; }
         public Settings Settings { get; set; }
 
-        public event Action<ImageControl> ImageLoadRanToComplete;
+        public event Action<ImageControl> ImageLoadEnd;
 
         public ImageControl(Settings settings , ImageItem item)
         {
@@ -96,7 +96,7 @@ namespace MoeLoader.UI
             }
 
             // Loaded
-            ImageLoadRanToComplete?.Invoke(this);
+            ImageLoadEnd?.Invoke(this);
         }
     }
 }
