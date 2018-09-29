@@ -201,11 +201,11 @@
                     <TextBlock
                         x:Name="SearchButtonTextBlock"
                         VerticalAlignment="Center"
-                        Text="搜索" FontSize="14" />
+                        Text="{DynamicResource TextSearchControlSearch}" FontSize="14" />
                     <TextBlock
                         x:Name="SearchButtonStopTextBlock"
                         VerticalAlignment="Center"
-                        Text="停止" FontSize="14" Margin="0,0.11" Opacity="0" />
+                        Text="{DynamicResource TextSearchControlStop}" FontSize="14" Margin="0,0.11" Opacity="0" />
                 </Grid>
             </StackPanel>
         </Button>
@@ -213,7 +213,7 @@
             <CheckBox x:Name="SearchParaCheckBox" Template="{DynamicResource SearchParaCheckBoxControlTemplate}" Margin="4,0,0,0" Height="32" Width="68" SnapsToDevicePixels="True">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" d:IsLocked="True">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Margin="0,2,0,0" ><Run Text="&#xf0b0;"/></TextBlock>
-                    <TextBlock TextWrapping="Wrap" Text="参数" FontSize="14" Margin="4,0,0,0"/>
+                    <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilter}" FontSize="14" Margin="4,0,0,0"/>
                 </StackPanel>
             </CheckBox>
             <Popup x:Name="SearchParaPopup" IsOpen="{Binding IsChecked, ElementName=SearchParaCheckBox}" Placement="Left" VerticalOffset="38" HorizontalOffset="82" Focusable="True" StaysOpen="False" AllowsTransparency="True">
@@ -231,16 +231,16 @@
                             <DropShadowEffect ShadowDepth="1" BlurRadius="11" Opacity="0.63"/>
                         </Border.Effect>
                         <StackPanel Margin="8" >
-                            <TextBlock TextWrapping="Wrap" Text="起始搜索页码（真实页，默认为1）"/>
+                            <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}"/>
                             <ui:CountAdjustableBoxControl x:Name="FilterStartPageBox" NumCount="1" MaxCount="99999" MinCount="1" Margin="2" Height="24"/>
-                            <TextBlock TextWrapping="Wrap" Text="每页图片数量" Margin="0,6,0,0"/>
+                            <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterCount}" Margin="0,6,0,0"/>
                             <ui:CountAdjustableBoxControl x:Name="FilterCountBox" NumCount="60" MaxCount="150" MinCount="10" Margin="2" Height="24"/>
                             <StackPanel x:Name="FilterExlicitGroup" Orientation="Vertical">
-                                <CheckBox x:Name="FilterExlicitCheckBox" Content="显示Explicit评级图片" IsChecked="{Binding IsDisplayExplicitImages}" Visibility="{Binding IsXMode, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,4,0,0"/>
-                                <CheckBox x:Name="ShowExlicitOnlyCheckBox" Content="仅显示Explicit评级图片" Visibility="{Binding Visibility, ElementName=FilterExlicitCheckBox}" Margin="0,4,0,0"/>
+                                <CheckBox x:Name="FilterExlicitCheckBox" Content="{DynamicResource TextSearchControlFilterShowExpicit}" IsChecked="{Binding IsDisplayExplicitImages}" Visibility="{Binding IsXMode, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,4,0,0"/>
+                                <CheckBox x:Name="ShowExlicitOnlyCheckBox" Content="{DynamicResource TextSearchControlFilterShowExpicitOnly}" Visibility="{Binding Visibility, ElementName=FilterExlicitCheckBox}" Margin="0,4,0,0"/>
                             </StackPanel>
                             <StackPanel x:Name="FilterResolutionGroup" Orientation="Vertical">
-                                <CheckBox x:Name="FilterResolutionCheckBox" Content="过滤掉此分辨率以下图片（宽/高）" Margin="0,4,0,0"/>
+                                <CheckBox x:Name="FilterResolutionCheckBox" Content="{DynamicResource TextSearchControlFilterResolution}" Margin="0,4,0,0"/>
                                 <Grid Margin="0,2,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
@@ -256,13 +256,13 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <ComboBox x:Name="OrientationComboBox" Grid.Column="1" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Height="26" Margin="0,0,2,0" SelectedIndex="0">
-                                    <ComboBoxItem Content="任意"/>
-                                    <ComboBoxItem Content="横向"/>
-                                    <ComboBoxItem Content="纵向"/>
+                                    <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationNone}"/>
+                                    <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationLandscape}"/>
+                                    <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationPortrait}"/>
                                 </ComboBox>
-                                <TextBlock TextWrapping="Wrap" Text="图片方向" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
+                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterOrientation}" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
                             </Grid>
-                            <CheckBox x:Name="FilterFileTypeCheckBox" Content="过滤掉指定文件类型" Margin="0,6,0,0"/>
+                            <CheckBox x:Name="FilterFileTypeCheckBox" Content="{DynamicResource TextSearchControlFilterFileType}" Margin="0,6,0,0"/>
                             <TextBox x:Name="FilterFileTypeTextBox" TextWrapping="Wrap" Text="gif;bmp" Height="24" IsEnabled="{Binding IsChecked, ElementName=FilterFileTypeCheckBox}" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Margin="2" ToolTip="输入不带点&quot;.&quot;的扩展名，用半角分号&quot;;&quot;分隔不同后缀"/>
                         </StackPanel>
                     </Border>

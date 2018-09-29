@@ -54,6 +54,12 @@ namespace MoeLoader.Core
             }
         }
 
+        public static string LangText(this FrameworkElement el, string key, string arg1 = null,string arg2 = null)
+        {
+            var text = el.TryFindResource(key) as string;
+            return string.IsNullOrWhiteSpace(text) ? text : "{N/A}";
+        }
+
         public static void AddEasyDoubleAnime(this Storyboard sb, DependencyObject target, double fromValue, double toValue, double timeSec, string property)
         {
             var path="";

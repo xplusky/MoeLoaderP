@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Hosting;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -73,7 +71,7 @@ namespace MoeLoader.UI
 
         public void CalculateChoosedItem()
         {
-            // ChooseBox pos
+            // ChooseBox 边界
             var xl = Canvas.GetLeft(ChooseBox);
             var xr = Canvas.GetLeft(ChooseBox) + ChooseBox.Width;
             var yt = Canvas.GetTop(ChooseBox);
@@ -103,7 +101,12 @@ namespace MoeLoader.UI
 
         private void ImageItemsWrapPanelOnPreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Released) return;
+            if (e.LeftButton == MouseButtonState.Released)
+            {
+                if (_isChoosing) ImageItemsWrapPanelOnPreviewMouseLeftButtonUp(sender, null);
+                return;
+            }
+            if (!_isChoosing) return;
             if(ChooseBox.Visibility == Visibility.Collapsed) ChooseBox.Visibility = Visibility.Visible;
             var movep = e.GetPosition(ChooseCanvasRoot);
             var vx = movep.X - _chooseStartPoint.X;
@@ -132,20 +135,10 @@ namespace MoeLoader.UI
             _isChoosing = true;
 
             if(!_padTimer.IsEnabled) _padTimer.Start();
-             var pointToViewer = e.GetPosition(ImageItemsScrollViewer);
-            if (pointToViewer.Y < 0)
-            {
-                _lineupdown = -1;
-                
-            }
-            else if(pointToViewer.Y > ImageItemsScrollViewer.ActualHeight)
-            {
-                _lineupdown = 1;
-            }
-            else
-            {
-                _lineupdown = 0;
-            }
+            var pointToViewer = e.GetPosition(ImageItemsScrollViewer);
+            if (pointToViewer.Y < 0) _lineupdown = -1;
+            else if(pointToViewer.Y > ImageItemsScrollViewer.ActualHeight) _lineupdown = 1;
+            else _lineupdown = 0;
         }
 
         private readonly DispatcherTimer _padTimer;
@@ -155,6 +148,7 @@ namespace MoeLoader.UI
 
         private void ImageItemsWrapPanelOnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            _isChoosing = true;
             _chooseStartPoint = e.GetPosition(ChooseCanvasRoot);
             ChooseBox.Width = 0;
             ChooseBox.Height = 0;

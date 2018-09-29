@@ -12,7 +12,7 @@
         <core:ProxyModeToSelectIndexConverter x:Key="ProxyModeToSelectIndexConverter"/>
     </UserControl.Resources>
     <StackPanel>
-        <GroupBox Header="搜索设置" Template="{DynamicResource MoeGroupBoxControlTemplate}">
+        <GroupBox Header="{DynamicResource TextSettingsGroupSearch}" Template="{DynamicResource MoeGroupBoxControlTemplate}">
             <StackPanel Margin="4">
                 <Grid Height="66.24">
                     <Grid.RowDefinitions>
@@ -23,17 +23,17 @@
                         <ColumnDefinition Width="56*"/>
                         <ColumnDefinition Width="81*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88"><Run Text="图片同时"/><Run Text="加载"/><Run Text="数量"/></TextBlock>
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88" Text="{DynamicResource TextSettingsParallelLoadMaxCount}"></TextBlock>
                     <local:CountAdjustableBoxControl x:Name="ImageParallelLoadMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="20" NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="24"/>
-                    <TextBlock TextWrapping="Wrap" Text="历史记录最大数量" VerticalAlignment="Center" Height="15.24" Margin="0,7.228,0,10.652" Grid.Row="1"/>
+                    <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsHistoryMaxCount}" VerticalAlignment="Center" Height="15.24" Margin="0,7.228,0,10.652" Grid.Row="1"/>
                     <local:CountAdjustableBoxControl x:Name="HistoryMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="30" NumCount="{Binding HistoryKeywordsMaxCount, Mode=TwoWay}" Grid.Row="1" Width="150" Height="24"/>
                 </Grid>
-                <Button x:Name="ClearHistoryButton" Content="清除历史记录" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="0,4,0,0"/>
+                <Button x:Name="ClearHistoryButton" Content="{DynamicResource TextSettingsClearHistory}" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="0,4,0,0"/>
             </StackPanel>
         </GroupBox>
 
         <GroupBox
-            Header="代理设置" Template="{DynamicResource MoeGroupBoxControlTemplate}">
+            Header="{DynamicResource TextSettingsProxyGroup}" Template="{DynamicResource MoeGroupBoxControlTemplate}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -41,9 +41,9 @@
                 </Grid.ColumnDefinitions>
                 <ComboBox x:Name="ProxyModeComboBox" Margin="4" SelectedIndex="{Binding ProxyMode, Converter={StaticResource ProxyModeToSelectIndexConverter}, Mode=TwoWay}" Height="24" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
                           ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}">
-                    <ComboBoxItem Content="不使用代理" />
-                    <ComboBoxItem Content="使用IE代理" />
-                    <ComboBoxItem Content="自定义" />
+                    <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeNone}" />
+                    <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeSystem}" />
+                    <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeCustom}" />
                 </ComboBox>
                 <TextBox
                     x:Name="CustomProxyTextBox"
@@ -56,7 +56,7 @@
         </GroupBox>
 
         <GroupBox
-            Header="下载设置" Template="{DynamicResource MoeGroupBoxControlTemplate}">
+            Header="{DynamicResource TextSettingsDownloadGroup}" Template="{DynamicResource MoeGroupBoxControlTemplate}">
             <StackPanel Margin="4">
                 <Grid Height="24">
                     <Grid.ColumnDefinitions>
@@ -64,11 +64,11 @@
                         <ColumnDefinition Width="75*"/>
                     </Grid.ColumnDefinitions>
                     <local:CountAdjustableBoxControl x:Name="ParallelDownloadingMaxCountBox" MinCount="1" MaxCount="15" NumCount="{Binding MaxOnDownloadingImageCount, Mode=TwoWay}" Grid.Column="1" Width="150" Height="24"/>
-                    <TextBlock TextWrapping="Wrap" Text="同时下载数量" VerticalAlignment="Center"/>
+                    <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsDownloadParallelDownloadingCount}" VerticalAlignment="Center"/>
                 </Grid>
                 <TextBlock
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Top" Text="存储文件夹位置（分站点保存）" Margin="0,4"/>
+                    VerticalAlignment="Top" Text="{DynamicResource TextSettingsDownloadFileSavePath}" Margin="0,4"/>
                 <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="215*"/>
@@ -86,7 +86,7 @@
                         Height="26"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
-                        Content="浏览" Template="{DynamicResource MoeButtonControlTemplate}" Grid.Column="1" />
+                        Content="{DynamicResource TextCommonBrowse}" Template="{DynamicResource MoeButtonControlTemplate}" Grid.Column="1" />
                 </Grid>
                 <StackPanel Orientation="Vertical" Visibility="Collapsed">
                     <CheckBox x:Name="CustomNameFormatCheckBox" Content="自定义文件命名格式（不带扩展名）" IsChecked="{Binding IsUseCustomFileNameFormat}" Margin="0,4,0,0"/>

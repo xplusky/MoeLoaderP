@@ -2,13 +2,14 @@
     x:Class="MoeLoader.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-
     ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Assets/Simple Styles.xaml"/>
-                <ResourceDictionary Source="Assets/MoeResource.xaml" />
+                <!-- style --><ResourceDictionary Source="Assets/MoeResource.xaml" />
+                <!-- lang --><ResourceDictionary Source="Assets/Lang/zh-CN.xaml" />
+                <!-- lang override --><ResourceDictionary />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

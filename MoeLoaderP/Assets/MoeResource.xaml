@@ -297,7 +297,7 @@
                     </ScrollViewer>
                 </Grid>
             </Popup>
-            <TextBlock x:Name="OverflowTextBlock" TextWrapping="NoWrap" Text="请输入关键字或留空" VerticalAlignment="Center" Opacity="0.5" Visibility="{Binding Text, Converter={StaticResource MoeSearchKeywordFlowTextVisibilityConverter}, ElementName=KeywordTextBox}" IsHitTestVisible="False" Margin="8,0"/>
+            <TextBlock x:Name="OverflowTextBlock" TextWrapping="NoWrap" Text="{DynamicResource TextSearchControlKeywordTip}" VerticalAlignment="Center" Opacity="0.5" Visibility="{Binding Text, Converter={StaticResource MoeSearchKeywordFlowTextVisibilityConverter}, ElementName=KeywordTextBox}" IsHitTestVisible="False" Margin="8,0"/>
         </Grid>
     </ControlTemplate>
     <ControlTemplate x:Key="MoeSitesToggleButtonControlTemplate" TargetType="{x:Type ToggleButton}">

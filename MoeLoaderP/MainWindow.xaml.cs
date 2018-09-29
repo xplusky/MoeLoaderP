@@ -43,7 +43,7 @@ namespace MoeLoader
             MoeExlorer.AnyImageLoaded += MoeExlorerOnAnyImageLoaded;
             MoeExlorer.ImageItemDownloadButtonClicked += MoeExlorerOnImageItemDownloadButtonClicked;
             MoeExlorer.MouseWheel += MoeExlorerOnMouseWheel;
-            MoeExlorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordComboBox.Text = s;
+            MoeExlorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordTextBox.Text = s;
             MoeExlorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
 
             // downloader
@@ -143,7 +143,7 @@ namespace MoeLoader
                         }
                         if (_f8KeyDownTimes >= 10) Settings.HaveEnteredXMode = true;
                     }
-                    ShowPopupMessage(Settings.IsXMode ? "已关闭 18X 模式" : "已开启 18X 模式");
+                    ShowPopupMessage(Settings.IsXMode ? "已关闭 R18 模式" : "已开启 R18 模式");
                     Settings.IsXMode = !Settings.IsXMode;
                     SiteManager.Sites.Clear();
                     SiteManager.SetDefaultSiteList();

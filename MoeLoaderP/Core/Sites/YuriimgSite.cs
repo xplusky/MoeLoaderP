@@ -42,7 +42,7 @@ namespace MoeLoader.Core.Sites
                     endBoundary = $"--{boundary}--\r\n", // 结束边界符
                     postData = $"{pboundary}\r\nContent-Disposition: form-data; name=\"username\"\r\n\r\n{User}\r\n{pboundary}\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\n{Pass}\r\n{endBoundary}";
 
-                var respose = await Net.Client.PostAsync(loginUrl, new StringContent(postData));
+                var respose = await Net.Client.PostAsync(loginUrl, new StringContent(postData), token);
                 if (respose.IsSuccessStatusCode) IsLogin = true;
                 else return new ImageItems();
                 //retData = Sweb.Post(loginUrl, postData, Settings.Proxy, shc);

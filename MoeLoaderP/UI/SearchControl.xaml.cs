@@ -167,7 +167,7 @@ namespace MoeLoader.UI
         private void AddHistoryItems()
         {
             HintItems.Add(new AutoHintItem { Word = "---------历史记录---------", IsEnable = false });
-            if (Settings.HistoryKeywords.Count > 0)
+            if (Settings?.HistoryKeywords?.Count > 0)
             {
                 foreach (var kitem in Settings.HistoryKeywords)
                 {
