@@ -116,6 +116,11 @@ namespace MoeLoader.Core
                 try
                 {
                     NetSwap net;
+                    if (string.IsNullOrWhiteSpace(ImageItem.FileUrl))
+                    {
+                        DownloadStatus = DownloadStatusEnum.Failed;
+                        return;
+                    }
                     if (ImageItem.Net == null)
                     {
                         net = new NetSwap(Settings);
