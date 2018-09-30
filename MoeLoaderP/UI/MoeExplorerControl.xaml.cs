@@ -338,7 +338,8 @@ namespace MoeLoader.UI
         public void RefreshPaging(SearchSession session)
         {
             PagingStackPanel.Children.Clear();
-            var lastpage = session.LoadedPages.Last();
+            var lastpage = session.LoadedPages?.LastOrDefault();
+            if (lastpage == null) return;
             LoadImages(lastpage.ImageItems);
             StartDownloadShowImages();
             

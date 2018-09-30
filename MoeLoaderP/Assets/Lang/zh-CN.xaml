@@ -34,9 +34,11 @@
     <String x:Key="TextSettingsProxyModeNone">不使用代理</String>
     <String x:Key="TextSettingsProxyModeSystem">使用IE代理</String>
     <String x:Key="TextSettingsProxyModeCustom">使用IE自定义</String>
+    <String x:Key="TextSettingsProxyModeErrorTip">代理地址格式不正确，应类似于 127.0.0.1:1080 形式</String>
     <String x:Key="TextSettingsDownloadGroup">下载设置</String>
     <String x:Key="TextSettingsDownloadParallelDownloadingCount">同时下载数量</String>
     <String x:Key="TextSettingsDownloadFileSavePath">存储文件夹位置（分站点保存）</String>
+
 
     <String x:Key="TextDownloaderContextOpenFilePath">打开文件位置</String>
     <String x:Key="TextDownloaderContextSelectAll">全选</String>

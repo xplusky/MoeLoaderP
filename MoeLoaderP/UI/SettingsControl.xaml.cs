@@ -33,6 +33,14 @@ namespace MoeLoader.UI
             FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
         }
 
+        public void Init(Settings settings)
+        {
+            Settings = settings;
+            DataContext = Settings;
+
+            CustomProxyTextBox.Text = Settings.ProxySetting;
+        }
+
         private void FileNameFormatTextBoxOnLostFocus(object sender, RoutedEventArgs e)
         {
             var isbad = false;
@@ -70,16 +78,8 @@ namespace MoeLoader.UI
             }
             catch
             {
-                App.ShowMessage("代理地址格式不正确，应类似于 127.0.0.1:1080 形式");
+                App.ShowMessage(this.LangText("TextSettingsProxyModeErrorTip"));
                 CustomProxyTextBox.Text = _tempCustomProxyText;
-            }
-        }
-
-        private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Settings.ProxyMode))
-            {
-                
             }
         }
 
@@ -88,16 +88,7 @@ namespace MoeLoader.UI
             Settings.HistoryKeywords.Clear();
             App.ShowMessage("已清除历史记录");
         }
-
-        public void Init(Settings settings)
-        {
-            Settings = settings;
-            DataContext = Settings;
-            Settings.PropertyChanged += SettingsOnPropertyChanged;
-
-            CustomProxyTextBox.Text = Settings.ProxySetting;
-        }
-
+        
         private void SaveFolderBrowseButtonOnClick(object sender, RoutedEventArgs e)
         {
             var diaglog = new CommonOpenFileDialog
@@ -123,11 +114,11 @@ namespace MoeLoader.UI
 
             if (string.IsNullOrWhiteSpace(FileNameFormatTextBox.SelectedText))
             {
-                FileNameFormatTextBox.Text = FileNameFormatTextBox.Text.Insert(selectstart, format.Contains("imgp") ? format.Replace("n", "3") : format);
+                FileNameFormatTextBox.Text = FileNameFormatTextBox.Text.Insert(selectstart,  format);
             }
             else
             {
-                FileNameFormatTextBox.SelectedText = format.Contains("imgp") ? format.Replace("n", "3") : format;
+                FileNameFormatTextBox.SelectedText = format;
                 FileNameFormatTextBox.SelectionLength = 0;
             }
             FileNameFormatTextBox.SelectionStart = selectstart + format.Length;

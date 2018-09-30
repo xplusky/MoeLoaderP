@@ -1,24 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// pixiv.net  todo 需要优化 清理中 网络环境较差，不好测试
+    /// pixiv.net fixed 20181001
     /// </summary>
     public class PixivSite : MoeSite
     {
         //标签, 完整标签, 作者id, 日榜, 周榜, 月榜, 作品id
-        public enum PixivSrcType { Tag, TagFull, Author, Day, Week, Month, Pid }
+        public enum PixivSrcType
+        {
+            Tag = 0,
+            TagFull = 1,
+            Author = 2,
+            Day = 3,
+            Week = 4,
+            Month = 5,
+            Pid = 6
+        }
 
         public override string HomeUrl => "https://www.pixiv.net";
 
@@ -34,7 +40,7 @@ namespace MoeLoader.Core.Sites
         private static string _tempPage = null;
 
         private bool IsLogin { get; set; }
-
+        
         /// <summary>
         /// pixiv.net site
         /// </summary>
@@ -54,68 +60,77 @@ namespace MoeLoader.Core.Sites
 
         private async Task LoginAsync()
         {
-            Net.Client.DefaultRequestHeaders.Referrer = new Uri(Referer);
-            Net.SetTimeOut(20);
-
-            var hdoc = new HtmlDocument();
-            
-            const string loginpost = "https://accounts.pixiv.net/api/login?lang=zh";
-            const string loginurl = "https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=";
-
-            var index = new Random().Next(0, _user.Length);
-            
-            // get 测试网络
-            var homeseucess = false;
+            // 步骤0 GET 测试网络可用性
+            Net.SetReferer(Referer);
             try
             {
                 var homerespose = await Net.Client.GetAsync("https://www.pixiv.net/");
-                homeseucess = homerespose.IsSuccessStatusCode;
+                if (!homerespose.IsSuccessStatusCode) throw new Exception("!homerespose.IsSuccessStatusCode");
             }
             catch (Exception e)
             {
                 App.Log(e);
-                homeseucess = false;
-            }
-            if (!homeseucess)
-            {
                 App.ShowMessage("无法连接至https://www.pixiv.net，请检查代理设置");
-                return ;
+                return;
             }
-            // todo POST取登录Cookie
-            //请求1 获取post_key
+
+            // 步骤1 GET 获取 post_key 参数
+            const string loginurl = "https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=";
             var data = await Net.Client.GetStringAsync(loginurl);
+            var hdoc = new HtmlDocument();
             hdoc.LoadHtml(data);
             var postKey = hdoc.DocumentNode.SelectSingleNode("//input[@name='post_key']").Attributes["value"].Value;
-            if (postKey.Length < 9) App.Log(ShortName, "自动登录失败(获取post_key失败）");
+            if (string.IsNullOrWhiteSpace(postKey) || postKey.Length < 9)
+            {
+                App.Log(ShortName, "自动登录失败(获取post_key失败）");
+                App.ShowMessage("pixiv.net自动登录失败");
+                return;
+            }
 
-            // 请求2
+            // 步骤2 POST 登录获取Cookie
+            var uindex = new Random().Next(0, _user.Length);
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                {"pixiv_id", _user[index]},
+                {"pixiv_id", _user[uindex]},
                 {"captcha", ""},
-                {"password", _pass[index]},
+                {"password", _pass[uindex]},
                 {"post_key", postKey},
                 {"source", "pc"},
-                {"return_to", "https%3A%2F%2Fwww.pixiv.net%2F"}
+                {"ref", "wwwtop_accounts_index"},
+                {"return_to", HomeUrl.ToEncodedUrl()}
             });
-
-            var response = await Net.Client.PostAsync(loginpost, content);
-            if (response.IsSuccessStatusCode) IsLogin = true;
-            else
+            try
             {
-                App.Log(ShortName, "自动登录失败 ");
+                
+                Net.SetReferer("https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=wwwtop_accounts_index");
+                const string loginpost = "https://accounts.pixiv.net/api/login?lang=zh";
+                var response = await Net.Client.PostAsync(loginpost, content);
+                if (response.IsSuccessStatusCode) IsLogin = true;
+                else throw new Exception("步骤2 POST 登录获取Cookie response.IsSuccessStatusCode == false");
+            }
+            catch (Exception e)
+            {
+                App.Log(e);
+                App.ShowMessage("pixiv.net自动登录失败");
+                return;
             }
         }
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            if(Net == null) Net = new NetSwap(Settings, HomeUrl);
-
+            if (Net == null)
+            {
+                Net = new NetSwap(Settings, HomeUrl);
+                Net.HttpClientHandler.AllowAutoRedirect = true;
+                Net.SetTimeOut(40);
+            }
+            
             if (!IsLogin) await LoginAsync();
             if (!IsLogin) return new ImageItems();
 
             // --------------------------page-------------------
             //if (page > 1000) throw new Exception("页码过大，若需浏览更多图片请使用关键词限定范围");
+            // https://www.pixiv.net/search.php?word=GUMI&order=date_d&p=3
             string query;
             var keyWord = para.Keyword;
             var page = para.PageIndex;
@@ -129,37 +144,41 @@ namespace MoeLoader.Core.Sites
             }
             else
             {
-                //http://www.pixiv.net/new_illust.php?p=2
+                // https://www.pixiv.net/new_illust.php?type=all&p=2
+                // keyword is empty
                 query = $"{HomeUrl}/new_illust.php?type=all&p={page}";
 
                 if (keyWord.Length > 0)
                 {
-                    //http://www.pixiv.net/search.php?s_mode=s_tag&word=hatsune&order=date_d&p=2
+                    // http://www.pixiv.net/search.php?s_mode=s_tag&word=hatsune&order=date_d&p=2
                     query = $"{HomeUrl}/search.php?s_mode=s_tag{(SubListIndex == 5 ? "_full" : "")}&word={keyWord}&order=date_d&p={page}";
                 }
-                if (SubListIndex == 1)
+                switch (SubListIndex)
                 {
-                    if (keyWord.Trim().Length == 0 || !int.TryParse(keyWord.Trim(), out var memberId))
-                    {
-                        throw new Exception("必须在关键词中指定画师 id；若需要使用标签进行搜索请使用 www.pixiv.net [TAG]");
+                    case 1:// 作者
+                        {
+                        if (keyWord.Trim().Length == 0 || !int.TryParse(keyWord.Trim(), out var memberId))
+                        {
+                            App.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）");
+                            return new ImageItems();
+                        }
+                        //member id
+                        query = $"{HomeUrl}/member_illust.php?id={memberId}&p={page}";
+                        break;
                     }
-                    //member id
-                    query = $"{HomeUrl}/member_illust.php?id={memberId}&p={page}";
-                }
-                else if (SubListIndex == 2)
-                {
-                    query = $"{HomeUrl}/ranking.php?mode=daily&p={page}";
-                }
-                else if (SubListIndex == 3)
-                {
-                    query = $"{HomeUrl}/ranking.php?mode=weekly&p={page}";
-                }
-                else if (SubListIndex == 4)
-                {
-                    query = $"{HomeUrl}/ranking.php?mode=monthly&p={page}";
+                    case 2:
+                        query = $"{HomeUrl}/ranking.php?mode=daily&p={page}";
+                        break;
+                    case 3:
+                        query = $"{HomeUrl}/ranking.php?mode=weekly&p={page}";
+                        break;
+                    case 4:
+                        query = $"{HomeUrl}/ranking.php?mode=monthly&p={page}";
+                        break;
                 }
             }
-            var pageString = await Net.Client.GetStringAsync(query);
+            var net = Net.CreatNewWithRelatedCookie();
+            var pageString = await net.Client.GetStringAsync(query);
 
 
             // ----------------images---------------------------
@@ -168,166 +187,104 @@ namespace MoeLoader.Core.Sites
             var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
 
-            //retrieve all elements via xpath
-            HtmlNodeCollection nodes = null;
-            HtmlNode tagNode = null;
+            // new 
+            var imgnodes = doc.DocumentNode.SelectNodes("//li[@class='image-item']");
+            if (imgnodes == null) return null;
 
-            try
+            foreach (var imglinode in imgnodes)
             {
-                if (SubListIndex == 0 || SubListIndex == 5)
+                var img = new ImageItem();
+                img.Site = this;
+                img.Net = Net.CreatNewWithRelatedCookie();
+                img.ThumbnailReferer = query;
+                var imgel = imglinode.SelectSingleNode("a/div/img").OuterHtml;
+                var imgdoc = new HtmlDocument();
+                imgdoc.LoadHtml(imgel);
+                var i2 = imgdoc.DocumentNode.SelectSingleNode("img");
+                img.ThumbnailUrl = i2?.GetAttributeValue("data-src", "");
+                int.TryParse(i2?.GetAttributeValue("data-id", "0"), out var id);
+                img.Id = id;
+                var tags = i2?.GetAttributeValue("data-tags", "");
+                if (!string.IsNullOrWhiteSpace(tags))
                 {
-                    tagNode = doc.DocumentNode.SelectSingleNode("//input[@id='js-mount-point-search-result-list']");
-                    //nodes = doc.DocumentNode.SelectSingleNode("//div[@id='wrapper']/div[2]/div[1]/section[1]/ul").SelectNodes("li");
-                }
-                else if (SubListIndex == 1)
-                {
-                    nodes = doc.DocumentNode.SelectSingleNode("//ul[@class='_image-items']").SelectNodes("li");
-                }
-                //else if (srcType == PixivSrcType.Day || srcType == PixivSrcType.Month || srcType == PixivSrcType.Week) //ranking
-                //nodes = doc.DocumentNode.SelectSingleNode("//section[@class='ranking-items autopagerize_page_element']").SelectNodes("div");
-                else if (SubListIndex == 6)
-                {
-                    if (!(Regex.Match(pageString, @"<h2.*?/h2>").Value.Contains("错误")))
+                    foreach (var tag in tags.Split(' '))
                     {
-                        _tempPage = pageString;
-                        var mangaCount = 1;
-                        string sampleUrl;
-                        string id;
-
-                        if (!pageString.Contains("globalInitData"))
-                        {
-                            //----- 旧版 -----
-                            sampleUrl = doc.DocumentNode.SelectSingleNode("/html/head/meta[@property='og:image']").Attributes["content"].Value;
-                            id = sampleUrl.Substring(sampleUrl.LastIndexOf("/") + 1, sampleUrl.IndexOf("_") - sampleUrl.LastIndexOf("/") - 1);
-
-                            var dimension = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[2]").InnerText;
-                            if (dimension.EndsWith("P"))
-                                mangaCount = int.Parse(Regex.Match(dimension, @"\d+").Value);
-                        }
-                        else
-                        {
-                            //----- 新版 -----
-                            var strRex = Regex.Match(pageString, @"(?<=(?:,illust\:.{.))\d+(?=(?:\:.))");
-                            id = strRex.Value;
-
-                            strRex = Regex.Match(pageString, @"(?<=(?:" + id + ":.)).*?(?=(?:.},user))");
-
-                            var jobj = JObject.Parse(strRex.Value);
-                            try { mangaCount = int.Parse(jobj["pageCount"].ToString()); } catch { }
-
-                            jobj = JObject.Parse(jobj["urls"].ToString());
-                            sampleUrl = jobj["thumb"].ToString();
-                        }
-
-                        var detailUrl = HomeUrl + "/member_illust.php?mode=medium&illust_id=" + id;
-                        for (var i = 0; i < mangaCount; i++)
-                        {
-                            var img = GenerateImg(detailUrl, sampleUrl.Replace("_p0_", $"_p{i}_"), id);
-                            var sb = new StringBuilder();
-                            sb.Append("P");
-                            sb.Append(i.ToString());
-                            if (img != null) imgs.Add(img);
-                        }
-                        return imgs;
+                        img.Tags.Add(tag);
                     }
-                    else throw new Exception("该作品已被删除，或作品ID不存在");
                 }
-                else
-                {
-                    //ranking
-                    nodes = doc.DocumentNode.SelectNodes("//section[@class='ranking-item']");
-                }
-            }
-            catch
-            {
-                throw new Exception("没有找到图片哦～ .=ω=");
-            }
+                
+                var title = imglinode.SelectNodes("a")?[1]?.InnerText?.ToDecodedUrl();
+                img.Title = title;
+                var usernode = imglinode.SelectNodes("a")?[2];
+                var user = usernode?.GetAttributeValue("data-user_name","");
+                img.Author = user;
 
-            if (SubListIndex == 0 || SubListIndex == 5)
-            {
-                if (tagNode == null)
-                {
-                    return imgs;
-                }
-            }
-            else if (nodes == null)
-            {
-                return imgs;
-            }
+                var link = imglinode.SelectSingleNode("a")?.GetAttributeValue("href", "");
+                //var countdiv = imglinode.SelectSingleNode("./div[@class='page-count']");
 
-            //Tag search js-mount-point-search-related-tags Json
-            if (SubListIndex == 0 || SubListIndex == 5)
-            {
-                var jsonData = tagNode.Attributes["data-items"].Value.Replace("&quot;", "\"");
-                var array = (new JavaScriptSerializer()).DeserializeObject(jsonData) as object[];
-                foreach (var o in array)
-                {
-                    var obj = o as Dictionary<string, object>;
-                    string
-                        detailUrl = "",
-                        sampleUrl = "",
-                        id = "";
-                    if (obj["illustId"] != null)
-                    {
-                        id = obj["illustId"].ToString();
-                        detailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
-                    }
-                    if (obj["url"] != null)
-                    {
-                        sampleUrl = obj["url"].ToString();
-                    }
-                    var img = GenerateImg(detailUrl, sampleUrl, id);
-                    if (img != null) imgs.Add(img);
-                }
-            }
-            else
-            {
-                foreach (var imgNode in nodes)
+                var fulllink = $"{HomeUrl}{link?.Replace("&amp;", "&")}";
+                //if (countb) fulllink = fulllink.Replace("mode=medium", "mode=manga");
+                img.DetailUrl = fulllink;
+
+                var subnet = Net.CreatNewWithRelatedCookie();
+                img.GetDetailAction = async () =>
                 {
                     try
                     {
-                        var anode = imgNode.SelectSingleNode("a");
-                        if (SubListIndex == 2 || SubListIndex == 3 || SubListIndex == 4)
+                        var subpage = await subnet.Client.GetStringAsync(fulllink);
+                        var subdoc = new HtmlDocument();
+                        subdoc.LoadHtml(subpage);
+
+                        img.Net = Net.CreatNewWithRelatedCookie();
+                        img.FileReferer = fulllink;
+
+                        var strRex = Regex.Match(subpage, $@"(?<=(?:{img.Id}:.)).*?(?=(?:.}},user))");
+
+                        dynamic jobj = JsonConvert.DeserializeObject(strRex.Value);
+                        if (jobj == null) return;
+                        int.TryParse($"{jobj.likeCount}", out var score);
+                        img.Score = score;
+                        int.TryParse($"{jobj.width}", out var width);
+                        img.Width = width;
+                        int.TryParse($"{jobj.height}", out var height);
+                        img.Height = height;
+                        int.TryParse($"{jobj.pageCount}", out var pageCount);
+                        img.FileUrl = $"{jobj.urls?.original}";
+
+                        if (pageCount > 1)
                         {
-                            anode = imgNode.SelectSingleNode(".//div[@class='ranking-image-item']").SelectSingleNode("a");
-                        }
-                        //details will be extracted from here
-                        //eg. member_illust.php?mode=medium&illust_id=29561307&ref=rn-b-5-thumbnail
-                        //sampleUrl 正则 @"https://i\.pximg\..+?(?=")"
-                        var detailUrl = anode.Attributes["href"].Value.Replace("amp;", "");
-                        var sampleUrl = "";
-                        sampleUrl = anode.SelectSingleNode(".//img").Attributes["src"].Value;
+                            for (var i = 0; i < pageCount; i++)
+                            {
+                                var subimg = new ImageItem();
+                                var rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
+                                subimg.FileUrl = rex.Replace(img.FileUrl, $"p{i}");
+                                subimg.Site = this;
+                                subimg.FileReferer = fulllink.Replace("mode=medium", "mode=manga");
+                                subimg.Net = Net.CreatNewWithRelatedCookie();
 
-                        if (sampleUrl.ToLower().Contains("images/common"))
-                            sampleUrl = anode.SelectSingleNode(".//img").Attributes["data-src"].Value;
-
-                        if (sampleUrl.Contains('?'))
-                            sampleUrl = sampleUrl.Substring(0, sampleUrl.IndexOf('?'));
-
-                        //extract id from detail url
-                        //string id = detailUrl.Substring(detailUrl.LastIndexOf('=') + 1);
-                        var id = Regex.Match(detailUrl, @"illust_id=\d+").Value;
-                        id = id.Substring(id.IndexOf('=') + 1);
-
-                        var img = GenerateImg(detailUrl, sampleUrl, id);
-                        if (img != null)
-                        {
-                            imgs.Add(img);
+                                img.ChilldrenItems.Add(subimg);
+                            }
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        //int i = 0;
+                        App.Log(e);
                     }
-                }
-            }
+                };
 
+                imgs.Add(img);
+            }
             return imgs;
         }
-       
+        
+        private NetSwap AutoHintNet { get; set; }
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (Net == null) Net = new NetSwap(Settings, HomeUrl);
+            if (AutoHintNet == null)
+            {
+                AutoHintNet = new NetSwap(Settings, HomeUrl);
+                AutoHintNet.SetReferer(Referer);
+            }
             var re = new AutoHintItems();
 
             if (SubListIndex == 0 || SubListIndex == 5)
@@ -337,213 +294,22 @@ namespace MoeLoader.Core.Sites
 
                 var url = string.Format(HomeUrl + "/rpc/cps.php?keyword={0}", para.Keyword);
 
-                Net.Client.DefaultRequestHeaders.Referrer = new Uri(Referer);
-                var json = await Net.Client.GetStringAsync(url);
+                
+                var json = await AutoHintNet.Client.GetStringAsync(url);
 
-                tags = (new JavaScriptSerializer()).DeserializeObject(json) as Dictionary<string, object>;
-                if (tags.ContainsKey("candidates"))
+                dynamic jlist = JsonConvert.DeserializeObject(json);
+                
+                if (jlist?.candidates != null)
                 {
-                    foreach (var obj in tags["candidates"] as object[])
+                    foreach (var obj in jlist.candidates)
                     {
-                        tag = obj as Dictionary<string, object>;
-                        re.Add(new AutoHintItem() { Word = tag["tag_name"].ToString() });
+                        var item =new AutoHintItem();
+                        item.Word = $"{obj.tag_name}";
+                        re.Add(item);
                     }
                 }
             }
             return re;
-        }
-
-
-        private ImageItem GenerateImg(string detailUrl, string sampleUrl, string id)
-        {
-            
-            var intId = int.Parse(id);
-
-            if (!detailUrl.StartsWith("http") && !detailUrl.StartsWith("/"))
-                detailUrl = "/" + detailUrl;
-
-            //convert relative url to absolute
-            if (detailUrl.StartsWith("/"))
-                detailUrl = HomeUrl + detailUrl;
-            if (sampleUrl.StartsWith("/"))
-                sampleUrl = HomeUrl + sampleUrl;
-
-            Referer = detailUrl;
-            //string fileUrl = preview_url.Replace("_s.", ".");
-            //string sampleUrl = preview_url.Replace("_s.", "_m.");
-
-            //http://i1.pixiv.net/img-inf/img/2013/04/10/00/11/37/34912478_s.png
-            //http://i1.pixiv.net/img03/img/tukumo/34912478_m.png
-            //http://i1.pixiv.net/img03/img/tukumo/34912478.png
-
-            var img = new ImageItem()
-            {
-                //Date = "N/A",
-                //FileSize = file_size.ToUpper(),
-                //Desc = intId + " ",
-                Id = intId,
-                //JpegUrl = fileUrl,
-                //OriginalUrl = fileUrl,
-                //PreviewUrl = preview_url,
-                ThumbnailUrl = sampleUrl,
-                //Score = 0,
-                //Width = width,
-                //Height = height,
-                //Tags = tags,
-                DetailUrl = detailUrl
-            };
-
-            img.ThumbnailReferer = Referer;
-            img.Net = Net;
-
-            img.GetDetailAction = async () =>
-            {
-                var i = img;
-                var p = Settings.Proxy;
-                var pageCount = 1;
-                string page, dimension, pcount;
-                page = dimension = string.Empty;
-                if (SubListIndex == 6)
-                    page = _tempPage;
-                //retrieve details
-                else
-                    page = await Net.Client.GetStringAsync(i.DetailUrl);
-
-                var reg = new Regex(@"^「(?<Desc>.*?)」/「(?<Author>.*?)」");
-                var doc = new HtmlDocument();
-                var ds = new HtmlDocument();
-                doc.LoadHtml(page);
-                pcount = Regex.Match(i.ThumbnailUrl, @"(?<=_p)\d+(?=_)").Value;
-
-                //=================================================
-                //「カルタ＆わたぬき」/「えれっと」のイラスト [pixiv]
-                //标题中取名字和作者
-                try
-                {
-                    var mc = reg.Matches(doc.DocumentNode.SelectSingleNode("//title").InnerText);
-                    if (SubListIndex == 6)
-                        i.Description = mc[0].Groups["Desc"].Value + "P" + pcount;
-                    else
-                        i.Description = mc[0].Groups["Desc"].Value;
-                    i.Author = mc[0].Groups["Author"].Value;
-                }
-                catch { }
-                //------------------------
-                if (!page.Contains("globalInitData"))
-                {
-                    //++++旧版详情页+++++
-                    //04/16/2012 17:44｜600×800｜SAI  or 04/16/2012 17:44｜600×800 or 04/19/2012 22:57｜漫画 6P｜SAI
-                    i.Date = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[1]")?.InnerText;
-                    //总点数
-                     int.TryParse(doc.DocumentNode.SelectSingleNode("//dd[@class='rated-count']")?.InnerText,out var score);
-                    i.Score = score;
-
-                    //URLS
-                    //http://i2.pixiv.net/c/600x600/img-master/img/2014/10/08/06/13/30/46422743_p0_master1200.jpg
-                    //http://i2.pixiv.net/img-original/img/2014/10/08/06/13/30/46422743_p0.png
-                    var rx = new Regex(@"/\d+x\d+/");
-                    i.PreviewUrl = rx.Replace(i.ThumbnailUrl, "/1200x1200/");
-                    i.JpegUrl = i.PreviewUrl;
-                    try
-                    {
-                        i.FileUrl = doc.DocumentNode.SelectSingleNode("//*[@id='wrapper']/div[2]/div")?.SelectSingleNode(".//img").Attributes["data-src"].Value;
-                    }
-                    catch { }
-                    i.FileUrl = string.IsNullOrWhiteSpace(i.FileUrl) ? i.JpegUrl : i.FileUrl;
-
-                    //600×800 or 漫画 6P
-                    dimension = doc.DocumentNode.SelectSingleNode("//ul[@class='meta']/li[2]")?.InnerText;
-                    try
-                    {
-                        //706×1000
-                        i.Width = int.Parse(dimension.Substring(0, dimension.IndexOf('×')));
-                        i.Height = int.Parse(Regex.Match(dimension.Substring(dimension.IndexOf('×') + 1), @"\d+").Value);
-                    }
-                    catch { }
-                }
-                else
-                {
-                    //+++++新版详情页+++++
-                    var strRex = Regex.Match(page, @"(?<=(?:" + i.Id + ":.)).*?(?=(?:.},user))");
-
-                    var jobj = JObject.Parse(strRex.Value);
-
-                    i.Date = jobj["uploadDate"].ToString();
-
-                    try
-                    {
-                        i.Score = int.Parse(jobj["likeCount"].ToString());
-                        i.Width = int.Parse(jobj["width"].ToString());
-                        i.Height = int.Parse(jobj["height"].ToString());
-                        pageCount = int.Parse(jobj["pageCount"].ToString());
-                    }
-                    catch { }
-
-                    jobj = JObject.Parse(jobj["urls"].ToString());
-                    var rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
-                    i.PreviewUrl = rex.Replace(jobj["regular"].ToString(), "p" + pcount);
-                    i.JpegUrl = rex.Replace(jobj["small"].ToString(), "p" + pcount);
-                    i.FileUrl = rex.Replace(jobj["original"].ToString(), "p" + pcount);
-                }
-
-                try
-                {
-                    if (pageCount > 1 || i.Width == 0 && i.Height == 0)
-                    {
-                        //i.OriginalUrl = i.SampleUrl.Replace("600x600", "1200x1200");
-                        //i.JpegUrl = i.OriginalUrl;
-                        //manga list
-                        //漫画 6P
-                        var oriul = "";
-                        var mangaCount = pageCount;
-                        if (pageCount > 1)
-                        {
-                            mangaCount = pageCount;
-                        }
-                        else
-                        {
-                            var index = dimension.IndexOf(' ') + 1;
-                            var mangaPart = dimension.Substring(index, dimension.IndexOf('P') - index);
-                            mangaCount = int.Parse(mangaPart);
-                        }
-                        if (SubListIndex == 6)
-                        {
-                            try
-                            {
-                                page = await Net.Client.GetStringAsync(i.DetailUrl.Replace("medium", "manga_big") + "&page=" + pcount);
-                                ds.LoadHtml(page);
-                                i.FileUrl = ds.DocumentNode.SelectSingleNode("/html/body/img").Attributes["src"].Value;
-                            }
-                            catch { }
-                        }
-                        else
-                        {
-                            //i.DimensionString = "Manga " + mangaCount + "P";
-                            for (var j = 0; j < mangaCount; j++)
-                            {
-                                //保存漫画时优先下载原图 找不到原图则下jpg
-                                try
-                                {
-                                    page = await Net.Client.GetStringAsync(i.DetailUrl.Replace("medium", "manga_big") + "&page=" + j);
-                                    ds.LoadHtml(page);
-                                    oriul = ds.DocumentNode.SelectSingleNode("/html/body/img").Attributes["src"].Value;
-                                    img.ChilldrenItems.Add(new ImageItem { FileUrl = oriul });
-                                    if (j == 0)
-                                        img.FileUrl = oriul;
-                                }
-                                catch
-                                {
-                                    //oriUrl = "http://img" + imgsvr + ".pixiv.net/img/" + items[6].Split('/')[4] + "/" + id + "_p0." + ext;
-                                    img.ChilldrenItems.Add(new ImageItem { FileUrl = i.FileUrl.Replace("_p0", "_p" + j) });
-                                }
-                            }
-                        }
-                    }
-                }
-                catch { }
-            };
-            img.Site = this;
-            return img;
         }
 
 

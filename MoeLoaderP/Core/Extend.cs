@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Windows;
 using System.Windows.Media.Animation;
@@ -34,12 +35,12 @@ namespace MoeLoader.Core
 
         public static string ToEncodedUrl(this string orgstr)
         {
-            return HttpUtility.UrlEncode(orgstr);
+            return HttpUtility.UrlEncode(orgstr,Encoding.UTF8);
         }
 
         public static string ToDecodedUrl(this string orgstr)
         {
-            return HttpUtility.UrlDecode(orgstr);
+            return HttpUtility.UrlDecode(orgstr,Encoding.UTF8);
         }
 
         public static void Go(this string url)

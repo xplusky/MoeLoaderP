@@ -60,8 +60,30 @@ namespace MoeLoader.Core
         public string FileSize { get; set; }
         public ulong FileBiteSize { get; set; }
         public string FileMd5 { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        private int _width;
+
+        public int Width
+        {
+            get => _width;
+            set
+            {
+                _width = value;
+                OnPropertyChanged(nameof(ResolutionText));
+            } 
+        }
+
+        private int _height;
+
+        public int Height
+        {
+            get => _height;
+            set
+            {
+                _height = value;
+                OnPropertyChanged(nameof(ResolutionText));
+            }
+        }
+
         public string ResolutionText
         {
             get
@@ -93,6 +115,15 @@ namespace MoeLoader.Core
                     App.Log(e);
                 }
             });
+        }
+
+        public ImageItem()
+        {
+            ChilldrenItems.CollectionChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(ImagesCount));
+                OnPropertyChanged(nameof(ImagesCountVisibility));
+            };
         }
     }
 
