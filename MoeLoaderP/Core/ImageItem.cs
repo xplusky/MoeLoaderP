@@ -98,7 +98,7 @@ namespace MoeLoader.Core
         public Visibility ImagesCountVisibility => ChilldrenItems.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
 
         /// <summary>
-        /// 获取详细信息委托 (若图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
+        /// 获取详细信息委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
         public Action GetDetailAction { get; set; }
 

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace MoeLoader.Core.Sites
 {
     /// <summary>
-    /// sankakucomplex.com fixed 20180924
+    /// sankakucomplex.com fixed 20181001
     /// </summary>
     public class SankakuSite  : MoeSite
     {
@@ -20,7 +20,6 @@ namespace MoeLoader.Core.Sites
 
         public override string ShortName => "sankakucomplex";
 
-        public string Referer => $"{HomeUrl}/post/show/12345";
 
         public string SitePrefix => SubListIndex == 0 ? "chan" : "idol";
 
@@ -59,7 +58,7 @@ namespace MoeLoader.Core.Sites
                 _chanNet.HttpClientHandler.UseCookies = true;
                 var client = _chanNet.Client;
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("SCChannelApp/2.4 (Android; black)");
-                client.DefaultRequestHeaders.Referrer = new Uri(Referer);
+                client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
                 var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content);
                 if (respose.IsSuccessStatusCode)
@@ -90,7 +89,7 @@ namespace MoeLoader.Core.Sites
                 _idolNet.HttpClientHandler.UseCookies = true;
                 var client = _idolNet.Client;
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("SCChannelApp/2.3 (Android; idol)");
-                client.DefaultRequestHeaders.Referrer = new Uri(Referer);
+                client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
                 var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content);
                 if (respose.IsSuccessStatusCode)
@@ -152,6 +151,7 @@ namespace MoeLoader.Core.Sites
                 img.Id = (int)item.id;
                 img.Score = (int)item.fav_count;
                 img.Author = $"{item.uploader_name}";
+                img.DetailUrl = $"{HomeUrl}/post/show/{img.Id}";
                 foreach (var tag in item.tags)
                 {
                     img.Tags.Add($"{tag.name}");
@@ -159,7 +159,7 @@ namespace MoeLoader.Core.Sites
                 img.IsExplicit = $"{item.rating}" == "e";
                 img.Site = this;
                 img.Net = Net.CreatNewWithRelatedCookie();
-                img.ThumbnailReferer = Referer;
+                img.ThumbnailReferer = img.DetailUrl;
 
                 imageitems.Add(img);
             }

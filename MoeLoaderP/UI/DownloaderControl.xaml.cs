@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -91,6 +90,7 @@ namespace MoeLoader.UI
                 if (item.DownloadStatus == DownloadStatusEnum.Success)
                 {
                     DownloadItems.Remove(item);
+                    i--;
                 }
             }
             ContextMenuPopup.IsOpen = false;
