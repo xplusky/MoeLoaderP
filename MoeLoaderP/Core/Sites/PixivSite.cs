@@ -33,10 +33,9 @@ namespace MoeLoader.Core.Sites
         {
             TagOrNew = 0,
             Author = 1,
-            Pid = 2,
-            Day = 3,
-            Week = 4,
-            Month = 5,
+            Day = 2,
+            Week = 3,
+            Month = 4,
 
         }
         /// <summary>
@@ -157,17 +156,6 @@ namespace MoeLoader.Core.Sites
                     else
                     {
                         query = $"{HomeUrl}/search.php?s_mode=s_tag&word={word.ToEncodedUrl()}&order=date_d&p={page}{xmodestr}";
-                    }
-                    break;
-                case SearchTypeEnum.Pid:
-                    if (int.TryParse(word.Trim(), out var pid))
-                    {
-                        query = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={word.Trim()}";
-                    }
-                    else
-                    {
-                        App.ShowMessage("请输入图片id");
-                        return new ImageItems();
                     }
                     break;
                 case SearchTypeEnum.Author:// 作者 member id
