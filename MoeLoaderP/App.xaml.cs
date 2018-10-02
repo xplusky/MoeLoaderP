@@ -6,9 +6,9 @@ using System.Net.Http;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
-using MoeLoaderP.Core;
+using MoeLoader.Core;
 
-namespace MoeLoaderP.Wpf
+namespace MoeLoader
 {
     public partial class App
     {
@@ -31,7 +31,17 @@ namespace MoeLoaderP.Wpf
         public static string ExeDir => Directory.GetParent(Process.GetCurrentProcess().MainModule.FileName).FullName;
 
         public static string SysAppDataDir => Environment.GetEnvironmentVariable("APPDATA");
-        
+
+        public static string UserSkinDir
+        {
+            get
+            {
+                var path = Path.Combine(AppDataDir, "Skin");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+
         public static string MoePicFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), DisplayName);
         public static string SaeUrl => "http://sae.leaful.com/moeloader/";
 

@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using MoeLoaderP.Core;
+using MoeLoader.Core;
 
-namespace MoeLoaderP.Wpf.UI
+namespace MoeLoader.UI
 {
     /// <summary>
     /// 缩略图面板中的图片用户控件

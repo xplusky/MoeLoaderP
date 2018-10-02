@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using MoeLoaderP.Core;
+using MoeLoader.Core;
 
-namespace MoeLoaderP.Wpf.UI
+namespace MoeLoader.UI
 {
     public partial class SettingsControl
     {

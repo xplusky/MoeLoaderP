@@ -6,10 +6,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using MoeLoaderP.Core;
+using MoeLoader.Core;
+using MoeLoader.UI;
 using Newtonsoft.Json;
 
-namespace MoeLoaderP.Wpf
+namespace MoeLoader
 {
     public partial class MainWindow
     {

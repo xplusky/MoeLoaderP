@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using MoeLoaderP.Core;
-using MoeLoaderP.Core.Sites;
+using System.Windows.Input;
+using MoeLoader.Core;
+using MoeLoader.Core.Sites;
 
-namespace MoeLoaderP.Wpf.UI
+namespace MoeLoader.UI
 {
     public partial class SearchControl
     {

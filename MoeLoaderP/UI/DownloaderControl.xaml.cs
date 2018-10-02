@@ -4,9 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using MoeLoaderP.Core;
+using MoeLoader.Core;
 
-namespace MoeLoaderP.Wpf.UI
+namespace MoeLoader.UI
 {
     public partial class DownloaderControl
     {
@@ -139,7 +139,7 @@ namespace MoeLoaderP.Wpf.UI
             var downitem = new DownloadItem
             {
                 Settings = Settings,
-                //ImageSource = img,
+                ImageSource = img,
                 ImageItem = item,
                 OriginFileName = Path.GetFileName(item.FileUrl)
             };

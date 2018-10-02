@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace MoeLoaderP.Wpf.UI
+namespace MoeLoader.UI
 {
     /// <summary>
     /// 自带调整按钮的数字文本框

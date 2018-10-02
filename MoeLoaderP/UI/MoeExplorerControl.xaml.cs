@@ -8,9 +8,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using MoeLoaderP.Core;
+using MoeLoader.Core;
 
-namespace MoeLoaderP.Wpf.UI
+namespace MoeLoader.UI
 {
     /// <summary>
     /// 图片列表浏览器

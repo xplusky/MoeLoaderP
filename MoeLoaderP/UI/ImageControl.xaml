@@ -3,16 +3,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:l="clr-namespace:MoeLoaderP"
-    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
-    x:Class="MoeLoaderP.Wpf.UI.ImageControl"
+    xmlns:Core="clr-namespace:MoeLoader.Core"
+    x:Class="MoeLoader.UI.ImageControl"
     Width="{Binding Settings.ImageItemControlSize}"
     Height="{Binding Settings.ImageItemControlSize}"
     Margin="6" mc:Ignorable="d" 
     d:DesignWidth="155.734" d:DesignHeight="155.688"  
     ToolTip="{Binding ImageItem.Title}">
     <UserControl.Resources>
-        <wpf:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <Core:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <Storyboard x:Key="LoadingStartSb">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LoadingAnimeGrid">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
