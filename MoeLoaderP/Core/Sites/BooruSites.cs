@@ -53,6 +53,8 @@
             => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex-1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
         public override string UrlPre => "https:";
+
+        public override string GetDetailPageUrl(ImageItem item) => $"{HomeUrl}/index.php?page=post&s=view&id={item.Id}";
     }
 
     public class Donmai : BooruSite

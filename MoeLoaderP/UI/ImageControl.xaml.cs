@@ -44,9 +44,9 @@ namespace MoeLoader.UI
             net.SetTimeOut(15);
             net.SetReferer(ImageItem.ThumbnailReferer);
             Exception loadex = null;
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             try
             {
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 var getDetaiTask = ImageItem.GetDetailAsync();
                 var response = await net.Client.GetAsync(ImageItem.ThumbnailUrl, cts.Token);
                 var stream = await response.Content.ReadAsStreamAsync();
@@ -72,7 +72,7 @@ namespace MoeLoader.UI
                         return null;
                     }
                 }, cts.Token);
-                if(source ==null) loadex = new Exception("imagesource is null");
+                if (source == null) loadex = new Exception("imagesource is null");
                 else PreviewImage.Source = source;
                 await getDetaiTask;
             }

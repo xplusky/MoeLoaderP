@@ -51,7 +51,7 @@ namespace MoeLoader.Core
         {
             var token = CurrentSearchCts.Token;
             var mpage = new SearchedPage(); // 建立虚拟页信息
-            ImageItems images;
+            var images = new ImageItems();
             SearchPara temppara;
             if (LoadedPages.Count == 0)
             {
@@ -59,12 +59,22 @@ namespace MoeLoader.Core
                 mpage.LastRealPageIndex = temppara.PageIndex;
                 // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动过滤相关条件）
                 SearchStatusChange($"正在搜索站点 {temppara.Site.DisplayName} 第 {temppara.PageIndex} 页");
-                images = await temppara.Site.GetRealPageImagesAsync(temppara,token);
-                if (images == null || images.Count == 0)
+                var imagesOrg = await temppara.Site.GetRealPageImagesAsync(temppara,token);
+                if (imagesOrg == null || imagesOrg.Count == 0)
                 {
                     App.ShowMessage("无搜索结果");
                     SearchStatusChange("无搜索结果");
                     return;
+                }
+                for (var i = 0; i < imagesOrg.Count; i++)
+                {
+                    var item = imagesOrg[i];
+                    if (i < temppara.Count) images.Add(item);
+                    else
+                    {
+                        mpage.PreLoadNextPageItems.Add(item);
+                        if(!mpage.HasNextPage) mpage.HasNextPage = true;
+                    }
                 }
             }
             else if (!LoadedPages.Last().HasNextPage) // 若无下一页则返回
@@ -78,9 +88,15 @@ namespace MoeLoader.Core
 
                 // 若不是第一页则使用上一页搜索多出来的图片作为本页基数
                 images = new ImageItems();
-                foreach (var item in LoadedPages.Last().PreLoadNextPageItems)
+                for (var i = 0; i < LoadedPages.Last().PreLoadNextPageItems.Count; i++)
                 {
-                    images.Add(item);
+                    var item = LoadedPages.Last().PreLoadNextPageItems[i];
+                    if (i < temppara.Count) images.Add(item);
+                    else
+                    {
+                        mpage.PreLoadNextPageItems.Add(item);
+                        mpage.HasNextPage = true;
+                    }
                 }
             }
 

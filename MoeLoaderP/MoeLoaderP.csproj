@@ -37,8 +37,8 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>14</ApplicationRevision>
-    <ApplicationVersion>9.0.5.%2a</ApplicationVersion>
+    <ApplicationRevision>15</ApplicationRevision>
+    <ApplicationVersion>9.0.6.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -163,7 +163,7 @@
     </Compile>
     <Compile Include="Core\Sites\MoeSite.cs" />
     <Compile Include="Core\Converters.cs" />
-    <Compile Include="Core\Extend.cs" />
+    <Compile Include="Core\Ext.cs" />
     <Compile Include="Core\ImageItem.cs" />
     <Compile Include="Core\Settings.cs" />
     <Compile Include="UI\SearchControl.xaml.cs">

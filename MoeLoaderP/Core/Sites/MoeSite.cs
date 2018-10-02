@@ -131,7 +131,7 @@ namespace MoeLoader.Core.Sites
                 Word = keyword
             };
             if (Count>=settings.HistoryKeywordsMaxCount)RemoveAt(Count-1);
-            Add(aitem);
+            Insert(0,aitem);
         }
     }
 
@@ -144,6 +144,8 @@ namespace MoeLoader.Core.Sites
             if (menu != null) SubMenu = menu;
         }
         public string Name { get; set; }
+
+        public bool NoNeedKeyword { get; set; } = false;
 
         public MoeSiteSubMenu SubMenu { get; set; } = new MoeSiteSubMenu();
 

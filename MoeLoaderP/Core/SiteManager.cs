@@ -37,7 +37,7 @@ namespace MoeLoader.Core
             Sites.Add(new EshuuSite());
             if (x) Sites.Add(new YuriimgSite());
             Sites.Add(new ZeroChanSite());
-            Sites.Add(new PixivSite());
+            Sites.Add(new PixivSite(x));
             if (x) Sites.Add(new AnimePicsSite());
             Sites.Add(new WCosplaySite());
         }

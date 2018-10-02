@@ -11,7 +11,7 @@ namespace MoeLoader.Core
     /// <summary>
     /// 扩展方法集合
     /// </summary>
-    public static class Extend
+    public static class Ext
     {
         /// <summary>
         /// 获取当前FrameworkElement的Storyboard资源

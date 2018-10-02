@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace MoeLoader.Core.Sites
 {
@@ -28,7 +31,7 @@ namespace MoeLoader.Core.Sites
 
         public enum SearchTypeEnum
         {
-            Tag = 0,
+            TagOrNew = 0,
             Author = 1,
             Pid = 2,
             Day = 3,
@@ -39,17 +42,25 @@ namespace MoeLoader.Core.Sites
         /// <summary>
         /// pixiv.net site
         /// </summary>
-        public PixivSite()
+        public PixivSite(bool xmode)
         {
-            SurpportState.IsSupportResolution = false;
-            SurpportState.IsSupportScore = false;
-
             SubMenu.Add("最新/标签"); // 0
-            SubMenu.Add("作者"); // 1
-            SubMenu.Add("作品ID"); // 2
-            SubMenu.Add("本日排行"); // 3
-            SubMenu.Add("本周排行"); // 4
-            SubMenu.Add("本月排行"); // 5
+            SubMenu.Add("作者ID"); // 1
+            SubMenu.Add("本日排行"); // 2
+            SubMenu.Add("本周排行"); // 3
+            SubMenu.Add("本月排行"); // 4
+
+            if (xmode)
+            {
+                for (var i = 0; i < SubMenu.Count; i++)
+                {
+                    var item = SubMenu[i];
+                    if (i == 2 || i == 3 || i == 4) item.NoNeedKeyword = true;
+                    if(i == 1 || i == 4) continue;
+                    item.SubMenu.Add(new MoeSiteSubMenuItem { Name = "普通" });
+                    item.SubMenu.Add(new MoeSiteSubMenuItem { Name = "R18" });
+                }
+            }
         }
 
         private async Task LoginAsync()
@@ -127,67 +138,197 @@ namespace MoeLoader.Core.Sites
             if (!IsLogin) await LoginAsync();
             if (!IsLogin) return new ImageItems();
 
-            // --------------------------page-------------------
-            // https://www.pixiv.net/search.php?word=GUMI&order=date_d&p=3
-            string query;
-            var keyWord = para.Keyword;
+            // page
+            var word = para.Keyword;
             var page = para.PageIndex;
-            if (SearchType == SearchTypeEnum.Pid)
+            var query = "";
+            var xmodestr = para.IsShowExplicit ? "" : "&mode=safe";
+            if (Lv3ListIndex == 1) xmodestr = "&mode=r18";
+            var r18 = Lv3ListIndex == 1 ? "_r18" : "";
+            switch (SearchType)
             {
-                if (para.Keyword.Length > 0 && Regex.Match(para.Keyword, @"^[0-9]+$").Success)
-                {
-                    query = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={keyWord}";
-                }
-                else throw new Exception("请输入图片id");
-            }
-            else
-            {
-                // https://www.pixiv.net/new_illust.php?type=all&p=2
-                // keyword is empty
-                query = $"{HomeUrl}/new_illust.php?type=all&p={page}";
-
-                if (keyWord.Length > 0)
-                {
-                    // http://www.pixiv.net/search.php?s_mode=s_tag&word=hatsune&order=date_d&p=2
-                    query = $"{HomeUrl}/search.php?s_mode=s_tag{(SubListIndex == 5 ? "_full" : "")}&word={keyWord}&order=date_d&p={page}";
-                }
-                switch (SearchType)
-                {
-                    case SearchTypeEnum.Author:// 作者
-                        {
-                        if (keyWord.Trim().Length == 0 || !int.TryParse(keyWord.Trim(), out var memberId))
-                        {
-                            App.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）");
-                            return new ImageItems();
-                        }
-                        //member id
-                        query = $"{HomeUrl}/member_illust.php?id={memberId}&p={page}";
-                        break;
+                case SearchTypeEnum.TagOrNew:
+                    if (string.IsNullOrWhiteSpace(word)) // empty
+                    {
+                        // https://www.pixiv.net/new_illust.php?type=all&p=2
+                        
+                        query = $"{HomeUrl}/new_illust{r18}.php?type=all&p={page}";
                     }
-                    case SearchTypeEnum.Day:
-                        query = $"{HomeUrl}/ranking.php?mode=daily&p={page}";
-                        break;
-                    case SearchTypeEnum.Week:
-                        query = $"{HomeUrl}/ranking.php?mode=weekly&p={page}";
-                        break;
-                    case SearchTypeEnum.Month:
-                        query = $"{HomeUrl}/ranking.php?mode=monthly&p={page}";
-                        break;
-                }
+                    else
+                    {
+                        query = $"{HomeUrl}/search.php?s_mode=s_tag&word={word.ToEncodedUrl()}&order=date_d&p={page}{xmodestr}";
+                    }
+                    break;
+                case SearchTypeEnum.Pid:
+                    if (int.TryParse(word.Trim(), out var pid))
+                    {
+                        query = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={word.Trim()}";
+                    }
+                    else
+                    {
+                        App.ShowMessage("请输入图片id");
+                        return new ImageItems();
+                    }
+                    break;
+                case SearchTypeEnum.Author:// 作者 member id
+                    //word = "4338012"; // test
+                    if (!int.TryParse(word.Trim(), out var memberId))
+                    {
+                        App.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）");
+                        return new ImageItems();
+                    }
+                    // https://www.pixiv.net/member_illust.php?id=4338012&p=1
+                    query = $"{HomeUrl}/member_illust.php?id={word.Trim()}&p={page}";
+                    query = word;
+                    break;
+                case SearchTypeEnum.Day:
+                    query = $"{HomeUrl}/ranking.php?mode=daily{r18}&p={page}&format=json";
+                    break;
+                case SearchTypeEnum.Week:
+                    // https://www.pixiv.net/ranking.php?mode=weekly&p=1&format=json
+                    query = $"{HomeUrl}/ranking.php?mode=weekly{r18}&p={page}&format=json";
+                    break;
+                case SearchTypeEnum.Month:
+                    query = $"{HomeUrl}/ranking.php?mode=monthly&p={page}&format=json";
+                    break;
             }
-            var net = Net.CreatNewWithRelatedCookie();
-            var pageString = await net.Client.GetStringAsync(query);
-
 
             // ----------------images---------------------------
             var imgs = new ImageItems();
 
+            switch (SearchType)
+            {
+                case SearchTypeEnum.TagOrNew:
+                    if (string.IsNullOrWhiteSpace(word)) await SearchByNew(imgs, query);
+                    else await SearchByTag(imgs, query);
+
+                    break;
+                case SearchTypeEnum.Day:
+                case SearchTypeEnum.Week:
+                case SearchTypeEnum.Month:
+                    await SearchByRank(imgs, query);
+                    break;
+                case SearchTypeEnum.Author:
+                    await SearchByAuthor(imgs, query,para);
+                    break;
+            }
+            
+            return imgs;
+        }
+
+        public async Task SearchByAuthor(ImageItems imgs, string uid,SearchPara para)
+        {
+            var net = Net.CreatNewWithRelatedCookie();
+            net.SetReferer($"{HomeUrl}/member_illust.php?id={uid}&p=1");
+            var jsonstr = await net.Client.GetStringAsync($"{HomeUrl}/ajax/user/{uid}/profile/all");
+            dynamic json = JsonConvert.DeserializeObject(jsonstr);
+            var picids = new List<string>();
+            var illusts = json?.body?.illusts;
+            if (illusts != null)
+            {
+                foreach (var ill in illusts)
+                {
+                    var property = (JProperty) ill;
+                    picids.Add(property.Name);
+                }
+            }
+            var manga = json?.body?.manga;
+            if (manga != null)
+            {
+                foreach (var m in manga)
+                {
+                    var property = (JProperty)m;
+                    picids.Add(property.Name);
+                }
+            }
+            var picCurrentPage = picids.OrderByDescending(i => i).Skip((para.PageIndex-1)*para.Count).Take(para.Count).ToList();
+            if(!picCurrentPage.Any()) return;
+            var q = $"{HomeUrl}/ajax/user/{uid}/profile/illusts?";
+            foreach (var pic in picCurrentPage)
+            {
+                q += $"ids%5B%5D={pic}&";
+            }
+            q += "is_manga_top=0";
+            var net2 = Net.CreatNewWithRelatedCookie();
+            net2.SetReferer($"{HomeUrl}/member_illust.php?id={uid}");
+            var picrespose = await net2.Client.GetStringAsync(q);
+            dynamic picsjson = JsonConvert.DeserializeObject(picrespose);
+            var works = picsjson?.body?.works;
+            if (works != null)
+            {
+                foreach (var item in works)
+                {
+                    var jp = (JProperty)item;
+                    dynamic jitm = jp.Value;
+                    var img = new ImageItem();
+                    img.Site = this;
+                    img.Net = Net.CreatNewWithRelatedCookie();
+                    img.ThumbnailReferer = $"{HomeUrl}/member_illust.php?id={uid}";
+                    img.ThumbnailUrl = $"{jitm.url}";
+                    int.TryParse($"{jitm.id}", out var id);
+                    img.Id = id;
+                    int.TryParse($"{jitm.rating_count}", out var score);
+                    img.Score = score;
+                    if (jitm.tags != null)
+                    {
+                        foreach (var tag in jitm.tags)
+                        {
+                            img.Tags.Add($"{tag}");
+                        }
+                    }
+                    img.DetailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
+                    img.Author = $"{jitm.user_name}";
+                    img.Title = $"{jitm.title}";
+                    img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie());
+
+                    imgs.Add(img);
+                }
+            }
+        }
+
+        public async Task SearchByRank(ImageItems imgs, string query)
+        {
+            var net = Net.CreatNewWithRelatedCookie();
+            var pageString = await net.Client.GetStringAsync(query);
+            dynamic jsonlist = JsonConvert.DeserializeObject(pageString);
+            if(jsonlist?.contents == null) return;
+            foreach (var jitm in jsonlist.contents)
+            {
+                var img = new ImageItem();
+                img.Site = this;
+                img.Net = Net.CreatNewWithRelatedCookie();
+                img.ThumbnailReferer = query;
+                img.ThumbnailUrl = $"{jitm.url}";
+                img.Title = $"{jitm.title}";
+                if (jitm.tags != null)
+                {
+                    foreach (var tag in jitm.tags)
+                    {
+                        img.Tags.Add($"{tag}");
+                    }
+                }
+                int.TryParse($"{jitm.rating_count}", out var score);
+                img.Score = score;
+                int.TryParse($"{jitm.illust_id}", out var id);
+                img.Id = id;
+                img.Author = $"{jitm.user_name}";
+                int.TryParse($"{jitm.illust_page_count}", out var pcount);
+                img.DetailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
+                img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie());
+
+                imgs.Add(img);
+            }
+        }
+
+        public async Task SearchByNew(ImageItems imgs,string query)
+        {
+            var net = Net.CreatNewWithRelatedCookie();
+            var pageString = await net.Client.GetStringAsync(query);
             var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
 
-            // new 
             var imgnodes = doc.DocumentNode.SelectNodes("//li[@class='image-item']");
-            if (imgnodes == null) return null;
+            if (imgnodes == null) return;
 
             foreach (var imglinode in imgnodes)
             {
@@ -210,11 +351,11 @@ namespace MoeLoader.Core.Sites
                         img.Tags.Add(tag);
                     }
                 }
-                
+
                 var title = imglinode.SelectNodes("a")?[1]?.InnerText?.ToDecodedUrl();
                 img.Title = title;
                 var usernode = imglinode.SelectNodes("a")?[2];
-                var user = usernode?.GetAttributeValue("data-user_name","");
+                var user = usernode?.GetAttributeValue("data-user_name", "");
                 img.Author = user;
 
                 var link = imglinode.SelectSingleNode("a")?.GetAttributeValue("href", "");
@@ -225,54 +366,118 @@ namespace MoeLoader.Core.Sites
                 img.DetailUrl = fulllink;
 
                 var subnet = Net.CreatNewWithRelatedCookie();
-                img.GetDetailAction = async () =>
-                {
-                    try
-                    {
-                        var subpage = await subnet.Client.GetStringAsync(fulllink);
-                        var subdoc = new HtmlDocument();
-                        subdoc.LoadHtml(subpage);
-
-                        img.Net = Net.CreatNewWithRelatedCookie();
-                        img.FileReferer = fulllink;
-
-                        var strRex = Regex.Match(subpage, $@"(?<=(?:{img.Id}:.)).*?(?=(?:.}},user))");
-
-                        dynamic jobj = JsonConvert.DeserializeObject(strRex.Value);
-                        if (jobj == null) return;
-                        int.TryParse($"{jobj.likeCount}", out var score);
-                        img.Score = score;
-                        int.TryParse($"{jobj.width}", out var width);
-                        img.Width = width;
-                        int.TryParse($"{jobj.height}", out var height);
-                        img.Height = height;
-                        int.TryParse($"{jobj.pageCount}", out var pageCount);
-                        img.FileUrl = $"{jobj.urls?.original}";
-
-                        if (pageCount > 1)
-                        {
-                            for (var i = 0; i < pageCount; i++)
-                            {
-                                var subimg = new ImageItem();
-                                var rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
-                                subimg.FileUrl = rex.Replace(img.FileUrl, $"p{i}");
-                                subimg.Site = this;
-                                subimg.FileReferer = fulllink.Replace("mode=medium", "mode=manga");
-                                subimg.Net = Net.CreatNewWithRelatedCookie();
-
-                                img.ChilldrenItems.Add(subimg);
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        App.Log(e);
-                    }
-                };
+                img.GetDetailAction = async () => await GetDetailAction(fulllink,img,subnet);
 
                 imgs.Add(img);
             }
-            return imgs;
+        }
+
+        public async Task SearchByTag(ImageItems imgs, string query)
+        {
+            var net = Net.CreatNewWithRelatedCookie();
+            var pageString = await net.Client.GetStringAsync(query);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(pageString);
+
+            var itemsjsonstr = doc.DocumentNode.SelectSingleNode("//*[@id='js-mount-point-search-result-list']").GetAttributeValue("data-items","");
+            if (string.IsNullOrWhiteSpace(itemsjsonstr))return;
+            itemsjsonstr = itemsjsonstr.Replace("&quot;", "\"");
+            dynamic jlist = JsonConvert.DeserializeObject(itemsjsonstr);
+            if(jlist == null)return;
+            foreach (var jitem in jlist)
+            {
+                var img = new ImageItem();
+                img.Site = this;
+                img.Net = Net.CreatNewWithRelatedCookie();
+                img.ThumbnailReferer = query;
+                img.ThumbnailUrl = $"{jitem.url}";
+                int.TryParse($"{jitem.illustId}", out var id);
+                img.Id = id;
+                int.TryParse($"{jitem.bookmarkCount}", out var score);
+                img.Score = score;
+                img.Width = (int) jitem.width;
+                img.Height = (int)jitem.height;
+                if (jitem.tags != null)
+                {
+                    foreach (var tag in jitem.tags)
+                    {
+                        img.Tags.Add($"{tag}");
+                    }
+                }
+                img.DetailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
+                img.Author = $"{jitem.userName}";
+                img.Title = $"{jitem.illustTitle}";
+                img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie());
+
+                imgs.Add(img);
+            }
+        }
+
+        public async Task GetDetailAction(string pageUrl,ImageItem img,NetSwap net)
+        {
+            try
+            {
+                var subpage = await net.Client.GetStringAsync(pageUrl);
+                var subdoc = new HtmlDocument();
+                subdoc.LoadHtml(subpage);
+
+                img.Net = Net.CreatNewWithRelatedCookie();
+                
+
+                img.FileReferer = pageUrl;
+                var strRex = Regex.Match(subpage, $@"(?<=(?:{img.Id}:.)).*?(?=(?:.}},user))");
+                dynamic jobj = JsonConvert.DeserializeObject(strRex.Value);
+                if (jobj == null) return;
+                int.TryParse($"{jobj.likeCount}", out var score);
+                img.Score = score;
+                int.TryParse($"{jobj.width}", out var width);
+                img.Width = width;
+                int.TryParse($"{jobj.height}", out var height);
+                img.Height = height;
+                int.TryParse($"{jobj.pageCount}", out var pageCount);
+                img.FileUrl = $"{jobj.urls?.original}";
+                img.Author = $"{jobj.userName}";
+                int.TryParse($"{jobj.likeCount}", out var like);
+                if (like > 0) img.Score = like;
+                var tags = jobj.tags;
+                try
+                {
+                    if (img.Tags.Count == 0)
+                    {
+                        foreach (var tag in tags)
+                        {
+                            dynamic v = ((JProperty)tag).Value;
+                            img.Tags.Add($"{v.tag}");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    App.Log(e);
+                }
+                var title = $"{jobj.illustTitle}";
+                if (!string.IsNullOrWhiteSpace(title)) img.Title = title;
+                img.Description = $"{jobj.illustComment}";
+
+                if (pageCount > 1)
+                {
+                    for (var i = 0; i < pageCount; i++)
+                    {
+                        var subimg = new ImageItem();
+                        var rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
+                        subimg.FileUrl = rex.Replace(img.FileUrl, $"p{i}");
+                        subimg.Site = this;
+                        subimg.FileReferer = pageUrl.Replace("mode=medium", "mode=manga");
+                        subimg.Net = Net.CreatNewWithRelatedCookie();
+
+                        img.ChilldrenItems.Add(subimg);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                App.Log(e);
+            }
         }
         
         private NetSwap AutoHintNet { get; set; }
@@ -287,16 +492,9 @@ namespace MoeLoader.Core.Sites
 
             if (SubListIndex == 0 || SubListIndex == 5)
             {
-                var tags = new Dictionary<string, object>();
-                var tag = new Dictionary<string, object>();
-
-                var url = string.Format(HomeUrl + "/rpc/cps.php?keyword={0}", para.Keyword);
-
-                
+                var url = $"{HomeUrl}/rpc/cps.php?keyword={ para.Keyword}";
                 var json = await AutoHintNet.Client.GetStringAsync(url);
-
                 dynamic jlist = JsonConvert.DeserializeObject(json);
-                
                 if (jlist?.candidates != null)
                 {
                     foreach (var obj in jlist.candidates)
@@ -309,7 +507,5 @@ namespace MoeLoader.Core.Sites
             }
             return re;
         }
-
-
     }
 }

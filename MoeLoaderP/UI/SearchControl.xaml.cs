@@ -66,6 +66,7 @@ namespace MoeLoader.UI
             if (MoeSitesSubComboBox.SelectedIndex < 0)
             {
                 MoeSitesLv3ComboBox.Visibility = Visibility.Collapsed;
+                CurrentSelectedSite.Lv3ListIndex = -1;
                 return;
             }
             var menu = CurrentSelectedSite.SubMenu[MoeSitesSubComboBox.SelectedIndex];
@@ -79,6 +80,7 @@ namespace MoeLoader.UI
             {
                 MoeSitesLv3ComboBox.Visibility = Visibility.Collapsed;
             }
+            VisualStateManager.GoToState(this, menu.NoNeedKeyword ? nameof(NotSurportKeywordState) : nameof(SurportKeywordState), true);
         }
 
         private void KeywordComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -193,6 +195,7 @@ namespace MoeLoader.UI
                 IsFilterFileType = FilterFileTypeCheckBox.IsChecked == true,
                 FilterFileTpyeText = FilterFileTypeTextBox.Text
             };
+            if (!Settings.IsXMode) para.IsShowExplicit = false;
             return para;
         }
 

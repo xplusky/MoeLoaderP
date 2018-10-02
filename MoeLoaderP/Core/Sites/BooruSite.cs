@@ -116,6 +116,11 @@ namespace MoeLoader.Core.Sites
                     img.Score = score;
                     img.FileReferer = img.DetailUrl;
                     img.ThumbnailReferer = GetThumbnailReferer(img);
+
+                    ulong.TryParse(post.Attribute("file_size")?.Value,out var filesize);
+                    img.FileBiteSize = filesize;
+
+                    img.FileMd5 = post.Attribute("md5")?.Value;
                     // img.Net = Net;
 
                     imageitems.Add(img);

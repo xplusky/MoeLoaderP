@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using MoeLoader.Core;
-using MoeLoader.UI;
 using Newtonsoft.Json;
 
 namespace MoeLoader
