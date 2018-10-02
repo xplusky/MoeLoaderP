@@ -6,9 +6,9 @@ using System.Net.Http;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
-using MoeLoader.Core;
+using MoeLoaderP.Core;
 
-namespace MoeLoader
+namespace MoeLoaderP.Wpf
 {
     public partial class App
     {
@@ -31,17 +31,7 @@ namespace MoeLoader
         public static string ExeDir => Directory.GetParent(Process.GetCurrentProcess().MainModule.FileName).FullName;
 
         public static string SysAppDataDir => Environment.GetEnvironmentVariable("APPDATA");
-
-        public static string UserSkinDir
-        {
-            get
-            {
-                var path = Path.Combine(AppDataDir, "Skin");
-                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-                return path;
-            }
-        }
-
+        
         public static string MoePicFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), DisplayName);
         public static string SaeUrl => "http://sae.leaful.com/moeloader/";
 
@@ -90,10 +80,18 @@ namespace MoeLoader
             Debug.WriteLine($"{DateTime.Now:yyMMdd-HHmmss-ff}>>{objs.Aggregate((o, o1) => $"{o}\r\n{o1}")}");
         }
 
-        public static Action<string> ShowMessageAction;
-        public static void ShowMessage(string message)
+        public static Action<string,int> ShowMessageAction;
+        /// <summary>
+        /// 显示信息
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="showPosition">
+        /// 显示位置：0：下方弹出黄色气泡，停留10秒，
+        /// 1：下方信息栏
+        /// </param>
+        public static void ShowMessage(string message,int showPosition = 0)
         {
-            ShowMessageAction?.Invoke(message);
+            ShowMessageAction?.Invoke(message, showPosition);
         }
     }
 }

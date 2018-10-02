@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoeLoaderP", "MoeLoaderP\MoeLoaderP.csproj", "{51501EA2-EE6D-44A2-8E3C-E512C1DF1C01}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoeLoaderP.Wpf", "MoeLoaderP\MoeLoaderP.Wpf.csproj", "{51501EA2-EE6D-44A2-8E3C-E512C1DF1C01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9DD56EA5-42B4-4110-A0DB-2B5684B16A29}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoeLoaderP.Core", "MoeLoaderP.Core\MoeLoaderP.Core.csproj", "{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,14 @@ Global
 		{51501EA2-EE6D-44A2-8E3C-E512C1DF1C01}.Release|Any CPU.Build.0 = Release|Any CPU
 		{51501EA2-EE6D-44A2-8E3C-E512C1DF1C01}.Release|x86.ActiveCfg = Release|x86
 		{51501EA2-EE6D-44A2-8E3C-E512C1DF1C01}.Release|x86.Build.0 = Release|x86
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Debug|x86.Build.0 = Debug|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Release|x86.ActiveCfg = Release|Any CPU
+		{C32DC9CF-5135-4ED1-A3A7-D30F1426C47E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

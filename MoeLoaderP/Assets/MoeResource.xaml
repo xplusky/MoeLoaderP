@@ -2,10 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:s="clr-namespace:System;assembly=mscorlib"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:Core="clr-namespace:MoeLoader.Core" mc:Ignorable="d">
-    <Core:MoeSearchKeywordFlowTextVisibilityConverter x:Key="MoeSearchKeywordFlowTextVisibilityConverter"/>
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:l="clr-namespace:MoeLoaderP"
+                    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
+                    mc:Ignorable="d">
+    <wpf:MoeSearchKeywordFlowTextVisibilityConverter x:Key="MoeSearchKeywordFlowTextVisibilityConverter"/>
     <s:String x:Key="AppDisplayName">MoeLoader +1s</s:String>
-    <FontFamily x:Key="FontAwesomeSolid">/MoeLoader;component/Assets/#Font Awesome 5 Free Solid</FontFamily>
+    <FontFamily x:Key="FontAwesomeSolid">/MoeLoaderP;component/Assets/#Font Awesome 5 Free Solid</FontFamily>
     <SolidColorBrush x:Key="MoeButtonStrokeBrush" Color="Gray"/>
     <ControlTemplate x:Key="SearchParaCheckBoxControlTemplate" TargetType="{x:Type CheckBox}">
         <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">

@@ -3,8 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="clr-namespace:MoeLoader.UI"
-    x:Class="MoeLoader.UI.DownloaderControl"
+    x:Class="MoeLoaderP.Wpf.UI.DownloaderControl"
     d:DesignHeight="453.999"
     mc:Ignorable="d" d:DesignWidth="249.333">
     <Grid x:Name="LayoutRoot">

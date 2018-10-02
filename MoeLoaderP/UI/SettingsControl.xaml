@@ -2,14 +2,15 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:local="clr-namespace:MoeLoader.UI"
-    xmlns:core="clr-namespace:MoeLoader.Core" 
-    x:Class="MoeLoader.UI.SettingsControl"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l="clr-namespace:MoeLoaderP" 
+    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf" 
+    xmlns:ui="clr-namespace:MoeLoaderP.Wpf.UI"
+    x:Class="MoeLoaderP.Wpf.UI.SettingsControl"
     mc:Ignorable="d" 
     d:DesignHeight="479.952" d:DesignWidth="380.882" Width="294" >
     <UserControl.Resources>
-        <core:ProxyModeToSelectIndexConverter x:Key="ProxyModeToSelectIndexConverter"/>
+        <wpf:ProxyModeToSelectIndexConverter x:Key="ProxyModeToSelectIndexConverter"/>
     </UserControl.Resources>
     <StackPanel>
         <GroupBox Header="{DynamicResource TextSettingsGroupSearch}" Template="{DynamicResource MoeGroupBoxControlTemplate}">
@@ -24,9 +25,9 @@
                         <ColumnDefinition Width="81*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88" Text="{DynamicResource TextSettingsParallelLoadMaxCount}"></TextBlock>
-                    <local:CountAdjustableBoxControl x:Name="ImageParallelLoadMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="20" NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="24"/>
+                    <ui:CountAdjustableBoxControl x:Name="ImageParallelLoadMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="20" NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="24"/>
                     <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsHistoryMaxCount}" VerticalAlignment="Center" Height="15.24" Margin="0,7.228,0,10.652" Grid.Row="1"/>
-                    <local:CountAdjustableBoxControl x:Name="HistoryMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="30" NumCount="{Binding HistoryKeywordsMaxCount, Mode=TwoWay}" Grid.Row="1" Width="150" Height="24"/>
+                    <ui:CountAdjustableBoxControl x:Name="HistoryMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="30" NumCount="{Binding HistoryKeywordsMaxCount, Mode=TwoWay}" Grid.Row="1" Width="150" Height="24"/>
                 </Grid>
                 <Button x:Name="ClearHistoryButton" Content="{DynamicResource TextSettingsClearHistory}" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="0,4,0,0"/>
             </StackPanel>
@@ -63,7 +64,7 @@
                         <ColumnDefinition Width="50*"/>
                         <ColumnDefinition Width="75*"/>
                     </Grid.ColumnDefinitions>
-                    <local:CountAdjustableBoxControl x:Name="ParallelDownloadingMaxCountBox" MinCount="1" MaxCount="15" NumCount="{Binding MaxOnDownloadingImageCount, Mode=TwoWay}" Grid.Column="1" Width="150" Height="24"/>
+                    <ui:CountAdjustableBoxControl x:Name="ParallelDownloadingMaxCountBox" MinCount="1" MaxCount="15" NumCount="{Binding MaxOnDownloadingImageCount, Mode=TwoWay}" Grid.Column="1" Width="150" Height="24"/>
                     <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsDownloadParallelDownloadingCount}" VerticalAlignment="Center"/>
                 </Grid>
                 <TextBlock

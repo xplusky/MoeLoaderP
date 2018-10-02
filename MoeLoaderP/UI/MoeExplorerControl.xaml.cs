@@ -8,9 +8,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using MoeLoader.Core;
+using MoeLoaderP.Core;
 
-namespace MoeLoader.UI
+namespace MoeLoaderP.Wpf.UI
 {
     /// <summary>
     /// 图片列表浏览器
@@ -25,7 +25,7 @@ namespace MoeLoader.UI
         public event Action<ImageItem, string> ContextMenuTagButtonClicked;
         public ImageControl MouseOnImageControl { get; set; }
         public ObservableCollection<ImageControl> SelectedImageControls { get; set; } = new ObservableCollection<ImageControl>();
-
+        
         public MoeExplorerControl()
         {
             InitializeComponent();
@@ -260,7 +260,11 @@ namespace MoeLoader.UI
                 TitleWrapPanel.Children.Clear(); 
                 TitleWrapPanel.Children.Add(GetTitieTextBlock("Title:"));
                 var btn = GetTagButton(title);
-                btn.Click += (o, args) => Clipboard.SetText(title);
+                btn.Click += (o, args) =>
+                {
+                    Clipboard.SetText(title);
+                    App.ShowMessage("已复制到剪贴板");
+                };
                 TitleWrapPanel.Children.Add(btn);
             }
             else
@@ -271,22 +275,22 @@ namespace MoeLoader.UI
 
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.A)
-            {
-                for (var i = 0; i < 60; i++)
-                {
-                   var button = new Button
-                    {
-                        Width = 32,
-                        Height = 32,
-                        Margin = new Thickness(3),
-                        FontSize = 16,
-                        Content = i + 1,
-                        Template = (ControlTemplate)FindResource("MoeButtonControlTemplate"),
-                    };
-                    PagingStackPanel.Children.Add(button);
-                }
-            }
+            //if (e.Key == Key.A)
+            //{
+            //    for (var i = 0; i < 60; i++)
+            //    {
+            //       var button = new Button
+            //        {
+            //            Width = 32,
+            //            Height = 32,
+            //            Margin = new Thickness(3),
+            //            FontSize = 16,
+            //            Content = i + 1,
+            //            Template = (ControlTemplate)FindResource("MoeButtonControlTemplate"),
+            //        };
+            //        PagingStackPanel.Children.Add(button);
+            //    }
+            //}
         }
         
         public void LoadImages(ImageItems items)
@@ -393,8 +397,15 @@ namespace MoeLoader.UI
         private void ItemOnImageLoaded(ImageControl obj)
         {
             ImageLoadingPool.Remove(obj);
-            AnyImageLoaded?.Invoke(this);
-            if (ImageLoadingPool.Count == 0) { AllImagesLoaded?.Invoke(this);return; }
+            if (ImageLoadingPool.Count == 0) // all image loaded
+            {
+                App.ShowMessage("图片加载完毕", 1);
+            }
+            else
+            {
+                var remain = ImageLoadingPool.Count + ImageWaitForLoadingPool.Count;
+                App.ShowMessage($"剩余 {remain} 张图片等待加载", 1);
+            }
 
             if (ImageWaitForLoadingPool.Count > 0)
             {
@@ -407,7 +418,5 @@ namespace MoeLoader.UI
             
         }
         
-        public event Action<MoeExplorerControl> AnyImageLoaded; 
-        public event Action<MoeExplorerControl> AllImagesLoaded;
     }
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows;
 
-namespace MoeLoader.UI
+namespace MoeLoaderP.Wpf.UI
 {
     /// <summary>
     /// 自带调整按钮的数字文本框
@@ -36,7 +33,6 @@ namespace MoeLoader.UI
             }
         }
 
-
         private void NumDownButtonOnClick(object sender, RoutedEventArgs e)
         {
             if (NumCount <= MinCount) return;
@@ -59,7 +55,6 @@ namespace MoeLoader.UI
             DependencyProperty.Register(nameof(NumCount), typeof(int), typeof(CountAdjustableBoxControl), new PropertyMetadata(0));
 
 
-
         public int MaxCount
         {
             get => (int)GetValue(MaxCountProperty);
@@ -69,9 +64,7 @@ namespace MoeLoader.UI
         public static readonly DependencyProperty MaxCountProperty =
             DependencyProperty.Register("MaxCount", typeof(int), typeof(CountAdjustableBoxControl), new PropertyMetadata(100));
 
-
-
-
+        
         public int MinCount
         {
             get => (int)GetValue(MinCountProperty);
@@ -81,6 +74,5 @@ namespace MoeLoader.UI
         public static readonly DependencyProperty MinCountProperty =
             DependencyProperty.Register("MinCount", typeof(int), typeof(CountAdjustableBoxControl), new PropertyMetadata(0));
         
-
     }
 }

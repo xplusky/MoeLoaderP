@@ -2,17 +2,18 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:core="clr-namespace:MoeLoader.Core"
-    xmlns:ui="clr-namespace:MoeLoader.UI"
-    xmlns:sites="clr-namespace:MoeLoader.Core.Sites"
-    x:Class="MoeLoader.UI.SearchControl"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sites="clr-namespace:MoeLoaderP.Core.Sites;assembly=MoeLoaderP.Core"
+    xmlns:l="clr-namespace:MoeLoaderP"
+    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
+    xmlns:ui="clr-namespace:MoeLoaderP.Wpf.UI"
+    x:Class="MoeLoaderP.Wpf.UI.SearchControl"
     MinHeight="32"
     d:DesignHeight="40.111"
     d:DesignWidth="542.889"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <wpf:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <Storyboard x:Key="SearchParaPopupShowSb">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SearchParaPopupGrid">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>

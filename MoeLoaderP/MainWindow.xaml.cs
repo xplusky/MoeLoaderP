@@ -6,11 +6,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using MoeLoader.Core;
-using MoeLoader.UI;
+using MoeLoaderP.Core;
 using Newtonsoft.Json;
 
-namespace MoeLoader
+namespace MoeLoaderP.Wpf
 {
     public partial class MainWindow
     {
@@ -30,7 +29,7 @@ namespace MoeLoader
             MouseLeftButtonDown += (sender, args) => DragMove();
             DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
             DownloaderMenuCheckBox.Unchecked += DownloaderMenuCheckBoxCheckChanged;
-            App.ShowMessageAction += ShowPopupMessage;
+            App.ShowMessageAction += ShowMessage;
             // elements
             MoeSettingsControl.Init(Settings);
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
@@ -40,7 +39,6 @@ namespace MoeLoader
             // explorer
             MoeExlorer.Settings = Settings;
             MoeExlorer.NextPageButton.Click += NextPageButtonOnClick;
-            MoeExlorer.AnyImageLoaded += MoeExlorerOnAnyImageLoaded;
             MoeExlorer.ImageItemDownloadButtonClicked += MoeExlorerOnImageItemDownloadButtonClicked;
             MoeExlorer.MouseWheel += MoeExlorerOnMouseWheel;
             MoeExlorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordTextBox.Text = s;
@@ -58,6 +56,20 @@ namespace MoeLoader
             AboutDonateLink.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Visible;
             AboutDonateImage.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Collapsed;
             AboutHomeLinkButton.Click += (sender, args) => "http://leaful.com/moeloader-p".Go();
+        }
+
+        private void ShowMessage(string mes, int pos = 0)
+        {
+            switch (pos)
+            {
+                case 0:
+                    PopupMessageTextBlock.Text = mes;
+                    this.Sb("PopupMessageShowSb").Begin();
+                    break;
+                case 1:
+                    StatusTextBlock.Text = mes;
+                    break;
+            }
         }
 
         private void DownloaderMenuCheckBoxCheckChanged(object sender, RoutedEventArgs e)
@@ -114,11 +126,6 @@ namespace MoeLoader
             DownloaderMenuCheckBox.IsChecked = true;
         }
 
-        private void MoeExlorerOnAnyImageLoaded(MoeExplorerControl ctrl)
-        {
-            StatusTextBlock.Text = ctrl.ImageLoadingPool.Count == 0 ? "图片加载完毕" 
-                : $"剩余 {ctrl.ImageLoadingPool.Count + ctrl.ImageWaitForLoadingPool.Count} 张图片等待加载";
-        }
 
         private int _f8KeyDownTimes;
         private void OnKeyDown(object sender, KeyEventArgs e)
@@ -126,10 +133,10 @@ namespace MoeLoader
             switch (e.Key)
             {
                 case Key.F1: // 用于测试功能
-                    ShowPopupMessage($"{MoeExlorer.ImageItemsScrollViewer.Height}");
+                   // ShowMessage($"{MoeExlorer.ImageItemsScrollViewer.Height}");
                     break;
                 case Key.F2:
-                    ShowPopupMessage($"{MoeExlorer.ImageItemsScrollViewer.ActualHeight}");
+                    //ShowMessage($"{MoeExlorer.ImageItemsScrollViewer.ActualHeight}");
                     break;
                 case Key.F8:
                     if (!Settings.HaveEnteredXMode)
@@ -138,12 +145,12 @@ namespace MoeLoader
                         if (_f8KeyDownTimes <= 3) break;
                         if (_f8KeyDownTimes > 3 && _f8KeyDownTimes < 10)
                         {
-                            ShowPopupMessage($"还剩 {10 - _f8KeyDownTimes} 次粉碎！");
+                            ShowMessage($"还剩 {10 - _f8KeyDownTimes} 次粉碎！");
                             break;
                         }
                         if (_f8KeyDownTimes >= 10) Settings.HaveEnteredXMode = true;
                     }
-                    ShowPopupMessage(Settings.IsXMode ? "已关闭 R18 模式" : "已开启 R18 模式");
+                    ShowMessage(Settings.IsXMode ? "已关闭 R18 模式" : "已开启 R18 模式");
                     Settings.IsXMode = !Settings.IsXMode;
                     SiteManager.Sites.Clear();
                     SiteManager.SetDefaultSiteList();
@@ -226,12 +233,6 @@ namespace MoeLoader
             }
         }
         
-        public void ShowPopupMessage(string message)
-        {
-            PopupMessageTextBlock.Text = message;
-            this.Sb("PopupMessageShowSb").Begin();
-        }
-
         public async Task CheckUpdateAsync()
         {
             var htpp = new HttpClient();
@@ -240,7 +241,7 @@ namespace MoeLoader
             if(upobject==null)return;
             if (Version.Parse($"{upobject.NetVersion}") > App.Version)
             {
-                ShowPopupMessage($"软件新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}；更新请点“关于”按钮");
+                ShowMessage($"软件新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}；更新请点“关于”按钮");
                 NewVersionTextBlock.Text = $"新版提示：{upobject.NetVersion}({upobject.RealeseDate})；更新内容：{upobject.RealeseNotes}";
                 NewVersionPanel.Visibility = Visibility.Visible;
                 NewVersionDownloadButton.Click += (sender, args) => $"{upobject.UpdateUrl}".Go();

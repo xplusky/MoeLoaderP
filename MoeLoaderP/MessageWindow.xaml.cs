@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace MoeLoader
+namespace MoeLoaderP.Wpf
 {
     public partial class MessageWindow
     {
