@@ -11,6 +11,7 @@
     d:DesignWidth="155.734" d:DesignHeight="155.688"  
     ToolTip="{Binding ImageItem.Title}">
     <UserControl.Resources>
+        <Core:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
         <Core:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <Storyboard x:Key="LoadingStartSb">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LoadingAnimeGrid">
@@ -205,7 +206,7 @@
                 <Button x:Name="DetailPageLinkButton" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF35D;"/></TextBlock>
                 </Button>
-                <Button x:Name="DownloadButton" Visibility="{Binding ImageItem.FileUrl, Converter={StaticResource StringToVisibilityConverter}}" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" Width="28" Height="28" Margin="1">
+                <Button x:Name="DownloadButton" Visibility="{Binding ImageItem.DownloadUrlInfo, Converter={StaticResource ObjectToVisibilityConverter}}" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF019;"/></TextBlock>
                 </Button>
             </StackPanel>

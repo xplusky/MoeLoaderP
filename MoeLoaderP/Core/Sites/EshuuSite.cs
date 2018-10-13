@@ -24,6 +24,7 @@ namespace MoeLoader.Core.Sites
             SubMenu.Add("来源");
             SubMenu.Add("画师");
             SubMenu.Add("角色");
+            DownloadTypes.Add("原图", 4);
         }
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -89,18 +90,18 @@ namespace MoeLoader.Core.Sites
             }
             foreach (var imgNode in nodes)
             {
-                var item = new ImageItem();
+                var item = new ImageItem(this,para);
                 var id = imgNode.Attributes["id"].Value;
                 int.TryParse(id.Substring(1), out var ido);
                 item.Id = ido;
                 var imgHref = imgNode.SelectSingleNode(".//a[@class='thumb_image']");
                 var fileUrl = imgHref.Attributes["href"].Value;
                 if (fileUrl.StartsWith("/")) fileUrl = HomeUrl + fileUrl;
-                item.FileUrl = fileUrl;
+                
+                
                 var previewUrl = imgHref.SelectSingleNode("img").Attributes["src"].Value;
                 if (previewUrl.StartsWith("/")) previewUrl = HomeUrl + previewUrl;
-                item.ThumbnailUrl = previewUrl;
-                item.ThumbnailReferer = HomeUrl;
+                item.Urls.Add(new UrlInfo("缩略图", 1, previewUrl, HomeUrl));
                 var meta = imgNode.SelectSingleNode(".//div[@class='meta']");
                 var date = meta.SelectSingleNode(".//dd[2]").InnerText;
                 var fileSize = meta.SelectSingleNode(".//dd[3]").InnerText;
@@ -124,7 +125,9 @@ namespace MoeLoader.Core.Sites
                     }
                 }
                 catch { /*..*/ }
-                item.DetailUrl = $"{HomeUrl}/image/{ido}";
+                var detail = $"{HomeUrl}/image/{ido}";
+                item.DetailUrl = detail;
+                item.Urls.Add(new UrlInfo("原图", 4, fileUrl, detail));
                 item.Site = this;
 
                 images.Add(item);

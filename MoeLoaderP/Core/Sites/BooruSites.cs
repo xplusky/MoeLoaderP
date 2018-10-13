@@ -123,6 +123,8 @@
         public override string DisplayName => "Gelbooru";
         public override string ShortName => "gelbooru";
 
+        public override string GetDetailPageUrl(ImageItem item) => $"{HomeUrl}/index.php?page=post&s=view&id={item.Id}";
+
         public override string GetHintQuery(SearchPara para)
             => $"{HomeUrl}/index.php?page=autocomplete&term={para.Keyword}";
 

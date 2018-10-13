@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using MoeLoader.Core;
 using MoeLoader.Core.Sites;
 
@@ -36,8 +35,6 @@ namespace MoeLoader.UI
                 KeywordTextBox.TextChanged += KeywordTextBoxOnTextChanged;
                 KeywordTextBox.GotFocus += KeywordTextBoxOnGotFocus;
             };
-
-            
         }
 
         private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
@@ -127,6 +124,8 @@ namespace MoeLoader.UI
             FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.SurpportState.IsSupportResolution;
             FilterExlicitGroup.IsEnabled = CurrentSelectedSite.SurpportState.IsSupportRating;
             KeywordComboBox.Text = "";
+            DownloadTypeComboBox.ItemsSource = CurrentSelectedSite.DownloadTypes;
+            DownloadTypeComboBox.SelectedIndex = 0;
         }
 
         private CancellationTokenSource CurrentTaskCts { get; set; }
@@ -193,7 +192,9 @@ namespace MoeLoader.UI
                 MinHeight = FilterMinHeightBox.NumCount,
                 Orientation = (ImageOrientation) OrientationComboBox.SelectedIndex,
                 IsFilterFileType = FilterFileTypeCheckBox.IsChecked == true,
-                FilterFileTpyeText = FilterFileTypeTextBox.Text
+                FilterFileTpyeText = FilterFileTypeTextBox.Text,
+                IsFileTypeShowSpecificOnly = FileTypeShowSpecificOnlyComboBox.SelectedIndex == 1,
+                DownloadType = CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
             };
             if (!Settings.IsXMode) para.IsShowExplicit = false;
             return para;

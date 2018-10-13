@@ -26,9 +26,10 @@ namespace MoeLoader.Core.Sites
         {
             SurpportState.IsSupportScore = false;
             SurpportState.IsSupportRating = false;
+            DownloadTypes.Add("原图", 4);
         }
 
-        public async Task LoginAsync()
+        public async Task LoginAsync(CancellationToken token)
         {
             
             Net = new NetSwap(Settings, HomeUrl);
@@ -39,7 +40,7 @@ namespace MoeLoader.Core.Sites
                 {"login",_user[index] },
                 {"password",_pass[index] }
             });
-            var respose = await Net.Client.PostAsync($"{HomeUrl}/login/submit", content); // http://mjv-art.org/login/submit
+            var respose = await Net.Client.PostAsync($"{HomeUrl}/login/submit", content, token); // http://mjv-art.org/login/submit
             if (respose.IsSuccessStatusCode)
             {
                 IsLogon = true;
@@ -57,7 +58,7 @@ namespace MoeLoader.Core.Sites
         {
             if (!IsLogon)
             {
-                await LoginAsync();
+                await LoginAsync(token);
             }
 
             // pages source
@@ -69,8 +70,8 @@ namespace MoeLoader.Core.Sites
                 //http://mjv-art.org/pictures/view_posts/0?search_tag=suzumiya%20haruhi&order_by=date&ldate=0&lang=en
                 url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
             }
-            
-            var pageString = await Net.Client.GetStringAsync(url);
+            var pageres = await Net.Client.GetAsync(url,token);
+            var pageString = await pageres.Content.ReadAsStringAsync();
 
             // images
             var  imgs = new ImageItems();
@@ -82,7 +83,7 @@ namespace MoeLoader.Core.Sites
             if (listnode == null) return imgs;
             foreach (var node in listnode)
             {
-                var img = new ImageItem();
+                var img = new ImageItem(this,para);
                 //img.Net = Net;
                 img.Site = this;
                 var imgnode = node.SelectSingleNode("a/picture/img");
@@ -91,13 +92,15 @@ namespace MoeLoader.Core.Sites
                 int.TryParse(reg, out var id);
                 img.Id = id;
                 var src = imgnode.GetAttributeValue("src", "");
-                if (!string.IsNullOrWhiteSpace(src)) img.ThumbnailUrl = $"{pre}{src}";
+                if (!string.IsNullOrWhiteSpace(src))
+                {
+                    img.Urls.Add(new UrlInfo("缩略图",1, $"{pre}{src}", $"{HomeUrl}/pictures/view_posts/"));
+                }
                 var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
                 int.TryParse(resstrs[0], out var width);
                 int.TryParse(resstrs[1], out var height);
                 img.Width = width;
                 img.Height = height;
-                img.ThumbnailReferer = "https://anime-pictures.net/pictures/view_posts/";
                 var scorestr = node.SelectSingleNode("div[@class='img_block_text']/span")?.InnerText.Trim();
                 int.TryParse(Regex.Match(scorestr??"0", @"[^0-9]+").Value, out var score);
                 img.Score = score;
@@ -119,8 +122,7 @@ namespace MoeLoader.Core.Sites
                             var fileurl = downnode?.GetAttributeValue("href", "");
                             if (!string.IsNullOrWhiteSpace(fileurl))
                             {
-                                img.FileUrl = $"{HomeUrl}{fileurl}";
-                                img.FileReferer = detialurl;
+                                img.Urls.Add(new UrlInfo("原图", 4, $"{HomeUrl}{fileurl}", detialurl));
                             }
                         }
                         catch (Exception e)
@@ -129,10 +131,11 @@ namespace MoeLoader.Core.Sites
                         }
                     };
                 }
+
                 
                 imgs.Add(img);
             }
-
+            token.ThrowIfCancellationRequested();
             return imgs;
         }
 
@@ -160,7 +163,13 @@ namespace MoeLoader.Core.Sites
             {
                 var tag = tagList[i] as Dictionary<string, object>;
                 if (tag["t"].ToString().Trim().Length > 0)
-                    re.Add(new AutoHintItem() { Word = tag["t"].ToString().Trim().Replace("<b>", "").Replace("</b>", ""), Count = "N/A" });
+                {
+                    re.Add(new AutoHintItem
+                    {
+                        Word = tag["t"].ToString().Trim().Replace("<b>", "").Replace("</b>", ""),
+                        Count = "N/A"
+                    });
+                }
             }
 
             return re;

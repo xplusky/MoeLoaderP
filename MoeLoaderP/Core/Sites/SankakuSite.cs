@@ -37,9 +37,10 @@ namespace MoeLoader.Core.Sites
         {
             SubMenu.Add("Chan");
             if (isxmode) SubMenu.Add("Idol");
+            DownloadTypes.Add("原图", 4);
         }
 
-        public async Task LoginAsync(string channel)
+        public async Task LoginAsync(string channel, CancellationToken token)
         {
             if (channel == "chan")
             {
@@ -60,7 +61,7 @@ namespace MoeLoader.Core.Sites
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("SCChannelApp/2.4 (Android; black)");
                 client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-                var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content);
+                var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content, token);
                 if (respose.IsSuccessStatusCode)
                 {
                     _isChanLogin = true;
@@ -91,7 +92,7 @@ namespace MoeLoader.Core.Sites
                 client.DefaultRequestHeaders.UserAgent.ParseAdd("SCChannelApp/2.3 (Android; idol)");
                 client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-                var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content);
+                var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content, token);
                 if (respose.IsSuccessStatusCode)
                 {
                     _isIdolLogin = true;
@@ -114,7 +115,7 @@ namespace MoeLoader.Core.Sites
                 default:
                 case "chan":
                 {
-                    if (!_isChanLogin) await LoginAsync(channel);
+                    if (!_isChanLogin) await LoginAsync(channel,token);
                     if (!_isChanLogin) return new ImageItems();
                     query = $"{_chanQuery}page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
                     client = _chanNet.Client;
@@ -122,7 +123,7 @@ namespace MoeLoader.Core.Sites
                     }
                 case "idol":
                 {
-                    if (!_isIdolLogin) await LoginAsync(channel);
+                    if (!_isIdolLogin) await LoginAsync(channel, token);
                     if (!_isIdolLogin) return new ImageItems();
                     query = $"{_idolQuery}page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
                     client = _idolNet.Client;
@@ -143,9 +144,7 @@ namespace MoeLoader.Core.Sites
             var https = "https:";
             foreach (var item in list)
             {
-                var img = new ImageItem();
-                img.ThumbnailUrl = $"{https}{item.preview_url}";
-                img.FileUrl = $"{https}{item.file_url}";
+                var img = new ImageItem(this,para);
                 img.Width = (int)item.width;
                 img.Height = (int)item.height;
                 img.Id = (int)item.id;
@@ -157,10 +156,9 @@ namespace MoeLoader.Core.Sites
                     img.Tags.Add($"{tag.name}");
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
-                img.Site = this;
                 img.Net = Net.CreatNewWithRelatedCookie();
-                img.ThumbnailReferer = img.DetailUrl;
-
+                img.Urls.Add(new UrlInfo("缩略图", 1, $"{https}{item.preview_url}", img.DetailUrl));
+                img.Urls.Add(new UrlInfo("原图", 4, $"{https}{item.file_url}", img.DetailUrl));
                 imageitems.Add(img);
             }
 

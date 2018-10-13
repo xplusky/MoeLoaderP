@@ -162,15 +162,10 @@ namespace MoeLoader
         private async void NextPageButtonOnClick(object sender, RoutedEventArgs e)
         {
             ChangeSearchVisual(true);
-            var task = await CurrentSearch.TrySearchNextPageAsync();
-            if (task.IsCanceled)
+            var t = await CurrentSearch.TrySearchNextPageAsync();
+            if (t.IsCanceled || t.Exception != null)
             {
-                //MessageBox.Show(t.Exception?.ToString());
-            }
-            else if (task.Exception != null)
-            {
-                MessageWindow.Show(task.Exception, null, this);
-                ChangeSearchVisual(false);
+                if (!CurrentSearch.IsSearching) ChangeSearchVisual(false);
             }
             else
             {
@@ -197,19 +192,15 @@ namespace MoeLoader
                 return;
             }
             ChangeSearchVisual(true);
-            CurrentSearch = new SearchSession(Settings, SearchControl.GetSearchPara());
+            var para = SearchControl.GetSearchPara();
+            CurrentSearch = new SearchSession(Settings, para);
             CurrentSearch.SearchStatusChanged += (session, s) => StatusTextBlock.Text = s;
             SiteTextBlock.Text = $"当前站点：{CurrentSearch.CurrentSearchPara.Site.DisplayName}";
             Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
             var t = await CurrentSearch.TrySearchNextPageAsync();
-            if (t.IsCanceled)
+            if (t.IsCanceled || t.Exception != null)
             {
-                //MessageBox.Show(t.Exception?.ToString());
-            }
-            else if (t.Exception != null)
-            {
-                MessageWindow.Show(t.Exception, null, this);
-                ChangeSearchVisual(false);
+                if(!CurrentSearch.IsSearching) ChangeSearchVisual(false);
             }
             else
             {

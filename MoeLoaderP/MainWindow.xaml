@@ -126,7 +126,7 @@
                             <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextMainMenuSettings}"/>
                         </StackPanel>
                     </CheckBox>
-                    <Popup x:Name="SeetingsPopup" IsOpen="{Binding IsChecked, ElementName=SettingsMenuCheckBox}" Placement="Left" VerticalOffset="34" HorizontalOffset="82" Focusable="True" StaysOpen="False" AllowsTransparency="True">
+                    <Popup x:Name="SeetingsPopup" IsOpen="{Binding IsChecked, ElementName=SettingsMenuCheckBox}" Placement="Left" VerticalOffset="12" HorizontalOffset="76" Focusable="True" StaysOpen="False" AllowsTransparency="True">
                         <Grid x:Name="SeetingsPopupGrid" RenderTransformOrigin="0.5,0.5">
                             <Grid.RenderTransform>
                                 <TransformGroup>

@@ -42,13 +42,13 @@ namespace MoeLoader.UI
             // client
             var net = ImageItem.Net ?? new NetSwap(Settings);
             net.SetTimeOut(15);
-            net.SetReferer(ImageItem.ThumbnailReferer);
+            net.SetReferer(ImageItem.ThumbnailUrlInfo.Referer);
             Exception loadex = null;
             try
             {
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 var getDetaiTask = ImageItem.GetDetailAsync();
-                var response = await net.Client.GetAsync(ImageItem.ThumbnailUrl, cts.Token);
+                var response = await net.Client.GetAsync(ImageItem.ThumbnailUrlInfo.Url, cts.Token);
                 var stream = await response.Content.ReadAsStreamAsync();
                 var source = await Task.Run(() =>
                 {

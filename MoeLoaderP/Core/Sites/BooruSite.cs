@@ -21,6 +21,13 @@ namespace MoeLoader.Core.Sites
         public virtual string GetThumbnailReferer(ImageItem item) => HomeUrl;
         public virtual string GetFileReferer(ImageItem item) => item.DetailUrl;
 
+        protected BooruSite()
+        {
+            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("预览图",2);
+            if(SiteType == SiteTypeEnum.Xml) DownloadTypes.Add("Jpeg图",3);
+        }
+
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var list = new AutoHintItems();
@@ -68,19 +75,19 @@ namespace MoeLoader.Core.Sites
         {
             switch (SiteType)
             {
-                case SiteTypeEnum.Xml: return await GetRealPageImagesAsyncFromXml(para);
-                case SiteTypeEnum.Json: return await GetRealPageImagesAsyncFromJson(para);
+                case SiteTypeEnum.Xml: return await GetRealPageImagesAsyncFromXml(para,  token);
+                case SiteTypeEnum.Json: return await GetRealPageImagesAsyncFromJson(para,  token);
                 default: return null;
             }
         }
 
-        public async Task<ImageItems> GetRealPageImagesAsyncFromXml(SearchPara para)
+        public async Task<ImageItems> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)
         {
             
             var client = new NetSwap(Settings).Client;
             var query = GetPageQuery(para);
-            var xmlstr = await client.GetStreamAsync(query);
-
+            var xmlres = await client.GetAsync(query, token);
+            var xmlstr = await xmlres.Content.ReadAsStreamAsync();
             return await Task.Run(() =>
             {
                 var xml = XDocument.Load(xmlstr);
@@ -88,11 +95,9 @@ namespace MoeLoader.Core.Sites
                 if (xml.Root == null) return imageitems;
                 foreach (var post in xml.Root.Elements())
                 {
-                    var img = new ImageItem();
-                    ulong.TryParse(post.Attribute("file_size")?.Value, out var size);
-                    img.FileBiteSize = size;
-                    img.PreviewUrl = UrlPre + post.Attribute("sample_url")?.Value;
-                    img.ThumbnailUrl = UrlPre + post.Attribute("preview_url")?.Value;
+                    token.ThrowIfCancellationRequested();
+                    var img = new ImageItem(this,para);
+
                     int.TryParse(post.Attribute("id")?.Value, out var id);
                     img.Id = id;
                     var tags = post.Attribute("tags")?.Value ?? "";
@@ -107,61 +112,69 @@ namespace MoeLoader.Core.Sites
                     img.Author = post.Attribute("author")?.Value;
                     img.Source = post.Attribute("source")?.Value;
                     img.IsExplicit = post.Attribute("rating")?.Value.ToLower() != "s";
-                    img.FileUrl = UrlPre + post.Attribute("file_url")?.Value;
                     img.DetailUrl = GetDetailPageUrl(img);
                     img.Site = this;
                     double.TryParse(post.Attribute("created_at")?.Value, out var creatat);
                     if (creatat > 0) img.CreatTime = new DateTime(1970, 1, 1, 0, 0, 0, 0) + TimeSpan.FromSeconds(creatat);
                     int.TryParse(post.Attribute("score")?.Value, out var score);
                     img.Score = score;
-                    img.FileReferer = img.DetailUrl;
-                    img.ThumbnailReferer = GetThumbnailReferer(img);
-
                     ulong.TryParse(post.Attribute("file_size")?.Value,out var filesize);
-                    img.FileBiteSize = filesize;
-
-                    img.FileMd5 = post.Attribute("md5")?.Value;
-                    // img.Net = Net;
+                        
+                    img.Urls.Add(new UrlInfo("缩略图", 1, UrlPre + post.Attribute("preview_url")?.Value, GetThumbnailReferer(img)));
+                    img.Urls.Add(new UrlInfo("预览图", 2, UrlPre + post.Attribute("sample_url")?.Value, GetThumbnailReferer(img)));
+                    img.Urls.Add(new UrlInfo("Jpeg图", 3, UrlPre + post.Attribute("jpeg_url")?.Value, GetThumbnailReferer(img)));
+                    img.Urls.Add(new UrlInfo("原图", 4, UrlPre + post.Attribute("file_url")?.Value, img.DetailUrl)
+                    {
+                        Md5 =  post.Attribute("md5")?.Value,
+                        BiteSize = filesize,
+                    });
 
                     imageitems.Add(img);
                 }
                 return imageitems;
-            });
+            }, token);
         }
 
-        public async Task<ImageItems> GetRealPageImagesAsyncFromJson(SearchPara para)
+        public async Task<ImageItems> GetRealPageImagesAsyncFromJson(SearchPara para, CancellationToken token)
         {
             var client = new NetSwap(Settings).Client;
             var query = GetPageQuery(para);
-            var jsonStr = await client.GetStringAsync(query);
-            dynamic list = JsonConvert.DeserializeObject(jsonStr);
-            var imageitems = new ImageItems();
-            if (list == null) return imageitems;
-            foreach (var item in list)
+            var jsonRes = await client.GetAsync(query, token);
+            var jsonStr = await jsonRes.Content.ReadAsStringAsync();
+            
+            return await Task.Run(() =>
             {
-                var img = new ImageItem();
-                img.ThumbnailUrl = $"{item.preview_file_url}";
-                img.FileUrl = $"{item.large_file_url}";
-                img.Width = (int) item.image_width;
-                img.Height = (int) item.image_height;
-                img.Id = (int) item.id;
-                img.Score = (int) item.score;
-                img.Author = $"{item.uploader_name}";
-                var tagsstr = $"{item.tag_string}";
-                foreach (var tag in tagsstr.Split(' '))
+                token.ThrowIfCancellationRequested();
+                var imageitems = new ImageItems();
+                dynamic list = JsonConvert.DeserializeObject(jsonStr);
+                if (list == null) return imageitems;
+                foreach (var item in list)
                 {
-                    if (!string.IsNullOrWhiteSpace(tag)) img.Tags.Add(tag.Trim());
-                }
-                img.IsExplicit = $"{item.rating}" == "e";
-                img.Site = this;
-                img.DetailUrl = GetDetailPageUrl(img);
-                img.FileReferer = img.DetailUrl;
-                img.ThumbnailReferer = GetThumbnailReferer(img);
-                //img.Net = Net;
-                imageitems.Add(img);
-            }
+                    token.ThrowIfCancellationRequested();
+                    var img = new ImageItem(this, para);
 
-            return imageitems;
+                    img.Width = (int) item.image_width;
+                    img.Height = (int) item.image_height;
+                    img.Id = (int) item.id;
+                    img.Score = (int) item.score;
+                    img.Author = $"{item.uploader_name}";
+                    var tagsstr = $"{item.tag_string}";
+                    foreach (var tag in tagsstr.Split(' '))
+                    {
+                        if (!string.IsNullOrWhiteSpace(tag)) img.Tags.Add(tag.Trim());
+                    }
+
+                    img.IsExplicit = $"{item.rating}" == "e";
+                    img.DetailUrl = GetDetailPageUrl(img);
+                    img.Urls.Add(new UrlInfo("缩略图", 1, $"{item.preview_file_url}", GetThumbnailReferer(img)));
+                    img.Urls.Add(new UrlInfo("预览图", 2, $"{item.large_file_url}", GetThumbnailReferer(img)));
+                    img.Urls.Add(new UrlInfo("原图", 4, $"{item.file_url}", img.DetailUrl));
+                    //img.Net = Net;
+                    imageitems.Add(img);
+                }
+
+                return imageitems;
+            }, token);
         }
 
         public virtual string UrlPre => null;

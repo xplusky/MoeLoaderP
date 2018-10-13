@@ -75,15 +75,12 @@ d:DesignHeight="450" d:DesignWidth="800">
                 </VisualStateGroup.Transitions>
                 <VisualState x:Name="NoSelectedItemState">
                     <Storyboard>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="DownloadSelectedImagesButton">
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="DownloadImagesGrid">
                             <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="DownloadSelectedImagesButton">
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="DownloadImagesGrid">
                             <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
-                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="DownloadSelectedImagesButton">
-                            <EasingThicknessKeyFrame KeyTime="0" Value="0"/>
-                        </ThicknessAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
                 <VisualState x:Name="HasSelectedItemState"/>
@@ -176,7 +173,13 @@ d:DesignHeight="450" d:DesignWidth="800">
                     </StackPanel>
                 </Button>
             </Grid>
-            <Button x:Name="DownloadSelectedImagesButton" Content="下载所选图片" Template="{DynamicResource MoeButtonControlTemplate}" Height="32" Width="88" Grid.Column="1" Margin="12,0"/>
+            <Grid x:Name="DownloadImagesGrid" Grid.Column="1" Width="122">
+                <StackPanel Margin="0" Height="32" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="DownloadSelectedImagesButton" Template="{DynamicResource MoeButtonControlTemplate}" Height="32">
+                        <TextBlock x:Name="DownloadSelectedImagesButtonTextBlock" TextWrapping="Wrap" Text="下载所选图片" Margin="8,0"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Grid>
         <TextBlock x:Name="LoadingIcon" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="168" RenderTransformOrigin="0.5,0.5" Opacity="0" Visibility="Hidden" >
             <TextBlock.RenderTransform>
@@ -188,7 +191,7 @@ d:DesignHeight="450" d:DesignWidth="800">
                 </TransformGroup>
             </TextBlock.RenderTransform><Run Text="&#xF110;"/></TextBlock>
 
-        <Popup x:Name="ContextMenuPopup" Placement="Mouse" Focusable="True" StaysOpen="False" AllowsTransparency="True" VerticalOffset="-30">
+        <Popup x:Name="ContextMenuPopup" Placement="Mouse" Focusable="True" StaysOpen="False" AllowsTransparency="True" VerticalOffset="-25" HorizontalOffset="-15">
             <Grid x:Name="ContextMenuPopupGrid" RenderTransformOrigin="0.5,0.5">
                 <Grid.RenderTransform>
                     <TransformGroup>

@@ -23,7 +23,7 @@
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
+    <UpdateMode>Background</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
@@ -37,8 +37,8 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>16</ApplicationRevision>
-    <ApplicationVersion>9.0.6.%2a</ApplicationVersion>
+    <ApplicationRevision>18</ApplicationRevision>
+    <ApplicationVersion>9.0.8.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>

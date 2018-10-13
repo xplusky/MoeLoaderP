@@ -115,7 +115,8 @@ namespace MoeLoader.Core
                 try
                 {
                     NetSwap net;
-                    if (string.IsNullOrWhiteSpace(ImageItem.FileUrl))
+                    var url = ImageItem.DownloadUrlInfo;
+                    if (url == null)
                     {
                         DownloadStatus = DownloadStatusEnum.Failed;
                         return;
@@ -123,19 +124,19 @@ namespace MoeLoader.Core
                     if (ImageItem.Net == null)
                     {
                         net = new NetSwap(Settings);
-                        if (ImageItem.FileReferer != null) net.SetReferer(ImageItem.FileReferer);
+                        if (url.Referer != null) net.SetReferer(url.Referer);
                         net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
                     }
                     else
                     {
                         net = ImageItem.Net.CreatNewWithRelatedCookie();
-                        net.SetReferer(ImageItem.FileReferer);
+                        net.SetReferer(url.Referer);
                         net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) => { Progress = args.ProgressPercentage; };
                     }
                     net.SetTimeOut(500);
 
                     DownloadStatus = DownloadStatusEnum.Downloading;
-                    var data = await net.Client.GetAsync(ImageItem.FileUrl, token);
+                    var data = await net.Client.GetAsync(url.Url, token);
                     var bytes = await data.Content.ReadAsByteArrayAsync();
                     AutoRename();
                     var dir = Path.GetDirectoryName(LocalFileFullPath);
@@ -145,7 +146,7 @@ namespace MoeLoader.Core
                         await fs.WriteAsync(bytes, 0, bytes.Length, token);
                     }
                     Progress = 100;
-                    App.Log($"{ImageItem.FileUrl} download ok");
+                    App.Log($"{url.Url} download ok");
                     DownloadStatus = DownloadStatusEnum.Success;
                 }
                 catch (TaskCanceledException)

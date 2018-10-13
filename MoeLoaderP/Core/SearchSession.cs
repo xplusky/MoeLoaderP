@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -15,9 +16,9 @@ namespace MoeLoader.Core
         public Settings Settings { get; set; }
         public SearchPara CurrentSearchPara { get; set; }
         public SearchedPages LoadedPages { get; set; } = new SearchedPages();
-        public bool IsSearching => CurrentSearchCts != null;
+        public bool IsSearching => SearchingTasksCts.Count > 0;
         public event Action<SearchSession,string> SearchStatusChanged;
-        public CancellationTokenSource CurrentSearchCts { get; set; }
+        public List<CancellationTokenSource> SearchingTasksCts { get; set; } = new List<CancellationTokenSource>();
         
         public SearchSession(Settings settings, SearchPara para)
         {
@@ -27,15 +28,19 @@ namespace MoeLoader.Core
 
         public async Task<Task> TrySearchNextPageAsync()
         {
-            CurrentSearchCts?.Cancel();
-            CurrentSearchCts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-            var t = SearchNextPageAsync();
-            try { await t; }
-            catch
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+            var t = SearchNextPageAsync(cts.Token);
+            SearchingTasksCts.Add(cts);
+            try
             {
-                // ignored
+                await t;
             }
-            CurrentSearchCts = null;
+            catch(Exception ex)
+            {
+                App.Log(ex);
+            }
+
+            SearchingTasksCts.Remove(cts);
             return t;
         }
 
@@ -47,9 +52,8 @@ namespace MoeLoader.Core
         /// <summary>
         /// 搜索下一页
         /// </summary>
-        public async Task SearchNextPageAsync()
+        public async Task SearchNextPageAsync(CancellationToken token)
         {
-            var token = CurrentSearchCts.Token;
             var mpage = new SearchedPage(); // 建立虚拟页信息
             var images = new ImageItems();
             SearchPara temppara;
@@ -171,11 +175,18 @@ namespace MoeLoader.Core
                     }
                 }
                 if (para.IsFilterFileType) // 过滤图片扩展名
-                {
+                {  
                     foreach (var s in para.FilterFileTpyeText.Split(';'))
                     {
                         if (string.IsNullOrWhiteSpace(s)) continue;
-                        if (string.Equals(item.FileType, s, StringComparison.CurrentCultureIgnoreCase)) del = true;
+                        if (string.Equals(item.FileType, s, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            if(!para.IsFileTypeShowSpecificOnly) del = true;
+                        }
+                        else if (para.IsFileTypeShowSpecificOnly)
+                        {
+                            del = true;
+                        }
                     }
                 }
                 if (!del) continue;
@@ -186,8 +197,11 @@ namespace MoeLoader.Core
 
         public void StopSearch()
         {
-            CurrentSearchCts?.Cancel();
-            CurrentSearchCts = null;
+            foreach (var cts in SearchingTasksCts)
+            {
+                cts?.Cancel();
+            }
+            SearchingTasksCts.Clear();
         }
     }
 
@@ -223,8 +237,10 @@ namespace MoeLoader.Core
 
         public bool IsFilterFileType { get; set; }
         public string FilterFileTpyeText { get; set; }
+        public bool IsFileTypeShowSpecificOnly { get; set; }
 
         public ImageOrientation Orientation { get; set; } = ImageOrientation.None;
+        public DownloadType DownloadType { get; set; }
         
         public SearchPara Clone()
         {

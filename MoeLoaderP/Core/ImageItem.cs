@@ -15,6 +15,7 @@ namespace MoeLoader.Core
     {
         public MoeSite Site { get; set; }
         public NetSwap Net { get; set; }
+        public SearchPara Para { get; set; }
         public int Id { get; set; }
         public string Title { get; set; }
         public string Date { get; set; }
@@ -27,39 +28,29 @@ namespace MoeLoader.Core
         public bool IsExplicit { get; set; }
 
         public string DetailUrl { get; set; }
-        public string ThumbnailReferer { get; set; }
-        public string ThumbnailUrl { get; set; } // 最小
-        public string PreviewUrl { get; set; } // 中等
-        public string JpegUrl { get; set; }
-        public string FileReferer { get; set; }
-        private string _fileUrl;
 
-        public string FileUrl //最大
-        {
-            get => _fileUrl;
-            set
-            {
-                _fileUrl = value; 
-                OnPropertyChanged(nameof(FileUrl));
-                OnPropertyChanged(nameof(FileType));
-            } 
-        }
+        public UrlInfo ThumbnailUrlInfo => Urls.GetMin();
 
-        public string FileType
+        public UrlInfo DownloadUrlInfo
         {
             get
             {
-                var type = Path.GetExtension(FileUrl)?.Replace(".", "").ToUpper();
-                if (type?.Contains("?") == true)
+                foreach (var urlInfo in Urls)
                 {
-                    type = type.Split('?')[0];
+                    if (urlInfo.Priority > 1 && urlInfo.Priority == Para.DownloadType.Priority)
+                    {
+                        return urlInfo;
+                    }
                 }
-                return type?.Length < 5 ? type : null;
+
+                return null;
             }
         }
-        public string FileSize { get; set; }
-        public ulong FileBiteSize { get; set; }
-        public string FileMd5 { get; set; }
+
+        public UrlInfos Urls { get; set; } = new UrlInfos();
+
+        public string FileType => DownloadUrlInfo?.GetFileExtFromUrl();
+
         private int _width;
 
         public int Width
@@ -102,6 +93,8 @@ namespace MoeLoader.Core
         /// </summary>
         public Action GetDetailAction { get; set; }
 
+        
+
         public async Task GetDetailAsync()
         {
             await Task.Run(() =>
@@ -117,15 +110,98 @@ namespace MoeLoader.Core
             });
         }
 
-        public ImageItem()
+        public ImageItem(MoeSite site,SearchPara para) 
         {
+            Site = site;
+            Para = para;
             ChilldrenItems.CollectionChanged += (sender, args) =>
             {
                 OnPropertyChanged(nameof(ImagesCount));
                 OnPropertyChanged(nameof(ImagesCountVisibility));
             };
+            Urls.CollectionChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(FileType));
+                OnPropertyChanged(nameof(DownloadUrlInfo));
+            };
+        }
+
+        public string GetFileType(string url)
+        {
+            var type = Path.GetExtension(DownloadUrlInfo.Url)?.Replace(".", "").ToUpper();
+            if (type?.Contains("?") == true)
+            {
+                type = type.Split('?')[0];
+            }
+            return type?.Length < 5 ? type : null;
         }
     }
 
     public class ImageItems : ObservableCollection<ImageItem> { }
+
+    public class UrlInfo
+    {
+        public string Name { get; set; }
+        public int Priority { get; set; } //优先级， size 越大，数字越大,优先下载大的,从1开始
+        public string Url { get; set; }
+        public string Md5 { get; set; }
+        public string Referer { get; set; }
+        public ulong BiteSize { get; set; }
+
+        public UrlInfo() { }
+
+        public UrlInfo(string name, int priority, string url,string referer=null)
+        {
+            Name = name;
+            Priority = priority;
+            Url = url;
+            if (referer != null) Referer = referer;
+        }
+
+        public string GetFileExtFromUrl()
+        {
+            if (string.IsNullOrEmpty(Url)) return null;
+            var type = Path.GetExtension(Url)?.Replace(".", "").ToUpper();
+            if (type?.Contains("?") == true)
+            {
+                type = type.Split('?')[0];
+            }
+            return type?.Length < 5 ? type : null;
+        }
+    }
+
+    public class UrlInfos : ObservableCollection<UrlInfo>
+    {
+        public UrlInfo GetMax()
+        {
+            UrlInfo info = null;
+            foreach (var i in this)
+            {
+                if (info == null)
+                {
+                    info = i;continue;
+                }
+
+                if (i.Priority > info.Priority) info = i;
+            }
+
+            return info;
+        }
+
+        public UrlInfo GetMin()
+        {
+            UrlInfo info = null;
+            foreach (var i in this)
+            {
+                if (info == null)
+                {
+                    info = i; continue;
+                }
+
+                if (i.Priority < info.Priority) info = i;
+            }
+
+            return info;
+        }
+    }
 }

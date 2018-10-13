@@ -25,6 +25,9 @@ namespace MoeLoader.Core.Sites
         {
             SurpportState.IsSupportAutoHint = false;
             SurpportState.IsSupportRating = false;
+            
+            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("预览图", 2);
         }
 
         private bool IsLogin { get; set; }
@@ -67,12 +70,13 @@ namespace MoeLoader.Core.Sites
                 url = $"{HomeUrl}/search/index/tags/{para.Keyword}/p/{para.PageIndex}.html";
             }
 
-            var pageSource = await Net.Client.GetStringAsync(url);
+            var pageSource = await Net.Client.GetAsync(url, token);
+            var pageStr = await pageSource.Content.ReadAsStringAsync();
 
             var list = new ImageItems();
 
             var dococument = new HtmlDocument();
-            dococument.LoadHtml(pageSource);
+            dococument.LoadHtml(pageStr);
             var imageItems = dococument.DocumentNode.SelectNodes("//*[@class='image-list cl']");
             if (imageItems == null)
             {
@@ -82,57 +86,58 @@ namespace MoeLoader.Core.Sites
             {
                 var imgNode = imageItem.SelectSingleNode("./div[1]/img");
                 var tags = imgNode.Attributes["alt"].Value;
-                var item = new ImageItem();
-                item.Height = Convert.ToInt32(imageItem.SelectSingleNode(".//div[@class='image']").Attributes["data-height"].Value);
-                item.Width = Convert.ToInt32(imageItem.SelectSingleNode(".//div[@class='image']").Attributes["data-width"].Value);
-                item.Author = imageItem.SelectSingleNode("//small/a").InnerText;
-                item.Description = tags;
-                item.ThumbnailUrl = imgNode.Attributes["data-original"].Value.Replace("!single", "!320px");
-                item.Id = StringToInt(imgNode.Attributes["id"].Value);
-                item.DetailUrl = HomeUrl + imgNode.Attributes["data-href"].Value;
-                item.Score = Convert.ToInt32(imageItem.SelectSingleNode(".//span[@class='num']").InnerText);
-                item.Site = this;
-                item.Net = null;
-                item.ThumbnailReferer = HomeUrl;
+                var img = new ImageItem(this,para);
+                img.Height = Convert.ToInt32(imageItem.SelectSingleNode(".//div[@class='image']").Attributes["data-height"].Value);
+                img.Width = Convert.ToInt32(imageItem.SelectSingleNode(".//div[@class='image']").Attributes["data-width"].Value);
+                img.Author = imageItem.SelectSingleNode("//small/a").InnerText;
+                img.Description = tags;
+                img.Id = StringToInt(imgNode.Attributes["id"].Value);
+                img.DetailUrl = HomeUrl + imgNode.Attributes["data-href"].Value;
+                img.Score = Convert.ToInt32(imageItem.SelectSingleNode(".//span[@class='num']").InnerText);
+                img.Site = this;
+                img.Net = null;
+                img.Urls.Add(new UrlInfo("缩略图", 1, imgNode.Attributes["data-original"].Value.Replace("!single", "!320px"), HomeUrl));
                 foreach (var tag in tags.Split(' '))
                 {
                     //if (tag.Contains("画师：")) continue;
-                    if(!string.IsNullOrWhiteSpace(tag)) item.Tags.Add(tag.Trim());
+                    if(!string.IsNullOrWhiteSpace(tag)) img.Tags.Add(tag.Trim());
                 }
 
-                item.GetDetailAction = async () =>
+                img.GetDetailAction = async () =>
                 {
-                    var html = await Net.Client.GetStringAsync(item.DetailUrl);
+                    var html = await Net.Client.GetStringAsync(img.DetailUrl);
 
                     var doc = new HtmlDocument();
                     doc.LoadHtml(html);
                     var showIndexs = doc.DocumentNode.SelectSingleNode("//div[@class='logo']");
                     var imgDownNode = showIndexs.SelectSingleNode("//div[@class='img-control']");
                     var nodeHtml = showIndexs.OuterHtml;
-                    item.Date = TimeConvert(nodeHtml);
+                    img.Date = TimeConvert(nodeHtml);
 
-                    item.Source = nodeHtml.Contains("pixiv page") ? 
+                    img.Source = nodeHtml.Contains("pixiv page") ? 
                         showIndexs.SelectSingleNode(".//a[@target='_blank']").Attributes["href"].Value : 
                         Regex.Match(nodeHtml, @"(?<=源地址).*?(?=</p>)").Value.Trim();
-                    item.PreviewUrl = doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value;
+                    img.Urls.Add(new UrlInfo("缩略图", 1, doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value, HomeUrl));
+                    var previww = doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value;
+                    string file;
                     if (Regex.Matches(imgDownNode.OuterHtml, "href").Count > 1)
                     {
-                        item.FileUrl = HomeUrl + imgDownNode.SelectSingleNode("./a[1]").Attributes["href"].Value;
-                        item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a[1]").InnerText, @"(?<=().*?(?=))").Value;
+                        file = HomeUrl + imgDownNode.SelectSingleNode("./a[1]").Attributes["href"].Value;
+                        //item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a[1]").InnerText, @"(?<=().*?(?=))").Value;
                     }
                     else
                     {
-                        item.FileUrl = HomeUrl + imgDownNode.SelectSingleNode("./a").Attributes["href"].Value;
-                        item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a").InnerText, @"(?<=().*?(?=))").Value;
+                        file = HomeUrl + imgDownNode.SelectSingleNode("./a").Attributes["href"].Value;
+                        //item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a").InnerText, @"(?<=().*?(?=))").Value;
                     }
-                    item.JpegUrl = item.PreviewUrl.Length > 0 ? item.PreviewUrl : item.FileUrl;
+                    img.Urls.Add(new UrlInfo("原图", 4, file, HomeUrl));
+                    img.Urls.Add(new UrlInfo("预览图", 2, previww.Length > 0 ? previww : file, HomeUrl));
                 };
 
-                item.FileReferer = HomeUrl;
-                list.Add(item);
+                list.Add(img);
                    
             }
-
+            token.ThrowIfCancellationRequested();
             return list;
 
         }

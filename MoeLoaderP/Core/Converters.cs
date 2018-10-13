@@ -5,6 +5,7 @@ using System.Windows.Data;
 
 namespace MoeLoader.Core
 {
+
     [ValueConversion(typeof(bool?), typeof(bool?))]
     public sealed class BoolReverseConverter : IValueConverter
     {
@@ -35,6 +36,20 @@ namespace MoeLoader.Core
                     return Visibility.Collapsed;
             }
             return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ValueConversion(typeof(object), typeof(Visibility))]
+    public class ObjectToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value == null ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

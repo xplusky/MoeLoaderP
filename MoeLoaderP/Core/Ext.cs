@@ -28,8 +28,8 @@ namespace MoeLoader.Core
         {
             var sb = new Storyboard();
             sb.AddEasyDoubleAnime(target, 0, 1, 0.3, "opacity");
-            sb.AddEasyDoubleAnime(target, 0.9, 1, 0.3, "scale-x");
-            sb.AddEasyDoubleAnime(target, 0.9, 1, 0.3, "scale-y");
+            //sb.AddEasyDoubleAnime(target, 0.9, 1, 0.3, "scale-x");
+            //sb.AddEasyDoubleAnime(target, 0.9, 1, 0.3, "scale-y");
             return sb;
         }
 

@@ -20,7 +20,6 @@ namespace MoeLoader.UI
         public List<ImageControl> ImageLoadingPool { get; set; } = new List<ImageControl>();
         public List<ImageControl> ImageWaitForLoadingPool { get; set; } = new List<ImageControl>();
         public Settings Settings { get; set; }
-        public bool IsLoading => ImageLoadingPool.Count != 0;
         public event Action<ImageItem, ImageSource> ImageItemDownloadButtonClicked;
         public event Action<ImageItem, string> ContextMenuTagButtonClicked;
         public ImageControl MouseOnImageControl { get; set; }
@@ -187,6 +186,7 @@ namespace MoeLoader.UI
         private void SelectedImageControlsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             VisualStateManager.GoToState(this, SelectedImageControls.Count == 0 ? nameof(NoSelectedItemState) : nameof(HasSelectedItemState), true);
+            DownloadSelectedImagesButtonTextBlock.Text = $"下载所选图片({SelectedImageControls.Count})";
         }
 
 
@@ -291,6 +291,10 @@ namespace MoeLoader.UI
             //        PagingStackPanel.Children.Add(button);
             //    }
             //}
+            if (e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                ContextSelectAllButtonOnClick(null, null);
+            }
         }
         
         public void LoadImages(ImageItems items)

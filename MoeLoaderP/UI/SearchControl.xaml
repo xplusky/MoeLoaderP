@@ -216,7 +216,7 @@
                     <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilter}" FontSize="14" Margin="4,0,0,0"/>
                 </StackPanel>
             </CheckBox>
-            <Popup x:Name="SearchParaPopup" IsOpen="{Binding IsChecked, ElementName=SearchParaCheckBox}" Placement="Left" VerticalOffset="38" HorizontalOffset="82" Focusable="True" StaysOpen="False" AllowsTransparency="True">
+            <Popup x:Name="SearchParaPopup" IsOpen="{Binding IsChecked, ElementName=SearchParaCheckBox}" Placement="Left" VerticalOffset="25" HorizontalOffset="82" Focusable="True" StaysOpen="False" AllowsTransparency="True">
                 <Grid x:Name="SearchParaPopupGrid" Width="243.407" RenderTransformOrigin="0.5,0.5">
                     <Grid.RenderTransform>
                         <TransformGroup>
@@ -231,10 +231,22 @@
                             <DropShadowEffect ShadowDepth="1" BlurRadius="11" Opacity="0.63"/>
                         </Border.Effect>
                         <StackPanel Margin="8" >
-                            <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}"/>
-                            <ui:CountAdjustableBoxControl x:Name="FilterStartPageBox" NumCount="1" MaxCount="99999" MinCount="1" Margin="2" Height="24"/>
-                            <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterCount}" Margin="0,6,0,0"/>
-                            <ui:CountAdjustableBoxControl x:Name="FilterCountBox" NumCount="60" MaxCount="150" MinCount="10" Margin="2" Height="24"/>
+                            <Grid Height="26">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <ui:CountAdjustableBoxControl x:Name="FilterStartPageBox" NumCount="1" MaxCount="99999" MinCount="1" Grid.Column="1"/>
+                            </Grid>
+                            <Grid Height="26" Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterCount}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <ui:CountAdjustableBoxControl x:Name="FilterCountBox" NumCount="60" MaxCount="150" MinCount="10" Grid.Column="1"/>
+                            </Grid>
                             <StackPanel x:Name="FilterExlicitGroup" Orientation="Vertical">
                                 <CheckBox x:Name="FilterExlicitCheckBox" Content="{DynamicResource TextSearchControlFilterShowExpicit}" IsChecked="{Binding IsDisplayExplicitImages}" Visibility="{Binding IsXMode, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,4,0,0"/>
                                 <CheckBox x:Name="ShowExlicitOnlyCheckBox" Content="{DynamicResource TextSearchControlFilterShowExpicitOnly}" Visibility="{Binding Visibility, ElementName=FilterExlicitCheckBox}" Margin="0,4,0,0"/>
@@ -262,8 +274,36 @@
                                 </ComboBox>
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterOrientation}" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
                             </Grid>
-                            <CheckBox x:Name="FilterFileTypeCheckBox" Content="{DynamicResource TextSearchControlFilterFileType}" Margin="0,6,0,0"/>
+                            <CheckBox x:Name="FilterFileTypeCheckBox" Margin="0,6,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox x:Name="FileTypeShowSpecificOnlyComboBox" Width="67" Height="18" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" SelectedIndex="0">
+                                        <ComboBoxItem Content="过滤掉"/>
+                                        <ComboBoxItem Content="只显示"/>
+                                    </ComboBox>
+                                    <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterFileType}" Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </Grid>
+                            </CheckBox>
                             <TextBox x:Name="FilterFileTypeTextBox" TextWrapping="Wrap" Text="gif;bmp" Height="24" IsEnabled="{Binding IsChecked, ElementName=FilterFileTypeCheckBox}" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Margin="2" ToolTip="输入不带点&quot;.&quot;的扩展名，用半角分号&quot;;&quot;分隔不同后缀"/>
+                            <Grid Margin="0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="DownloadTypeComboBox" Grid.Column="1" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Height="26" Margin="0,0,2,0" SelectedIndex="0">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBlock TextWrapping="NoWrap" Text="{Binding Name}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock TextWrapping="Wrap" Text="下载图片类型" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>

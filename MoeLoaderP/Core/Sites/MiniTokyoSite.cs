@@ -28,6 +28,7 @@ namespace MoeLoader.Core.Sites
         {
             SubMenu.Add("壁纸");
             SubMenu.Add("扫描图");
+            DownloadTypes.Add("原图", 4);
         }
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -55,7 +56,8 @@ namespace MoeLoader.Core.Sites
             }
             else
             {
-                var page = await Net.Client.GetStringAsync($"{HomeUrl}/search?q={para.Keyword}");
+                var pageres = await Net.Client.GetAsync($"{HomeUrl}/search?q={para.Keyword}", token);
+                var page = await pageres.Content.ReadAsStringAsync();
                 var urlindex = page.IndexOf("http://browse.minitokyo.net/gallery?tid=", StringComparison.Ordinal);
                 var url = page.Substring(urlindex, page.IndexOf('"', urlindex) - urlindex - 1) + (Type.Contains("wallpapers") ? "1" : "3");
                 url += "&order=id&display=extensive&page=" + page;
@@ -63,7 +65,8 @@ namespace MoeLoader.Core.Sites
             }
             var imgs = new ImageItems(); 
             var doc = new HtmlDocument();
-            using (var pagestream = await Net.Client.GetStreamAsync(query))
+            var streamres = await Net.Client.GetAsync(query, token);
+            using (var pagestream = await streamres.Content.ReadAsStreamAsync())
             {
                 doc.Load(pagestream);
             }
@@ -77,7 +80,7 @@ namespace MoeLoader.Core.Sites
 
             for (var i = 0; i < imgNodes.Count - 1; i++)
             {
-                var item = new ImageItem();
+                var item = new ImageItem(this,para);
                 //最后一个是空的，跳过
                 var imgNode = imgNodes[i];
 
@@ -87,13 +90,14 @@ namespace MoeLoader.Core.Sites
                 item.Id = int.Parse(id);
                 var imgHref = imgNode.SelectSingleNode(".//img");
                 var sampleUrl = imgHref.Attributes["src"].Value;
-                item.ThumbnailUrl = sampleUrl;
+                item.Urls.Add(new UrlInfo("缩略图", 1, sampleUrl,HomeUrl));
                 //http://static2.minitokyo.net/thumbs/24/25/583774.jpg preview
                 //http://static2.minitokyo.net/view/24/25/583774.jpg   sample
                 //http://static.minitokyo.net/downloads/24/25/583774.jpg   full
                 var previewUrl = "http://static2.minitokyo.net/view" + sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5));
                 var fileUrl = "http://static.minitokyo.net/downloads" + previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5));
-                item.FileUrl = fileUrl;
+                
+                item.Urls.Add(new UrlInfo("原图", 4, fileUrl, HomeUrl));
                 // \n\tMasaru -\n\tMasaru \n\tSubmitted by\n\t\tadri24rukiachan\n\t4200x6034, 4 Favorites\n
                 var info = imgNode.SelectSingleNode(".//div").InnerText;
                 var infomc = Regex.Match(info, @"^\n\t(?<title>.*?)\s-\n.*?\n\t.*?by\n\t\t(?<author>.*?)\n\t(?<size>\d+x\d+),\s(?<score>\d+)\s");
@@ -113,10 +117,10 @@ namespace MoeLoader.Core.Sites
                 
                 int.TryParse(infomc.Groups["score"].Value,out var score);
                 item.Score = score;
-                item.ThumbnailReferer = HomeUrl;
                 item.Site = this;
                 imgs.Add(item);
             }
+            token.ThrowIfCancellationRequested();
             return imgs;
         }
 
@@ -124,7 +128,8 @@ namespace MoeLoader.Core.Sites
         {
             var items = new AutoHintItems();
             var url =  $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
-            var txt = await Net.Client.GetStringAsync(url);
+            var txtres = await Net.Client.GetAsync(url, token);
+            var txt = await txtres.Content.ReadAsStringAsync();
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)
             {

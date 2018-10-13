@@ -17,6 +17,7 @@ namespace MoeLoader.Core.Sites
         public WCosplaySite()
         {
             SurpportState.IsSupportAutoHint = false;
+            DownloadTypes.Add("大图", 3);
         }
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -38,19 +39,18 @@ namespace MoeLoader.Core.Sites
             // images
 
             var imgs = new ImageItems();
-            dynamic json = JsonConvert.DeserializeObject(await Net.Client.GetStringAsync(url));
+            var res = await Net.Client.GetAsync(url, token);
+            var str = await res.Content.ReadAsStringAsync();
+            dynamic json = JsonConvert.DeserializeObject(str);
             if (json?.list == null) return imgs;
             foreach (var jitem in json.list)
             {
-                var img = new ImageItem();
-                img.Site = this;
+                var img = new ImageItem(this,para);
                 img.Author = $"{jitem.member?.nickname}";
-                img.ThumbnailReferer = HomeUrl;
                 img.DetailUrl = $"{HomeUrl}{jitem.photo?.url}";
                 img.Id = (int) (jitem.photo?.id ?? 0d);
-                img.ThumbnailUrl = $"{jitem.photo?.thumbnail_url_display}";
-                img.FileReferer = img.DetailUrl;
-                img.FileUrl = $"{jitem.photo?.large_url}";
+                img.Urls.Add(new UrlInfo("缩略图", 1, $"{jitem.photo?.thumbnail_url_display}", HomeUrl));
+                img.Urls.Add(new UrlInfo("大图", 3, $"{jitem.photo?.large_url}", img.DetailUrl));
                 int.TryParse($"{jitem.photo?.good_cnt}", out var score);
                 img.Score = score;
                 DateTime.TryParse($"{jitem.photo?.created_at}", out var date);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,9 +65,28 @@ namespace MoeLoader.Core.Sites
 
         public Settings Settings { get; set; }
 
+        public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
+
     }
 
-    
+    public class DownloadType
+    {
+        public string Name { get; set; }
+        public int Priority { get; set; }
+    }
+
+    public class DownloadTypes : ObservableCollection<DownloadType>
+    {
+        public void Add(string name, int pr)
+        {
+            Add(new DownloadType
+            {
+                Name = name,Priority = pr
+            });
+        }
+    }
+
+
     public class MoeSiteSurpportState
     {
         /// <summary>

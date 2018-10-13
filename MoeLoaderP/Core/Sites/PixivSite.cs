@@ -5,10 +5,10 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace MoeLoader.Core.Sites
 {
@@ -60,15 +60,17 @@ namespace MoeLoader.Core.Sites
                     item.SubMenu.Add(new MoeSiteSubMenuItem { Name = "R18" });
                 }
             }
+
+            DownloadTypes.Add("原图", 4);
         }
 
-        private async Task LoginAsync()
+        private async Task LoginAsync(CancellationToken token)
         {
             // 步骤0 GET 测试网络可用性
             Net.SetReferer(HomeUrl);
             try
             {
-                var homerespose = await Net.Client.GetAsync("https://www.pixiv.net/");
+                var homerespose = await Net.Client.GetAsync("https://www.pixiv.net/", token);
                 if (!homerespose.IsSuccessStatusCode) throw new Exception("!homerespose.IsSuccessStatusCode");
             }
             catch (Exception e)
@@ -109,7 +111,7 @@ namespace MoeLoader.Core.Sites
                 
                 Net.SetReferer("https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=wwwtop_accounts_index");
                 const string loginpost = "https://accounts.pixiv.net/api/login?lang=zh";
-                var response = await Net.Client.PostAsync(loginpost, content);
+                var response = await Net.Client.PostAsync(loginpost, content, token);
                 if (response.IsSuccessStatusCode)
                 {
                     IsLogin = true;
@@ -134,7 +136,7 @@ namespace MoeLoader.Core.Sites
                 Net.SetTimeOut(40);
             }
             
-            if (!IsLogin) await LoginAsync();
+            if (!IsLogin) await LoginAsync(token);
             if (!IsLogin) return new ImageItems();
 
             // page
@@ -187,28 +189,29 @@ namespace MoeLoader.Core.Sites
             switch (SearchType)
             {
                 case SearchTypeEnum.TagOrNew:
-                    if (string.IsNullOrWhiteSpace(word)) await SearchByNew(imgs, query);
-                    else await SearchByTag(imgs, query);
+                    if (string.IsNullOrWhiteSpace(word)) await SearchByNew(imgs, query,para, token);
+                    else await SearchByTag(imgs, query, para, token);
 
                     break;
                 case SearchTypeEnum.Day:
                 case SearchTypeEnum.Week:
                 case SearchTypeEnum.Month:
-                    await SearchByRank(imgs, query);
+                    await SearchByRank(imgs, query,para, token);
                     break;
                 case SearchTypeEnum.Author:
-                    await SearchByAuthor(imgs, query,para);
+                    await SearchByAuthor(imgs, query,para, token);
                     break;
             }
-            
+            token.ThrowIfCancellationRequested();
             return imgs;
         }
 
-        public async Task SearchByAuthor(ImageItems imgs, string uid,SearchPara para)
+        public async Task SearchByAuthor(ImageItems imgs, string uid,SearchPara para, CancellationToken token)
         {
             var net = Net.CreatNewWithRelatedCookie();
             net.SetReferer($"{HomeUrl}/member_illust.php?id={uid}&p=1");
-            var jsonstr = await net.Client.GetStringAsync($"{HomeUrl}/ajax/user/{uid}/profile/all");
+            var jsonres = await net.Client.GetAsync($"{HomeUrl}/ajax/user/{uid}/profile/all", token);
+            var jsonstr = await jsonres.Content.ReadAsStringAsync();
             dynamic json = JsonConvert.DeserializeObject(jsonstr);
             var picids = new List<string>();
             var illusts = json?.body?.illusts;
@@ -248,11 +251,9 @@ namespace MoeLoader.Core.Sites
                 {
                     var jp = (JProperty)item;
                     dynamic jitm = jp.Value;
-                    var img = new ImageItem();
-                    img.Site = this;
+                    var img = new ImageItem(this,para);
                     img.Net = Net.CreatNewWithRelatedCookie();
-                    img.ThumbnailReferer = $"{HomeUrl}/member_illust.php?id={uid}";
-                    img.ThumbnailUrl = $"{jitm.url}";
+                    img.Urls.Add(new UrlInfo("缩略图", 1, $"{jitm.url}", $"{HomeUrl}/member_illust.php?id={uid}"));
                     int.TryParse($"{jitm.id}", out var id);
                     img.Id = id;
                     int.TryParse($"{jitm.rating_count}", out var score);
@@ -267,26 +268,26 @@ namespace MoeLoader.Core.Sites
                     img.DetailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
                     img.Author = $"{jitm.user_name}";
                     img.Title = $"{jitm.title}";
-                    img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie());
+                    img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie(),para);
 
                     imgs.Add(img);
                 }
             }
         }
 
-        public async Task SearchByRank(ImageItems imgs, string query)
+        public async Task SearchByRank(ImageItems imgs, string query, SearchPara para, CancellationToken token)
         {
             var net = Net.CreatNewWithRelatedCookie();
-            var pageString = await net.Client.GetStringAsync(query);
+            var pageres = await net.Client.GetAsync(query,token);
+            var pageString = await pageres.Content.ReadAsStringAsync();
             dynamic jsonlist = JsonConvert.DeserializeObject(pageString);
             if(jsonlist?.contents == null) return;
             foreach (var jitm in jsonlist.contents)
             {
-                var img = new ImageItem();
+                var img = new ImageItem(this, para);
                 img.Site = this;
                 img.Net = Net.CreatNewWithRelatedCookie();
-                img.ThumbnailReferer = query;
-                img.ThumbnailUrl = $"{jitm.url}";
+                img.Urls.Add(new UrlInfo("缩略图", 1, $"{jitm.url}", query));
                 img.Title = $"{jitm.title}";
                 if (jitm.tags != null)
                 {
@@ -302,16 +303,17 @@ namespace MoeLoader.Core.Sites
                 img.Author = $"{jitm.user_name}";
                 int.TryParse($"{jitm.illust_page_count}", out var pcount);
                 img.DetailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
-                img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie());
+                img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie(),para);
 
                 imgs.Add(img);
             }
         }
 
-        public async Task SearchByNew(ImageItems imgs,string query)
+        public async Task SearchByNew(ImageItems imgs,string query,SearchPara para, CancellationToken token)
         {
             var net = Net.CreatNewWithRelatedCookie();
-            var pageString = await net.Client.GetStringAsync(query);
+            var pageres = await net.Client.GetAsync(query, token);
+            var pageString = await pageres.Content.ReadAsStringAsync();
             var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
 
@@ -320,15 +322,16 @@ namespace MoeLoader.Core.Sites
 
             foreach (var imglinode in imgnodes)
             {
-                var img = new ImageItem();
+                var img = new ImageItem(this, para);
                 img.Site = this;
                 img.Net = Net.CreatNewWithRelatedCookie();
-                img.ThumbnailReferer = query;
+                
+
                 var imgel = imglinode.SelectSingleNode("a/div/img").OuterHtml;
                 var imgdoc = new HtmlDocument();
                 imgdoc.LoadHtml(imgel);
                 var i2 = imgdoc.DocumentNode.SelectSingleNode("img");
-                img.ThumbnailUrl = i2?.GetAttributeValue("data-src", "");
+                img.Urls.Add(new UrlInfo("缩略图", 1, i2?.GetAttributeValue("data-src", ""), query));
                 int.TryParse(i2?.GetAttributeValue("data-id", "0"), out var id);
                 img.Id = id;
                 var tags = i2?.GetAttributeValue("data-tags", "");
@@ -354,16 +357,17 @@ namespace MoeLoader.Core.Sites
                 img.DetailUrl = fulllink;
 
                 var subnet = Net.CreatNewWithRelatedCookie();
-                img.GetDetailAction = async () => await GetDetailAction(fulllink,img,subnet);
+                img.GetDetailAction = async () => await GetDetailAction(fulllink,img,subnet,para);
 
                 imgs.Add(img);
             }
         }
 
-        public async Task SearchByTag(ImageItems imgs, string query)
+        public async Task SearchByTag(ImageItems imgs, string query,SearchPara para, CancellationToken token)
         {
             var net = Net.CreatNewWithRelatedCookie();
-            var pageString = await net.Client.GetStringAsync(query);
+            var pageres = await net.Client.GetAsync(query, token);
+            var pageString = await pageres.Content.ReadAsStringAsync();
             var doc = new HtmlDocument();
             doc.LoadHtml(pageString);
 
@@ -374,11 +378,9 @@ namespace MoeLoader.Core.Sites
             if(jlist == null)return;
             foreach (var jitem in jlist)
             {
-                var img = new ImageItem();
-                img.Site = this;
+                var img = new ImageItem(this,para);
                 img.Net = Net.CreatNewWithRelatedCookie();
-                img.ThumbnailReferer = query;
-                img.ThumbnailUrl = $"{jitem.url}";
+                img.Urls.Add(new UrlInfo("缩略图", 1, $"{jitem.url}", query));
                 int.TryParse($"{jitem.illustId}", out var id);
                 img.Id = id;
                 int.TryParse($"{jitem.bookmarkCount}", out var score);
@@ -395,13 +397,13 @@ namespace MoeLoader.Core.Sites
                 img.DetailUrl = $"{HomeUrl}/member_illust.php?mode=medium&illust_id={id}";
                 img.Author = $"{jitem.userName}";
                 img.Title = $"{jitem.illustTitle}";
-                img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie());
+                img.GetDetailAction = async () => await GetDetailAction(img.DetailUrl, img, Net.CreatNewWithRelatedCookie(),para);
 
                 imgs.Add(img);
             }
         }
 
-        public async Task GetDetailAction(string pageUrl,ImageItem img,NetSwap net)
+        public async Task GetDetailAction(string pageUrl,ImageItem img,NetSwap net,SearchPara para)
         {
             try
             {
@@ -412,7 +414,6 @@ namespace MoeLoader.Core.Sites
                 img.Net = Net.CreatNewWithRelatedCookie();
                 
 
-                img.FileReferer = pageUrl;
                 var strRex = Regex.Match(subpage, $@"(?<=(?:{img.Id}:.)).*?(?=(?:.}},user))");
                 dynamic jobj = JsonConvert.DeserializeObject(strRex.Value);
                 if (jobj == null) return;
@@ -423,7 +424,8 @@ namespace MoeLoader.Core.Sites
                 int.TryParse($"{jobj.height}", out var height);
                 img.Height = height;
                 int.TryParse($"{jobj.pageCount}", out var pageCount);
-                img.FileUrl = $"{jobj.urls?.original}";
+
+                img.Urls.Add(new UrlInfo("原图", 4, $"{jobj.urls?.original}", pageUrl));
                 img.Author = $"{jobj.userName}";
                 int.TryParse($"{jobj.likeCount}", out var like);
                 if (like > 0) img.Score = like;
@@ -451,12 +453,10 @@ namespace MoeLoader.Core.Sites
                 {
                     for (var i = 0; i < pageCount; i++)
                     {
-                        var subimg = new ImageItem();
+                        var subimg = new ImageItem(this,para);
                         var rex = new Regex(@"(?<=.*)p\d+(?=[^/]*[^\._]*$)");
-                        subimg.FileUrl = rex.Replace(img.FileUrl, $"p{i}");
-                        subimg.Site = this;
-                        subimg.FileReferer = pageUrl.Replace("mode=medium", "mode=manga");
                         subimg.Net = Net.CreatNewWithRelatedCookie();
+                        subimg.Urls.Add(new UrlInfo("原图", 4, rex.Replace(img.DownloadUrlInfo.Url, $"p{i}"), pageUrl.Replace("mode=medium", "mode=manga")));
 
                         img.ChilldrenItems.Add(subimg);
                     }

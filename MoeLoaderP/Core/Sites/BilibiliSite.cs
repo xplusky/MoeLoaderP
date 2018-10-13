@@ -44,6 +44,7 @@ namespace MoeLoader.Core.Sites
             SurpportState.IsSupportKeyword = false;
             SurpportState.IsSupportScore = false;
             SurpportState.IsSupportRating = false;
+            DownloadTypes.Add("原图", 4);
         }
 
         public override Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
@@ -70,7 +71,8 @@ namespace MoeLoader.Core.Sites
                     break;
             }
             var net = new NetSwap(Settings);
-            var jsonstr = await net.Client.GetStringAsync(query);
+            var jsonres = await net.Client.GetAsync(query, token);
+            var jsonstr = await jsonres.Content.ReadAsStringAsync();
 
             return await Task.Run(() =>
             {
@@ -79,7 +81,7 @@ namespace MoeLoader.Core.Sites
                 if (listobj?.data?.items == null) return items;
                 foreach (var item in listobj.data.items)
                 {
-                    var img = new ImageItem();
+                    var img = new ImageItem(this, para);
                     img.Author = $"{item.user?.name}";
                     img.Id = (int)item.item.doc_id;
                     var i0 = item.item?.pictures[0];
@@ -87,15 +89,15 @@ namespace MoeLoader.Core.Sites
                     if (i0?.img_height != null) img.Height = (int) i0.img_height;
                     if (img.Width > 0 && img.Height > 0)
                     {
-                        img.ThumbnailUrl = img.Width > img.Height ? 
-                            $"{i0?.img_src}@512w_{(int) (512d * img.Height / img.Width)}h_1e" : 
+                        var turl = img.Width > img.Height ? $"{i0?.img_src}@512w_{(int) (512d * img.Height / img.Width)}h_1e" : 
                             $"{i0?.img_src}@{(int) (512d * img.Width / img.Height)}w_512h_1e";
+                        img.Urls.Add(new UrlInfo("缩略图", 1, $"{turl}", HomeUrl));
                     }
                     else
                     {
-                        img.ThumbnailUrl = $"{i0?.img_src}@512w_512h_1e";
+                        img.Urls.Add(new UrlInfo("缩略图", 1, $"{i0?.img_src}@512w_512h_1e", HomeUrl));
                     }
-                    img.FileUrl = $"{i0?.img_src}";
+                    img.Urls.Add(new UrlInfo("原图", 4, $"{i0?.img_src}"));
                     
                     img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                     img.Title = $"{item.item?.title}";
@@ -106,12 +108,9 @@ namespace MoeLoader.Core.Sites
                     {
                         foreach (var pic in item.item.pictures)
                         {
-                            var child = new ImageItem
-                            {
-                                ThumbnailUrl = $"{pic.img_src}@512w_512h_1e",
-                                FileUrl = $"{pic.img_src}",
-                                Site = this,
-                            };
+                            var child = new ImageItem(this, para);
+                            child.Urls.Add(new UrlInfo("缩略图", 1, $"{pic.img_src}@512w_512h_1e", HomeUrl));
+                            child.Urls.Add(new UrlInfo("原图", 4, $"{pic.img_src}"));
                             if (pic.img_width != null) child.Width = (int)pic.img_width;
                             if (pic.img_height != null) child.Height = (int)pic.img_height;
 
@@ -119,9 +118,6 @@ namespace MoeLoader.Core.Sites
                         }
                     }
 
-                    img.Site = this;
-                    img.Net = null;
-                    img.ThumbnailReferer = HomeUrl;
                     items.Add(img);
                 }
                 return items;

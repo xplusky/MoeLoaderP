@@ -24,7 +24,8 @@ namespace MoeLoader.Core.Sites
 
         public ZeroChanSite()
         {
-
+            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("预览图", 2);
         }
 
         private bool IsLogon { get; set; }
@@ -60,7 +61,7 @@ namespace MoeLoader.Core.Sites
                     App.ShowMessage("搜索失败，请检查您输入的关键词");
                     return new ImageItems();
                 }
-
+                
                 pageString = await respose.Content.ReadAsStringAsync();
 
                 _beforeWord = para.Keyword;
@@ -69,7 +70,9 @@ namespace MoeLoader.Core.Sites
             {
                 //Net.Client.DefaultRequestHeaders.Referrer = new Uri(beforeUrl);
                 url = string.IsNullOrWhiteSpace(para.Keyword) ? url : _beforeUrl + "?p=" + para.PageIndex;
-                pageString = await Net.Client.GetStringAsync(url);
+                var res = await Net.Client.GetAsync(url, token);
+
+                pageString = await res.Content.ReadAsStringAsync();
             }
 
             // images 
@@ -92,7 +95,7 @@ namespace MoeLoader.Core.Sites
 
             foreach (var imgNode in nodes)
             {
-                var img = new ImageItem();
+                var img = new ImageItem(this,para);
                 var strId = imgNode.SelectSingleNode("a").Attributes["href"].Value;
                 int.TryParse(strId.Substring(1),out var id);
                 var fav = imgNode.SelectSingleNode("a/span")?.InnerText;
@@ -134,32 +137,28 @@ namespace MoeLoader.Core.Sites
                 if (!string.IsNullOrWhiteSpace(fileUrl) && fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
                 if (sampleUrl != null && sampleUrl.StartsWith("/")) sampleUrl = HomeUrl + sampleUrl;
 
-                img.FileSize = fileSize?.ToUpper();
+                //img.FileSize = fileSize?.ToUpper();
                 img.Description = title;
                 img.Title = title;
                 img.Id = id;
-                img.JpegUrl = fileUrl;
-                img.FileUrl = fileUrl;
-                img.PreviewUrl = sampleUrl;
-                img.ThumbnailUrl = previewUrl;
+
+                img.Urls.Add(new UrlInfo("缩略图", 1, previewUrl, HomeUrl));
+                img.Urls.Add(new UrlInfo("预览图", 2, sampleUrl, HomeUrl));
+                img.Urls.Add(new UrlInfo("原图", 4, fileUrl, img.DetailUrl));
                 img.Width = width;
                 img.Height = height;
                 img.DetailUrl = $"{HomeUrl}/{id}";
 
                 if (fileSize != null)
                 {
-                    img.FileSize = new Regex(@"\d+").Match(img.FileSize).Value;
-                    var fs = Convert.ToInt32(img.FileSize);
-                    img.FileSize = (fs > 1024 ? (fs / 1024.0).ToString("0.00MB") : fs.ToString("0KB"));
-
+                    //img.FileSize = new Regex(@"\d+").Match(img.FileSize).Value;
+                    //var fs = Convert.ToInt32(img.FileSize);
+                    //img.FileSize = (fs > 1024 ? (fs / 1024.0).ToString("0.00MB") : fs.ToString("0KB"));
                 }
-                img.FileReferer = img.DetailUrl;
-                img.ThumbnailReferer = HomeUrl;
-                img.Site = this;
 
                 imgs.Add(img);
             }
-
+            token.ThrowIfCancellationRequested();
             return imgs;
         }
 
@@ -171,8 +170,9 @@ namespace MoeLoader.Core.Sites
             var url = $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
 
             Net.Client.DefaultRequestHeaders.Referrer =  new Uri(HomeUrl);
+            var res = await Net.Client.GetAsync(url, token);
 
-            var txt = await Net.Client.GetStringAsync(url);
+            var txt = await res.Content.ReadAsStringAsync();
 
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)

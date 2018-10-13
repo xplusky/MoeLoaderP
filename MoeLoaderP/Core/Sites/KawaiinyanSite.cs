@@ -19,6 +19,7 @@ namespace MoeLoader.Core.Sites
         {
             SurpportState.IsSupportRating = false;
             SurpportState.IsSupportAutoHint = false;
+            DownloadTypes.Add("原图", 4);
         }
 
         public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -45,13 +46,14 @@ namespace MoeLoader.Core.Sites
                     break;
             }
             var query = $"{HomeUrl}/new.json?tags={para.Keyword.ToEncodedUrl()}&size={size}&orient={orient}&page={para.PageIndex}";
-            var jsonstr =await client.GetStringAsync(query);
+            var jsonres =await client.GetAsync(query, token);
+            var jsonstr = await jsonres.Content.ReadAsStringAsync();
             var imageitems = new ImageItems();
             dynamic json = JsonConvert.DeserializeObject(jsonstr);
             if (json?.images == null) return imageitems;
             foreach (var image in json.images)
             {
-                var img = new ImageItem();
+                var img = new ImageItem(this,para);
                 var id = (int) image.id;
                 img.Id = id;
                 var sub = $"https://{id % 10}.s.kawaiinyan.com/i";
@@ -65,15 +67,16 @@ namespace MoeLoader.Core.Sites
                     img.Tags.Add(s);
                 }
                 var small = $"{image.small}";
-                img.ThumbnailUrl = $"{sub}{UrlInner($"{id}")}/small.{small}";
+                img.Urls.Add(new UrlInfo("缩略图", 1, $"{sub}{UrlInner($"{id}")}/small.{small}"));
                 var orig = $"{image.orig}";
                 var big = $"{image.big}";
                 if (!string.IsNullOrWhiteSpace(orig))
                 {
-                    img.FileUrl = $"{sub}{UrlInner($"{id}")}/orig.{orig}";
-                }else if (!string.IsNullOrWhiteSpace(big))
+                    img.Urls.Add(new UrlInfo("原图", 4, $"{sub}{UrlInner($"{id}")}/orig.{orig}"));
+                }
+                else if (!string.IsNullOrWhiteSpace(big))
                 {
-                    img.FileUrl = $"{sub}{UrlInner($"{id}")}/big.{big}";
+                    img.Urls.Add(new UrlInfo("原图", 4, $"{sub}{UrlInner($"{id}")}/big.{big}"));
                 }
                 img.DetailUrl = $"{HomeUrl}/image?id={id}";
                 
@@ -81,7 +84,7 @@ namespace MoeLoader.Core.Sites
 
                 imageitems.Add(img);
             }
-
+            token.ThrowIfCancellationRequested();
             return imageitems;
         }
 

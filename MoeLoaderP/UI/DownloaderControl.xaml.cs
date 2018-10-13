@@ -27,6 +27,15 @@ namespace MoeLoader.UI
             StopButton.Click += StopButtonOnClick;
             StartButton.Click += StartButtonOnClick;
             SelectAllButton.Click += SelectAllButtonOnClick;
+            KeyDown += OnKeyDown;
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                DownloadItemsListBox.SelectAll();
+            }
         }
 
         private void SelectAllButtonOnClick(object sender, RoutedEventArgs e)
@@ -141,7 +150,7 @@ namespace MoeLoader.UI
                 Settings = Settings,
                 ImageSource = img,
                 ImageItem = item,
-                OriginFileName = Path.GetFileName(item.FileUrl)
+                OriginFileName = Path.GetFileName(item.DownloadUrlInfo.Url)
             };
             if (item.ChilldrenItems.Count > 0)
             {
@@ -152,7 +161,7 @@ namespace MoeLoader.UI
                     {
                         Settings = Settings,
                         ImageItem = subitem,
-                        OriginFileName = Path.GetFileName(subitem.FileUrl),
+                        OriginFileName = Path.GetFileName(subitem.DownloadUrlInfo.Url),
                         SubIndex = i + 1
                     };
                     downitem.SubItems.Add(downsubitem);
