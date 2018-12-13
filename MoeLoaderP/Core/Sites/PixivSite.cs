@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -36,7 +35,6 @@ namespace MoeLoader.Core.Sites
             Day = 2,
             Week = 3,
             Month = 4,
-
         }
         /// <summary>
         /// pixiv.net site

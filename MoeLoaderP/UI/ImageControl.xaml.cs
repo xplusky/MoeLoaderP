@@ -30,7 +30,7 @@ namespace MoeLoader.UI
             ScoreBorder.Visibility = item.Site.SurpportState.IsSupportScore ? Visibility.Visible : Visibility.Collapsed;
             ResolutionBorder.Visibility = item.Site.SurpportState.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
 
-            DetailPageLinkButton.Click += (sender, args) => ImageItem.DetailUrl.Go(); ;
+            DetailPageLinkButton.Click += (sender, args) => ImageItem.DetailUrl.Go(); 
         }
 
         public async Task LoadImageAsync()

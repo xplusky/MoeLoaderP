@@ -162,7 +162,7 @@ namespace MoeLoader.Core
             set => SetField(ref _searchHistory, value, nameof(SearchHistory));
         }
 
-        private bool _isXMode = false;
+        private bool _isXMode;
 
         public bool IsXMode
         {
@@ -170,7 +170,7 @@ namespace MoeLoader.Core
             set => SetField(ref _isXMode, value, nameof(IsXMode));
         }
 
-        private bool _haveEnteredXMode = false;
+        private bool _haveEnteredXMode;
 
         public bool HaveEnteredXMode
         {

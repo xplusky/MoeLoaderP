@@ -26,6 +26,7 @@ namespace MoeLoader
             Loaded += OnLoaded;
             Closing += OnClosing;
             KeyDown += OnKeyDown;
+            PreviewKeyDown += OnPreviewKeyDown;
             MouseLeftButtonDown += (sender, args) => DragMove();
             DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
             DownloaderMenuCheckBox.Unchecked += DownloaderMenuCheckBoxCheckChanged;
@@ -57,6 +58,7 @@ namespace MoeLoader
             AboutDonateImage.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Collapsed;
             AboutHomeLinkButton.Click += (sender, args) => "http://leaful.com/moeloader-p".Go();
         }
+
 
         private void ShowMessage(string mes, int pos = 0)
         {
@@ -133,7 +135,7 @@ namespace MoeLoader
             switch (e.Key)
             {
                 case Key.F1: // 用于测试功能
-                   // ShowMessage($"{MoeExlorer.ImageItemsScrollViewer.Height}");
+                    // ShowMessage($"{MoeExlorer.ImageItemsScrollViewer.Height}");
                     break;
                 case Key.F2:
                     //ShowMessage($"{MoeExlorer.ImageItemsScrollViewer.ActualHeight}");
@@ -155,6 +157,17 @@ namespace MoeLoader
                     SiteManager.Sites.Clear();
                     SiteManager.SetDefaultSiteList();
                     SearchControl.MoeSitesComboBox.SelectedIndex = 0;
+                    break;
+                
+            }
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Right:
+                    if (CurrentSearch?.LoadedPages?.Count > 0) NextPageButtonOnClick(this, null);
                     break;
             }
         }

@@ -24,6 +24,7 @@ namespace MoeLoader.Core.Sites
 
         public ZeroChanSite()
         {
+            SurpportState.IsSupportRating = false;
             DownloadTypes.Add("原图", 4);
             DownloadTypes.Add("预览图", 2);
         }

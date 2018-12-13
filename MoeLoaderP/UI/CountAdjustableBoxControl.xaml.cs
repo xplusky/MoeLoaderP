@@ -28,8 +28,7 @@ namespace MoeLoader.UI
             }
             catch
             {
-                //NumCount = NumCount;
-                
+                //
             }
         }
 

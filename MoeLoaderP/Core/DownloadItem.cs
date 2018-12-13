@@ -72,8 +72,7 @@ namespace MoeLoader.Core
                 return null;
             }
         }
-
-
+        
         private DownloadStatusEnum _downloadStatus = DownloadStatusEnum.WaitForDownload;
         public DownloadStatusEnum DownloadStatus
         {

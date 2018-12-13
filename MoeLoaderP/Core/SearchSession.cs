@@ -16,6 +16,7 @@ namespace MoeLoader.Core
         public Settings Settings { get; set; }
         public SearchPara CurrentSearchPara { get; set; }
         public SearchedPages LoadedPages { get; set; } = new SearchedPages();
+        public int CurrentPageIndex { get; set; }
         public bool IsSearching => SearchingTasksCts.Count > 0;
         public event Action<SearchSession,string> SearchStatusChanged;
         public List<CancellationTokenSource> SearchingTasksCts { get; set; } = new List<CancellationTokenSource>();

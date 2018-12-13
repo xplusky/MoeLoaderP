@@ -295,6 +295,11 @@ namespace MoeLoader.UI
             {
                 ContextSelectAllButtonOnClick(null, null);
             }
+
+            if (e.Key == Key.Left)
+            {
+
+            }
         }
         
         public void LoadImages(ImageItems items)
@@ -369,10 +374,16 @@ namespace MoeLoader.UI
                 };
                 button.Click += (sender, args) =>
                 {
-                    foreach (Button btn in PagingStackPanel.Children)
+                    for (var i = 0; i < PagingStackPanel.Children.Count; i++)
                     {
+                        var btn = (Button) PagingStackPanel.Children[i];
                         VisualStateManager.GoToState(btn, button.Equals(btn) ? "CurrentPage" : "NotCurrentPage", true);
+                        if (button.Equals(btn))
+                        {
+                            session.CurrentPageIndex = i;
+                        }
                     }
+
                     PagingScrollViewer.ScrollToTop();
                     LoadImages(page.ImageItems);
                     StartDownloadShowImages();

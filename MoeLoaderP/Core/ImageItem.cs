@@ -161,8 +161,8 @@ namespace MoeLoader.Core
         public string GetFileExtFromUrl()
         {
             if (string.IsNullOrEmpty(Url)) return null;
-            var type = Path.GetExtension(Url)?.Replace(".", "").ToUpper();
-            if (type?.Contains("?") == true)
+            var type = Path.GetExtension(Url).Replace(".", "").ToUpper();
+            if (type.Contains("?"))
             {
                 type = type.Split('?')[0];
             }
