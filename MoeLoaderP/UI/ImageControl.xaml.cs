@@ -38,7 +38,7 @@ namespace MoeLoader.UI
             var loadingsb = this.Sb("LoadingSb");
             loadingsb.Begin();
             this.Sb("LoadingStartSb").Begin();
-
+            
             // client
             var net = ImageItem.Net ?? new NetSwap(Settings);
             net.SetTimeOut(15);

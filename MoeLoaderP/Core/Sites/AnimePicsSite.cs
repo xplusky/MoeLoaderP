@@ -94,7 +94,7 @@ namespace MoeLoader.Core.Sites
                 var src = imgnode.GetAttributeValue("src", "");
                 if (!string.IsNullOrWhiteSpace(src))
                 {
-                    img.Urls.Add(new UrlInfo("缩略图",1, $"{pre}{src}", $"{HomeUrl}/pictures/view_posts/"));
+                    img.Urls.Add(new UrlInfo("缩略图",1, $"{pre}{src}", url));
                 }
                 var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
                 int.TryParse(resstrs[0], out var width);

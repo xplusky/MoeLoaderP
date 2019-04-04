@@ -234,7 +234,7 @@
                             CornerRadius="0"/>
             <ui:MoeExplorerControl x:Name="MoeExlorer"/>
             <Grid x:Name="DownloaderGrid" Grid.Column="1" Width="0">
-                <ui:DownloaderControl
+                <ui:DownloaderPanelControl
                     x:Name="MoeDownloaderControl"
                     Width="220"
                     AllowDrop="True" Grid.Column="1" />

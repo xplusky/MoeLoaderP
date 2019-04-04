@@ -88,7 +88,7 @@
                         VerticalAlignment="Top"
                         Content="{DynamicResource TextCommonBrowse}" Template="{DynamicResource MoeButtonControlTemplate}" Grid.Column="1" />
                 </Grid>
-                <StackPanel Orientation="Vertical" Visibility="Collapsed">
+                <StackPanel Orientation="Vertical">
                     <CheckBox x:Name="CustomNameFormatCheckBox" Content="自定义文件命名格式（不带扩展名）" IsChecked="{Binding IsUseCustomFileNameFormat}" Margin="0,4,0,0"/>
                     <TextBox
                         x:Name="FileNameFormatTextBox"

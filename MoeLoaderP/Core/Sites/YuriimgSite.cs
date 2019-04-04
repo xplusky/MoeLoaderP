@@ -105,33 +105,41 @@ namespace MoeLoader.Core.Sites
 
                 img.GetDetailAction = async () =>
                 {
-                    var html = await Net.Client.GetStringAsync(img.DetailUrl);
-
-                    var doc = new HtmlDocument();
-                    doc.LoadHtml(html);
-                    var showIndexs = doc.DocumentNode.SelectSingleNode("//div[@class='logo']");
-                    var imgDownNode = showIndexs.SelectSingleNode("//div[@class='img-control']");
-                    var nodeHtml = showIndexs.OuterHtml;
-                    img.Date = TimeConvert(nodeHtml);
-
-                    img.Source = nodeHtml.Contains("pixiv page") ? 
-                        showIndexs.SelectSingleNode(".//a[@target='_blank']").Attributes["href"].Value : 
-                        Regex.Match(nodeHtml, @"(?<=源地址).*?(?=</p>)").Value.Trim();
-                    img.Urls.Add(new UrlInfo("缩略图", 1, doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value, HomeUrl));
-                    var previww = doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value;
-                    string file;
-                    if (Regex.Matches(imgDownNode.OuterHtml, "href").Count > 1)
+                    try
                     {
-                        file = HomeUrl + imgDownNode.SelectSingleNode("./a[1]").Attributes["href"].Value;
-                        //item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a[1]").InnerText, @"(?<=().*?(?=))").Value;
+                        var html = await Net.Client.GetStringAsync(img.DetailUrl);
+
+                        var doc = new HtmlDocument();
+                        doc.LoadHtml(html);
+                        var showIndexs = doc.DocumentNode.SelectSingleNode("//div[@class='logo']");
+                        var imgDownNode = showIndexs.SelectSingleNode("//div[@class='img-control']");
+                        var nodeHtml = showIndexs.OuterHtml;
+                        img.Date = TimeConvert(nodeHtml);
+
+                        img.Source = nodeHtml.Contains("pixiv page") ?
+                            showIndexs.SelectSingleNode(".//a[@target='_blank']").Attributes["href"].Value :
+                            Regex.Match(nodeHtml, @"(?<=源地址).*?(?=</p>)").Value.Trim();
+                        img.Urls.Add(new UrlInfo("缩略图", 1, doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value, HomeUrl));
+                        var previww = doc.DocumentNode.SelectSingleNode("//figure[@class=\'show-image\']/img").Attributes["src"].Value;
+                        string file;
+                        if (Regex.Matches(imgDownNode.OuterHtml, "href").Count > 1)
+                        {
+                            file = HomeUrl + imgDownNode.SelectSingleNode("./a[1]").Attributes["href"].Value;
+                            //item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a[1]").InnerText, @"(?<=().*?(?=))").Value;
+                        }
+                        else
+                        {
+                            file = HomeUrl + imgDownNode.SelectSingleNode("./a").Attributes["href"].Value;
+                            //item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a").InnerText, @"(?<=().*?(?=))").Value;
+                        }
+                        img.Urls.Add(new UrlInfo("原图", 4, file, HomeUrl));
+                        img.Urls.Add(new UrlInfo("预览图", 2, previww.Length > 0 ? previww : file, HomeUrl));
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        file = HomeUrl + imgDownNode.SelectSingleNode("./a").Attributes["href"].Value;
-                        //item.FileSize = Regex.Match(imgDownNode.SelectSingleNode("./a").InnerText, @"(?<=().*?(?=))").Value;
+                        App.Log(ex);
                     }
-                    img.Urls.Add(new UrlInfo("原图", 4, file, HomeUrl));
-                    img.Urls.Add(new UrlInfo("预览图", 2, previww.Length > 0 ? previww : file, HomeUrl));
+                    
                 };
 
                 list.Add(img);

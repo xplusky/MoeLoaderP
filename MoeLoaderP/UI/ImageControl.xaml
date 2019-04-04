@@ -190,7 +190,7 @@
                         <TextBlock x:Name="ImagesCountTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xf302; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text="{Binding ImageItem.ImagesCount, Mode=OneWay}" /></TextBlock>
                     </Border>
                 </StackPanel>
-                <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding ImageItem.FileUrl, Converter={StaticResource StringToVisibilityConverter}}" VerticalAlignment="Bottom" CornerRadius="5" Margin="0,0,4,4"   Padding="1" >
+                <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding ImageItem.DownloadUrlInfo.Url, Converter={StaticResource StringToVisibilityConverter}}" VerticalAlignment="Bottom" CornerRadius="5" Margin="0,0,4,4"   Padding="1" >
                     <Border.Background>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#A5000000" Offset="0"/>

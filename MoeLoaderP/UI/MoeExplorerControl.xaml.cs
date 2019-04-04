@@ -196,6 +196,9 @@ namespace MoeLoader.UI
             else if (e.Delta <0) PagingScrollViewer.LineRight();
         }
 
+        /// <summary>
+        /// 生成右键菜单中的Tag小按钮
+        /// </summary>
         public Button GetTagButton(string text)
         {
             var texblock = new TextBlock
@@ -210,10 +213,14 @@ namespace MoeLoader.UI
                 Template = (ControlTemplate)FindResource("MoeTagButtonControlTemplate"),
                 Content = texblock,
                 Margin = new Thickness(1),
+                ToolTip = text
             };
             return button;
         }
 
+        /// <summary>
+        /// 生成右键菜单中的小标题TextBlock
+        /// </summary>
         public TextBlock GetTitieTextBlock(string text)
         {
             var textblock = new TextBlock
@@ -226,6 +233,9 @@ namespace MoeLoader.UI
             return textblock;
         }
 
+        /// <summary>
+        /// 显示右键菜单并生成信息
+        /// </summary>
         private void ImageItemsScrollViewerOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (MouseOnImageControl == null) return;

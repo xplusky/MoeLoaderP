@@ -30,6 +30,8 @@ namespace MoeLoader.UI
             ProxyModeComboBox.SelectionChanged += ProxyModeComboBoxOnSelectionChanged;
             FileNameFormatTextBox.GotFocus += (sender, args) => _tempNameFormatText = FileNameFormatTextBox.Text;
             FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
+
+            //FileNameFormatTextBox.TextChanged += (sender, args) => _tempNameFormatText = FileNameFormatTextBox.Text;
         }
 
         public void Init(Settings settings)

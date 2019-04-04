@@ -8,7 +8,7 @@ using MoeLoader.Core;
 
 namespace MoeLoader.UI
 {
-    public partial class DownloaderControl
+    public partial class DownloaderPanelControl
     {
         public Settings Settings { get; set; }
         public DownloadItems DownloadItems { get; set; } = new DownloadItems();
@@ -16,7 +16,7 @@ namespace MoeLoader.UI
         public DownloadItems WaitForDownloadItemsPool { get; set; } = new DownloadItems();
         public bool IsDownloading => WaitForDownloadItemsPool.Count > 0;
 
-        public DownloaderControl()
+        public DownloaderPanelControl()
         {
             InitializeComponent();
             DownloadItemsListBox.ItemsSource = DownloadItems;

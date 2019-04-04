@@ -35,8 +35,9 @@ namespace MoeLoader.Core
         {
             get
             {
-                foreach (var urlInfo in Urls)
+                for (var i = 0; i < Urls.Count; i++)
                 {
+                    var urlInfo = Urls[i];
                     if (urlInfo.Priority > 1 && urlInfo.Priority == Para.DownloadType.Priority)
                     {
                         return urlInfo;
@@ -92,8 +93,6 @@ namespace MoeLoader.Core
         /// 获取详细信息委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
         public Action GetDetailAction { get; set; }
-
-        
 
         public async Task GetDetailAsync()
         {

@@ -20,13 +20,13 @@
             x:Name="NumUpButton"
             x:FieldModifier="private"
             BorderThickness="1"
-            Content="˄"
-            Grid.Column="2" Template="{DynamicResource MoeButtonControlTemplate}" />
+            Content="&#xf0d8;"
+            Grid.Column="2" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" />
         <Button
             x:Name="NumDownButton"
             x:FieldModifier="private"
             BorderThickness="1"
-            Content="˅"            
-            Grid.Column="1" Template="{DynamicResource MoeButtonControlTemplate}" />
+            Content="&#xf0d7;"            
+            Grid.Column="1" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" />
     </Grid>
 </UserControl>

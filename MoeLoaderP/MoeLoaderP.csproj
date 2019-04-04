@@ -192,7 +192,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\DownloaderControl.xaml">
+    <Page Include="UI\DownloaderPanelControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -230,8 +230,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UI\DownloaderControl.xaml.cs">
-      <DependentUpon>DownloaderControl.xaml</DependentUpon>
+    <Compile Include="UI\DownloaderPanelControl.xaml.cs">
+      <DependentUpon>DownloaderPanelControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ImageControl.xaml.cs">
       <DependentUpon>ImageControl.xaml</DependentUpon>
@@ -319,22 +319,22 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentWPF">
-      <Version>0.4.1</Version>
+      <Version>0.6.1</Version>
     </PackageReference>
     <PackageReference Include="HtmlAgilityPack">
-      <Version>1.8.9</Version>
+      <Version>1.11.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client">
-      <Version>5.2.6</Version>
+      <Version>5.2.7</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>11.0.2</Version>
+      <Version>12.0.1</Version>
     </PackageReference>
     <PackageReference Include="WindowsAPICodePack-Shell">
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="WpfAnimatedGif">
-      <Version>1.4.17</Version>
+      <Version>1.4.18</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
