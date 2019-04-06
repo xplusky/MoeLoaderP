@@ -61,6 +61,9 @@ namespace MoeLoader.Core
 
         private bool _isUseCustomFileNameFormat;
 
+        /// <summary>
+        /// 自定义文件名格式
+        /// </summary>
         public bool IsUseCustomFileNameFormat
         {
             get => _isUseCustomFileNameFormat;

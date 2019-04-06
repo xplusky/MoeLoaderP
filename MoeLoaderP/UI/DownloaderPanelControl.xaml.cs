@@ -27,7 +27,20 @@ namespace MoeLoader.UI
             StopButton.Click += StopButtonOnClick;
             StartButton.Click += StartButtonOnClick;
             SelectAllButton.Click += SelectAllButtonOnClick;
+            RetryButton.Click += RetryButtonOnClick;
             KeyDown += OnKeyDown;
+        }
+
+        private void RetryButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            for (var i = 0; i < DownloadItemsListBox.SelectedItems.Count; i++)
+            {
+                var item = DownloadItemsListBox.SelectedItems[i];
+                var index = DownloadItemsListBox.Items.IndexOf(item);
+                if (index == -1) continue;
+                var d = DownloadItems[index].DownloadFileAsync();
+            }
+            ContextMenuPopup.IsOpen = false;
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)

@@ -68,6 +68,8 @@ namespace MoeLoader.Core
                         return "";
                     case DownloadStatusEnum.Downloading:
                         return "";
+                    case DownloadStatusEnum.Skip:
+                        return "";
                 }
                 return null;
             }
@@ -113,6 +115,11 @@ namespace MoeLoader.Core
             {
                 try
                 {
+                    if (File.Exists(LocalFileFullPath))
+                    {
+                        DownloadStatus = DownloadStatusEnum.Skip;
+                        return;
+                    }
                     NetSwap net;
                     var url = ImageItem.DownloadUrlInfo;
                     if (url == null)
@@ -137,7 +144,11 @@ namespace MoeLoader.Core
                     DownloadStatus = DownloadStatusEnum.Downloading;
                     var data = await net.Client.GetAsync(url.Url, token);
                     var bytes = await data.Content.ReadAsByteArrayAsync();
-                    AutoRename();
+                    if (File.Exists(LocalFileFullPath))
+                    {
+                        DownloadStatus = DownloadStatusEnum.Skip;
+                        return;
+                    }
                     var dir = Path.GetDirectoryName(LocalFileFullPath);
                     if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
                     using (var fs = new FileStream(LocalFileFullPath, FileMode.Create))
@@ -175,7 +186,26 @@ namespace MoeLoader.Core
             var set = Settings;
             if (set.IsUseCustomFileNameFormat)
             {
+                var format = Settings.SaveFileNameFormat;
+                var img = ImageItem;
+                var fn = format;
+                fn = fn.Replace("%site", img.Site.DisplayName);
+                fn = fn.Replace("%id", $"{img.Id}");
+                var tags = string.Empty;
+                var i = 0;
+                foreach(var tag in img.Tags)
+                {
+                    if(i>15) break;
+                    tags += $"{tag} ";
+                    i++;
+                }
+                fn = fn.Replace("%tag", $"{tags}");
+                fn = fn.Replace("%desc", img.Description);
+                fn = fn.Replace("%author", img.Author);
+                fn = fn.Replace("%date", img.Date);
 
+
+                LocalFileShortNameWithoutExt = fn;
             }
             else
             {
@@ -192,6 +222,7 @@ namespace MoeLoader.Core
             }
         }
 
+
         private string _autoRenameSuffix = "";
 
         public void AutoRename()
@@ -203,6 +234,7 @@ namespace MoeLoader.Core
                 i++;
             }
         }
+
     }
 
     public class DownloadItems : ObservableCollection<DownloadItem> { }
@@ -214,6 +246,7 @@ namespace MoeLoader.Core
         Cancel,
         IsExist,
         Downloading,
-        WaitForDownload
+        WaitForDownload,
+        Skip
     }
 }
