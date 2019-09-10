@@ -56,6 +56,8 @@ namespace MoeLoader
             AboutVersionTextBlock.Text = $"版本：{App.Version.ToString(3)} ({App.CompileTime:yyyy/MM/dd})";
             AboutDonateLink.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Visible;
             AboutDonateImage.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Collapsed;
+            AboutDonateWexinLink.MouseLeftButtonUp += (sender, args) => AboutDonateWeixinImageGrid.Visibility = Visibility.Visible;
+            AboutDonateWeixinImage.MouseLeftButtonUp += (sender, args) => AboutDonateWeixinImageGrid.Visibility = Visibility.Collapsed;
             AboutHomeLinkButton.Click += (sender, args) => "http://leaful.com/moeloader-p".Go();
         }
 

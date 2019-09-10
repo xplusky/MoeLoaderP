@@ -12,7 +12,7 @@
     <String x:Key="TextMainMenuAbout">关于</String>
 
     <String x:Key="TextSearchControlKeywordTip">请输入关键字或留空</String>
-    <String x:Key="TextSearchControlSearch">搜索</String>
+    <String x:Key="TextSearchControlSearch">获取</String>
     <String x:Key="TextSearchControlStop">停止</String>
     <String x:Key="TextSearchControlFilter">参数</String>
     <String x:Key="TextSearchControlFilterStartPage">起始搜索页码</String>

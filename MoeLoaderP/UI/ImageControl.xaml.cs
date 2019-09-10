@@ -30,7 +30,14 @@ namespace MoeLoader.UI
             ScoreBorder.Visibility = item.Site.SurpportState.IsSupportScore ? Visibility.Visible : Visibility.Collapsed;
             ResolutionBorder.Visibility = item.Site.SurpportState.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
 
-            DetailPageLinkButton.Click += (sender, args) => ImageItem.DetailUrl.Go(); 
+            DetailPageLinkButton.Click += (sender, args) => ImageItem.DetailUrl.Go();
+
+            RefreshButton.Click += RefreshButtonOnClick;
+        }
+
+        private async void RefreshButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            await LoadImageAsync();
         }
 
         public async Task LoadImageAsync()
@@ -47,7 +54,7 @@ namespace MoeLoader.UI
             try
             {
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-                var getDetaiTask = ImageItem.GetDetailAsync();
+                var getDetailTask = ImageItem.GetDetailAsync();
                 var response = await net.Client.GetAsync(ImageItem.ThumbnailUrlInfo.Url, cts.Token);
                 var stream = await response.Content.ReadAsStreamAsync();
                 var source = await Task.Run(() =>
@@ -72,9 +79,9 @@ namespace MoeLoader.UI
                         return null;
                     }
                 }, cts.Token);
-                if (source == null) loadex = new Exception("imagesource is null");
+                if (source == null) loadex = new Exception("image source is null");
                 else PreviewImage.Source = source;
-                await getDetaiTask;
+                await getDetailTask;
             }
             catch (Exception ex)
             {
@@ -83,9 +90,10 @@ namespace MoeLoader.UI
 
             if (loadex == null)
             {
-                var loadsb = this.Sb("LoadedSb");
-                loadsb.Completed += (sender, args) => loadingsb.Stop();
-                loadsb.Begin();
+                var loadSb = this.Sb("LoadedSb");
+                loadSb.Completed += (sender, args) => loadingsb.Stop();
+                loadSb.Begin();
+                RefreshButton.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -93,6 +101,7 @@ namespace MoeLoader.UI
                 var loadfsb = this.Sb("LoadFailSb");
                 loadfsb.Completed += (sender, args) => loadingsb.Stop();
                 loadfsb.Begin();
+                App.Log($"{ImageItem.ThumbnailUrlInfo.Url} 图片加载失败");
             }
 
             // Loaded

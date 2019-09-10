@@ -236,11 +236,12 @@ d:DesignHeight="450" d:DesignWidth="800">
                                 <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0" Text="反选"/>
                             </Grid>
                         </Button>
+                        <WrapPanel x:Name="IdWrapPanel" Margin="2,4,2,2">
+                        </WrapPanel>
+                        <WrapPanel x:Name="AuthorWrapPanel" Margin="2,4,2,2"/>
                         <WrapPanel x:Name="TitleWrapPanel" Margin="2,4,2,2">
-                            <Button Content="Button" Template="{DynamicResource MoeTagButtonControlTemplate}" Height="19"/>
                         </WrapPanel>
                         <WrapPanel x:Name="TagsWrapPanel" Margin="2,4,2,2">
-                            <Button Content="Button" Template="{DynamicResource MoeTagButtonControlTemplate}"/>
                         </WrapPanel>
                     </StackPanel>
                 </Border>

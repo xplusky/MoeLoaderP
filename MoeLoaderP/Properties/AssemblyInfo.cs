@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("leaful.com")]
 [assembly: AssemblyProduct("MoeLoader +1s")]
-[assembly: AssemblyCopyright("© leaful.com 2018")]
+[assembly: AssemblyCopyright("© leaful.com 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,6 +51,6 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("9.1.0.0")]
-[assembly: AssemblyFileVersion("9.1.0.0")]
+[assembly: AssemblyVersion("9.2.0.0")]
+[assembly: AssemblyFileVersion("9.2.0.0")]
 [assembly: Guid("8745D9BE-87F2-4425-9748-AAA4BCC232A3")]

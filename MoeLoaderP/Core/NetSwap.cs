@@ -58,8 +58,7 @@ namespace MoeLoader.Core
 
         public NetSwap CreatNewWithRelatedCookie()
         {
-            var net = new NetSwap(Settings);
-            net.HttpClientHandler.CookieContainer = HttpClientHandler.CookieContainer;
+            var net = new NetSwap(Settings) {HttpClientHandler = {CookieContainer = HttpClientHandler.CookieContainer}};
             return net;
         }
     }

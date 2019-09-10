@@ -21,7 +21,7 @@ namespace MoeLoader.Core
         public string Date { get; set; }
         public DateTime? CreatTime { get; set; }
         public string Author { get; set; }
-        public int Score { get; set; }
+        public double Score { get; set; }
         public string Source { get; set; }
         public string Description { get; set; }
         public List<string> Tags { get; set; } = new List<string>();

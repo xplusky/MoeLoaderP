@@ -207,10 +207,14 @@
                                         </StackPanel>
                                         <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="MoeLoader"/><Run Text=" "/><Run Text="P"/><Run Text=" "/><Run Text="的诞生离不开"/><Run Text=" "/><Run Text="Moe"/><Run Text=" "/><Run Text="Loader"/><Run Text=" "/><Run Text="开源项目以及以下开发者的贡献：esonic"/><Run Text="、YIU"/></TextBlock>
                                         <Button x:Name="AboutHomeLinkButton" Content="使用帮助/更新记录" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
-                                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="若你喜欢本软件的话可以对本软件捐助哦~支付宝账号"/><Run Text="plusky@live.com" TextDecorations="Underline" x:Name="AboutDonateLink" Cursor="Hand"/><Run Text="，可以备注昵称和网址。"/></TextBlock>
+                                        <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="若你喜欢本软件的话可以对本软件捐助哦~支付宝账号"/><Run Text="plusky@live.com" Foreground="DarkRed" TextDecorations="Underline" x:Name="AboutDonateLink" Cursor="Hand"/><Run Text="或"/>
+                                            <Run Text="微信支付" Foreground="DarkRed" TextDecorations="Underline" x:Name="AboutDonateWexinLink" Cursor="Hand"/><Run Text="，可以备注昵称和网址。"/></TextBlock>
                                     </StackPanel>
                                     <Grid x:Name="AboutDonateImageGrid" Visibility="Collapsed">
                                         <Image x:Name="AboutDonateImage" Source="Assets/alipay-qrcode.png"/>
+                                    </Grid>
+                                    <Grid x:Name="AboutDonateWeixinImageGrid" Visibility="Collapsed" >
+                                        <Image x:Name="AboutDonateWeixinImage" Source="Assets/weixinpay-qrcode.png"/>
                                     </Grid>
                                 </Grid>
                             </Border>

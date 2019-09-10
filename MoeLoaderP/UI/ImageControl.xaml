@@ -203,6 +203,9 @@
         </CheckBox>
         <Border x:Name="OperationBorder" VerticalAlignment="Center" HorizontalAlignment="Right" CornerRadius="6" Margin="3" Opacity="0">
             <StackPanel>
+                <Button x:Name="RefreshButton" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" Width="28" Height="28" Margin="1">
+                    <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xf2f9;"/></TextBlock>
+                </Button>
                 <Button x:Name="DetailPageLinkButton" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF35D;"/></TextBlock>
                 </Button>

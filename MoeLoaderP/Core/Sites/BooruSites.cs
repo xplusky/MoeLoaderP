@@ -1,4 +1,8 @@
-﻿namespace MoeLoader.Core.Sites
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace MoeLoader.Core.Sites
 {
     // Booru 类型站点集合
     public class Konachan : BooruSite
@@ -52,7 +56,19 @@
         public override string GetPageQuery(SearchPara para) 
             => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex-1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
-        public override string UrlPre => "https:";
+        public override string UrlPre => "";
+
+        public override async Task<ImageItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        {
+            var r = await base.GetRealPageImagesAsync(para, token);
+
+            foreach (var item in r)
+            {
+                item.Urls[0].Url = item.Urls[0].Url.Replace(".png", ".jpg").Replace(".jpeg", ".jpg");
+            }
+
+            return r;
+        }
 
         public override string GetDetailPageUrl(ImageItem item) => $"{HomeUrl}/index.php?page=post&s=view&id={item.Id}";
     }

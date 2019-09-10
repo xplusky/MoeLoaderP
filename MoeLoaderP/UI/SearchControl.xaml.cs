@@ -8,6 +8,9 @@ using MoeLoader.Core.Sites;
 
 namespace MoeLoader.UI
 {
+    /// <summary>
+    /// 搜索控件
+    /// </summary>
     public partial class SearchControl
     {
         public SiteManager SiteManager { get; set; }

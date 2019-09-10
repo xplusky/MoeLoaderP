@@ -241,6 +241,51 @@ namespace MoeLoader.UI
             if (MouseOnImageControl == null) return;
             ContextMenuPopup.IsOpen = true;
             ContextMenuPopupGrid.LargenShowSb().Begin();
+            var item = MouseOnImageControl.ImageItem;
+
+            // load id
+            var id = item.Id;
+            if (id > 0)
+            {
+                IdWrapPanel.Visibility = Visibility.Visible;
+                IdWrapPanel.Children.Clear();
+                IdWrapPanel.Children.Add(GetTitieTextBlock("Id:"));
+                IdWrapPanel.Children.Add(GetTagButton($"{id}"));
+            }
+            else
+            {
+                IdWrapPanel.Visibility = Visibility.Collapsed;
+            }
+
+            // load Author
+            var author = item.Author;
+            if (!string.IsNullOrWhiteSpace(author))
+            {
+                AuthorWrapPanel.Visibility = Visibility.Visible;
+                AuthorWrapPanel.Children.Clear();
+                AuthorWrapPanel.Children.Add(GetTitieTextBlock("Author:"));
+                AuthorWrapPanel.Children.Add(GetTagButton(author));
+            }
+
+            // load title info
+            var title = item.Title;
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                TitleWrapPanel.Visibility = Visibility.Visible;
+                TitleWrapPanel.Children.Clear();
+                TitleWrapPanel.Children.Add(GetTitieTextBlock("Title:"));
+                var btn = GetTagButton(title);
+                btn.Click += (o, args) =>
+                {
+                    Clipboard.SetText(title);
+                    App.ShowMessage("已复制到剪贴板");
+                };
+                TitleWrapPanel.Children.Add(btn);
+            }
+            else
+            {
+                TitleWrapPanel.Visibility = Visibility.Collapsed;
+            }
 
             // load tag info
             var tags = MouseOnImageControl.ImageItem.Tags;
@@ -262,25 +307,7 @@ namespace MoeLoader.UI
                 TagsWrapPanel.Visibility = Visibility.Collapsed;
             }
 
-            // load title info
-            var title = MouseOnImageControl.ImageItem.Title;
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                TitleWrapPanel.Visibility = Visibility.Visible;
-                TitleWrapPanel.Children.Clear(); 
-                TitleWrapPanel.Children.Add(GetTitieTextBlock("Title:"));
-                var btn = GetTagButton(title);
-                btn.Click += (o, args) =>
-                {
-                    Clipboard.SetText(title);
-                    App.ShowMessage("已复制到剪贴板");
-                };
-                TitleWrapPanel.Children.Add(btn);
-            }
-            else
-            {
-                TitleWrapPanel.Visibility = Visibility.Collapsed;
-            }
+            
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
