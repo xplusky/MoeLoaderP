@@ -1,15 +1,14 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using MoeLoaderP.Core;
+using MoeLoaderP.Core.Sites;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using JetBrains.Annotations;
-using MoeLoaderP.Core;
-using MoeLoaderP.Core.Sites;
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
@@ -18,12 +17,12 @@ namespace MoeLoaderP.Wpf.ControlParts
     /// </summary>
     public partial class SearchControl : INotifyPropertyChanged
     {
-        
+
         public SiteManager SiteManager { get; set; }
         public MoeSite CurrentSelectedSite { get; set; }
         public Settings Settings { get; set; }
         public AutoHintItems CurrentHintItems { get; set; } = new AutoHintItems();
-        
+
         public SearchControl()
         {
             InitializeComponent();
@@ -35,7 +34,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv1ComboBox.ItemsSource = SiteManager.Sites;
             Settings = settings;
             DataContext = Settings;
-            
+
             ShowExlicitOnlyCheckBox.Checked += (sender, args) => FilterExlicitCheckBox.IsChecked = true;
             FilterExlicitCheckBox.Unchecked += (sender, args) => ShowExlicitOnlyCheckBox.IsChecked = false;
 
@@ -51,12 +50,12 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv4ComboBox.SelectionChanged += MoeSitesLv4ComboBoxOnSelectionChanged;// 四级菜单选择改变
 
             MoeSitesLv1ComboBox.SelectedIndex = 0;
-            
+
         }
 
         private void VisualUpdate()
         {
-            this.GoState(CurrentSelectedSite.SupportState.IsSupportAccount? nameof(ShowAccountButtonState):nameof(HideAccountButtonState));
+            this.GoState(CurrentSelectedSite.SupportState.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
             var list = new List<MenuItemFunc>();
             list.Add(CurrentSelectedSite.MenuFunc);
             var lv2 = CurrentSelectedSite.SubMenu;
@@ -105,8 +104,8 @@ namespace MoeLoaderP.Wpf.ControlParts
         private void MoeSitesLv2ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var lv2Si = MoeSitesLv2ComboBox.SelectedIndex;
-            if(lv2Si == -1 )return;
-            var lv3= CurrentSelectedSite.SubMenu[lv2Si].SubMenu;
+            if (lv2Si == -1) return;
+            var lv3 = CurrentSelectedSite.SubMenu[lv2Si].SubMenu;
             if (lv3.Any())
             {
                 MoeSitesLv3ComboBox.ItemsSource = lv3;
@@ -134,10 +133,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 else MoeSitesLv4ComboBox.SelectedIndex = 0;
                 this.GoState(nameof(ShowLv4MenuState));
             }
-            else
-            {
-                this.GoState(nameof(HideLv4MenuState));
-            }
+            else this.GoState(nameof(HideLv4MenuState));
             VisualUpdate();
         }
         private void MoeSitesLv4ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e) { VisualUpdate(); }
@@ -147,7 +143,15 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (CurrentHintTaskCts == null) this.Sb("SearchingSpinSb").Begin();
             CurrentHintTaskCts?.Cancel();
             CurrentHintTaskCts = new CancellationTokenSource();
-            await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, CurrentHintTaskCts.Token);
+            try { await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, CurrentHintTaskCts.Token); }
+            catch (TaskCanceledException) { }
+            catch (Exception ex) { Extend.Log(ex.Message); }
+            finally
+            {
+                this.Sb("SearchingSpinSb").Stop();
+                CurrentHintTaskCts = null;
+            }
+
         }
 
         private void KeywordComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -177,61 +181,31 @@ namespace MoeLoaderP.Wpf.ControlParts
         /// <summary>
         /// 获取关键字的联想
         /// </summary>
-        /// <param name="keyword"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
         public async Task ShowKeywordComboBoxItemsAsync(string keyword, CancellationToken token)
         {
-            try
+            CurrentHintItems.Clear();
+            AddHistoryItems();
+            if (string.IsNullOrWhiteSpace(keyword)) throw new TaskCanceledException();
+            await Task.Delay(600, token);// 等待0.6再开始获取，避免每输入一个字都进行网络操作 
+            var task = CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
+            if (task == null) throw new TaskCanceledException();
+            var list = await CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
+            if (list != null && list.Any())
             {
                 CurrentHintItems.Clear();
+                foreach (var item in list) CurrentHintItems.Add(item);
                 AddHistoryItems();
-                if (string.IsNullOrWhiteSpace(keyword)) throw new Exception("ShowKeywordComboBoxItemsAsync:keyword is empty");
-
-                await Task.Delay(600, token); // 等待0.6再开始获取，避免每输入一个字都进行网络操作
-
-                // 开始搜索
-                var list = await CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
-                if (list == null) return;
-                if (list.Count > 0)
-                {
-                    CurrentHintItems.Clear();
-                    foreach (var item in list)
-                    {
-                        CurrentHintItems.Add(item);
-                    }
-
-                    AddHistoryItems();
-                }
-
-                Extend.Log($"AutoPredict 搜索完成 结果个数{list.Count}");
-
+                Extend.Log($"AutoHint 搜索完成 结果个数{list.Count}");
             }
-            catch (TaskCanceledException) // 任务取消
-            {
-                return;
-            }
-            catch (Exception e)
-            {
-                Extend.Log(e.Message, e.StackTrace);
-            }
-            finally
-            {
-                this.Sb("SearchingSpinSb").Stop();
-                CurrentHintTaskCts = null;
-            }
-
         }
 
         private void AddHistoryItems()
         {
-            CurrentHintItems.Add(new AutoHintItem(){IsEnable = false, Word = "--------历史--------"});
-            if (Settings?.HistoryKeywords?.Count > 0)
+            CurrentHintItems.Add(new AutoHintItem() { IsEnable = false, Word = "---------历史---------" });
+            if (Settings?.HistoryKeywords?.Count == 0 || Settings?.HistoryKeywords == null) return;
+            foreach (var kitem in Settings.HistoryKeywords)
             {
-                foreach (var kitem in Settings.HistoryKeywords)
-                {
-                    CurrentHintItems.Add(kitem);
-                }
+                CurrentHintItems.Add(kitem);
             }
         }
 

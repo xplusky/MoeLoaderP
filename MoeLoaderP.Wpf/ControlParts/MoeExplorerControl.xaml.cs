@@ -355,19 +355,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Margin = new Thickness(1),
                 ToolTip = text
             };
-            button.MouseRightButtonUp += (o, args) =>
-            {
-                try
-                {
-                    Clipboard.SetText(text);
-                    Extend.ShowMessage("已复制到剪贴板");
-                }
-                catch (Exception e)
-                {
-                    Extend.ShowMessage("复制失败");
-                    Extend.Log(e);
-                }
-            };
+            button.MouseRightButtonUp += (o, args) => UiFunc.CopyToClipboard(text);
             return button;
         }
 
@@ -393,7 +381,6 @@ namespace MoeLoaderP.Wpf.ControlParts
             return button;
         }
 
-
         #endregion
 
         private void SelectedImageControlsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -410,29 +397,21 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
 
+
         public void AddImages(MoeItems imgs)
         {
             foreach (var img in imgs)
             {
                 var itemCtrl = new ImageControl(Settings, img);
 
-                itemCtrl.DownloadButton.Click += (sender, args) =>
-                {
-                    ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source);
-                };
+                itemCtrl.DownloadButton.Click += (sender, args) => ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source);
                 itemCtrl.MouseEnter += (sender, args) => MouseOnImageControl = itemCtrl;
                 itemCtrl.ImageCheckBox.Checked += (sender, args) => SelectedImageControls.Add(itemCtrl);
                 itemCtrl.ImageCheckBox.Unchecked += (sender, args) => SelectedImageControls.Remove(itemCtrl);
                 ImageItemsWrapPanel.Children.Add(itemCtrl);
                 itemCtrl.Sb("ShowSb").Begin();
-                if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount)
-                {
-                    ImageLoadingPool.Add(itemCtrl);
-                }
-                else
-                {
-                    ImageWaitForLoadingPool.Add(itemCtrl);
-                }
+                if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount) ImageLoadingPool.Add(itemCtrl);
+                else ImageWaitForLoadingPool.Add(itemCtrl);
             }
         }
 
@@ -495,7 +474,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Extend.ShowMessage($"剩余 {remain} 张图片等待加载", null, Extend.MessagePos.InfoBar);
             }
 
-            if (ImageWaitForLoadingPool.Count > 0)
+            if (ImageWaitForLoadingPool.Any())
             {
                 var item = ImageWaitForLoadingPool[0];
                 ImageWaitForLoadingPool.Remove(item);

@@ -114,6 +114,18 @@ namespace MoeLoaderP.Core
         /// </summary>
         public Func<Task> GetDetailTaskFunc { get; set; }
 
+        public async Task TryGetDetailTask()
+        {
+            try
+            {
+                await GetDetailTaskFunc();
+            }
+            catch (Exception e)
+            {
+                Extend.Log($"获取详情页失败!ID:{Id},PAGE:{DetailUrl}",e);
+            }
+        }
+
         public MoeItem(MoeSite site, SearchPara para)
         {
             Site = site;

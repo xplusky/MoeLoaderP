@@ -20,7 +20,7 @@
     <wpf:ProxyModeToSelectIndexConverter x:Key="ProxyModeToSelectIndexConverter"/>
 
     <s:String x:Key="AppDisplayName">MoeLoader +1s</s:String>
-    <FontFamily x:Key="FontAwesomeSolid">Font Awesome 5 Free Solid</FontFamily>
+    <FontFamily x:Key="FontAwesomeSolid"  >/MoeLoaderP;component/Assets/#Font Awesome 5 Free Solid</FontFamily>
     <SolidColorBrush x:Key="MoeButtonStrokeBrush" Color="Gray"/>
     <ControlTemplate x:Key="SearchParaCheckBoxControlTemplate" TargetType="{x:Type CheckBox}">
         <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">

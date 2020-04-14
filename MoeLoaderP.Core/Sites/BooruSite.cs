@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -28,14 +28,15 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var list = new AutoHintItems();
-            var client = new NetDocker(Settings).Client;
+            var net = new NetDocker(Settings);
             switch (SiteType)
             {
                 case SiteTypeEnum.Xml:
-                    {
-                        var xmlstr = await client.GetStringAsync(GetHintQuery(para));
+                {
+                    var xmlRes = await net.Client.GetAsync(GetHintQuery(para), token);
+                        var xmlStr = await xmlRes.Content.ReadAsStringAsync();
                         var xml = new XmlDocument();
-                        xml.LoadXml(xmlstr);
+                        xml.LoadXml(xmlStr);
                         var root = xml.SelectSingleNode("tags");
                         if (root == null) return list;
                         foreach (XmlElement child in root.ChildNodes)
@@ -50,9 +51,8 @@ namespace MoeLoaderP.Core.Sites
                     }
                 case SiteTypeEnum.Json:
                     {
-                        var jsonstr = await client.GetStringAsync(GetHintQuery(para));
-                        dynamic jsonlist = JsonConvert.DeserializeObject(jsonstr);
-                        foreach (var item in jsonlist)
+                        var json = await net.GetJsonAsync(GetHintQuery(para),token);
+                        foreach (var item in json)
                         {
                             list.Add(new AutoHintItem
                             {
@@ -153,9 +153,9 @@ namespace MoeLoaderP.Core.Sites
                     img.Id = $"{item.id}".ToInt();
                     img.Score = $"{item.score}".ToInt();
                     img.Uploader = $"{item.uploader_name}";
-                    foreach (var tag in $"{item.tag_string}".Split(' '))
+                    foreach (var tag in $"{item.tag_string}".Split(' ').SkipWhile(string.IsNullOrWhiteSpace))
                     {
-                        if (!string.IsNullOrWhiteSpace(tag)) img.Tags.Add(tag.Trim());
+                        img.Tags.Add(tag.Trim());
                     }
 
                     img.IsExplicit = $"{item.rating}" == "e";

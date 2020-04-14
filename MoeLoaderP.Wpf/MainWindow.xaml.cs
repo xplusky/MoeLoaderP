@@ -57,7 +57,7 @@ namespace MoeLoaderP.Wpf
 
             // helper : collect ,log
             MoeExplorer.OutputSelectedImagesUrlsButton.Click += OutputSelectedImagesUrlsButtonOnClick;
-            CollectCopyAllButton.Click += CollectCopyAllButtonOnClick;
+            CollectCopyAllButton.Click += (sender, args) => UiFunc.CopyToClipboard(CollectTextBox.Text); 
             CollectClearButton.Click += (sender, args) => CollectTextBox.Text = string.Empty;
             Extend.LogAction += Log;
             LogListBox.MouseRightButtonUp += LogListBoxOnMouseRightButtonUp;
@@ -66,20 +66,6 @@ namespace MoeLoaderP.Wpf
             LogoImageButton.Click += LogoImageButtonOnClick;
             ChangeBgImage();
             
-        }
-
-        private void CollectCopyAllButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Clipboard.SetText(CollectTextBox.Text);
-                Extend.ShowMessage("已复制所有地址");
-            }
-            catch (Exception ex)
-            {
-                Extend.ShowMessage("复制失败");
-                Extend.Log(ex);
-            }
         }
 
         private void OutputSelectedImagesUrlsButtonOnClick(object sender, RoutedEventArgs e)
@@ -119,10 +105,8 @@ namespace MoeLoaderP.Wpf
             if(LogListBox.SelectedIndex == -1)return;
             if (LogListBox.SelectedItem is TextBlock tb)
             {
-                Clipboard.SetText(tb.Text);
-                ShowMessage("已复制到剪贴板");
+                UiFunc.CopyToClipboard(tb.Text);
             }
-
         }
 
         private int LogoClickCount { get; set; }
@@ -189,7 +173,6 @@ namespace MoeLoaderP.Wpf
 
         private void SearchByAuthorIdAction(MoeSite arg1, string arg2)
         {
-
             SearchControl.CurrentSelectedSite = arg1;
             SearchControl.MoeSitesLv2ComboBox.SelectedIndex = 1;
             SearchControl.KeywordTextBox.Text = arg2;

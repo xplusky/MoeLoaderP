@@ -58,12 +58,10 @@ namespace MoeLoaderP.Wpf
     [ValueConversion(typeof(double), typeof(Thickness))]
     public class OuterWidthToItemMarginConverter : IMultiValueConverter
     {
-        //源属性传给目标属性时，调用此方法ConvertBack
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             
             var defMargin = new Thickness(6,8,6,8);
-            // if (!(values[1] is double) || !(values[0] is double)) return defMargin;
             var outerWidth = (double) values[0];
             var itemWidth = (double)values[1];
             var countd = outerWidth / (itemWidth + 12d);
@@ -71,7 +69,6 @@ namespace MoeLoaderP.Wpf
             if (count == 0) return defMargin;
             var duoyude = (itemWidth + 12d) * (countd % 1);
             var mar = duoyude / count / 2d + 6d;
-            //App.Log($"outerWidth：{outerWidth};itemWidth{itemWidth};{duoyude}");
             return new Thickness(mar, 8d, mar, 8d);
         }
 

@@ -106,14 +106,10 @@ namespace MoeLoaderP.Core.Sites
                     await SearchByNewOrTag(imgs, para, token);
                     break;
                 case SearchTypeEnum.Author: // 作者 member id  word = "4338012"; // test
-                    if (para.Keyword.ToInt() == 0)
-                    {
-                        Extend.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）", null, Extend.MessagePos.Window);
-                    }
+                    if (para.Keyword.ToInt() == 0) Extend.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）", null, Extend.MessagePos.Window);
                     else await SearchByAuthor(imgs, para.Keyword.Trim(), para, token);
                     break;
                 case SearchTypeEnum.Rank:
-                    //query = $"{HomeUrl}/ranking.php?mode=daily{r18}&p={page}&format=json";
                     await SearchByRank(imgs, para, token);
                     break;
             }
@@ -151,7 +147,6 @@ namespace MoeLoaderP.Core.Sites
                     {"mode", R18ModeQuery},
                     {"p", $"{para.PageIndex}"},
                     {"s_mode", "s_tag"},
-                    //{"limit", $"{para.Count}"},
                     {"type", isIllust ? "illust_and_ugoira" : "manga"}
                 };
             }
@@ -280,12 +275,9 @@ namespace MoeLoaderP.Core.Sites
                     img.Height = $"{illus.height}".ToInt();
                     img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
                     img.ImagesCount = $"{illus.pageCount}".ToInt();
-                    if (illus.tags != null)
+                    foreach (var tag in illus.tags ?? new List<string>())
                     {
-                        foreach (var tag in illus.tags)
-                        {
-                            img.Tags.Add($"{tag}");
-                        }
+                        img.Tags.Add($"{tag}");
                     }
                     img.Date = GetDateFromUrl($"{illus.url}");
                     img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
@@ -297,32 +289,9 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task SearchByRank(MoeItems imgs, SearchPara para, CancellationToken token)
         {
-            string mode = null;
-            switch (para.Lv3MenuIndex)
-            {
-                case 0:
-                    mode = "daily";
-                    break;
-                case 1:
-                    mode = "weekly";
-                    break;
-                case 2:
-                    mode = IsR18 ? "male" : "monthly";
-                    break;
-                case 3:
-                    mode = IsR18 ? "female" : "rookie";
-                    break;
-                case 4:
-                    mode = "original";
-                    break;
-                case 5:
-                    mode = "male";
-                    break;
-                case 6:
-                    mode = "female";
-                    break;
-            }
-
+            var modesR18 = new[] {"daily", "weekly", "male", "female"};
+            var modes = new[] {"daily", "weekly", "monthly", "rookie,", "original", "male", "female"};
+            var mode = IsR18 ? modesR18[para.Lv3MenuIndex] : modes[para.Lv3MenuIndex];
             if (IsR18) mode += "_r18";
             var content = para.Lv4MenuIndex == 0 ? "all" : (para.Lv4MenuIndex == 1 ? "illust" : (para.Lv4MenuIndex == 2? "manga": "ugoira"));
             var referer = $"{HomeUrl}/ranking.php?mode={mode}&content={content}";
@@ -384,62 +353,46 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task GetDetailPageTask(MoeItem img, SearchPara para)
         {
-            try
+            var net = Net.CloneWithOldCookie();
+            var json = await net.GetJsonAsync($"{HomeUrl}/ajax/illust/{img.Id}/pages");
+            var img1 = json?.body?[0];
+            var refer = $"{HomeUrl}/artworks/{img.Id}";
+            if (img1 != null)
             {
-                var net = Net.CloneWithOldCookie();
-                var json = await net.GetJsonAsync($"{HomeUrl}/ajax/illust/{img.Id}/pages");
-                var img1 = json?.body?[0];
-                var refer = $"{HomeUrl}/artworks/{img.Id}";
-                if (img1 != null)
-                {
-                    img.Urls.Add(new UrlInfo("小图", 2, $"{img1.urls.small}", refer));
-                    img.Urls.Add(new UrlInfo("中图", 3, $"{img1.urls.regular}", refer));
-                    img.Urls.Add(new UrlInfo("原图", 4, $"{img1.urls.original}", refer));
-                }
-                var list = (JArray)json?.body;
-                if (list?.Count > 1)
-                {
-                    foreach (var item in json.body)
-                    {
-
-                        var imgitem = new MoeItem(this, para);
-                        imgitem.Urls.Add(new UrlInfo("小图", 2, $"{img1?.urls.small}", refer));
-                        imgitem.Urls.Add(new UrlInfo("中图", 3, $"{img1?.urls.regular}", refer));
-                        imgitem.Urls.Add(new UrlInfo("原图", 4, $"{item?.urls?.original}", refer));
-                        img.ChildrenItems.Add(imgitem);
-                    }
-                }
+                img.Urls.Add(new UrlInfo("小图", 2, $"{img1.urls.small}", refer));
+                img.Urls.Add(new UrlInfo("中图", 3, $"{img1.urls.regular}", refer));
+                img.Urls.Add(new UrlInfo("原图", 4, $"{img1.urls.original}", refer));
             }
-            catch (Exception e)
+            var list = (JArray)json?.body;
+            if (list?.Count > 1)
             {
-                Extend.Log($"{img.Id}获取详情页失败", e.Message);
-                //if(Debugger.IsAttached) throw;
+                foreach (var item in json.body)
+                {
+
+                    var imgitem = new MoeItem(this, para);
+                    imgitem.Urls.Add(new UrlInfo("小图", 2, $"{img1?.urls.small}", refer));
+                    imgitem.Urls.Add(new UrlInfo("中图", 3, $"{img1?.urls.regular}", refer));
+                    imgitem.Urls.Add(new UrlInfo("原图", 4, $"{item?.urls?.original}", refer));
+                    img.ChildrenItems.Add(imgitem);
+                }
             }
         }
 
         public async Task GetUgoiraDetailPageTask(MoeItem img, SearchPara para)
         {
-            try
+            var net = Net.CloneWithOldCookie();
+            var api = $"{HomeUrl}/ajax/illust/{img.Id}/ugoira_meta";
+            var jsonRes = await net.Client.GetAsync(api);
+            var jsonStr = await jsonRes.Content.ReadAsStringAsync();
+            dynamic json = JsonConvert.DeserializeObject(jsonStr);
+            var img1 = json?.body;
+            var refer = $"{HomeUrl}/artworks/{img.Id}";
+            if (img1 != null)
             {
-                var net = Net.CloneWithOldCookie();
-                var api = $"{HomeUrl}/ajax/illust/{img.Id}/ugoira_meta";
-                var jsonRes = await net.Client.GetAsync(api);
-                var jsonStr = await jsonRes.Content.ReadAsStringAsync();
-                dynamic json = JsonConvert.DeserializeObject(jsonStr);
-                var img1 = json?.body;
-                var refer = $"{HomeUrl}/artworks/{img.Id}";
-                if (img1 != null)
-                {
-                    img.Urls.Add(new UrlInfo("小图", 2, $"{img1.src}", refer));
-                    img.Urls.Add(new UrlInfo("中图", 3, $"{img1.src}", refer));
-                    img.Urls.Add(new UrlInfo("原图", 4, $"{img1.originalSrc}", refer));
-                    img.ExtraFile = new TextFileInfo{FileExt = "json",Content = jsonStr };
-                }
-            }
-            catch (Exception e)
-            {
-                Extend.Log($"{img.Id}获取详情页失败", e.Message);
-                //if(Debugger.IsAttached) throw;
+                img.Urls.Add(new UrlInfo("小图", 2, $"{img1.src}", refer));
+                img.Urls.Add(new UrlInfo("中图", 3, $"{img1.src}", refer));
+                img.Urls.Add(new UrlInfo("原图", 4, $"{img1.originalSrc}", refer));
+                img.ExtraFile = new TextFileInfo { FileExt = "json", Content = jsonStr };
             }
         }
 
@@ -453,18 +406,13 @@ namespace MoeLoaderP.Core.Sites
             }
             var re = new AutoHintItems();
 
-            if (para.SubMenuIndex == 0 || para.SubMenuIndex == 5)
+            if (para.SubMenuIndex != 0 && para.SubMenuIndex != 5) return re;
+            var url = $"{HomeUrl}/rpc/cps.php?keyword={para.Keyword}";
+            var jlist = await AutoHintNet.GetJsonAsync(url, token);
+            foreach (var obj in jlist?.candidates ?? new List<dynamic>())
             {
-                var url = $"{HomeUrl}/rpc/cps.php?keyword={para.Keyword}";
-                var jlist = await AutoHintNet.GetJsonAsync(url, token);
-                if (jlist?.candidates != null)
-                {
-                    foreach (var obj in jlist.candidates)
-                    {
-                        var item = new AutoHintItem { Word = $"{obj.tag_name}" };
-                        re.Add(item);
-                    }
-                }
+                var item = new AutoHintItem { Word = $"{obj.tag_name}" };
+                re.Add(item);
             }
             return re;
         }

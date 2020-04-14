@@ -7,7 +7,7 @@ namespace MoeLoaderP.Core
     {
         public DownloadItems DownloadItems { get; set; } = new DownloadItems();
 
-        public bool IsDownloading => DownloadItems.Count(t => t.Status == DownloadStatusEnum.Downloading || t.Status == DownloadStatusEnum.WaitForDownload) > 0;
+        public bool IsDownloading => DownloadItems.Any(t => t.Status == DownloadStatusEnum.Downloading || t.Status == DownloadStatusEnum.WaitForDownload);
         public Settings Set { get; set; }
         
         public Downloader(Settings set)

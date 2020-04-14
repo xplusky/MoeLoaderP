@@ -66,7 +66,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             Task detailTask = null;
             if (ImageItem.GetDetailTaskFunc != null)
             {
-                detailTask = ImageItem.GetDetailTaskFunc();
+                detailTask = ImageItem.TryGetDetailTask();
             }
 
             // 等待图片加载和详情页分析完成

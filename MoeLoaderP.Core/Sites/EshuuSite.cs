@@ -66,7 +66,6 @@ namespace MoeLoaderP.Core.Sites
             }
 
             // images
-
             var doc = await Net.GetHtmlAsync(url, token);
             var nodes = doc.DocumentNode.SelectNodes("//div[@class='image_thread display']");
             if (nodes == null) return imgs;
@@ -116,7 +115,6 @@ namespace MoeLoaderP.Core.Sites
                 img.DetailUrl = detail;
                 img.Urls.Add(new UrlInfo("原图", 4, fileUrl, detail));
                 img.OriginString = imgNode.OuterHtml;
-
                 imgs.Add(img);
             }
 

@@ -187,5 +187,19 @@ namespace MoeLoaderP.Wpf
                 VisualStateManager.GoToState(fe, stateName, true);
             }
         }
+
+        public static void CopyToClipboard(string text)
+        {
+            try
+            {
+                Clipboard.SetText(text);
+                Extend.ShowMessage("已复制到剪贴板");
+            }
+            catch (Exception ex)
+            {
+                Extend.Log(ex.Message);
+                Extend.ShowMessage("复制失败");
+            }
+        }
     }
 }

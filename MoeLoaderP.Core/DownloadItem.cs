@@ -253,10 +253,7 @@ namespace MoeLoaderP.Core
                 sb.Replace("%character", img.Character ?? "no-character");
                 sb.Replace("%artist", img.Artist ?? "no-artist");
                 sb.Replace("%copyright", img.Copyright ?? "no-copyright");
-                foreach (var c in Path.GetInvalidFileNameChars())
-                {
-                    sb.Replace($"{c}", "");
-                }
+                foreach (var c in Path.GetInvalidFileNameChars()) sb.Replace($"{c}", "");
 
                 LocalFileShortNameWithoutExt = SubIndex > 0 ? $"{sb} item-{SubIndex}" : $"{sb}";
             }
