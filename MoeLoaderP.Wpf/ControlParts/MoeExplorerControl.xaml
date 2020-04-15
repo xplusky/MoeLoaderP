@@ -335,6 +335,15 @@ d:DesignHeight="450" d:DesignWidth="800">
             </StackPanel>
 
         </Grid>
+        <Grid x:Name="PageMessageGrid" VerticalAlignment="Bottom" HorizontalAlignment="Left" Visibility="Collapsed">
+            <Border BorderBrush="#99C4C4C4" BorderThickness="1" Background="#660092FF" CornerRadius="6" Padding="6" Margin="4">
+                <TextBlock x:Name="PageMessageTextBlock" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold" Foreground="#FF00E8FF">
+                    <TextBlock.Effect>
+                        <DropShadowEffect ShadowDepth="0" BlurRadius="6"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+            </Border>
+        </Grid>
 
     </Grid>
 </UserControl>

@@ -72,8 +72,6 @@ namespace MoeLoaderP.Core
             return id;
         }
 
-
-
         public static string ToEncodedUrl(this string orgstr)
         {
             return HttpUtility.UrlEncode(orgstr, Encoding.UTF8);
@@ -120,7 +118,8 @@ namespace MoeLoaderP.Core
             InfoBar,
             Popup,
             Searching,
-            Window
+            Window,
+            Page
         }
 
         public static string Encode(this string str)

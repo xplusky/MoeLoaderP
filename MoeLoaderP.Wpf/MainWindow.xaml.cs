@@ -198,6 +198,7 @@ namespace MoeLoaderP.Wpf
                     break;
                 case Extend.MessagePos.InfoBar:
                     StatusTextBlock.Text = mes;
+                    this.Sb("InfoBarEmphasisSb").Begin();
                     break;
                 case Extend.MessagePos.Window:
                     MessageWindow.Show(mes, detailMes, this);
@@ -288,8 +289,10 @@ namespace MoeLoaderP.Wpf
                 return;
             }
             ChangeSearchVisual(true);
+            StatusTextBlock.Text = "";
             var para = SearchControl.GetSearchPara();
             CurrentSearch = new SearchSession(Settings, para);
+            para.CurrentSearch = CurrentSearch;
             SiteTextBlock.Text = CurrentSearch.GetCurrentSearchStateText();
             Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
             MoeExplorer.ResetVisual();

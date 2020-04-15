@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -125,15 +126,16 @@ namespace MoeLoaderP.Core.Sites
             string referer, api;
             Pairs pairs;
             var isIllust = para.Lv3MenuIndex == 0;
-            if (string.IsNullOrWhiteSpace(para.Keyword)) // new
+            if (para.Keyword.IsNaN()) // new
             {
                 api = $"{HomeUrl}/ajax/illust/new";
                 referer = isIllust ? $"{HomeUrl}/new_illust.php" : $"{HomeUrl}/new_illust.php?type=manga";
                 pairs = new Pairs
                 {
-                    {"page", $"{para.PageIndex}"},
+                    //{"page", $"{para.PageIndex}"},
+                    {"lastId", para.LastId == 0 ? "" : $"{para.LastId}"},
                     {"limit", $"{para.Count}"},
-                    {"type",isIllust ? "illust" : "manga"},
+                    {"type", isIllust ? "illust" : "manga"},
                     {"r18", R18Query}
                 };
             }
@@ -173,6 +175,8 @@ namespace MoeLoaderP.Core.Sites
 
             var list = para.Keyword.IsNaN() ? (json?.body?.illusts)
                 : (isIllust ? (json?.body?.illust?.data) : (json?.body?.manga?.data));
+
+            
             foreach (var illus in Extend.CheckListNull(list))
             {
                 var img = new MoeItem(this, para) { Site = this, Net = Net.CloneWithOldCookie(), Id = $"{illus.illustId}".ToInt() };
@@ -193,6 +197,11 @@ namespace MoeLoaderP.Core.Sites
                 img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
+            }
+            if (!para.Keyword.IsNaN() && json != null)
+            {
+                var count = $"{json?.body?.illust?.total}".ToInt();
+                Extend.ShowMessage($"共搜索到{count}张图片，当前已加载至第{para.PageIndex}页，共{count/60}页", null, Extend.MessagePos.InfoBar);
             }
         }
 
@@ -221,6 +230,7 @@ namespace MoeLoaderP.Core.Sites
             var isIorM = para.Lv3MenuIndex == 0;
             var mi = isIorM ? "illustrations" : "manga";
             var mi2 = isIorM ? "illusts" : "manga";
+            var mi3 = isIorM ? "插画" : "漫画";
             Net.SetReferer($"{HomeUrl}/users/{uid}/{mi}");
             var allJson = await Net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/all", token);
             if ($"{allJson?.error}".ToLower() == "true")
@@ -243,7 +253,7 @@ namespace MoeLoaderP.Core.Sites
             var pairs = new Pairs();
             foreach (var pic in picCurrentPage)
             {
-                pairs.Add("ids%5B%5D", pic);
+                pairs.Add("ids[]".ToEncodedUrl(), pic);
             }
             pairs.Add("work_category", mi2);
             pairs.Add("is_first_page", "1");
@@ -279,6 +289,7 @@ namespace MoeLoaderP.Core.Sites
                     imgs.Add(img);
                 }
             }
+            Extend.ShowMessage($"该作者共有{mi3}{picIds.Count}张,当前第{para.Count * (para.PageIndex-1)+1}张", null , Extend.MessagePos.InfoBar);
         }
 
         public async Task SearchByRank(MoeItems imgs, SearchPara para, CancellationToken token)
@@ -332,6 +343,9 @@ namespace MoeLoaderP.Core.Sites
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
             }
+
+            var count = $"{json?.rank_total}".ToInt();
+            Extend.ShowMessage($"共{count}张，当前日期：{json?.date}", null , Extend.MessagePos.InfoBar);
         }
 
         public async Task GetDetailPageTask(MoeItem img, SearchPara para)

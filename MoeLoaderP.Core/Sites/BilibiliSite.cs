@@ -88,6 +88,9 @@ namespace MoeLoaderP.Core.Sites
                 img.OriginString = $"{item}";
                 imgs.Add(img);
             }
+
+            var c = $"{json?.data.total_count}".ToInt();
+            Extend.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c/para.Count}页", null, Extend.MessagePos.InfoBar);
             return imgs;
         }
     }

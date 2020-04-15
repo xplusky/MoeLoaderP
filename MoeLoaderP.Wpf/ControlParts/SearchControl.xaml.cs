@@ -86,6 +86,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             DownloadTypeComboBox.ItemsSource = CurrentSelectedSite.DownloadTypes;
             DownloadTypeComboBox.SelectedIndex = 0;
             FilterStartIdGrid.Visibility = CurrentSelectedSite.SupportState.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
+            FilterStartIdBox.MaxCount = 0;
+            FilterStartPageBox.NumCount = 1;
         }
 
         private void MoeSitesLv1ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)// site change
@@ -235,6 +237,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 IsFileTypeShowSpecificOnly = FileTypeShowSpecificOnlyComboBox.SelectedIndex == 1,
                 DownloadType = CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
                 Date = MoeDatePicker.SelectedDate,
+                LastId = FilterStartIdBox.NumCount,
                 SubMenuIndex = MoeSitesLv2ComboBox.SelectedIndex,
                 Lv3MenuIndex = MoeSitesLv3ComboBox.SelectedIndex,
                 Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex

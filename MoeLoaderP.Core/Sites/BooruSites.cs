@@ -111,7 +111,7 @@ namespace MoeLoaderP.Core.Sites
         public override string ShortName => "donmai";
 
         public override string GetHintQuery(SearchPara para)
-            => $"{HomeUrl}/tags/autocomplete.json?search%5Bname_matches%5D={para.Keyword}";
+            => $"{HomeUrl}/tags/autocomplete.json?search%5Bname_matches%5D={para.Keyword.ToEncodedUrl()}";
 
         public override string GetPageQuery(SearchPara para)
             => $"{HomeUrl}/posts.json?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";

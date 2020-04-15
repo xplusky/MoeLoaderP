@@ -119,7 +119,6 @@ namespace MoeLoaderP.Core.Sites
             if (Net == null) Net = new NetDocker(para.Site.Settings);
             //type 1 tag 2 source 3 artist | chara no type
             var items = new AutoHintItems();
-
             //chara without hint
             if (para.SubMenuIndex == 3) return items;
             var pairs = new Pairs

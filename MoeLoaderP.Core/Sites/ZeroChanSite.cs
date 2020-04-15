@@ -31,20 +31,22 @@ namespace MoeLoaderP.Core.Sites
 
         private bool IsLogon { get; set; }
 
+        public async void Login(CancellationToken token)
+        {
+            Net = new NetDocker(Settings, HomeUrl);
+            var index = new Random().Next(0, _user.Length);
+            var loginurl = "https://www.zerochan.net/login";
+
+            var response = await Net.Client.PostAsync(loginurl,
+                new StringContent($"ref=%2F&login=Login&name={_user[index]}&password={_pass[index]}"), token);
+
+            if (response.IsSuccessStatusCode) IsLogon = true;
+        }
+
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             // logon
-            if (!IsLogon)
-            {
-                Net = new NetDocker(Settings, HomeUrl);
-                var index = new Random().Next(0, _user.Length);
-                var loginurl = "https://www.zerochan.net/login";
-
-                var response = await Net.Client.PostAsync(loginurl,
-                    new StringContent($"ref=%2F&login=Login&name={_user[index]}&password={_pass[index]}"), token);
-
-                if (response.IsSuccessStatusCode) IsLogon = true;
-            }
+            if (!IsLogon) Login(token);
             if (!IsLogon) return new MoeItems();
 
             // get page source
@@ -144,20 +146,19 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             //http://www.zerochan.net/suggest?q=tony&limit=8
+            if (!IsLogon) Login(token);
             var re = new AutoHintItems();
-
-            var url = $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
-
+            if (!IsLogon) return re;
+            var url = $"{HomeUrl}/suggest?limit=15&q={para.Keyword}";
             Net.Client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
             var res = await Net.Client.GetAsync(url, token);
-
             var txt = await res.Content.ReadAsStringAsync();
-
             var lines = txt.Split('\n');
-            for (var i = 0; i < lines.Length && i < 8; i++)
+            foreach (var h in lines)
             {
                 //Tony Taka|Mangaka|
-                if (lines[i].Trim().Length > 0) re.Add(new AutoHintItem { Word = lines[i].Substring(0, lines[i].IndexOf('|')).Trim() });
+                var word = h.Contains("|") ? h.Substring(0, h.IndexOf('|')).Trim() : h;
+                if (!word.IsNaN()) re.Add(new AutoHintItem { Word = word });
             }
 
             return re;

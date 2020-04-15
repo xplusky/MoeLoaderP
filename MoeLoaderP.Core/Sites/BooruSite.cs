@@ -111,6 +111,9 @@ namespace MoeLoaderP.Core.Sites
                 imageItems.Add(img);
             }
 
+            var count = xml.Root.Attribute("count")?.Value.ToInt();
+            var offset = xml.Root.Attribute("offset")?.Value.ToInt();
+            Extend.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.PageIndex}页，共{count / para.Count}页", null, Extend.MessagePos.InfoBar);
             return imageItems;
         }
 

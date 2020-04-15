@@ -50,8 +50,15 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void ShowMessageAction(string arg1, string arg2,Extend.MessagePos arg3)
         {
-            if(arg3!= Extend.MessagePos.Searching)return;
-            SearchingMessageTextBlock.Text = arg1;
+            switch (arg3)
+            {
+                case Extend.MessagePos.Searching:
+                    SearchingMessageTextBlock.Text = arg1;
+                    break;
+                case Extend.MessagePos.Page:
+                    PageMessageTextBlock.Text = arg1;
+                    break;
+            }
         }
 
         #region 框选功能相关代码
@@ -466,12 +473,12 @@ namespace MoeLoaderP.Wpf.ControlParts
             ImageLoadingPool.Remove(obj);
             if (ImageLoadingPool.Count == 0) // all image loaded
             {
-                Extend.ShowMessage("图片加载完毕", null, Extend.MessagePos.InfoBar);
+               // Extend.ShowMessage("图片加载完毕", null, Extend.MessagePos.InfoBar);
             }
             else
             {
                 var remain = ImageLoadingPool.Count + ImageWaitForLoadingPool.Count;
-                Extend.ShowMessage($"剩余 {remain} 张图片等待加载", null, Extend.MessagePos.InfoBar);
+                //Extend.ShowMessage($"剩余 {remain} 张图片等待加载", null, Extend.MessagePos.InfoBar);
             }
 
             if (ImageWaitForLoadingPool.Any())
