@@ -355,7 +355,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Margin = new Thickness(1),
                 ToolTip = text
             };
-            button.MouseRightButtonUp += (o, args) => UiFunc.CopyToClipboard(text);
+            button.MouseRightButtonUp += (o, args) => text.CopyToClipboard();
             return button;
         }
 
@@ -365,8 +365,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             {
                 FontSize = 14,
                 Margin = new Thickness(2),
-                Foreground = Brushes.Black
-                ,Text = text
+                Foreground = Brushes.Black,
+                Text = text
             };
 
             var grid = new Grid {VerticalAlignment = VerticalAlignment.Center};

@@ -36,8 +36,13 @@ namespace MoeLoaderP.Core
             {
                 await t;
             }
+            catch (OperationCanceledException)
+            {
+                Extend.ShowMessage("搜索已取消");
+            }
             catch (Exception ex)
             {
+                Extend.ShowMessage(ex.Message,ex.ToString(), Extend.MessagePos.Window);
                 Extend.Log(ex.Message, ex.StackTrace);
             }
 
@@ -128,6 +133,7 @@ namespace MoeLoaderP.Core
                 else // 当下一页（真）未过滤图片数量不为0时
                 {
                     Filter(imagesNextRPage); // 本地过滤下一页（真）
+                    
                     foreach (var item in imagesNextRPage)
                     {
                         if (images.Count < tempPara.Count) images.Add(item); // 添加图片数量直到够参数设定的图片数量为止
@@ -141,6 +147,8 @@ namespace MoeLoaderP.Core
             // Load end
             mPage.ImageItems = images;
             LoadedPages.Add(mPage);
+            if(images.Message!=null) Extend.ShowMessage(images.Message);
+            if(images.Ex!=null) Extend.ShowMessage(images.Ex.Message,images.Ex.ToString(), Extend.MessagePos.Window);
             Extend.ShowMessage("搜索完毕", null, Extend.MessagePos.Searching);
         }
 
@@ -192,6 +200,11 @@ namespace MoeLoaderP.Core
                         }
                     }
                 }
+
+                // 过滤重复图片
+                // 去除与上一页重复的
+                // if (LoadedPages.Any() && LoadedPages.Last().ImageItems.Has(item)) del = true;
+
                 if (!del) continue;
                 items.RemoveAt(i);
                 i--;
@@ -256,6 +269,7 @@ namespace MoeLoaderP.Core
         public string Keyword { get; set; }
         public bool HasKeyword => !string.IsNullOrWhiteSpace(Keyword);
         public int PageIndex { get; set; }
+        public int LastId { get; set; }
         public int Count { get; set; }
 
         public bool IsShowExplicit { get; set; }
@@ -278,10 +292,7 @@ namespace MoeLoaderP.Core
         public int Lv3MenuIndex { get; set; }
         public int Lv4MenuIndex { get; set; }
 
-        public SearchPara Clone()
-        {
-            return (SearchPara)MemberwiseClone(); // 浅克隆
-        }
+        public SearchPara Clone() => (SearchPara)MemberwiseClone();
     }
 
     public enum ImageOrientation

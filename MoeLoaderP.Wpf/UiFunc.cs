@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -116,7 +114,7 @@ namespace MoeLoaderP.Wpf
             if (el.RenderTransform == null)
             {
                 var group = new TransformGroup {Children = {[3] = new TranslateTransform()}};
-                el.RenderTransform = @group;
+                el.RenderTransform = group;
             }
 
 
@@ -188,7 +186,7 @@ namespace MoeLoaderP.Wpf
             }
         }
 
-        public static void CopyToClipboard(string text)
+        public static void CopyToClipboard(this string text)
         {
             try
             {

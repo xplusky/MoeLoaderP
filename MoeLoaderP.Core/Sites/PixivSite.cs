@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -39,7 +39,7 @@ namespace MoeLoaderP.Core.Sites
             SubMenu.Add("最新/搜索", mangaIlluMenu); // 0
             SubMenu.Add("作者ID", mangaIlluMenu); // 1
 
-            var rankLv4Menu = new MoeMenuItems(null, "综合", "插画", "漫画","动图");
+            var rankLv4Menu = new MoeMenuItems(null, "综合", "插画", "漫画", "动图");
 
             var ranSubMenu = IsR18 ? new MoeMenuItems(rankLv4Menu, "今日", "本周", "最受男性欢迎", "最受女性欢迎")
                 : new MoeMenuItems(rankLv4Menu, "今日", "本周", "本月", "新人", "原创", "最受男性欢迎", "最受女性欢迎");
@@ -56,6 +56,7 @@ namespace MoeLoaderP.Core.Sites
             DownloadTypes.Add("小图", 2);
 
             SupportState.IsSupportRating = false;
+            SupportState.IsSupportSearchByImageLastId = true;
             FuncSupportState.IsSupportSelectPixivRankNew = true;
             FuncSupportState.IsSupportSearchByAuthorId = true;
             LoginPageUrl = "https://accounts.pixiv.net/login";
@@ -63,7 +64,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override CookieContainer GetCookies()
         {
-            if (string.IsNullOrWhiteSpace(LoginCookies)) return null;
+            if (LoginCookies.IsNaN()) return null;
             var cookies = LoginCookies.Split(';');
             var cc = new CookieContainer();
             foreach (var cookie in cookies)
@@ -170,14 +171,12 @@ namespace MoeLoaderP.Core.Sites
                 }
             }
 
-            var list = string.IsNullOrWhiteSpace(para.Keyword)
-                ? (json?.body?.illusts)
+            var list = para.Keyword.IsNaN() ? (json?.body?.illusts)
                 : (isIllust ? (json?.body?.illust?.data) : (json?.body?.manga?.data));
-            if (list == null) return;
-            foreach (var illus in list)
+            foreach (var illus in Extend.CheckListNull(list))
             {
                 var img = new MoeItem(this, para) { Site = this, Net = Net.CloneWithOldCookie(), Id = $"{illus.illustId}".ToInt() };
-                img.Urls.Add(new UrlInfo("缩略图", 1, $"{illus.url}", $"{HomeUrl}/new_illust.php"));
+                img.Urls.Add(new UrlInfo(1, $"{illus.url}", $"{HomeUrl}/new_illust.php"));
                 img.Title = $"{illus.illustTitle}";
                 img.Uploader = $"{illus.userName}";
                 img.UploaderId = $"{illus.userId}";
@@ -185,17 +184,12 @@ namespace MoeLoaderP.Core.Sites
                 img.Height = $"{illus.height}".ToInt();
                 img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
                 img.ImagesCount = $"{illus.pageCount}".ToInt();
-                if (illus.tags != null)
+                foreach (var tag in Extend.CheckListNull(illus.tags))
                 {
-                    foreach (var tag in illus.tags)
-                    {
-                        img.Tags.Add($"{tag}");
-                    }
+                    img.Tags.Add($"{tag}");
                 }
 
                 img.Date = GetDateFromUrl($"{illus.url}");
-                img.DateString = ((DateTime)img.Date).ToString("G", new CultureInfo("zh-CN"));
-
                 img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
@@ -267,7 +261,7 @@ namespace MoeLoaderP.Core.Sites
                         Net = Net.CloneWithOldCookie(),
                         Id = $"{illus.illustId}".ToInt()
                     };
-                    img.Urls.Add(new UrlInfo("缩略图", 1, $"{illus.url}", $"{HomeUrl}/users/{uid}/{mi}"));
+                    img.Urls.Add(1, $"{illus.url}", $"{HomeUrl}/users/{uid}/{mi}");
                     img.Title = $"{illus.illustTitle}";
                     img.Uploader = $"{illus.userName}";
                     img.UploaderId = $"{illus.userId}";
@@ -275,7 +269,7 @@ namespace MoeLoaderP.Core.Sites
                     img.Height = $"{illus.height}".ToInt();
                     img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
                     img.ImagesCount = $"{illus.pageCount}".ToInt();
-                    foreach (var tag in illus.tags ?? new List<string>())
+                    foreach (var tag in Extend.CheckListNull(illus.tags))
                     {
                         img.Tags.Add($"{tag}");
                     }
@@ -289,11 +283,11 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task SearchByRank(MoeItems imgs, SearchPara para, CancellationToken token)
         {
-            var modesR18 = new[] {"daily", "weekly", "male", "female"};
-            var modes = new[] {"daily", "weekly", "monthly", "rookie,", "original", "male", "female"};
+            var modesR18 = new[] { "daily", "weekly", "male", "female" };
+            var modes = new[] { "daily", "weekly", "monthly", "rookie,", "original", "male", "female" };
             var mode = IsR18 ? modesR18[para.Lv3MenuIndex] : modes[para.Lv3MenuIndex];
             if (IsR18) mode += "_r18";
-            var content = para.Lv4MenuIndex == 0 ? "all" : (para.Lv4MenuIndex == 1 ? "illust" : (para.Lv4MenuIndex == 2? "manga": "ugoira"));
+            var content = para.Lv4MenuIndex == 0 ? "all" : (para.Lv4MenuIndex == 1 ? "illust" : (para.Lv4MenuIndex == 2 ? "manga" : "ugoira"));
             var referer = $"{HomeUrl}/ranking.php?mode={mode}&content={content}";
             Net.SetReferer(referer);
             var q = $"{HomeUrl}/ranking.php";
@@ -306,16 +300,14 @@ namespace MoeLoaderP.Core.Sites
                 {"format", "json"}
             };
             var json = await Net.GetJsonAsync(q, token, pair);
-            var list = json?.contents;
-            if (list == null) return;
-            foreach (var illus in list)
+            foreach (var illus in Extend.CheckListNull(json?.contents))
             {
                 var img = new MoeItem(this, para)
                 {
                     Net = Net.CloneWithOldCookie(),
                     Id = $"{illus.illust_id}".ToInt()
                 };
-                img.Urls.Add(new UrlInfo("缩略图", 1, $"{illus.url}", referer));
+                img.Urls.Add(1, $"{illus.url}", referer);
                 img.Title = $"{illus.title}";
                 img.Uploader = $"{illus.user_name}";
                 img.UploaderId = $"{illus.user_id}";
@@ -331,21 +323,12 @@ namespace MoeLoaderP.Core.Sites
                     img.Tip = yes == 0 ? "首次登场" : $"之前#{yes}";
                     if (yes == 0) img.TipHighLight = true;
                 }
-                foreach (var tag in illus.tags ?? new List<dynamic>())
-                {
-                    img.Tags.Add($"{tag}");
-                }
+                foreach (var tag in  Extend.CheckListNull(illus.tags)) img.Tags.Add($"{tag}");
 
                 img.Date = GetDateFromUrl($"{illus.url}");
-                if ($"{illus.illust_type}" == "2")
-                {
-                    img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img, para);
-                }
-                else
-                {
-                    img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
-                }
-                
+                if ($"{illus.illust_type}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
+                else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
             }
@@ -359,26 +342,25 @@ namespace MoeLoaderP.Core.Sites
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
             {
-                img.Urls.Add(new UrlInfo("小图", 2, $"{img1.urls.small}", refer));
-                img.Urls.Add(new UrlInfo("中图", 3, $"{img1.urls.regular}", refer));
-                img.Urls.Add(new UrlInfo("原图", 4, $"{img1.urls.original}", refer));
+                img.Urls.Add(2, $"{img1.urls.small}", refer);
+                img.Urls.Add(3, $"{img1.urls.regular}", refer);
+                img.Urls.Add(4, $"{img1.urls.original}", refer);
             }
             var list = (JArray)json?.body;
             if (list?.Count > 1)
             {
                 foreach (var item in json.body)
                 {
-
                     var imgitem = new MoeItem(this, para);
-                    imgitem.Urls.Add(new UrlInfo("小图", 2, $"{img1?.urls.small}", refer));
-                    imgitem.Urls.Add(new UrlInfo("中图", 3, $"{img1?.urls.regular}", refer));
-                    imgitem.Urls.Add(new UrlInfo("原图", 4, $"{item?.urls?.original}", refer));
+                    imgitem.Urls.Add(2, $"{img1?.urls.small}", refer);
+                    imgitem.Urls.Add(3, $"{img1?.urls.regular}", refer);
+                    imgitem.Urls.Add(4, $"{item?.urls?.original}", refer);
                     img.ChildrenItems.Add(imgitem);
                 }
             }
         }
 
-        public async Task GetUgoiraDetailPageTask(MoeItem img, SearchPara para)
+        public async Task GetUgoiraDetailPageTask(MoeItem img)
         {
             var net = Net.CloneWithOldCookie();
             var api = $"{HomeUrl}/ajax/illust/{img.Id}/ugoira_meta";
@@ -389,9 +371,9 @@ namespace MoeLoaderP.Core.Sites
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
             {
-                img.Urls.Add(new UrlInfo("小图", 2, $"{img1.src}", refer));
-                img.Urls.Add(new UrlInfo("中图", 3, $"{img1.src}", refer));
-                img.Urls.Add(new UrlInfo("原图", 4, $"{img1.originalSrc}", refer));
+                img.Urls.Add(2, $"{img1.src}", refer);
+                img.Urls.Add(3, $"{img1.src}", refer);
+                img.Urls.Add(4, $"{img1.originalSrc}", refer);
                 img.ExtraFile = new TextFileInfo { FileExt = "json", Content = jsonStr };
             }
         }
@@ -409,7 +391,7 @@ namespace MoeLoaderP.Core.Sites
             if (para.SubMenuIndex != 0 && para.SubMenuIndex != 5) return re;
             var url = $"{HomeUrl}/rpc/cps.php?keyword={para.Keyword}";
             var jlist = await AutoHintNet.GetJsonAsync(url, token);
-            foreach (var obj in jlist?.candidates ?? new List<dynamic>())
+            foreach (var obj in Extend.CheckListNull(jlist?.candidates))
             {
                 var item = new AutoHintItem { Word = $"{obj.tag_name}" };
                 re.Add(item);

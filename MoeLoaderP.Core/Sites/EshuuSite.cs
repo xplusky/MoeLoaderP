@@ -31,11 +31,11 @@ namespace MoeLoaderP.Core.Sites
             var imgs = new MoeItems();
             var url = $"{HomeUrl}/?page={para.PageIndex}";
             if (Net == null) Net = new NetDocker(Settings);
-            if (!string.IsNullOrWhiteSpace(para.Keyword))
+            if (!para.Keyword.IsNaN())
             {
                 url = $"{HomeUrl}/search/process/";
                 var i = para.SubMenuIndex;
-                var kw = $"{$"\"{para.Keyword.Replace("\"", "")}\"".ToEncodedUrl()}+";
+                var kw = $"{$"\"{para.Keyword.Delete("\"")}\"".ToEncodedUrl()}+";
                 //e-shuushuu需要将关键词转换为tag id，然后进行搜索
                 var mc = new FormUrlEncodedContent(new Pairs
                 {
@@ -57,63 +57,56 @@ namespace MoeLoaderP.Core.Sites
                 var loc303 = res.Headers.Location?.OriginalString;     //todo 无法实现，需要大神
 
                 //http://e-shuushuu.net/search/results/?tags=2
-                if (!string.IsNullOrEmpty(loc303)) url = $"{loc303}&page={para.PageIndex}";
-                else
-                {
-                    Extend.ShowMessage("没有搜索到关键词相关的图片", null, Extend.MessagePos.Window);
-                    return new MoeItems();
-                }
+                if (!loc303.IsNaN()) url = $"{loc303}&page={para.PageIndex}";
+                else return new MoeItems { Message = "没有搜索到关键词相关的图片" };
             }
 
             // images
             var doc = await Net.GetHtmlAsync(url, token);
+            if (doc == null) return new MoeItems
+            {
+                Message = "获取HTML失败"
+            };
             var nodes = doc.DocumentNode.SelectNodes("//div[@class='image_thread display']");
             if (nodes == null) return imgs;
 
             foreach (var imgNode in nodes)
             {
                 var img = new MoeItem(this, para);
-                var id = imgNode.Attributes["id"]?.Value.Replace("i","");
+                var id = imgNode.Attributes["id"]?.Value.Delete("i");
                 img.Id = $"{id}".ToInt();
                 var imgHref = imgNode.SelectSingleNode(".//a[@class='thumb_image']");
                 var fileUrl = imgHref.Attributes["href"].Value;
                 if (fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
                 var previewUrl = imgHref.SelectSingleNode("img").Attributes["src"].Value;
                 if (previewUrl.StartsWith("/")) previewUrl = HomeUrl + previewUrl;
-                img.Urls.Add(new UrlInfo("缩略图", 1, previewUrl, HomeUrl));
+                img.Urls.Add(1, previewUrl, HomeUrl);
                 var meta = imgNode.SelectSingleNode(".//div[@class='meta']");
                 img.Date = meta.SelectSingleNode(".//dd[2]").InnerText.ToDateTime();
                 var dimension = meta.SelectSingleNode(".//dd[4]").InnerText;
-                try
+                foreach (var s in dimension.Split(' '))
                 {
-                    var dms = dimension.Substring(0, dimension.IndexOf('(')).Trim();
-                    img.Width = dms.Substring(0, dms.IndexOf('x')).ToInt();
-                    img.Height = dms.Substring(dms.IndexOf('x') + 1).ToInt();
-                }
-                catch
-                {
-                    // ignored
+                    if(!s.Contains("x"))continue;
+                    var res = s.Split('x');
+                    if(res.Length!=2)continue;
+                    img.Width = res[0].ToInt();
+                    img.Height = res[1].ToInt();
+                    break;
                 }
 
-                try
+                var tags = meta.SelectNodes(".//span[@class='tag']/a");
+                if (tags != null)
                 {
-                    var tags = meta.SelectNodes(".//span[@class='tag']/a");
                     foreach (var tag in tags)
                     {
-                        if (string.IsNullOrWhiteSpace(tag.InnerText)) continue;
+                        if (tag.InnerText.IsNaN()) continue;
                         img.Tags.Add(tag.InnerText);
                     }
-
                     img.Uploader = tags.LastOrDefault()?.InnerText;
                 }
-                catch
-                {
-                    /*..*/
-                }
-
                 var detail = $"{HomeUrl}/image/{id}";
                 img.DetailUrl = detail;
-                img.Urls.Add(new UrlInfo("原图", 4, fileUrl, detail));
+                img.Urls.Add( 4, fileUrl, detail);
                 img.OriginString = imgNode.OuterHtml;
                 imgs.Add(img);
             }
@@ -129,7 +122,13 @@ namespace MoeLoaderP.Core.Sites
 
             //chara without hint
             if (para.SubMenuIndex == 3) return items;
-            var url = $"{HomeUrl}/httpreq.php?mode=tag_search&tags={para.Keyword}&type={para.SubMenuIndex + 1}";
+            var pairs = new Pairs
+            {
+                {"mode","tag_search" },
+                {"tags",para.Keyword },
+                {"type",$"{para.SubMenuIndex + 1}" }
+            };
+            var url = $"{HomeUrl}/httpreq.php{pairs.ToPairsString()}";
             var res = await Net.Client.GetAsync(url, token);
             var txt = await res.Content.ReadAsStringAsync();
             var lines = txt.Split('\n');
@@ -139,7 +138,7 @@ namespace MoeLoaderP.Core.Sites
                 {
                     items.Add(new AutoHintItem
                     {
-                        Word = lines[i].Trim().Replace("\"", "")
+                        Word = lines[i].Trim().Delete("\"")
                     });
                 }
             }

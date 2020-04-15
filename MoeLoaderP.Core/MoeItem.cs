@@ -22,7 +22,7 @@ namespace MoeLoaderP.Core
 
         public string DateString
         {
-            get => string.IsNullOrWhiteSpace(_dateString) ? Date?.ToString("G", new CultureInfo("zh-CN")) : null;
+            get => string.IsNullOrWhiteSpace(_dateString) ? Date?.ToString("G", new CultureInfo("zh-CN")) : _dateString;
             set => _dateString = value;
         }
 
@@ -148,6 +148,17 @@ namespace MoeLoaderP.Core
         public string Message { get; set; }
         public enum ResponseMode { Ok, Fail, OkAndOver }
         public ResponseMode Response { get; set; }
+
+        public bool Has(MoeItem item)
+        {
+            if (item.Id == 0) return false;
+            foreach (var moeItem in this)
+            {
+                if (moeItem.Id == item.Id) return true;
+            }
+
+            return false;
+        }
     }
 
     public class TextFileInfo
@@ -158,7 +169,6 @@ namespace MoeLoaderP.Core
 
     public class UrlInfo
     {
-        public string Name { get; set; }
         /// <summary>
         /// 优先级， size 越大，数字越大,优先下载大的,从1开始
         /// </summary>
@@ -168,9 +178,8 @@ namespace MoeLoaderP.Core
         public string Referer { get; set; }
         public ulong BiteSize { get; set; }
 
-        public UrlInfo(string name, int priority, string url, string referer = null)
+        public UrlInfo(int priority, string url, string referer = null)
         {
-            Name = name;
             Priority = priority;
             Url = url;
             if (referer != null) Referer = referer;
@@ -221,6 +230,11 @@ namespace MoeLoaderP.Core
             }
 
             return info;
+        }
+
+        public void Add(int p, string url, string referer=null)
+        {
+            Add(new UrlInfo(p,url,referer));
         }
     }
 }

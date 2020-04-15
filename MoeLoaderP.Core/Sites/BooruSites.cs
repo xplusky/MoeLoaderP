@@ -11,10 +11,26 @@ namespace MoeLoaderP.Core.Sites
         public override string ShortName => "konachan";
 
         public override string GetHintQuery(SearchPara para)
-            => $"{HomeUrl}/tag.xml?limit=8&order=count&name={para.Keyword}";
+        {
+            var pairs = new Pairs
+            {
+                {"limit", "15"},
+                {"order", "count"},
+                {"name", para.Keyword}
+            };
+            return $"{HomeUrl}/tag.xml{pairs.ToPairsString()}";
+        }
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/post.xml?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+        {
+            var pairs = new Pairs
+            {
+                {"page",$"{para.PageIndex}" },
+                {"limit",$"{para.Count}" },
+                {"tags",para.Keyword.ToEncodedUrl() }
+            };
+            return $"{HomeUrl}/post.xml{pairs.ToPairsString()}";
+        }
     }
 
     public class YandeSite : BooruSite
@@ -24,10 +40,26 @@ namespace MoeLoaderP.Core.Sites
         public override string ShortName => "yande";
 
         public override string GetHintQuery(SearchPara para)
-            => $"{HomeUrl}/tag.xml?limit=8&order=count&name={para.Keyword}";
+        {
+            var pairs = new Pairs
+            {
+                {"limit","15" },
+                {"order","count" },
+                {"name",$"{para.Keyword.ToEncodedUrl()}" }
+            };
+            return $"{HomeUrl}/tag.xml{pairs.ToPairsString()}";
+        }
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/post.xml?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+        {
+            var pairs = new Pairs
+            {
+                {"page", $"{para.PageIndex}"},
+                {"limit", $"{para.Count}"},
+                {"tags", para.Keyword.ToEncodedUrl()}
+            };
+            return $"{HomeUrl}/post.xml{pairs.ToPairsString()}";
+        }
     }
 
     public class BehoimiSite : BooruSite

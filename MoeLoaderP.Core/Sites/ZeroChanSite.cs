@@ -1,9 +1,9 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -17,7 +17,7 @@ namespace MoeLoaderP.Core.Sites
         public override string DisplayName => "Zerochan";
 
         public override string ShortName => "zerochan";
-        
+
         private readonly string[] _user = { "zerouser1" };
         private readonly string[] _pass = { "zeropass" };
         private string _beforeWord = "", _beforeUrl = "";
@@ -36,16 +36,16 @@ namespace MoeLoaderP.Core.Sites
             // logon
             if (!IsLogon)
             {
-                Net = new NetDocker(Settings,HomeUrl);
+                Net = new NetDocker(Settings, HomeUrl);
                 var index = new Random().Next(0, _user.Length);
                 var loginurl = "https://www.zerochan.net/login";
 
-                var response = await Net.Client.PostAsync(loginurl, 
+                var response = await Net.Client.PostAsync(loginurl,
                     new StringContent($"ref=%2F&login=Login&name={_user[index]}&password={_pass[index]}"), token);
 
                 if (response.IsSuccessStatusCode) IsLogon = true;
             }
-            if(!IsLogon) return new MoeItems();
+            if (!IsLogon) return new MoeItems();
 
             // get page source
             string pageString;
@@ -62,14 +62,13 @@ namespace MoeLoaderP.Core.Sites
                     Extend.ShowMessage("搜索失败，请检查您输入的关键词");
                     return new MoeItems();
                 }
-                
-                pageString = await respose.Content.ReadAsStringAsync();
 
+                pageString = await respose.Content.ReadAsStringAsync();
                 _beforeWord = para.Keyword;
             }
             else
             {
-                url = string.IsNullOrWhiteSpace(para.Keyword) ? url : $"{_beforeUrl}?p={para.PageIndex}";
+                url = para.Keyword.IsNaN() ? url : $"{_beforeUrl}?p={para.PageIndex}";
                 var res = await Net.Client.GetAsync(url, token);
 
                 pageString = await res.Content.ReadAsStringAsync();
@@ -84,19 +83,16 @@ namespace MoeLoaderP.Core.Sites
             {
                 nodes = doc.DocumentNode.SelectSingleNode("//ul[@id='thumbs2']").SelectNodes(".//li");
             }
-            catch
-            {
-                Extend.ShowMessage("没有搜索到图片");
-                return new MoeItems();
-            }
+            catch { return new MoeItems { Message = "没有搜索到图片" }; }
 
             foreach (var imgNode in nodes)
             {
-                var img = new MoeItem(this,para);
+                var img = new MoeItem(this, para);
+                var mo = imgNode.SelectSingleNode(".//b")?.InnerText?.Trim();
+                if (mo?.ToLower().Trim().Contains("members only") == true) continue;
                 var strId = imgNode.SelectSingleNode("a").Attributes["href"].Value;
-                int.TryParse(strId.Substring(1),out var id);
                 var fav = imgNode.SelectSingleNode("a/span")?.InnerText;
-                if (!string.IsNullOrWhiteSpace(fav)) img.Score = Regex.Replace(fav, @"[^0-9]+", "")?.ToInt() ?? 0;
+                if (!fav.IsNaN()) img.Score = Regex.Replace(fav, @"[^0-9]+", "")?.ToInt() ?? 0;
                 var imgHref = imgNode.SelectSingleNode(".//img");
                 var previewUrl = imgHref?.Attributes["src"]?.Value;
                 //http://s3.zerochan.net/Morgiana.240.1355397.jpg   preview
@@ -106,42 +102,38 @@ namespace MoeLoaderP.Core.Sites
                 //string folder = (id % 2500 % 50).ToString("00") + "/" + (id % 2500 / 50).ToString("00");
                 var sampleUrl = "";
                 var fileUrl = "";
-                if (!string.IsNullOrWhiteSpace(previewUrl))
+                if (!previewUrl.IsNaN())
                 {
                     sampleUrl = previewUrl?.Replace("240", "600");
                     fileUrl = Regex.Replace(previewUrl, "^(.+?)zerochan.net/", "https://static.zerochan.net/").Replace("240", "full");
                 }
-                
-                var resandfilesize = imgHref?.Attributes["title"].Value;
-                var dimension = resandfilesize?.Substring(0, resandfilesize.IndexOf(' '));
-                var title = imgHref?.Attributes["alt"].Value;
 
-                int width = 0, height = 0;
-                try
-                {
-                    width = dimension.Substring(0, dimension.IndexOf('x')).ToInt();
-                    height = dimension.Substring(dimension.IndexOf('x') + 1).ToInt();
-                }
-                catch
-                {
-                    // ignored
-                }
+                var resAndFileSize = imgHref?.Attributes["title"]?.Value;
+                if (!resAndFileSize.IsNaN())
+                    foreach (var s in resAndFileSize.Split(' '))
+                    {
+                        if (!s.Contains("x")) continue;
+                        var res = s.Split('x');
+                        if (res.Length != 2) continue;
+                        img.Width = res[0].ToInt();
+                        img.Height = res[1].ToInt();
+                    }
+
+                var title = imgHref?.Attributes["alt"]?.Value;
 
                 //convert relative url to absolute
-                if (!string.IsNullOrWhiteSpace(fileUrl) && fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
+                if (!fileUrl.IsNaN() && fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
                 if (sampleUrl != null && sampleUrl.StartsWith("/")) sampleUrl = HomeUrl + sampleUrl;
 
                 img.Description = title;
                 img.Title = title;
-                img.Id = id;
+                img.Id = strId.Substring(1).ToInt();
 
-                img.Urls.Add(new UrlInfo("缩略图", 1, previewUrl, HomeUrl));
-                img.Urls.Add(new UrlInfo("预览图", 2, sampleUrl, HomeUrl));
-                img.Urls.Add(new UrlInfo("原图", 4, fileUrl, img.DetailUrl));
-                img.Width = width;
-                img.Height = height;
-                img.DetailUrl = $"{HomeUrl}/{id}";
-                
+                img.Urls.Add(1, previewUrl, HomeUrl);
+                img.Urls.Add(2, sampleUrl, HomeUrl);
+                img.Urls.Add(4, fileUrl, img.DetailUrl);
+                img.DetailUrl = $"{HomeUrl}/{img.Id}";
+
                 img.OriginString = imgNode.OuterHtml;
                 imgs.Add(img);
             }
@@ -156,7 +148,7 @@ namespace MoeLoaderP.Core.Sites
 
             var url = $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
 
-            Net.Client.DefaultRequestHeaders.Referrer =  new Uri(HomeUrl);
+            Net.Client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
             var res = await Net.Client.GetAsync(url, token);
 
             var txt = await res.Content.ReadAsStringAsync();

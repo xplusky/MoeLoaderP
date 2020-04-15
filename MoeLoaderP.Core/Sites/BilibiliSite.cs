@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using Newtonsoft.Json.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -14,7 +14,7 @@ namespace MoeLoaderP.Core.Sites
         public override string DisplayName => "哔哩哔哩";
 
         public override string ShortName => "bilibili";
-        
+
         public BilibiliSite()
         {
             var sub = new MoeMenuItems(new MoeMenuItem("最新"), new MoeMenuItem("最热"));
@@ -29,15 +29,13 @@ namespace MoeLoaderP.Core.Sites
 
             MenuFunc.ShowKeyword = false;
         }
-
-        public override Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token) => null;
-
+        
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             const string api = "https://api.vc.bilibili.com/link_draw/v2";
             var type = para.Lv3MenuIndex == 0 ? "new" : "hot";
             var count = para.Count > 20 ? 20 : para.Count;
-            var api2 ="";
+            var api2 = "";
             switch (para.SubMenuIndex)
             {
                 case 0:
@@ -57,46 +55,40 @@ namespace MoeLoaderP.Core.Sites
                 {"page_size", $"{count}"}
             });
 
-            var items = new MoeItems();
-            if (json?.data?.items == null) return items;
-            foreach (var jitem in json.data.items)
+            var imgs = new MoeItems();
+            foreach (var item in Extend.CheckListNull(json?.data?.items))
             {
                 var cat = para.SubMenuIndex == 0 ? "/d" : "/p";
                 var img = new MoeItem(this, para)
                 {
-                    Uploader = $"{jitem.user?.name}",
-                    Id = $"{jitem.item?.doc_id}".ToInt(),
+                    Uploader = $"{item.user?.name}",
+                    Id = $"{item.item?.doc_id}".ToInt(),
                 };
                 img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
-                var i0 = jitem.item?.pictures[0];
+                var i0 = item.item?.pictures[0];
                 img.Width = $"{i0?.img_width}".ToInt();
                 img.Height = $"{i0?.img_height}".ToInt();
-                img.Date = $"{jitem.item?.upload_time}".ToDateTime();
-                img.Urls.Add(new UrlInfo("缩略图", 1, $"{i0?.img_src}@320w_320h.jpg", HomeUrl + cat));
-                img.Urls.Add(new UrlInfo("原图", 4, $"{i0?.img_src}"));
-
-
-                img.Title = $"{jitem.item?.title}";
-
-                var list = (JArray)jitem.item.pictures;
-
-                if (list.Count > 1)
+                img.Date = $"{item.item?.upload_time}".ToDateTime();
+                img.Urls.Add(1, $"{i0?.img_src}@320w_320h.jpg", HomeUrl + cat);
+                img.Urls.Add(4, $"{i0?.img_src}");
+                img.Title = $"{item.item?.title}";
+                var list = item.item?.pictures as JArray;
+                if (list?.Count > 1)
                 {
-                    foreach (var pic in jitem.item.pictures)
+                    foreach (var pic in item.item.pictures)
                     {
                         var child = new MoeItem(this, para);
-                        child.Urls.Add(new UrlInfo("缩略图", 1, $"{pic.img_src}@512w_512h_1e", HomeUrl + cat));
-                        child.Urls.Add(new UrlInfo("原图", 4, $"{pic.img_src}"));
+                        child.Urls.Add(1, $"{pic.img_src}@512w_512h_1e", HomeUrl + cat);
+                        child.Urls.Add(4, $"{pic.img_src}");
                         child.Width = $"{pic.img_width}".ToInt();
                         child.Height = $"{pic.img_height}".ToInt();
                         img.ChildrenItems.Add(child);
                     }
                 }
-
-                img.OriginString = $"{jitem}";
-                items.Add(img);
+                img.OriginString = $"{item}";
+                imgs.Add(img);
             }
-            return items;
+            return imgs;
         }
     }
 }

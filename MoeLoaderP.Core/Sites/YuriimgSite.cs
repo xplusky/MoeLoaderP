@@ -27,7 +27,7 @@ namespace MoeLoaderP.Core.Sites
             if (json == null) return;
             img.Score = $"{json.praise}".ToInt();
             img.Date = $"{json.format_date}".ToDateTime();
-            img.Urls.Add(new UrlInfo("原图", 4, $"https://i.yuriimg.com/{json.src}"));
+            img.Urls.Add( 4, $"https://i.yuriimg.com/{json.src}");
             img.Artist = $"{json.artist?.name}";
             img.Uploader = $"{json.user?.name}";
             img.UploaderId = $"{json.user?.id}";
@@ -40,7 +40,7 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             if (Net == null) Net = new NetDocker(Settings, HomeUrl);
-            var api = "https://api.yuriimg.com/posts";
+            const string api = "https://api.yuriimg.com/posts";
             var pairs = new Pairs
             {
                 {"page", $"{para.PageIndex}"},
@@ -57,7 +57,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Id = $"{post.pid}".ToInt();
                 img.Width = $"{post.width}".ToInt();
                 img.Height = $"{post.height}".ToInt();
-                img.Urls.Add(new UrlInfo("缩略图", 1, $"https://i.yuriimg.com/{post.src}"));
+                img.Urls.Add( 1, $"https://i.yuriimg.com/{post.src}");
                 img.DetailUrl = $"{HomeUrl}/show/{post.id}";
                 img.GetDetailTaskFunc = async () => await GetDetailTask(img, $"{post.id}", token);
                 img.OriginString = $"{post}";

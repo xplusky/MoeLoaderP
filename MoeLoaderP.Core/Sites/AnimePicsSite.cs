@@ -69,27 +69,23 @@ namespace MoeLoaderP.Core.Sites
                 //http://mjv-art.org/pictures/view_posts/0?search_tag=suzumiya%20haruhi&order_by=date&ldate=0&lang=en
                 url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
             }
-            var pageres = await Net.Client.GetAsync(url, token);
-            var pageString = await pageres.Content.ReadAsStringAsync();
 
-            // images
             var imgs = new MoeItems();
 
-            var doc = new HtmlDocument();
-            doc.LoadHtml(pageString);
+            var doc = await Net.GetHtmlAsync(url, token);
+            if (doc == null) return null;
             var pre = "https:";
             var listnode = doc.DocumentNode.SelectNodes("//*[@id='posts']/div[@class='posts_block']/span[@class='img_block_big']");
-            if (listnode == null) return imgs;
+            if (listnode == null) return new MoeItems{Message = "读取HTML失败"};
             foreach (var node in listnode)
             {
                 var img = new MoeItem(this, para) {Site = this};
                 var imgnode = node.SelectSingleNode("a/picture/img");
                 var idattr = imgnode.GetAttributeValue("id", "0");
                 var reg = Regex.Replace(idattr, @"[^0-9]+", "");
-                int.TryParse(reg, out var id);
-                img.Id = id;
+                img.Id = reg.ToInt();
                 var src = imgnode.GetAttributeValue("src", "");
-                if (!string.IsNullOrWhiteSpace(src)) img.Urls.Add(new UrlInfo("缩略图", 1, $"{pre}{src}", url));
+                if (!string.IsNullOrWhiteSpace(src)) img.Urls.Add(new UrlInfo( 1, $"{pre}{src}", url));
                 var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
                 if (resstrs?.Length == 2)
                 {
@@ -118,21 +114,20 @@ namespace MoeLoaderP.Core.Sites
             net.SetTimeOut(30);
             try
             {
-                var detailPageStr = await net.Client.GetStringAsync(detialurl);
-                var subdoc = new HtmlDocument();
-                subdoc.LoadHtml(detailPageStr);
+                var subdoc = await net.GetHtmlAsync(detialurl);
                 var docnodes = subdoc.DocumentNode;
                 if (docnodes == null) return;
                 var downnode = docnodes.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");
                 var fileurl = downnode?.GetAttributeValue("href", "");
-                if (!string.IsNullOrWhiteSpace(fileurl)) img.Urls.Add(new UrlInfo("原图", 4, $"{HomeUrl}{fileurl}", detialurl));
+                if (!fileurl.IsNaN()) img.Urls.Add( 4, $"{HomeUrl}{fileurl}", detialurl);
                 var tagnodes = docnodes.SelectNodes("*//div[@id='post_tags']//a");
                 if (tagnodes != null)
+                {
                     foreach (var tagnode in tagnodes)
                     {
                         if (!string.IsNullOrWhiteSpace(tagnode.InnerText)) img.Tags.Add(tagnode.InnerText);
                     }
-                //img.Score = $"{docnodes.SelectSingleNode("*//span[@id='score_n']")?.InnerText}".ToInt();
+                }
             }
             catch (Exception e)
             {
@@ -147,7 +142,7 @@ namespace MoeLoaderP.Core.Sites
             //AutoHintNet.Client.DefaultRequestHeaders.Add("content-type", "multipart/form-data; boundary=----WebKitFormBoundaryzFqgWZTqudUG0vBb");
             var re = new AutoHintItems();
             var mulform = new MultipartFormDataContent("----WebKitFormBoundaryzFqgWZTqudUG0vBb");
-            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            var content = new FormUrlEncodedContent(new Pairs
             {
                 {"tag",para.Keyword.Trim() }
             });

@@ -66,20 +66,20 @@ namespace MoeLoaderP.Core.Sites
                 var tags = $"{image.tags}";
                 foreach (var s in tags.Split(','))
                 {
-                    if (string.IsNullOrWhiteSpace(s)) continue;
+                    if (s.IsNaN()) continue;
                     img.Tags.Add(s);
                 }
                 var small = $"{image.small}";
-                img.Urls.Add(new UrlInfo("缩略图", 1, $"{sub}{UrlInner($"{id}")}/small.{small}"));
+                img.Urls.Add(1, $"{sub}{UrlInner($"{id}")}/small.{small}");
                 var orig = $"{image.orig}";
                 var big = $"{image.big}";
-                if (!string.IsNullOrWhiteSpace(orig))
+                if (!orig.IsNaN())
                 {
-                    img.Urls.Add(new UrlInfo("原图", 4, $"{sub}{UrlInner($"{id}")}/orig.{orig}"));
+                    img.Urls.Add(4, $"{sub}{UrlInner($"{id}")}/orig.{orig}");
                 }
-                else if (!string.IsNullOrWhiteSpace(big))
+                else if (!big.IsNaN())
                 {
-                    img.Urls.Add(new UrlInfo("原图", 4, $"{sub}{UrlInner($"{id}")}/big.{big}"));
+                    img.Urls.Add(4, $"{sub}{UrlInner($"{id}")}/big.{big}");
                 }
                 img.DetailUrl = $"{HomeUrl}/image?id={id}";
 

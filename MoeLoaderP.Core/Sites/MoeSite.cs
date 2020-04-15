@@ -112,6 +112,8 @@ namespace MoeLoaderP.Core.Sites
         /// 是否支持关键字搜索
         /// </summary>
         public bool IsSupportKeyword { get; set; } = true;
+
+        public bool IsSupportSearchByImageLastId { get; set; } = false;
     }
 
     public class MoeSiteFuncSupportState

@@ -36,8 +36,7 @@ namespace MoeLoaderP.Core.Sites
                 {"default_threshold", "1"}
             };
             var json = await Net.GetJsonAsync($"{api}/posts", token, pairs);
-            if (json == null) return imgs;
-            foreach (var jitem in json)
+            foreach (var jitem in Extend.CheckListNull(json))
             {
                 var img = new MoeItem(this, para)
                 {
@@ -47,13 +46,12 @@ namespace MoeLoaderP.Core.Sites
                     Height = $"{jitem.height}".ToInt(),
                     Score = $"{jitem.total_score}".ToInt()
                 };
-                img.Urls.Add(new UrlInfo("缩略图",1, $"{jitem.preview_url}",beta));
-                img.Urls.Add(new UrlInfo("原图", 4, $"{jitem.file_url}",$"{beta}/post/show/{img.Id}"));
+                img.Urls.Add(1, $"{jitem.preview_url}",beta);
+                img.Urls.Add(4, $"{jitem.file_url}",$"{beta}/post/show/{img.Id}");
                 img.IsExplicit = $"{jitem.rating}" == "e";
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();
                 img.Uploader = $"{jitem.author?.name}";
-                var taglist = jitem.tags;
-                if(taglist!=null) foreach (var tag in taglist)
+                foreach (var tag in Extend.CheckListNull(jitem.tags))
                 {
                     img.Tags.Add($"{tag.name_en}");
                 }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace MoeLoaderP.Wpf.ControlParts
@@ -78,7 +79,16 @@ namespace MoeLoaderP.Wpf.ControlParts
             this.GoState(list.Any(f => f.ShowKeyword == false) ? nameof(NotSurportKeywordState) : nameof(SurportKeywordState));
         }
 
-        private void MoeSitesLv1ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        public void FilterBoxVisualUpdate()
+        {
+            FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.SupportState.IsSupportResolution;
+            FilterExlicitGroup.IsEnabled = CurrentSelectedSite.SupportState.IsSupportRating;
+            DownloadTypeComboBox.ItemsSource = CurrentSelectedSite.DownloadTypes;
+            DownloadTypeComboBox.SelectedIndex = 0;
+            FilterStartIdGrid.Visibility = CurrentSelectedSite.SupportState.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void MoeSitesLv1ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)// site change
         {
             var lv1Si = MoeSitesLv1ComboBox.SelectedIndex;
             if (lv1Si == -1) return;
@@ -100,6 +110,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 this.GoState(nameof(HideLv4MenuState));
             }
             VisualUpdate();
+            FilterBoxVisualUpdate();
         }
         private void MoeSitesLv2ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -143,14 +154,14 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (CurrentHintTaskCts == null) this.Sb("SearchingSpinSb").Begin();
             CurrentHintTaskCts?.Cancel();
             CurrentHintTaskCts = new CancellationTokenSource();
-            try { await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, CurrentHintTaskCts.Token); }
+            try
+            {
+                await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, CurrentHintTaskCts.Token);
+            }
             catch (TaskCanceledException) { }
             catch (Exception ex) { Extend.Log(ex.Message); }
-            finally
-            {
-                this.Sb("SearchingSpinSb").Stop();
-                CurrentHintTaskCts = null;
-            }
+            this.Sb("SearchingSpinSb").Stop();
+            CurrentHintTaskCts = null;
 
         }
 
@@ -169,12 +180,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             CurrentHintItems.Clear();
             AddHistoryItems();
             MoeDatePicker.SelectedDate = null;
-            FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.SupportState.IsSupportResolution;
-            FilterExlicitGroup.IsEnabled = CurrentSelectedSite.SupportState.IsSupportRating;
-            DownloadTypeComboBox.ItemsSource = CurrentSelectedSite.DownloadTypes;
-            DownloadTypeComboBox.SelectedIndex = 0;
+            
         }
-
 
         private CancellationTokenSource CurrentHintTaskCts { get; set; }
 
@@ -185,7 +192,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             CurrentHintItems.Clear();
             AddHistoryItems();
-            if (string.IsNullOrWhiteSpace(keyword)) throw new TaskCanceledException();
+            if (keyword.IsNaN()) throw new TaskCanceledException();
             await Task.Delay(600, token);// 等待0.6再开始获取，避免每输入一个字都进行网络操作 
             var task = CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
             if (task == null) throw new TaskCanceledException();
@@ -203,9 +210,9 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             CurrentHintItems.Add(new AutoHintItem() { IsEnable = false, Word = "---------历史---------" });
             if (Settings?.HistoryKeywords?.Count == 0 || Settings?.HistoryKeywords == null) return;
-            foreach (var kitem in Settings.HistoryKeywords)
+            foreach (var item in Settings.HistoryKeywords)
             {
-                CurrentHintItems.Add(kitem);
+                CurrentHintItems.Add(item);
             }
         }
 

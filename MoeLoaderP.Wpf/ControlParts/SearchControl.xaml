@@ -367,13 +367,21 @@
                     </Grid.RenderTransform>
                     <controlParts:MoeFloatBorder>
                         <StackPanel >
-                            <Grid Height="26">
+                            <Grid x:Name="FilterStartPageGrid" Height="26">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                 <controlParts:VariableCountControl x:Name="FilterStartPageBox" NumCount="1" MaxCount="99999" MinCount="1" Grid.Column="1"/>
+                            </Grid>
+                            <Grid x:Name="FilterStartIdGrid" Height="26" Margin="0,4,0,0" DataContext="CurrentSelectedSite" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,4,0" Width="76"><Run Text="起始搜索ID"/><LineBreak/><Run Text="（0为默认）"/></TextBlock>
+                                <controlParts:VariableCountControl x:Name="FilterStartIdBox" Grid.Column="1"/>
                             </Grid>
                             <Grid Height="26" Margin="0,4,0,0">
                                 <Grid.ColumnDefinitions>

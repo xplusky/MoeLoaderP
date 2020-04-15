@@ -104,7 +104,7 @@ namespace MoeLoaderP.Core
             OriginFileName = Path.GetFileName(item.DownloadUrlInfo.Url);
             OriginFileName = Path.GetFileNameWithoutExtension(item.DownloadUrlInfo.Url);
             var father = subindex == 0 ? null : fatheritem;
-            GenFileNameWithouExt(father);
+            GenFileNameWithoutExt(father);
             GenLocalFileFullPath(father);
         }
 
@@ -195,7 +195,7 @@ namespace MoeLoaderP.Core
                     {
                         File.WriteAllText(LocalExtraFileFullPath, ImageItem.ExtraFile.Content);
                     }
-                    
+
                     Progress = 100;
                     Extend.Log($"{url.Url} download ok");
                     Status = DownloadStatusEnum.Success;
@@ -227,7 +227,7 @@ namespace MoeLoaderP.Core
                 LocalExtraFileFullPath = Path.Combine(Set.ImageSavePath, img.Site.ShortName, $"{sub}{LocalFileShortNameWithoutExt}.{img.ExtraFile.FileExt}");
             }
         }
-        public void GenFileNameWithouExt(MoeItem father = null)
+        public void GenFileNameWithoutExt(MoeItem father = null)
         {
             var img = father ?? ImageItem;
             if (Set.IsUseCustomFileNameFormat)
@@ -288,13 +288,6 @@ namespace MoeLoaderP.Core
 
     public enum DownloadStatusEnum
     {
-        Success,
-        Failed,
-        Cancel,
-        IsExist,
-        Stop,
-        Downloading,
-        WaitForDownload,
-        Skip
+        Success, Failed, Cancel, IsExist, Stop, Downloading, WaitForDownload, Skip
     }
 }

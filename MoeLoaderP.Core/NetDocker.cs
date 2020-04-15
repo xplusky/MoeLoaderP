@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Handlers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 
@@ -101,7 +102,7 @@ namespace MoeLoaderP.Core
 
         public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = new CancellationToken(), Pairs parapairs = null)
         {
-            var query = GetPairsString(parapairs);
+            var query = parapairs.ToPairsString();
             try
             {
                 var response = await Client.GetAsync($"{api}{query}", token);
@@ -111,12 +112,13 @@ namespace MoeLoaderP.Core
             catch (Exception e)
             {
                 Extend.Log(e);
+                Extend.ShowMessage(e.Message);
                 return null;
             }
         }
         public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = new CancellationToken(), Pairs parapairs = null)
         {
-            var query = GetPairsString(parapairs);
+            var query = parapairs.ToPairsString();
             var doc = new HtmlDocument();
             try
             {
@@ -127,23 +129,31 @@ namespace MoeLoaderP.Core
             }
             catch (Exception e)
             {
+                Extend.ShowMessage(e.Message);
                 Extend.Log(e);
                 return null;
             }
         }
-        public static string GetPairsString(Pairs pairs)
-        {
-            var query = string.Empty;
-            var i = 0;
-            if (pairs == null) return query;
-            foreach (var para in pairs.Where(para => !string.IsNullOrEmpty(para.Value)))
-            {
-                query += string.Format("{2}{0}={1}", para.Key, para.Value, i > 0 ? "&" : "?");
-                i++;
-            }
 
-            return query;
+        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = new CancellationToken(), Pairs pairs = null)
+        {
+            var query = pairs.ToPairsString();
+            var xml = new XmlDocument();
+            try
+            {
+                var response = await Client.GetAsync($"{api}{query}", token);
+                var s = await response.Content.ReadAsStringAsync();
+                xml.LoadXml(s);
+            }
+            catch (Exception e)
+            {
+                Extend.ShowMessage(e.Message);
+                Extend.Log(e);
+                return null;
+            }
+            return xml;
         }
+        
     }
 
 

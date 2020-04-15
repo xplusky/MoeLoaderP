@@ -53,7 +53,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             set => SetValue(MaxCountProperty, value);
         }
 
-        public static readonly DependencyProperty MaxCountProperty = DependencyProperty.Register(nameof(MaxCount), typeof(int), typeof(VariableCountControl), new PropertyMetadata(100));
+        public static readonly DependencyProperty MaxCountProperty = DependencyProperty.Register(nameof(MaxCount), typeof(int), typeof(VariableCountControl), new PropertyMetadata(int.MaxValue));
 
         
         public int MinCount

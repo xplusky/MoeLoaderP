@@ -57,7 +57,7 @@ namespace MoeLoaderP.Wpf
 
             // helper : collect ,log
             MoeExplorer.OutputSelectedImagesUrlsButton.Click += OutputSelectedImagesUrlsButtonOnClick;
-            CollectCopyAllButton.Click += (sender, args) => UiFunc.CopyToClipboard(CollectTextBox.Text); 
+            CollectCopyAllButton.Click += (sender, args) => CollectTextBox.Text.CopyToClipboard(); 
             CollectClearButton.Click += (sender, args) => CollectTextBox.Text = string.Empty;
             Extend.LogAction += Log;
             LogListBox.MouseRightButtonUp += LogListBoxOnMouseRightButtonUp;
@@ -105,7 +105,7 @@ namespace MoeLoaderP.Wpf
             if(LogListBox.SelectedIndex == -1)return;
             if (LogListBox.SelectedItem is TextBlock tb)
             {
-                UiFunc.CopyToClipboard(tb.Text);
+                tb.Text.CopyToClipboard();
             }
         }
 

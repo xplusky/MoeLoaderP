@@ -74,7 +74,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 Extend.ShowMessage("MiniTokyo 正在自动登录中……", null, Extend.MessagePos.Searching);
                 var accIndex = new Random().Next(0, _user.Length);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                var content = new FormUrlEncodedContent(new Pairs
                 {
                     {"username", _user[accIndex]},
                     {"password", _pass[accIndex]}
@@ -85,7 +85,7 @@ namespace MoeLoaderP.Core.Sites
 
             var imgs = new MoeItems();
             string query;
-            if (string.IsNullOrWhiteSpace(para.Keyword)) // by new
+            if (para.Keyword.IsNaN()) // by new
             {
                 // recent:
                 // wall http://gallery.minitokyo.net/wallpapers?display=thumbnails&order=id&page=2
@@ -136,15 +136,15 @@ namespace MoeLoaderP.Core.Sites
                 img.Id = detailUrl.Substring(detailUrl.LastIndexOf('/') + 1).ToInt();
                 var imgHref = node.SelectSingleNode(".//img");
                 var sampleUrl = imgHref.Attributes["src"].Value;
-                img.Urls.Add(new UrlInfo("缩略图", 1, sampleUrl, HomeUrl));
+                img.Urls.Add(1, sampleUrl, HomeUrl);
                 //http://static2.minitokyo.net/thumbs/24/25/583774.jpg preview
                 //http://static2.minitokyo.net/view/24/25/583774.jpg   sample
                 //http://static.minitokyo.net/downloads/24/25/583774.jpg   full
                 var previewUrl = $"http://static2.minitokyo.net/view{sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
                 var fileUrl = $"http://static.minitokyo.net/downloads{previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
-                img.Urls.Add(new UrlInfo("原图", 4, fileUrl, HomeUrl));
+                img.Urls.Add(4, fileUrl, HomeUrl);
                 img.Title = node.SelectSingleNode("./p/a").InnerText.Trim();
-                img.Uploader = node.SelectSingleNode("./p").InnerText.Replace("by ", "").Trim();
+                img.Uploader = node.SelectSingleNode("./p").InnerText.Delete("by ").Trim();
                 var res = node.SelectSingleNode("./a/img").Attributes["title"].Value;
                 var resi = res?.Split('x');
                 if (resi?.Length == 2)

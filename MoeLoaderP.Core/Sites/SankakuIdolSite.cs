@@ -63,40 +63,33 @@ namespace MoeLoaderP.Core.Sites
             if (!_isIdolLogin) await LoginAsync(token);
             if (!_isIdolLogin) return new MoeItems();
             var query = $"{_idolQuery}page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
-            var client = Net.Client;
-            var response = await client.GetAsync(query, token);
-            if (!response.IsSuccessStatusCode)
-            {
-                Extend.ShowMessage(response.ReasonPhrase, null, Extend.MessagePos.Window);
-            }
-            var jsonStr = await response.Content.ReadAsStringAsync();
-            dynamic list = JsonConvert.DeserializeObject(jsonStr);
-            var imageitems = new MoeItems();
-            if (list == null) return imageitems;
-            var https = "https:";
+            var list = await Net.GetJsonAsync(query, token);
+            if (list == null) return new MoeItems {Message = "获取Json失败"};
+            var imgs = new MoeItems();
+            const string https = "https:";
             foreach (var item in list)
             {
                 var img = new MoeItem(this, para);
-                img.Width = (int)item.width;
-                img.Height = (int)item.height;
-                img.Id = (int)item.id;
-                img.Score = (int)item.fav_count;
+                img.Width = $"{item.width}".ToInt();
+                img.Height = $"{item.height}".ToInt();
+                img.Id =$"{item.id}".ToInt();
+                img.Score = $"{item.fav_count}".ToInt();
                 img.Uploader = $"{item.uploader_name}";
                 img.DetailUrl = $"{HomeUrl}/post/show/{img.Id}";
                 img.Date = $"{item.created_at?.s}".ToDateTime();
-                foreach (var tag in item.tags)
+                foreach (var tag in Extend.CheckListNull(item.tags))
                 {
                     img.Tags.Add($"{tag.name}");
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
                 img.Net = Net.CloneWithOldCookie();
-                img.Urls.Add(new UrlInfo("缩略图", 1, $"{https}{item.preview_url}", img.DetailUrl));
-                img.Urls.Add(new UrlInfo("原图", 4, $"{https}{item.file_url}", img.DetailUrl));
+                img.Urls.Add( 1, $"{https}{item.preview_url}", img.DetailUrl);
+                img.Urls.Add(4, $"{https}{item.file_url}", img.DetailUrl);
                 img.OriginString = $"{item}";
-                imageitems.Add(img);
+                imgs.Add(img);
             }
 
-            return imageitems;
+            return imgs;
         }
 
         private readonly string[] _user = { "girltmp", "mload006", "mload107", "mload482", "mload367", "mload876", "mload652", "mload740", "mload453", "mload263", "mload395" };

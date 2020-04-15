@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,36 @@ namespace MoeLoaderP.Core
     /// </summary>
     public static class Extend
     {
-        
+        public static string Delete(this string text, params string[] deleteStrs)
+        {
+            foreach (var deleteStr in deleteStrs)
+            {
+                text = text.Replace(deleteStr, "");
+            }
+
+            return text;
+        }
+        public static string ToPairsString(this Pairs pairs)
+        {
+            var query = string.Empty;
+            var i = 0;
+            if (pairs == null) return query;
+            foreach (var para in pairs.Where(para => !string.IsNullOrEmpty(para.Value)))
+            {
+                query += string.Format("{2}{0}={1}", para.Key, para.Value, i > 0 ? "&" : "?");
+                i++;
+            }
+
+            return query;
+        }
+        public static dynamic CheckListNull(dynamic dyObj)
+        {
+            return dyObj == null ? new List<dynamic>() : dyObj;
+        }
+        public static bool IsNaN(this string text)
+        {
+            return string.IsNullOrWhiteSpace(text);
+        }
         public static DateTime? ToDateTime(this string dateTime)
         {
             if (string.IsNullOrWhiteSpace(dateTime)) return null;
@@ -42,7 +72,7 @@ namespace MoeLoaderP.Core
             return id;
         }
 
-        
+
 
         public static string ToEncodedUrl(this string orgstr)
         {
@@ -56,7 +86,7 @@ namespace MoeLoaderP.Core
 
         public static void GoUrl(this string url)
         {
-            if(string.IsNullOrWhiteSpace(url))return;
+            if (string.IsNullOrWhiteSpace(url)) return;
             try
             {
                 Process.Start(url);
@@ -73,14 +103,14 @@ namespace MoeLoaderP.Core
             Debug.WriteLine(str);
             LogAction?.Invoke(str);
         }
-        public static Action<string,string, MessagePos> ShowMessageAction;
+        public static Action<string, string, MessagePos> ShowMessageAction;
 
         public static Action<string> LogAction;
 
         /// <summary>
         /// 显示信息
         /// </summary>
-        public static void ShowMessage(string message,string detailMes=null, MessagePos pos = MessagePos.Popup)
+        public static void ShowMessage(string message, string detailMes = null, MessagePos pos = MessagePos.Popup)
         {
             ShowMessageAction?.Invoke(message, detailMes, pos);
         }
@@ -105,12 +135,12 @@ namespace MoeLoaderP.Core
             try
             {
                 ms = new MemoryStream();
-                cs = new CryptoStream(ms, des.CreateEncryptor(key,iv), CryptoStreamMode.Write);
+                cs = new CryptoStream(ms, des.CreateEncryptor(key, iv), CryptoStreamMode.Write);
                 sw = new StreamWriter(cs);
                 sw.Write(str);
                 sw.Flush();
                 cs.FlushFinalBlock();
-                return Convert.ToBase64String(ms.GetBuffer(), 0, (int) ms.Length);
+                return Convert.ToBase64String(ms.GetBuffer(), 0, (int)ms.Length);
             }
             finally
             {

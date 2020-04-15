@@ -142,7 +142,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ControlParts\CircularProgressBar.cs" />
     <Compile Include="ControlParts\MoeFloatBorder.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="Egg\EggWindow.xaml.cs">
