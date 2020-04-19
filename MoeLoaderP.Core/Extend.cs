@@ -36,10 +36,8 @@ namespace MoeLoaderP.Core
 
             return query;
         }
-        public static dynamic CheckListNull(dynamic dyObj)
-        {
-            return dyObj == null ? new List<dynamic>() : dyObj;
-        }
+        public static dynamic CheckListNull(dynamic dyObj) => dyObj ?? new List<dynamic>();
+
         public static bool IsNaN(this string text)
         {
             return string.IsNullOrWhiteSpace(text);

@@ -57,8 +57,10 @@ namespace MoeLoaderP.Wpf.ControlParts
         private void VisualUpdate()
         {
             this.GoState(CurrentSelectedSite.SupportState.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
-            var list = new List<MenuItemFunc>();
-            list.Add(CurrentSelectedSite.MenuFunc);
+            var list = new List<MenuItemFunc>
+            {
+                CurrentSelectedSite.MenuFunc
+            };
             var lv2 = CurrentSelectedSite.SubMenu;
             if (MoeSitesLv2ComboBox.SelectedIndex != -1 && lv2.Any())
             {
