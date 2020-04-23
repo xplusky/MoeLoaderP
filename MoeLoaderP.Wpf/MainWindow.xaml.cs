@@ -41,6 +41,7 @@ namespace MoeLoaderP.Wpf
             MoeDownloaderControl.Init(Settings);
             MoeSettingsControl.Init(Settings);
             AboutControl.Init();
+            ChangeModeButton.Click += ChangeModeButtonOnClick;
 
             // explorer
             MoeExplorer.Settings = Settings;
@@ -66,6 +67,13 @@ namespace MoeLoaderP.Wpf
             LogoImageButton.Click += LogoImageButtonOnClick;
             ChangeBgImage();
             
+        }
+
+        private void ChangeModeButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            
+            VisualStateManager.GoToElementState(LayoutRoot, Settings.IsCustomSiteMode ? nameof(DefaultSitesState) : nameof(CustomSitesState),true);
+            Settings.IsCustomSiteMode = !Settings.IsCustomSiteMode;
         }
 
         private void OutputSelectedImagesUrlsButtonOnClick(object sender, RoutedEventArgs e)

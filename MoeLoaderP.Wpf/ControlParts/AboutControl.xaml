@@ -47,10 +47,10 @@
             <TextBlock TextWrapping="Wrap" Text="感谢下列用户的捐助！" Margin="0,6,0,0"/>
             <WrapPanel x:Name="ThanksUserWrapPanel"/>
         </StackPanel>
-        <Grid x:Name="AboutDonateImageGrid" Visibility="Collapsed" Margin="0,0,42,38.667">
+        <Grid x:Name="AboutDonateImageGrid" Visibility="Collapsed">
             <Image x:Name="AboutDonateImage" Source="/MoeLoaderP;component/Assets/alipay-qrcode.png"/>
         </Grid>
-        <Grid x:Name="AboutDonateWeixinImageGrid" Visibility="Collapsed" Margin="0,0,42,38.667" >
+        <Grid x:Name="AboutDonateWeixinImageGrid" Visibility="Collapsed" >
             <Image x:Name="AboutDonateWeixinImage" Source="/MoeLoaderP;component/Assets/weixinpay-qrcode.png"/>
         </Grid>
     </Grid>

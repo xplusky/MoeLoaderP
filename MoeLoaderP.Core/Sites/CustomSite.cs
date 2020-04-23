@@ -6,14 +6,22 @@ using System.Threading.Tasks;
 
 namespace MoeLoaderP.Core.Sites
 {
-    public class IntellianalysisWebSite:MoeSite
+    public abstract class CustomSite : MoeSite
     {
-        public override string HomeUrl => "AnyPicSite";
-        public override string DisplayName => "智能解析网页";
-        public override string ShortName => "intelli-site";
+        
+    }
+
+    public class CustomSiteItem : CustomSite
+    {
+        public override string HomeUrl => null;
+        public override string DisplayName => "自定义站点";
+        public override string ShortName => "custom-site";
         public override Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             throw new NotImplementedException();
         }
+
+        public CustomSite CurrentCustomSite { get; set; }
+
     }
 }

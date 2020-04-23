@@ -1,4 +1,5 @@
-﻿using MoeLoaderP.Core.Sites;
+﻿using System.ComponentModel;
+using MoeLoaderP.Core.Sites;
 
 namespace MoeLoaderP.Core
 {
@@ -14,7 +15,26 @@ namespace MoeLoaderP.Core
         {
             Settings = settings;
             Sites.Settings = settings;
+            settings.PropertyChanged += SettingsOnPropertyChanged;
             SetDefaultSiteList();
+
+        }
+
+        private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Settings.IsCustomSiteMode))
+            {
+                if (Settings.IsCustomSiteMode)
+                {
+                    Sites.Clear();
+                    SetCustomSiteList();
+                }
+                else
+                {
+                    Sites.Clear();
+                    SetDefaultSiteList();
+                }
+            }
         }
 
         public void SetDefaultSiteList()
@@ -42,7 +62,11 @@ namespace MoeLoaderP.Core
             Sites.Add(new ZeroChanSite());
             if (x) Sites.Add(new AnimePicsSite());
             Sites.Add(new WCosplaySite());
-            //Sites.Add(new IntellianalysisWebSite());
+        }
+
+        public void SetCustomSiteList()
+        {
+            Sites.Add(new CustomSiteItem());
         }
     }
 }

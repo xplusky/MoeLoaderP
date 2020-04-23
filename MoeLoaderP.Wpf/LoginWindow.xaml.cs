@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using CefSharp;
 using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
@@ -21,6 +22,8 @@ namespace MoeLoaderP.Wpf
         public LoginWindow()
         {
             InitializeComponent();
+            this.GoState(nameof(HideChromeState));
+            
         }
 
         public void Init(Settings setting, MoeSite site)
@@ -115,6 +118,7 @@ namespace MoeLoaderP.Wpf
         private void MainBrowerOnLoaded(object sender, RoutedEventArgs e)
         {
             MainBrower.Address = Site.LoginPageUrl;
+            this.GoState(nameof(ShowChromeState));
         }
 
         public class CookieVisitor : ICookieVisitor

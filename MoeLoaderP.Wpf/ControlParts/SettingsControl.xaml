@@ -40,8 +40,8 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="56*"/>
-                            <ColumnDefinition Width="81*"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88" Text="{DynamicResource TextSettingsParallelLoadMaxCount}"/>
                         <controlParts:VariableCountControl x:Name="ImageParallelLoadMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="20" NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="24"/>
@@ -58,24 +58,25 @@
                 <StackPanel Margin="4">
                     <Grid Height="24">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50*"/>
-                            <ColumnDefinition Width="75*"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <controlParts:VariableCountControl x:Name="ParallelDownloadingMaxCountBox" MinCount="1" MaxCount="15" NumCount="{Binding MaxOnDownloadingImageCount, Mode=TwoWay}" Grid.Column="1" Width="150" Height="24"/>
                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsDownloadParallelDownloadingCount}" VerticalAlignment="Center"/>
                     </Grid>
                     <Grid Height="25" Margin="0,2,0,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="259.112"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox x:Name="DownladFirstSeveralCheckBox" IsChecked="{Binding IsDownladFirstSeveral}" VerticalAlignment="Center" Height="15.1">
+                        <CheckBox x:Name="DownladFirstSeveralCheckBox" IsChecked="{Binding IsDownloadFirstSeveral}" VerticalAlignment="Center" Margin="0,4.95">
                             <TextBlock><Run Text="下载图组时只下载前"/><Run Text=" "/><Run Text="{Binding NumCount, ElementName=DownladFirstSeveralCountBox, Mode=OneWay}"/><Run Text=" "/><Run Text="张"/></TextBlock>
                         </CheckBox>
-                        <controlParts:VariableCountControl x:Name="DownladFirstSeveralCountBox" MinCount="1" MaxCount="99" NumCount="{Binding DownladFirstSeveralCount, Mode=TwoWay}" VerticalAlignment="Center" Height="22" HorizontalAlignment="Right" Width="82" IsEnabled="{Binding IsChecked, ElementName=DownladFirstSeveralCheckBox}"/>
+                        <controlParts:VariableCountControl x:Name="DownladFirstSeveralCountBox" MinCount="1" MaxCount="99" NumCount="{Binding DownloadFirstSeveralCount, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=DownladFirstSeveralCheckBox}" Grid.Column="1" Height="24" Width="82"/>
                     </Grid>
                     <TextBlock
                         HorizontalAlignment="Left"
-                        VerticalAlignment="Top" Margin="0,4"><Run Text="存储文件夹位置（分站点"/><Run Text="文件夹"/><Run Text="保存）"/></TextBlock>
+                        VerticalAlignment="Top" Margin="0,4"><Run Text="图片"/><Run Text="存储文件夹位置"/></TextBlock>
                     <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="215*"/>
@@ -95,75 +96,116 @@
                             VerticalAlignment="Top"
                             Content="{DynamicResource TextCommonBrowse}" Template="{DynamicResource MoeButtonControlTemplate}" Grid.Column="1" />
                     </Grid>
-                    <CheckBox x:Name="SortFolderByKeywordCheckBox" Content="按搜索关键字分文件夹保存" IsChecked="{Binding IsSortFolderByKeyword}" Margin="0,4,0,0"/>
-                    <StackPanel Orientation="Vertical">
-                        <CheckBox x:Name="CustomNameFormatCheckBox" Content="自定义文件命名格式（不带扩展名）" IsChecked="{Binding IsUseCustomFileNameFormat}" Margin="0,4,0,0"/>
+                    <TextBlock
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top" Margin="0,2,0,0"><Run Text="自定义"/><Run Text="图片保存"/><Run Text="子"/><Run Text="文件夹"/></TextBlock>
+                    <Grid x:Name="SortFolderNameFormatGrid" Height="26" Margin="0,2" IsEnabled="{Binding IsChecked, ElementName=CustomSortFolderCheckBox}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            x:Name="SortFolderNameFormatTextBox"
+                            VerticalAlignment="Top"
+                            Text="{Binding SortFolderNameFormat}"
+                            TextWrapping="NoWrap" 
+                            Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}"
+                            Height="26" ToolTip="例子：%site\%uploader 则将图片存在网站目录下建立作者文件夹；%site 则为存在站点文件夹下"  />
+                        <Button x:Name="SortFolderNameFormatResetButton"
+                            Width="26"
+                            Height="26"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" Grid.Column="1" Margin="6,0,0,0" ToolTip="恢复默认" />
+                    </Grid>
+                    <TextBlock
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top" Text="自定义文件命名格式（不带扩展名）" Margin="0,2"/>
+                    <Grid Height="26">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         <TextBox
                             x:Name="FileNameFormatTextBox"
                             VerticalAlignment="Top"
                             Text="{Binding SaveFileNameFormat}"
-                            TextWrapping="NoWrap" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Height="26" IsEnabled="{Binding IsChecked, ElementName=CustomNameFormatCheckBox}" Margin="0,4,0,0" />
-                        <WrapPanel x:Name="NameFormatPanel" Orientation="Horizontal" IsEnabled="{Binding IsChecked, ElementName=CustomNameFormatCheckBox}" Margin="0,4,0,0">
-                            <Button
+                            TextWrapping="NoWrap" 
+                            Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" 
+                            Height="26" />
+                        <Button x:Name="FileNameFormatResetButton"
+                            Width="26"
+                            Height="26"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" ToolTip="恢复默认" Grid.Column="1" Margin="6,0,0,0" />
+                    </Grid>
+                    <WrapPanel x:Name="NameFormatPanel" Orientation="Horizontal" Margin="0,4,0,0" >
+                        <Button
                                 x:Name="NameFormatSiteButton"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%site"
-                                ToolTip="站点" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="46.444" Margin="2" />
-                            <Button
+                                Content="站点名"
+                                ToolTip="%site" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="52.444" Margin="2" />
+                        <Button
+                            x:Name="NameFormatSiteButton_Copy"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Content="搜索关键字"
+                            ToolTip="%keyword" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="71.111" Margin="2" />
+                        <Button
                                 x:Name="NameFormatIdButton"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%id"
-                                ToolTip="作品ID" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="33.111" Margin="2" />
-                            <Button
-                                x:Name="NameFormatTagButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="%tag"
-                                ToolTip="作品标签" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="41.556" Margin="2" />
-                            <Button
-                                x:Name="NameFormatDiescButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="%title"
-                                ToolTip="作品标题" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="47.111" Margin="2" />
-                            <Button
+                                Content="作品ID"
+                                ToolTip="%id" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="48.444" Margin="2" />
+                        <Button
                                 x:Name="NameFormatAuthorButton"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%uploader"
-                                ToolTip="上传者名" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="78" Margin="2" />
-                            <Button
+                                Content="作者"
+                                ToolTip="%uploader" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="50" Margin="2" />
+                        <Button
+                                x:Name="NameFormatDiescButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="标题"
+                                ToolTip="%title" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="42.444" Margin="2" />
+                        <Button
+                                x:Name="NameFormatTagButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="标签"
+                                ToolTip="%tag" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="41.556" Margin="2" />
+                        <Button
                                 x:Name="NameFormatDateButton"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%date"
-                                ToolTip="上载时间" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="49.556" Margin="2" />
-                            <Button
+                                Content="日期"
+                                ToolTip="%date" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="44.223" Margin="2" />
+                        <Button
                                 x:Name="NameFormatOriginButton"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%origin"
-                                ToolTip="原始文件名" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="53" Margin="2" />
-                            <Button
+                                Content="原始文件名"
+                                ToolTip="%origin" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="69.667" Margin="2" />
+                        <Button
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%copyright"
-                                ToolTip="作品名" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="73" Margin="2" />
-                            <Button
+                                Content="作品名"
+                                ToolTip="%copyright" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="54.333" Margin="2" />
+                        <Button
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%character"
-                                ToolTip="角色名" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="78" Margin="2" />
-                            <Button
+                                Content="角色名"
+                                ToolTip="%character" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="53.333" Margin="2" />
+                        <Button
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"
-                                Content="%artist"
-                                ToolTip="画师名" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="57" Margin="2" />
-                        </WrapPanel>
-                        <CheckBox x:Name="AutoRenameCheckBox" Content="文件名相同时自动重命名（否则直接跳过）" IsChecked="{Binding IsAutoRenameWhenSame}" Margin="0,4,0,0"/>
-                    </StackPanel>
+                                Content="画师名"
+                                ToolTip="%artist" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="57" Margin="2" />
+                    </WrapPanel>
+                    <CheckBox x:Name="AutoRenameCheckBox" Content="文件名相同时自动重命名（否则直接跳过）" IsChecked="{Binding IsAutoRenameWhenSame}" Margin="0,4,0,0"/>
                 </StackPanel>
             </GroupBox>
             <GroupBox Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2" Header="软件设置">

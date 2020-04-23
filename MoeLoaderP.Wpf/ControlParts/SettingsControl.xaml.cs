@@ -26,9 +26,39 @@ namespace MoeLoaderP.Wpf.ControlParts
 
             CustomProxyTextBox.GotFocus += (sender, args) => _tempCustomProxyText = CustomProxyTextBox.Text;
             CustomProxyTextBox.LostFocus += CustomProxyTextBlockOnLostFocus;
+
             ProxyModeComboBox.SelectionChanged += (sender, args) => CustomProxyTextBox.IsEnabled = ProxyModeComboBox.SelectedIndex == 1; 
             FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
+            FileNameFormatResetButton.Click += FileNameFormatResetButtonOnClick;
+            SortFolderNameFormatTextBox.LostFocus += SortFolderNameFormatTextBoxOnLostFocus;
+            SortFolderNameFormatResetButton.Click += SortFolderNameFormatResetButtonOnClick;
 
+        }
+
+        private void FileNameFormatResetButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            Settings.SaveFileNameFormat = Settings.SaveFileNameFormatDefaultValue;
+        }
+
+        private void SortFolderNameFormatResetButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            Settings.SortFolderNameFormat = Settings.SortFolderNameFormatDefaultValue;
+        }
+
+        private void SortFolderNameFormatTextBoxOnLostFocus(object sender, RoutedEventArgs e)
+        {
+            var isBad = false;
+            var output = SortFolderNameFormatTextBox.Text.Trim();
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                if (!output.Contains(c)) continue;
+                if(c == '\\')continue;
+                isBad = true;
+                output = output.Replace($"{c}", "");
+            }
+            Settings.SortFolderNameFormat = output;
+            if (isBad) Extend.ShowMessage("路径名包含非法字符，已自动去除");
+            LastLostTextBox = SortFolderNameFormatTextBox;
         }
 
         public void Init(Settings settings)
@@ -50,6 +80,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             Settings.SaveFileNameFormat = output;
             if (isBad) Extend.ShowMessage("文件名包含非法字符，已自动去除");
+            LastLostTextBox = FileNameFormatTextBox;
         }
 
         private void CustomProxyTextBlockOnLostFocus(object sender, RoutedEventArgs e)
@@ -89,17 +120,20 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
         
+        private TextBox LastLostTextBox { get; set; }
         /// <summary>
         /// 插入格式到规则文本框
         /// </summary>
         private void FileNameFormatButtonOnClick(object sender, RoutedEventArgs e)
         {
+            var tb = LastLostTextBox;
+            if (tb == null)return;
             var btn = (Button)sender;
-            var format = btn.Content.ToString();
-            var selectStart = FileNameFormatTextBox.SelectionStart;
-            FileNameFormatTextBox.Text = FileNameFormatTextBox.Text.Insert(selectStart, format);
-            FileNameFormatTextBox.SelectionStart = selectStart + format.Length;
-            FileNameFormatTextBox.Focus();
+            var format = btn.ToolTip.ToString();
+            var selectStart = tb.SelectionStart;
+            tb.Text = tb.Text.Insert(selectStart, format);
+            tb.SelectionStart = selectStart + format.Length;
+            tb.Focus();
         }
 
     }

@@ -24,7 +24,7 @@ namespace MoeLoaderP.Wpf
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (!(value is int count)) return Visibility.Collapsed;
-            if (count > 0) return Visibility.Visible;
+            if (count > 1) return Visibility.Visible;
             return Visibility.Collapsed;
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Handlers;
@@ -83,10 +82,11 @@ namespace MoeLoaderP.Core
                             try
                             {
                                 var strs = Settings.ProxySetting.Split(':');
-                                var port = int.Parse(strs[1]);
+                                var port = strs[1].ToInt();
+                                if (port == 0) return WebRequest.DefaultWebProxy;
                                 var address = IPAddress.Parse(strs[0]);
-                                var porxy = new WebProxy(address.ToString(), port);
-                                return porxy;
+                                var proxy = new WebProxy(address.ToString(), port);
+                                return proxy;
                             }
                             catch (Exception e)
                             {

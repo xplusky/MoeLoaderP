@@ -1738,5 +1738,7 @@
             <TextBlock TextWrapping="NoWrap" Text="{Binding MenuItemName}" Margin="4,0,0,0" VerticalAlignment="Center"/>
         </Grid>
     </DataTemplate>
+    <SolidColorBrush x:Key="MoeDefaultModeBlueBrush" Color="#B33585E4"/>
+    <SolidColorBrush x:Key="MoeCustomSitePinkBrush" Color="#B3F35FD1"/>
 
 </ResourceDictionary>

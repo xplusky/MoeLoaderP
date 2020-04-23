@@ -12,7 +12,7 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class Settings : BindingObject
     {
-        #region Window size
+        #region Window size / Display
 
         private double _mainWindowWidth = 1060d;
         public double MainWindowWidth 
@@ -31,9 +31,15 @@ namespace MoeLoaderP.Core
         #endregion
 
         #region Searching Settings
-        
-        private int _maxOnLoadingImageCount = 8;
 
+        private bool _isShowBgImage = true;
+        public bool IsShowBgImage
+        {
+            get => _isShowBgImage;
+            set => SetField(ref _isShowBgImage, value, nameof(IsShowBgImage));
+        }
+
+        private int _maxOnLoadingImageCount = 8;
         public int MaxOnLoadingImageCount
         {
             get => _maxOnLoadingImageCount;
@@ -41,7 +47,6 @@ namespace MoeLoaderP.Core
         }
 
         private int _maxOnDownloadingImageCount = 3;
-
         public int MaxOnDownloadingImageCount
         {
             get => _maxOnDownloadingImageCount;
@@ -49,7 +54,6 @@ namespace MoeLoaderP.Core
         }
 
         private double _imageItemControlSize = 192d;
-
         public double ImageItemControlSize
         {
             get => _imageItemControlSize;
@@ -57,7 +61,6 @@ namespace MoeLoaderP.Core
         }
 
         private List<string> _searchHistory = new List<string>();
-
         public List<string> SearchHistory
         {
             get => _searchHistory;
@@ -65,17 +68,13 @@ namespace MoeLoaderP.Core
         }
 
         private int _historyKeywordsMaxCount = 15;
-
         public int HistoryKeywordsMaxCount
         {
             get => _historyKeywordsMaxCount;
             set => SetField(ref _historyKeywordsMaxCount, value, nameof(HistoryKeywordsMaxCount));
         }
         private AutoHintItems _historyKeywords = new AutoHintItems();
-        private bool _isAutoRenameWhenSame;
-        private bool _isClearImgsWhenSerachNextPage;
-
-
+        
         public AutoHintItems HistoryKeywords
         {
             get => _historyKeywords;
@@ -85,18 +84,19 @@ namespace MoeLoaderP.Core
 
         #region Download Settings
 
-        private bool _isDownladFirstSeveral ;
-        private int _downladFirstSeveralCount = 1;
-        public int DownladFirstSeveralCount
+        
+        private int _downloadFirstSeveralCount = 1;
+        public int DownloadFirstSeveralCount
         {
-            get => _downladFirstSeveralCount;
-            set => SetField(ref _downladFirstSeveralCount, value, nameof(DownladFirstSeveralCount));
+            get => _downloadFirstSeveralCount;
+            set => SetField(ref _downloadFirstSeveralCount, value, nameof(DownloadFirstSeveralCount));
         }
 
-        public bool IsDownladFirstSeveral
+        private bool _isDownloadFirstSeveral;
+        public bool IsDownloadFirstSeveral
         {
-            get => _isDownladFirstSeveral;
-            set => SetField(ref _isDownladFirstSeveral, value, nameof(IsDownladFirstSeveral));
+            get => _isDownloadFirstSeveral;
+            set => SetField(ref _isDownloadFirstSeveral, value, nameof(IsDownloadFirstSeveral));
         }
 
         private string _imageSavePath/* = App.MoePicFolder*/;
@@ -106,39 +106,30 @@ namespace MoeLoaderP.Core
             set => SetField(ref _imageSavePath, value, nameof(ImageSavePath));
         }
 
+        private bool _isClearImgsWhenSerachNextPage;
         public bool IsClearImgsWhenSerachNextPage
         {
             get => _isClearImgsWhenSerachNextPage;
             set => SetField(ref _isClearImgsWhenSerachNextPage, value, nameof(IsClearImgsWhenSerachNextPage));
         }
 
-
-        private bool _isSortFolderByKeyword;
-        public bool IsSortFolderByKeyword
-        {
-            get => _isSortFolderByKeyword;
-            set => SetField(ref _isSortFolderByKeyword, value, nameof(IsSortFolderByKeyword));
-        }
-
-        private bool _isUseCustomFileNameFormat;
-
-        /// <summary>
-        /// 自定义文件名格式
-        /// </summary>
-        public bool IsUseCustomFileNameFormat
-        {
-            get => _isUseCustomFileNameFormat;
-            set => SetField(ref _isUseCustomFileNameFormat, value, nameof(IsUseCustomFileNameFormat));
-        }
-
-        private string _saveFileNameFormat= "%origin";
-
+        public const string SaveFileNameFormatDefaultValue = "%site %id";
+        private string _saveFileNameFormat= SaveFileNameFormatDefaultValue;
         public string SaveFileNameFormat
         {
             get => _saveFileNameFormat;
             set => SetField(ref _saveFileNameFormat, value, nameof(SaveFileNameFormat));
         }
 
+        public const string SortFolderNameFormatDefaultValue = "%site";
+        private string _sortFolderNameFormat = SortFolderNameFormatDefaultValue;
+        public string SortFolderNameFormat
+        {
+            get => _sortFolderNameFormat;
+            set => SetField(ref _sortFolderNameFormat, value, nameof(SortFolderNameFormat));
+        }
+
+        private bool _isAutoRenameWhenSame;
         public bool IsAutoRenameWhenSame
         {
             get => _isAutoRenameWhenSame;
@@ -211,13 +202,19 @@ namespace MoeLoaderP.Core
         /// </summary>
         public Dictionary<string, MoeSiteSetting> MoeSiteSettings { get; set; } =new Dictionary<string, MoeSiteSetting>();
 
-        #endregion
-        private bool _isShowBgImage = true;
-        public bool IsShowBgImage   
+        public CustomSiteSettingList CustomSiteSettingList { get; set; } = new CustomSiteSettingList();
+
+        private bool _isCustomSiteMode = false;
+        [JsonIgnore]
+        public bool IsCustomSiteMode
         {
-            get => _isShowBgImage;
-            set => SetField(ref _isShowBgImage, value, nameof(IsShowBgImage));
+            get => _isCustomSiteMode;
+            set => SetField(ref _isCustomSiteMode, value, nameof(IsCustomSiteMode));
         }
+
+        #endregion
+
+
 
         public void Save(string jsonPath)
         {
@@ -254,6 +251,16 @@ namespace MoeLoaderP.Core
     {
         public string LonginCookie { get; set; }
     }
+
+
+
+    public class CustomSiteSetting
+    {
+        public string DisplayName { get; set; }
+        
+    }
+
+    public class CustomSiteSettingList : List<CustomSiteSetting> { }
 
     /// <summary>
     /// 实现绑定所需的属性值变更通知接口

@@ -161,6 +161,23 @@
                     </Storyboard>
                 </VisualState>
             </VisualStateGroup>
+            <VisualStateGroup x:Name="SiteModeVSG">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0">
+                        <VisualTransition.GeneratedEasingFunction>
+                            <ExponentialEase EasingMode="EaseInOut"/>
+                        </VisualTransition.GeneratedEasingFunction>
+                    </VisualTransition>
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="DefaultSitesState"/>
+                <VisualState x:Name="CustomSitesState">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background)" Storyboard.TargetName="StatusBarBorder">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource MoeCustomSitePinkBrush}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="72"/>
@@ -220,24 +237,29 @@
                     </Popup>
                 </Grid>
             </StackPanel>
-            <Button x:Name="LogoImageButton" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Width="356" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5" Cursor="Hand">
-                <Button.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleY="1" ScaleX="1"/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform X="0" Y="0"/>
-                    </TransformGroup>
-                </Button.RenderTransform>
-                <Button.Template>
-                    <ControlTemplate TargetType="{x:Type ButtonBase}">
-                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-                <Image x:Name="LogoImage" Source="/Assets/banner.png" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            </Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button x:Name="LogoImageButton" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Width="356" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5" Cursor="Hand" Height="72">
+                    <Button.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleY="1" ScaleX="1"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform X="0" Y="0"/>
+                        </TransformGroup>
+                    </Button.RenderTransform>
+                    <Button.Template>
+                        <ControlTemplate TargetType="{x:Type ButtonBase}">
+                            <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <Image x:Name="LogoImage" Source="/Assets/banner.png" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="ChangeModeButton" Template="{DynamicResource MoeButtonControlTemplate}" Width="40" Height="40" FontFamily="{DynamicResource FontAwesomeSolid}" VerticalAlignment="Bottom" Margin="0,0,0,4" Visibility="Collapsed">
+                    <TextBlock TextWrapping="Wrap" Text="&#xF362;" FontSize="24" FontWeight="Bold"/>
+                </Button>
+            </StackPanel>
         </Grid>
         <Grid x:Name="BgGrid" Grid.RowSpan="2" Visibility="{Binding IsShowBgImage, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
             <Viewbox x:Name="BgGridViewBox" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
@@ -278,7 +300,7 @@
                 Height="25"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                Background="#B33585E4" Grid.Row="2">
+                Background="{DynamicResource MoeDefaultModeBlueBrush}" Grid.Row="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

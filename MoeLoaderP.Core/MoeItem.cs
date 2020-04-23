@@ -38,7 +38,16 @@ namespace MoeLoaderP.Core
         public double Score { get; set; }
         public int Rank { get; set; }
         public bool TipHighLight { get; set; }
-        public string Tip { get; set; }
+
+        public string Tip
+        {
+            get => _tip;
+            set
+            {
+                _tip = value; OnPropertyChanged(nameof(Tip));
+            }
+        }
+
         public string Source { get; set; }
         public string Description { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
@@ -102,6 +111,7 @@ namespace MoeLoaderP.Core
 
         private int _imageCount;
         private string _dateString;
+        private string _tip;
 
         public int ImagesCount
         {
@@ -177,6 +187,7 @@ namespace MoeLoaderP.Core
         public string Md5 { get; set; }
         public string Referer { get; set; }
         public ulong BiteSize { get; set; }
+        public bool IsPixivGifZip { get; set; }
 
         public UrlInfo(int priority, string url, string referer = null)
         {
@@ -232,9 +243,14 @@ namespace MoeLoaderP.Core
             return info;
         }
 
-        public void Add(int p, string url, string referer=null)
+        public void Add(int p, string url, string referer=null,bool ispixivgif = false)
         {
-            Add(new UrlInfo(p,url,referer));
+            var urlinfo = new UrlInfo(p, url, referer);
+            if (ispixivgif)
+            {
+                urlinfo.IsPixivGifZip = true;
+            } 
+            Add(urlinfo);
         }
     }
 }

@@ -3,6 +3,7 @@ using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -44,6 +45,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             KeywordTextBox.LostFocus += (sender, args) => KeywordPopup.IsOpen = false;
             KeywordListBox.ItemsSource = CurrentHintItems;
             KeywordListBox.SelectionChanged += KeywordComboBoxOnSelectionChanged;
+            SiteManager.Sites.CollectionChanged += SitesOnCollectionChanged;
 
             MoeSitesLv1ComboBox.SelectionChanged += MoeSitesLv1ComboBoxOnSelectionChanged;// 一级菜单选择改变
             MoeSitesLv2ComboBox.SelectionChanged += MoeSitesLv2ComboBoxOnSelectionChanged;// 二级菜单选择改变
@@ -52,6 +54,11 @@ namespace MoeLoaderP.Wpf.ControlParts
 
             MoeSitesLv1ComboBox.SelectedIndex = 0;
 
+        }
+
+        private void SitesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (MoeSitesLv1ComboBox.SelectedIndex == -1) MoeSitesLv1ComboBox.SelectedIndex = 0;
         }
 
         private void VisualUpdate()

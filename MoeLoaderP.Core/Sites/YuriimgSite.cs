@@ -31,7 +31,7 @@ namespace MoeLoaderP.Core.Sites
             img.Artist = $"{json.artist?.name}";
             img.Uploader = $"{json.user?.name}";
             img.UploaderId = $"{json.user?.id}";
-            foreach (var tag in json.tags.general)
+            foreach (var tag in Extend.CheckListNull(json.tags.general))
             {
                 img.Tags.Add($"{tag.tags?.jp}");
             }

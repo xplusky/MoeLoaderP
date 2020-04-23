@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +35,7 @@ namespace MoeLoaderP.Core.Sites
 
         public PixivSite()
         {
-            var mangaIlluMenu = new MoeMenuItems(new MoeMenuItem("插画"), new MoeMenuItem("漫画"));
+            var mangaIlluMenu = new MoeMenuItems(new MoeMenuItem("插画+动图"), new MoeMenuItem("漫画"));
             SubMenu.Add("最新/搜索", mangaIlluMenu); // 0
             SubMenu.Add("作者ID", mangaIlluMenu); // 1
 
@@ -194,7 +193,15 @@ namespace MoeLoaderP.Core.Sites
                 }
 
                 img.Date = GetDateFromUrl($"{illus.url}");
-                img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                if ($"{illus.illustType}" == "2")
+                {
+                    img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
+                }
+                else
+                {
+                    img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                }
+
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
             }
@@ -284,7 +291,15 @@ namespace MoeLoaderP.Core.Sites
                         img.Tags.Add($"{tag}");
                     }
                     img.Date = GetDateFromUrl($"{illus.url}");
-                    img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                    if ($"{illus.illustType}" == "2")
+                    {
+                        img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
+                    }
+                    else
+                    {
+                        img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                    }
+                    
                     img.OriginString = $"{item}";
                     imgs.Add(img);
                 }
@@ -376,6 +391,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task GetUgoiraDetailPageTask(MoeItem img)
         {
+            if (img.Tip.IsNaN()) img.Tip = "动图";
             var net = Net.CloneWithOldCookie();
             var api = $"{HomeUrl}/ajax/illust/{img.Id}/ugoira_meta";
             var jsonRes = await net.Client.GetAsync(api);
@@ -385,9 +401,9 @@ namespace MoeLoaderP.Core.Sites
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
             {
-                img.Urls.Add(2, $"{img1.src}", refer);
-                img.Urls.Add(3, $"{img1.src}", refer);
-                img.Urls.Add(4, $"{img1.originalSrc}", refer);
+                img.Urls.Add(2, $"{img1.src}", refer,true);
+                img.Urls.Add(3, $"{img1.src}", refer,true);
+                img.Urls.Add(4, $"{img1.originalSrc}", refer,true);
                 img.ExtraFile = new TextFileInfo { FileExt = "json", Content = jsonStr };
             }
         }
