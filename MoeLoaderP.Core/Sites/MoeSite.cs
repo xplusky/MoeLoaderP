@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading;
@@ -27,37 +28,42 @@ namespace MoeLoaderP.Core.Sites
         public abstract string ShortName { get; }
 
         public string LoginPageUrl { get; set; }
-        public MoeMenuItems SubMenu { get; set; } =new MoeMenuItems();
-        private string _loginCookies;
+        public MoeMenuItems SubMenu { get; set; } = new MoeMenuItems();
 
         public virtual CookieContainer GetCookies() => null;
         public virtual bool VerifyCookie(string cookieStr) => false;
-        public string LoginCookies
-        {
-            get => _loginCookies;
-            set => SetField(ref _loginCookies, value, nameof(LoginCookies));
-        }
-
         /// <summary>
         /// 站点支持的功能情况
         /// </summary>
         public MoeSiteSupportState SupportState { get; set; } = new MoeSiteSupportState();
         public MoeSiteFuncSupportState FuncSupportState { get; set; } = new MoeSiteFuncSupportState();
         public MenuItemFunc MenuFunc { get; set; } = new MenuItemFunc();
-        
+
         public virtual NetDocker Net { get; set; }
-        
+
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
         /// </summary>
         public abstract Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token);
-        
+
         /// <summary>
         /// 获取关键词自动提示列表
         /// </summary>
         public virtual Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token) => null;
-        
+
         public Settings Settings { get; set; }
+
+        public MoeSiteSetting CurrentSiteSetting
+        {
+            get
+            {
+                if (Settings?.MoeSiteSettings?.ContainsKey(ShortName) == true) return Settings.MoeSiteSettings[ShortName];
+                if (Settings == null) return null;
+                if(Settings.MoeSiteSettings == null) Settings.MoeSiteSettings = new Dictionary<string, MoeSiteSetting>();
+                Settings.MoeSiteSettings.Add(ShortName, new MoeSiteSetting());
+                return Settings.MoeSiteSettings[ShortName];
+            }
+        }
 
         public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
 
@@ -75,7 +81,8 @@ namespace MoeLoaderP.Core.Sites
         {
             Add(new DownloadType
             {
-                Name = name,Priority = pr
+                Name = name,
+                Priority = pr
             });
         }
     }
@@ -102,7 +109,7 @@ namespace MoeLoaderP.Core.Sites
         /// 是否支持分辨率，若为false则不可按分辨率过滤图片
         /// </summary>
         public bool IsSupportResolution { get; set; } = true;
-        
+
         /// <summary>
         /// 是否支持搜索框自动提示，若为false则输入关键词时无自动提示
         /// </summary>
@@ -130,13 +137,16 @@ namespace MoeLoaderP.Core.Sites
         public new void Add(MoeSite site)
         {
             site.Settings = Settings;
-            if (Settings.MoeSiteSettings?.ContainsKey(site.ShortName) == true)
-            {
-                site.LoginCookies = Settings.MoeSiteSettings[site.ShortName].LonginCookie;
-            }
             base.Add(site);
         }
+
+        public MoeSites(Settings set)
+        {
+            Settings = set;
+        }
     }
+
+    
 
     /// <summary>
     /// 自动提示列表中的一项
@@ -151,24 +161,30 @@ namespace MoeLoaderP.Core.Sites
 
     public class AutoHintItems : ObservableCollection<AutoHintItem>
     {
-        public void AddHistory(string keyword,Settings settings)
+        public void AddHistory(string keyword, Settings settings)
         {
-            if (string.IsNullOrWhiteSpace(keyword)) return;
+            if (keyword.IsNaN()) return;
             foreach (var item in this)
             {
                 if (item.Word == keyword) return;
             }
-            var aitem = new AutoHintItem
+            var hintItem = new AutoHintItem
             {
                 IsHistory = true,
                 Word = keyword
             };
-            if (Count>=settings.HistoryKeywordsMaxCount)RemoveAt(Count-1);
-            Insert(0,aitem);
+            if (Count >= settings.HistoryKeywordsMaxCount) RemoveAt(Count - 1);
+            Insert(0, hintItem);
+        }
+
+        public void Add(string word, string count = null)
+        {
+            var item = new AutoHintItem {Word = word, Count = count};
+            Add(item);
         }
     }
 
-    public class MoeMenuItem 
+    public class MoeMenuItem
     {
         public MoeMenuItem() { }
         public MoeMenuItem(string name, MoeMenuItems menu = null)
@@ -178,7 +194,7 @@ namespace MoeLoaderP.Core.Sites
         }
         public string MenuItemName { get; set; }
 
-        public MenuItemFunc Func { get; set; } =new MenuItemFunc();
+        public MenuItemFunc Func { get; set; } = new MenuItemFunc();
 
         public MoeMenuItems SubMenu { get; set; } = new MoeMenuItems();
 
@@ -190,7 +206,7 @@ namespace MoeLoaderP.Core.Sites
         public bool? ShowDatePicker { get; set; } = false;
     }
 
-    public class MoeMenuItems : List<MoeMenuItem> 
+    public class MoeMenuItems : List<MoeMenuItem>
     {
         public void Add(string name, MoeMenuItems subMenu)
         {
@@ -217,11 +233,11 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public MoeMenuItems(MoeMenuItems submenu,params string[] itemsNames)
+        public MoeMenuItems(MoeMenuItems submenu, params string[] itemsNames)
         {
             foreach (var name in itemsNames)
             {
-                Add(new MoeMenuItem(name,submenu));
+                Add(new MoeMenuItem(name, submenu));
             }
         }
 

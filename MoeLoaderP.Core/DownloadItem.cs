@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ImageMagick;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -7,8 +9,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ImageMagick;
-using Newtonsoft.Json;
 
 namespace MoeLoaderP.Core
 {
@@ -52,26 +52,8 @@ namespace MoeLoaderP.Core
         {
             get
             {
-                switch (Status)
-                {
-                    case DownloadStatusEnum.WaitForDownload:
-                        return "";
-                    case DownloadStatusEnum.Success:
-                        return "";
-                    case DownloadStatusEnum.Cancel:
-                        return "";
-                    case DownloadStatusEnum.IsExist:
-                        return "";
-                    case DownloadStatusEnum.Failed:
-                        return "";
-                    case DownloadStatusEnum.Downloading:
-                        return "";
-                    case DownloadStatusEnum.Skip:
-                        return "";
-                    case DownloadStatusEnum.Stop:
-                        return WebUtility.HtmlDecode("&#xF04D;");
-                }
-                return null;
+                var strings = new[] {"", "", "",  WebUtility.HtmlDecode("&#xF04D;"), "", "", ""};
+                return strings[(int) Status];
             }
         }
 
@@ -105,7 +87,7 @@ namespace MoeLoaderP.Core
             CurrentMoeItem = item;
             SubIndex = subindex;
             OriginFileName = Path.GetFileName(item.DownloadUrlInfo.Url);
-            OriginFileName = Path.GetFileNameWithoutExtension(item.DownloadUrlInfo.Url);
+            OriginFileNameWithoutExt = Path.GetFileNameWithoutExtension(item.DownloadUrlInfo.Url).ToDecodedUrl();
             var father = subindex == 0 ? null : fatheritem;
             GenFileNameWithoutExt(father);
             GenLocalFileFullPath(father);
@@ -120,19 +102,22 @@ namespace MoeLoaderP.Core
             if (SubItems.Count > 0)
             {
                 Status = DownloadStatusEnum.Downloading;
+                var b = Set.DownloadFirstSeveralCount < SubItems.Count && Set.IsDownloadFirstSeveral;
+                var count = b ? Set.DownloadFirstSeveralCount : SubItems.Count;
                 for (var i = 0; i < SubItems.Count; i++)
                 {
+                    
+                    StatusText = $"正在下载 {i+1} / {count} 张";
                     if (i < Set.DownloadFirstSeveralCount || Set.IsDownloadFirstSeveral == false)
                     {
                         var item = SubItems[i];
                         await item.DownloadFileAsync();
                     }
-
-                    var count = Set.DownloadFirstSeveralCount < SubItems.Count ? Set.DownloadFirstSeveralCount : SubItems.Count;
+                    
                     Progress = (i + 1d) / count * 100d;
                 }
                 Status = DownloadStatusEnum.Success;
-                StatusText = "下载完成";
+                StatusText = $"{count} 张下载完成";
             }
             else
             {
@@ -158,7 +143,7 @@ namespace MoeLoaderP.Core
                         else
                         {
                             Status = DownloadStatusEnum.Skip;
-                            StatusText = "跳过";
+                            StatusText = "已存在，跳过";
                             return;
                         }
 
@@ -176,19 +161,18 @@ namespace MoeLoaderP.Core
                     if (File.Exists(LocalFileFullPath))
                     {
                         Status = DownloadStatusEnum.Skip;
-                        StatusText = "跳过";
+                        StatusText = "已存在，跳过";
                         return;
                     }
                     Status = DownloadStatusEnum.Downloading;
                     var data = await net.Client.GetAsync(url.Url, token);
                     var bytes = await data.Content.ReadAsByteArrayAsync();
-                    
+
                     var dir = Path.GetDirectoryName(LocalFileFullPath);
                     if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
                     using (var fs = new FileStream(LocalFileFullPath, FileMode.Create))
                     {
                         await fs.WriteAsync(bytes, 0, bytes.Length, token);
-                        
                     }
 
                     if (CurrentMoeItem.ExtraFile != null)
@@ -197,7 +181,7 @@ namespace MoeLoaderP.Core
                         File.WriteAllText(path, CurrentMoeItem.ExtraFile.Content);
                     }
 
-                    if (url.IsPixivGifZip && CurrentMoeItem.ExtraFile!=null)
+                    if (url.IsPixivGifZip && CurrentMoeItem.ExtraFile != null)
                     {
                         dynamic json = JsonConvert.DeserializeObject(CurrentMoeItem.ExtraFile.Content);
                         var list = json.body.frames;
@@ -237,9 +221,9 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public void ConvertPixivZipToGif(Stream stream,dynamic frames,FileInfo fi)
+        public void ConvertPixivZipToGif(Stream stream, dynamic frames, FileInfo fi)
         {
-            var delayList= new List<int>();
+            var delayList = new List<int>();
             using (var images = new MagickImageCollection())
             {
                 foreach (var frame in frames)
@@ -289,7 +273,7 @@ namespace MoeLoaderP.Core
         public void GenFileNameWithoutExt(MoeItem father = null)
         {
             var img = father ?? CurrentMoeItem;
-            
+
             var format = Set.SaveFileNameFormat;
             if (format.IsNaN())
             {
@@ -302,7 +286,7 @@ namespace MoeLoaderP.Core
             LocalFileShortNameWithoutExt = SubIndex > 0 ? $"{sb} p{SubIndex}" : $"{sb}";
         }
 
-        public string FormatText(string format,MoeItem img,bool isFolder=false)
+        public string FormatText(string format, MoeItem img, bool isFolder = false)
         {
             var sb = new StringBuilder(format);
             sb.Replace("%site", img.Site.ShortName);
@@ -326,29 +310,28 @@ namespace MoeLoaderP.Core
             sb.Replace("%copyright", img.Copyright ?? "no-copyright");
             foreach (var c in Path.GetInvalidFileNameChars())
             {
-                if(c == '\\' && isFolder) continue;
+                if (c == '\\' && isFolder) continue;
                 sb.Replace($"{c}", "");
             }
 
             return sb.ToString();
         }
 
-
         public string AutoRenameFullPath()
         {
-            var oldf = LocalFileFullPath;
-            var ext = Path.GetExtension(oldf);
-            var dir = Path.GetDirectoryName(oldf);
-            var file = Path.GetFileNameWithoutExtension(oldf);
+            var oldF = LocalFileFullPath;
+            var ext = Path.GetExtension(oldF);
+            var dir = Path.GetDirectoryName(oldF);
+            var file = Path.GetFileNameWithoutExtension(oldF);
             var i = 2;
-            var newf = $"{dir}\\{file}{-i}{ext}";
-            while (File.Exists(newf))
+            var newF = $"{dir}\\{file}{-i}{ext}";
+            while (File.Exists(newF))
             {
                 i++;
-                newf = $"{dir}{-i}{ext}";
+                newF = $"{dir}{-i}{ext}";
             }
 
-            return newf;
+            return newF;
         }
 
     }
@@ -357,6 +340,6 @@ namespace MoeLoaderP.Core
 
     public enum DownloadStatusEnum
     {
-        Success, Failed, Cancel, IsExist, Stop, Downloading, WaitForDownload, Skip
+        Success, Failed, Cancel, Stop, Downloading, WaitForDownload, Skip
     }
 }

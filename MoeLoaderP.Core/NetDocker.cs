@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -6,8 +8,6 @@ using System.Net.Http.Handlers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using HtmlAgilityPack;
-using Newtonsoft.Json;
 
 namespace MoeLoaderP.Core
 {
@@ -48,7 +48,7 @@ namespace MoeLoaderP.Core
 
         public void SetReferer(string rfurl)
         {
-            if (string.IsNullOrWhiteSpace(rfurl)) return;
+            if (rfurl.IsNaN()) return;
             Client.DefaultRequestHeaders.Referrer = new Uri(rfurl);
         }
 
@@ -153,7 +153,7 @@ namespace MoeLoaderP.Core
             }
             return xml;
         }
-        
+
     }
 
 

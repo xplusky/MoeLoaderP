@@ -18,6 +18,7 @@
     <wpf:StringToBitmapImageConvertor x:Key="StringToBitmapImageConvertor"/>
     <wpf:ImageSavePathNullConvertor x:Key="ImageSavePathNullConvertor"/>
     <wpf:ProxyModeToSelectIndexConverter x:Key="ProxyModeToSelectIndexConverter"/>
+    <wpf:DoubleToRectConvertor x:Key="DoubleToRectConvertor"></wpf:DoubleToRectConvertor>
 
     <s:String x:Key="AppDisplayName">MoeLoader +1s</s:String>
     <FontFamily x:Key="FontAwesomeSolid"  >/MoeLoaderP;component/Assets/#Font Awesome 5 Free Solid</FontFamily>
@@ -170,11 +171,15 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
     <ControlTemplate x:Key="ImageItemCheckBoxControlTemplate" TargetType="{x:Type CheckBox}">
-        <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">
+        <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True" d:DesignWidth="136.333" d:DesignHeight="103">
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualStateGroup.Transitions>
-                        <VisualTransition GeneratedDuration="0:0:0.2"/>
+                        <VisualTransition GeneratedDuration="0:0:0.3">
+                            <VisualTransition.GeneratedEasingFunction>
+                                <CircleEase EasingMode="EaseOut"/>
+                            </VisualTransition.GeneratedEasingFunction>
+                        </VisualTransition>
                     </VisualStateGroup.Transitions>
                     <VisualState x:Name="Normal"/>
                     <VisualState x:Name="MouseOver">
@@ -189,7 +194,11 @@
                 </VisualStateGroup>
                 <VisualStateGroup x:Name="CheckStates">
                     <VisualStateGroup.Transitions>
-                        <VisualTransition GeneratedDuration="0:0:0.2"/>
+                        <VisualTransition GeneratedDuration="0:0:0.3">
+                            <VisualTransition.GeneratedEasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </VisualTransition.GeneratedEasingFunction>
+                        </VisualTransition>
                     </VisualStateGroup.Transitions>
                     <VisualState x:Name="Checked">
                         <Storyboard>
@@ -198,11 +207,17 @@
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState>
-                    <VisualState x:Name="Unchecked"/>
+                    <VisualState x:Name="Unchecked">
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="CheckBorder">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
                     <VisualState x:Name="Indeterminate"/>
                 </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
-            <Border x:Name="BgBorder" BorderThickness="1" BorderBrush="#FF666666" >
+            <Border x:Name="BgBorder" BorderThickness="1" BorderBrush="#FF666666" CornerRadius="8" >
                 <Border.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FFF3F3F3" Offset="0"/>
@@ -210,14 +225,18 @@
                     </LinearGradientBrush>
                 </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect ShadowDepth="0" Color="#FF00B9FF" BlurRadius="4" Opacity="0"/>
+                    <DropShadowEffect ShadowDepth="0" Color="#FF00B9FF" BlurRadius="6" Opacity="0"/>
                 </Border.Effect>
-                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                    <ContentPresenter.Clip>
+                        <RectangleGeometry RadiusX="8" RadiusY="8" Rect="{Binding ActualWidth, Converter={StaticResource DoubleToRectConvertor}, ElementName=contentPresenter, FallbackValue=0\,0\,500\,500, Mode=OneWay}"  />
+                    </ContentPresenter.Clip>
+                </ContentPresenter>
             </Border>
-            <Border x:Name="CheckBorder" BorderBrush="#FF00B9FF" BorderThickness="2" Opacity="0">
+            <Border x:Name="CheckBorder" BorderBrush="#FF00B9FF" BorderThickness="2" Opacity="1" CornerRadius="8">
                 <Grid>
-                    <Path Data="M109.19444,0.44444444 L123.97266,13.167111 123.91733,0.27822658 109.13933,0.11133919 z"  HorizontalAlignment="Right" Height="24.692" Stretch="Fill" Stroke="#FF00B9FF" VerticalAlignment="Top" Width="27.752" Fill="#FF00B9FF" Margin="0,-0.778,-0.639,0"/>
-                    <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="10" Margin="0,0.75,2.749,0" Foreground="White" ><Run Text="&#xF00C;"/></TextBlock>
+                    <Path Data="M117.94444,12.277778 L132.44489,24.999778 132.77867,6.5553336 131.88955,2.2214517 128.8895,-0.55614344 126.45891,-1.4306963 103.30577,-1.6246924 z" Fill="#FF00B9FF" HorizontalAlignment="Right" Height="27.625" Stretch="Fill" Stroke="#FF00B9FF" VerticalAlignment="Top" Width="30.472" Margin="0,-1,-1,0"/>
+                    <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="10" Margin="0,3,3,0" Foreground="White" FontWeight="Bold" ><Run Text="&#xF00C;"/></TextBlock>
                 </Grid>
             </Border>
         </Grid>
@@ -1145,7 +1164,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <ControlTemplate x:Key="MoeContextMunuButtonControlTemplate" TargetType="{x:Type Button}">
+    <ControlTemplate x:Key="MoeContextMenuButtonControlTemplate" TargetType="{x:Type Button}">
         <Grid x:Name="Grid" UseLayoutRounding="True" d:DesignUseLayoutRounding="True">
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">

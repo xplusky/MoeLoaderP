@@ -9,15 +9,14 @@ namespace MoeLoaderP.Core
     public class SiteManager
     {
         public Settings Settings { get; set; }
-        public MoeSites Sites { get; set; } = new MoeSites();
+        public MoeSites Sites { get; set; } 
 
         public SiteManager(Settings settings)
         {
             Settings = settings;
-            Sites.Settings = settings;
+            Sites = new MoeSites(settings);
             settings.PropertyChanged += SettingsOnPropertyChanged;
             SetDefaultSiteList();
-
         }
 
         private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -79,7 +79,7 @@ namespace MoeLoaderP.Core.Sites
                 var fileUrl = imgHref.Attributes["href"].Value;
                 if (fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
                 var previewUrl = imgHref.SelectSingleNode("img").Attributes["src"].Value;
-                if (previewUrl.StartsWith("/")) previewUrl = HomeUrl + previewUrl;
+                if (previewUrl.StartsWith("/")) previewUrl = $"{HomeUrl}{previewUrl}";
                 img.Urls.Add(1, previewUrl, HomeUrl);
                 var meta = imgNode.SelectSingleNode(".//div[@class='meta']");
                 img.Date = meta.SelectSingleNode(".//dd[2]").InnerText.ToDateTime();

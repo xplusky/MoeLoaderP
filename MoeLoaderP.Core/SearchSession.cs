@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MoeLoaderP.Core.Sites;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MoeLoaderP.Core.Sites;
 
 namespace MoeLoaderP.Core
 {
@@ -44,7 +44,7 @@ namespace MoeLoaderP.Core
             }
             catch (Exception ex)
             {
-                Extend.ShowMessage(ex.Message,ex.ToString(), Extend.MessagePos.Window);
+                Extend.ShowMessage(ex.Message, ex.ToString(), Extend.MessagePos.Window);
                 Extend.Log(ex.Message, ex.StackTrace);
             }
 
@@ -68,12 +68,12 @@ namespace MoeLoaderP.Core
                 // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动过滤相关条件）
                 var sb = new StringBuilder();
                 sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
-                sb.Append($"(参数：kw：{(!string.IsNullOrWhiteSpace(tempPara.Keyword) ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
+                sb.Append($"(参数：kw：{(!tempPara.Keyword.IsNaN() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
                 var imagesOrg = await tempPara.Site.GetRealPageImagesAsync(tempPara, token);
                 if (imagesOrg == null || imagesOrg.Count == 0)
                 {
-                    Extend.ShowMessage("无搜索结果",null, Extend.MessagePos.Searching);
+                    Extend.ShowMessage("无搜索结果", null, Extend.MessagePos.Searching);
                     return;
                 }
                 for (var i = 0; i < imagesOrg.Count; i++)
@@ -123,7 +123,7 @@ namespace MoeLoaderP.Core
                 var sb = new StringBuilder();
                 sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
                 sb.AppendLine($"已获取第{tempPara.PageIndex - 1}页{images.Count}张图片，还需{tempPara.Count - images.Count}张");
-                sb.Append($"(参数：kw：{(!string.IsNullOrWhiteSpace(tempPara.Keyword) ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
+                sb.Append($"(参数：kw：{(!tempPara.Keyword.IsNaN() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
                 var imagesNextRPage = await tempPara.Site.GetRealPageImagesAsync(tempPara, token); // 搜索下一页（真）的所有图片
                 if (imagesNextRPage == null || imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
@@ -135,7 +135,7 @@ namespace MoeLoaderP.Core
                 else // 当下一页（真）未过滤图片数量不为0时
                 {
                     Filter(imagesNextRPage); // 本地过滤下一页（真）
-                    
+
                     foreach (var item in imagesNextRPage)
                     {
                         if (images.Count < tempPara.Count) images.Add(item); // 添加图片数量直到够参数设定的图片数量为止
@@ -149,8 +149,8 @@ namespace MoeLoaderP.Core
             // Load end
             newVPage.ImageItems = images;
             LoadedPages.Add(newVPage);
-            if(images.Message!=null) Extend.ShowMessage(images.Message);
-            if(images.Ex!=null) Extend.ShowMessage(images.Ex.Message,images.Ex.ToString(), Extend.MessagePos.Window);
+            if (images.Message != null) Extend.ShowMessage(images.Message);
+            if (images.Ex != null) Extend.ShowMessage(images.Ex.Message, images.Ex.ToString(), Extend.MessagePos.Window);
             Extend.ShowMessage("搜索完毕", null, Extend.MessagePos.Searching);
         }
 
@@ -189,9 +189,9 @@ namespace MoeLoaderP.Core
                 }
                 if (para.IsFilterFileType) // 过滤图片扩展名
                 {
-                    foreach (var s in para.FilterFileTpyeText.Split(';'))
+                    foreach (var s in para.FilterFileTypeText.Split(';'))
                     {
-                        if (string.IsNullOrWhiteSpace(s)) continue;
+                        if (s.IsNaN()) continue;
                         if (string.Equals(item.FileType, s, StringComparison.CurrentCultureIgnoreCase))
                         {
                             if (!para.IsFileTypeShowSpecificOnly) del = true;
@@ -202,10 +202,6 @@ namespace MoeLoaderP.Core
                         }
                     }
                 }
-
-                // 过滤重复图片
-                // 去除与上一页重复的
-                // if (LoadedPages.Any() && LoadedPages.Last().ImageItems.Has(item)) del = true;
 
                 if (!del) continue;
                 items.RemoveAt(i);
@@ -244,7 +240,7 @@ namespace MoeLoaderP.Core
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(para.Keyword)) sb += $"→\"{para.Keyword}\"";
+            if (!para.Keyword.IsNaN()) sb += $"→\"{para.Keyword}\"";
             return sb;
         }
     }
@@ -270,7 +266,6 @@ namespace MoeLoaderP.Core
         public MoeSite Site { get; set; }
         public SearchSession CurrentSearch { get; set; }
         public string Keyword { get; set; }
-        public bool HasKeyword => !string.IsNullOrWhiteSpace(Keyword);
         public int PageIndex { get; set; }
         public int LastId { get; set; }
         public int Count { get; set; }
@@ -283,7 +278,7 @@ namespace MoeLoaderP.Core
         public int MinHeight { get; set; }
 
         public bool IsFilterFileType { get; set; }
-        public string FilterFileTpyeText { get; set; }
+        public string FilterFileTypeText { get; set; }
         public bool IsFileTypeShowSpecificOnly { get; set; }
 
         public ImageOrientation Orientation { get; set; } = ImageOrientation.None;

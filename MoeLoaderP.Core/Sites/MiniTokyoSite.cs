@@ -25,32 +25,14 @@ namespace MoeLoaderP.Core.Sites
 
         public string GetSort(SearchPara para)
         {
-            switch (para.SubMenuIndex)
-            {
-                default:
-                    return "";
-                case 0:
-                    return "wallpapers";
-                case 1:
-                    return "scans";
-                case 2:
-                    return "mobile";
-                case 3:
-                    return "indy-art";
-            }
+            var sorts = new[] {"wallpapers", "scans", "mobile", "indy-art"};
+            return sorts[para.SubMenuIndex];
         }
 
         public string GetOrder(SearchPara para)
         {
-            switch (para.Lv3MenuIndex)
-            {
-                default:
-                    return "";
-                case 0:
-                    return "id";
-                case 1:
-                    return "favorites";
-            }
+            var orders = new [] {"id", "favorites"};
+            return orders[para.Lv3MenuIndex];
         }
 
         public MiniTokyoSite()
@@ -113,7 +95,8 @@ namespace MoeLoaderP.Core.Sites
                 var url = tabnodes[1].Attributes["href"]?.Value;
                 var reg = new Regex(@"(?:^|\?|&)tid=(\d*)(?:&|$)");
                 var tid = reg.Match(url ?? "").Groups[0].Value;
-                query = $"{HomeBrowseUrl}/gallery{tid}index={(para.SubMenuIndex == 0 ? 1 : (para.SubMenuIndex == 1 ? 3 : (para.SubMenuIndex == 3 ? 2 : 1)))}&order={GetOrder(para)}&display=thumbnails";
+                var indexs = new [] {1, 3, 1, 2};
+                query = $"{HomeBrowseUrl}/gallery{tid}index={indexs[para.SubMenuIndex]}&order={GetOrder(para)}&display=thumbnails";
 
             }
 
@@ -123,10 +106,7 @@ namespace MoeLoaderP.Core.Sites
             if (empty == "no items to display") return imgs;
             var wallNode = docnode.SelectSingleNode("*//ul[@class='scans']");
             var imgNodes = wallNode.SelectNodes(".//li");
-            if (imgNodes == null)
-            {
-                return imgs;
-            }
+            if (imgNodes == null) return imgs;
 
             foreach (var node in imgNodes)
             {
@@ -140,8 +120,10 @@ namespace MoeLoaderP.Core.Sites
                 //http://static2.minitokyo.net/thumbs/24/25/583774.jpg preview
                 //http://static2.minitokyo.net/view/24/25/583774.jpg   sample
                 //http://static.minitokyo.net/downloads/24/25/583774.jpg   full
-                var previewUrl = $"http://static2.minitokyo.net/view{sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
-                var fileUrl = $"http://static.minitokyo.net/downloads{previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
+                const string api2 = "http://static2.minitokyo.net";
+                const string api = "http://static.minitokyo.net";
+                var previewUrl = $"{api2}/view{sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
+                var fileUrl = $"{api}t/downloads{previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
                 img.Urls.Add(4, fileUrl, HomeUrl);
                 img.Title = node.SelectSingleNode("./p/a").InnerText.Trim();
                 img.Uploader = node.SelectSingleNode("./p").InnerText.Delete("by ").Trim();
@@ -168,13 +150,8 @@ namespace MoeLoaderP.Core.Sites
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)
             {
-                if (lines[i].Trim().Length > 0)
-                {
-                    items.Add(new AutoHintItem
-                    {
-                        Word = lines[i].Substring(0, lines[i].IndexOf('|')).Trim()
-                    });
-                }
+                if (lines[i].IsNaN()) continue;
+                items.Add(lines[i].Substring(0, lines[i].IndexOf('|')).Trim());
             }
             return items;
         }

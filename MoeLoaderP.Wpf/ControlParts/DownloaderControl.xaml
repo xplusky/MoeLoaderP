@@ -51,7 +51,7 @@
                         <DropShadowEffect ShadowDepth="1" BlurRadius="11" Opacity="0.63"/>
                     </Border.Effect>
                     <StackPanel Margin="4" Width="158">
-                        <Button x:Name="OpenFolderButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="OpenFolderButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -61,7 +61,7 @@
                                 <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0" Text="{DynamicResource TextDownloaderContextOpenFilePath}"></TextBlock>
                             </Grid>
                         </Button>
-                        <Button x:Name="SelectAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="SelectAllButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22" d:IsLocked="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -71,7 +71,7 @@
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextDownloaderContextSelectAll}" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="StartButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}" Visibility="Collapsed">
+                        <Button x:Name="StartButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}" Visibility="Collapsed">
                             <Grid Height="22" d:IsLocked="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -81,7 +81,7 @@
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextDownloaderContextStart}" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="StopButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="StopButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22" d:IsLocked="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -91,7 +91,7 @@
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextDownloaderContextStop}" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="DeleteButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="DeleteButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -101,7 +101,7 @@
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextDownloaderContextDelete}" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="RetryButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="RetryButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -111,7 +111,7 @@
                                 <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextDownloaderContextRetry}" Grid.Column="1" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="StartAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="StartAllButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -124,7 +124,7 @@
                                 </Grid>
                             </Grid>
                         </Button>
-                        <Button x:Name="StopAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="StopAllButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>
@@ -137,7 +137,7 @@
                                 </Grid>
                             </Grid>
                         </Button>
-                        <Button x:Name="DeleteAllButton" Template="{DynamicResource MoeContextMunuButtonControlTemplate}">
+                        <Button x:Name="DeleteAllButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}">
                             <Grid Height="22">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="22"/>

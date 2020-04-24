@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -63,6 +64,8 @@ namespace MoeLoaderP.Core.Sites
 
         public abstract string GetPageQuery(SearchPara para);
 
+        public virtual Func<MoeItem,SearchPara, CancellationToken, Task> GetDetailTaskFunc { get; set; } 
+
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             switch (SiteType)
@@ -75,7 +78,6 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task<MoeItems> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)
         {
-
             var client = new NetDocker(Settings).Client;
             var query = GetPageQuery(para);
             var xmlRes = await client.GetAsync(query, token);
@@ -108,6 +110,10 @@ namespace MoeLoaderP.Core.Sites
                 img.Urls.Add(3, $"{UrlPre}{post.Attribute("jpeg_url")?.Value}", GetThumbnailReferer(img));
                 img.Urls.Add(4, $"{UrlPre}{post.Attribute("file_url")?.Value}", img.DetailUrl);
                 img.OriginString = $"{post}";
+                if (GetDetailTaskFunc != null)
+                {
+                    img.GetDetailTaskFunc = async () => await GetDetailTaskFunc(img, para,token);
+                }
                 imageItems.Add(img);
             }
 
@@ -150,7 +156,11 @@ namespace MoeLoaderP.Core.Sites
                     img.Copyright = $"{item.tag_string_copyright}";
                     img.Character = $"{item.tag_string_character}";
                     img.Artist = $"{item.tag_string_artist}";
-                    img.OriginString = $"{item}";
+                    img.OriginString = $"{item}"; 
+                    if (GetDetailTaskFunc != null)
+                    {
+                        img.GetDetailTaskFunc = async () => await GetDetailTaskFunc(img, para,token);
+                    }
                     imageItems.Add(img);
                 }
 

@@ -3,17 +3,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
     x:Name="ItemControl"
     x:Class="MoeLoaderP.Wpf.ControlParts.ImageControl"
     Width="{Binding Settings.ImageItemControlSize}"
     Height="{Binding Settings.ImageItemControlSize}" 
     mc:Ignorable="d" 
-    d:DesignWidth="155.734" d:DesignHeight="155.688"  
-    ToolTip="{Binding ImageItem.Title}" 
+    d:DesignWidth="155.734" d:DesignHeight="155.688"
     RenderTransformOrigin="0.5,0.5">
     <UserControl.Resources>
-        
+
         <Storyboard x:Key="LoadingStartSb">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LoadingAnimeGrid">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
@@ -187,13 +185,19 @@
                         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="PreviewImage">
                             <EasingDoubleKeyFrame KeyTime="0" Value="1.2"/>
                         </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="TitleGrid">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="30"/>
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="LeftTopInfosStackPanel">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="28"/>
+                        </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
                 <VisualState x:Name="NormalState"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         <CheckBox x:Name="ImageCheckBox" Template="{DynamicResource ImageItemCheckBoxControlTemplate}" Background="{DynamicResource MoeImageBorderBrush}">
-            <Grid x:Name="ImageGrid" ClipToBounds="True">
+            <Grid x:Name="ImageGrid">
                 <Border x:Name="ImageBgBorder" Opacity="0.8"  ClipToBounds="True">
                     <Border.Effect>
                         <BlurEffect Radius="20"/>
@@ -213,11 +217,11 @@
                             <RotateTransform Angle="0"/>
                             <TranslateTransform/>
                         </TransformGroup>
-                    </TextBlock.RenderTransform><Run Text="&#xf127;"/></TextBlock>
+                    </TextBlock.RenderTransform><Run Text="&#xF127;"/></TextBlock>
                 <Image
-                x:Name="PreviewImage"
-                Opacity="0"
-                RenderTransformOrigin="0.5,0.5">
+                        x:Name="PreviewImage"
+                        Opacity="0"
+                        RenderTransformOrigin="0.5,0.5">
                     <Image.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -250,8 +254,16 @@
                     </Border.Background>
                     <TextBlock x:Name="ResolutionTextBlock" Text="{Binding ImageItem.ResolutionText}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
-                <StackPanel Margin="4,4,0,0" Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <StackPanel x:Name="LeftTopInfosStackPanel" Margin="4,4,0,0" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+                    <StackPanel.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="0"/>
+                        </TransformGroup>
+                    </StackPanel.RenderTransform>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,0,4">
                         <Border x:Name="ScoreBorder" Visibility="{Binding ImageItem.Score, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" Margin="0,0,4,0" >
                             <Border.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -271,15 +283,14 @@
                             <TextBlock x:Name="ImagesCountTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF302; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text="{Binding ImageItem.ImagesCount, Mode=OneWay}" /></TextBlock>
                         </Border>
                     </StackPanel>
-                    <Border  x:Name="TipBorder" Visibility="{Binding ImageItem.Tip, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" Margin="0,4,0,0" >
+                    <Border  x:Name="TipBorder" Visibility="{Binding ImageItem.Tip, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" >
                         <Border.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="#A5000000" Offset="0"/>
                                 <GradientStop Color="#A8404040" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock x:Name="TipTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                            <Run Text="{Binding ImageItem.Tip}" FontSize="12" Foreground="{Binding ImageItem.TipHighLight, Converter={StaticResource BoolToHighLightBrush}}"/></TextBlock>
+                        <TextBlock x:Name="TipTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="{Binding ImageItem.Tip}" FontSize="12" Foreground="{Binding ImageItem.TipHighLight, Converter={StaticResource BoolToHighLightBrush}}"/></TextBlock>
                     </Border>
                 </StackPanel>
                 <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding ImageItem.DownloadUrlInfo.Url, Converter={StaticResource StringToVisibilityConverter}, FallbackValue=Collapsed}" VerticalAlignment="Bottom" CornerRadius="5" Margin="0,0,4,4"   Padding="1" >
@@ -292,12 +303,27 @@
                     <TextBlock x:Name="FileTypeTextBlock" Text="{Binding ImageItem.FileType}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <Grid x:Name="RankGrid" Margin="0,-40,-40,0" Visibility="{Binding ImageItem.Rank, Converter={StaticResource IntToVisibilityConverter}}" Width="80" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <Ellipse HorizontalAlignment="Right" Height="80" VerticalAlignment="Top" Width="80">
-                        <Ellipse.Fill>
-                            <SolidColorBrush Color="#660078D7"/>
-                        </Ellipse.Fill>
-                    </Ellipse>
+                    <Ellipse HorizontalAlignment="Right" Height="80" VerticalAlignment="Top" Width="80" Fill="#660078D7"/>
                     <TextBlock x:Name="RankTextBlock" TextWrapping="Wrap" Text="{Binding ImageItem.Rank}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="-29,36,0,0"/>
+                </Grid>
+                <Grid x:Name="TitleGrid" Height="28" VerticalAlignment="Top" Margin="0,-30,0,0" RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="0"/>
+                        </TransformGroup>
+                    </Grid.RenderTransform>
+                    <Grid.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#B2000000" Offset="0"/>
+                            <GradientStop Color="#33000000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <TextBlock x:Name="TitleTextBlock" TextWrapping="Wrap" Text="{Binding ImageItem.Title}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+                    <TextBlock x:Name="IdTextBlock" TextWrapping="Wrap" Text="{Binding ImageItem.Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" 
+                               Visibility="{Binding Text, ConverterParameter=reverse, Converter={StaticResource StringToVisibilityConverter}, ElementName=TitleTextBlock}"/>
                 </Grid>
             </Grid>
         </CheckBox>

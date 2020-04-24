@@ -8,6 +8,20 @@ using MoeLoaderP.Core;
 
 namespace MoeLoaderP.Wpf
 {
+    public class DoubleToRectConvertor : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (!(value is double width)) return Rect.Empty;
+            return Rect.Parse($"0,0,{width},{width}");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class ImageSavePathNullConvertor : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -153,11 +167,12 @@ namespace MoeLoaderP.Wpf
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var text = (string)value;
-            if (parameter is string para)
+            if ((parameter as string) == "reverse")
             {
-                if(para == "reverse") return !string.IsNullOrWhiteSpace(text) ? Visibility.Collapsed : Visibility.Visible;
+                return text.IsNaN() ? Visibility.Visible : Visibility.Collapsed;
             }
-            return string.IsNullOrWhiteSpace(text) ? Visibility.Collapsed : Visibility.Visible;
+
+            return text.IsNaN() ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;

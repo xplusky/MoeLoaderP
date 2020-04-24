@@ -99,7 +99,7 @@
                     <TextBlock
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top" Margin="0,2,0,0"><Run Text="自定义"/><Run Text="图片保存"/><Run Text="子"/><Run Text="文件夹"/></TextBlock>
-                    <Grid x:Name="SortFolderNameFormatGrid" Height="26" Margin="0,2" IsEnabled="{Binding IsChecked, ElementName=CustomSortFolderCheckBox}">
+                    <Grid x:Name="SortFolderNameFormatGrid" Height="26" Margin="0,2" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>

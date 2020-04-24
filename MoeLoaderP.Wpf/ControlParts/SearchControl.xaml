@@ -235,7 +235,7 @@
         <Button
                 x:Name="AccountButton"
                 IsDefault="True"
-                Tag="搜索图片" Template="{DynamicResource MoeButtonControlTemplate}" SnapsToDevicePixels="True" Width="34" ToolTip="账户登录" Margin="2,0" Opacity="1" Focusable="False">
+                Tag="搜索图片" Template="{DynamicResource MoeButtonControlTemplate}" SnapsToDevicePixels="True" Width="34" ToolTip="账户登录（右键清除登录信息）" Margin="2,0" Opacity="1" Focusable="False">
             <Grid Height="24" Width="24">
                 <TextBlock Text="&#xF007;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Margin="-5,0,0,0" />
                 <TextBlock Text="&#xF084;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#FF0034FF" Margin="0" >
@@ -243,8 +243,10 @@
                         <DropShadowEffect ShadowDepth="0" Color="White" BlurRadius="4"/>
                     </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock x:Name="AccountCheckedIconTextBlock" Text="&#xF00C;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF00B41F" FontSize="14" FontWeight="Bold" Margin="0,0,-1,-2" 
-                               Visibility="{Binding CurrentSelectedSite.LoginCookies, Converter={StaticResource StringToVisibilityConverter}, ElementName=SearchControlRoot}" />
+                <TextBlock x:Name="AccountCheckedIconTextBlock" Text="&#xF00C;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" 
+                           VerticalAlignment="Bottom" Foreground="#FF00B41F" FontSize="14" FontWeight="Bold" Margin="0,0,-1,-2" 
+                           DataContext ="{Binding CurrentSelectedSite , ElementName=SearchControlRoot}"
+                           Visibility="{Binding CurrentSiteSetting.LoginCookie, Converter={StaticResource StringToVisibilityConverter}}" />
             </Grid>
         </Button>
         <ComboBox x:Name="MoeSitesLv1ComboBox" Width="156" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Margin="2,0" Opacity="1">

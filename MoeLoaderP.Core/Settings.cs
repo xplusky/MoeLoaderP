@@ -213,9 +213,7 @@ namespace MoeLoaderP.Core
         }
 
         #endregion
-
-
-
+        
         public void Save(string jsonPath)
         {
             var json = JsonConvert.SerializeObject(this);
@@ -247,17 +245,20 @@ namespace MoeLoaderP.Core
         }
     }
 
-    public class MoeSiteSetting
+    public class MoeSiteSetting : BindingObject
     {
-        public string LonginCookie { get; set; }
+        private string _loginCookie;
+
+        public string LoginCookie
+        {
+            get => _loginCookie;
+            set => SetField(ref _loginCookie, value, nameof(LoginCookie));
+        }
     }
-
-
-
+    
     public class CustomSiteSetting
     {
         public string DisplayName { get; set; }
-        
     }
 
     public class CustomSiteSettingList : List<CustomSiteSetting> { }

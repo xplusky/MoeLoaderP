@@ -22,7 +22,7 @@ namespace MoeLoaderP.Core
 
         public string DateString
         {
-            get => string.IsNullOrWhiteSpace(_dateString) ? Date?.ToString("G", new CultureInfo("zh-CN")) : _dateString;
+            get => _dateString.IsNaN() ? Date?.ToString("G", new CultureInfo("zh-CN")) : _dateString;
             set => _dateString = value;
         }
 
@@ -35,7 +35,16 @@ namespace MoeLoaderP.Core
         /// 上传用户ID
         /// </summary>
         public string UploaderId { get; set; }
-        public double Score { get; set; }
+
+        public double Score
+        {
+            get => _score;
+            set
+            {
+                _score = value; OnPropertyChanged(nameof(Score));
+            }
+        }
+
         public int Rank { get; set; }
         public bool TipHighLight { get; set; }
 
@@ -112,6 +121,7 @@ namespace MoeLoaderP.Core
         private int _imageCount;
         private string _dateString;
         private string _tip;
+        private double _score;
 
         public int ImagesCount
         {
@@ -198,8 +208,9 @@ namespace MoeLoaderP.Core
 
         public string GetFileExtFromUrl()
         {
-            if (string.IsNullOrEmpty(Url)) return null;
-            var type = Path.GetExtension(Url).Replace(".", "").ToUpper();
+            if (Url.IsNaN()) return null;
+            var type = Path.GetExtension(Url)?.Replace(".", "").ToUpper();
+            if (type == null) return null;
             if (type.Contains("?"))
             {
                 type = type.Split('?')[0];

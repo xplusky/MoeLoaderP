@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MoeLoaderP.Core;
+using MoeLoaderP.Core.Sites;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,8 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using MoeLoaderP.Core;
-using MoeLoaderP.Core.Sites;
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
@@ -48,7 +48,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             Extend.ShowMessageAction += ShowMessageAction;
         }
 
-        private void ShowMessageAction(string arg1, string arg2,Extend.MessagePos arg3)
+        private void ShowMessageAction(string arg1, string arg2, Extend.MessagePos arg3)
         {
             switch (arg3)
             {
@@ -205,16 +205,16 @@ namespace MoeLoaderP.Wpf.ControlParts
         /// <summary>
         /// 生成右键菜单中的小标题TextBlock
         /// </summary>
-        public TextBlock GetTitieTextBlock(string text)
+        public TextBlock GetTitleTextBlock(string text)
         {
-            var textblock = new TextBlock
+            var textBlock = new TextBlock
             {
                 Text = text,
                 Margin = new Thickness(2),
                 FontSize = 10,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            return textblock;
+            return textBlock;
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (MouseOnImageControl == null) return;
             ContextMenuPopup.IsOpen = true;
             ContextMenuPopupGrid.EnlargeShowSb().Begin();
-            
+
             LoadExtFunc();
             LoadImgInfo();
         }
@@ -240,7 +240,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             // load choose 首次登场图片
             if (site.FuncSupportState.IsSupportSelectPixivRankNew && para.SubMenuIndex == 2)
             {
-                
+
                 var b = GetSpButton("全选首次登场图片");
                 b.Click += (o, args) =>
                 {
@@ -253,14 +253,14 @@ namespace MoeLoaderP.Wpf.ControlParts
                 };
                 SpPanel.Children.Add(b);
             }
-            
+
             // load search by author id
             if (site.FuncSupportState.IsSupportSearchByAuthorId)
             {
                 var b = GetSpButton($"搜索该作者{cimg.Uploader}的所有作品");
                 b.Click += (sender, args) =>
                 {
-                    SearchByAuthorIdAction?.Invoke(site,cimg.UploaderId);
+                    SearchByAuthorIdAction?.Invoke(site, cimg.UploaderId);
                     ContextMenuPopup.IsOpen = false;
                 };
                 SpPanel.Children.Add(b);
@@ -272,78 +272,30 @@ namespace MoeLoaderP.Wpf.ControlParts
         public void LoadImgInfo()
         {
             var item = MouseOnImageControl.ImageItem;
-            // load id
-            var id = item.Id;
-            if (id > 0)
+            ContextMenuImageInfoStackPanel.Children.Clear();
+            if (item.Id > 0) GenImageInfoVisual("ID:", $"{item.Id}");
+            if (!item.Uploader.IsNaN())
             {
-                IdWrapPanel.Visibility = Visibility.Visible;
-                IdWrapPanel.Children.Clear();
-                IdWrapPanel.Children.Add(GetTitieTextBlock("Id:"));
-                IdWrapPanel.Children.Add(GetTagButton($"{id}"));
+                GenImageInfoVisual("Uploader:", item.Uploader);
+                if (!item.UploaderId.IsNaN()) GenImageInfoVisual("UpID:", item.UploaderId);
             }
-            else
-            {
-                IdWrapPanel.Visibility = Visibility.Collapsed;
-            }
+            if (!item.Title.IsNaN()) GenImageInfoVisual("Title:", item.Title);
+            if (!item.DateString.IsNaN()) GenImageInfoVisual("Date:", item.DateString);
+            if (MouseOnImageControl.ImageItem.Tags.Count > 0) GenImageInfoVisual("Tags:", item.Tags.ToArray());
+            if(!item.Artist.IsNaN()) GenImageInfoVisual("Artist:",item.Artist);
+            if(!item.Character.IsNaN()) GenImageInfoVisual("Character:", item.Character);
+            if(!item.Copyright.IsNaN()) GenImageInfoVisual("Copyright:", item.Copyright);
+        }
 
-            // load Uploader
-            if (!string.IsNullOrWhiteSpace(item.Uploader))
+        public void GenImageInfoVisual(string title, params string[] buttons)
+        {
+            var p = new WrapPanel { Margin = new Thickness(2, 4, 2, 2) };
+            p.Children.Add(GetTitleTextBlock(title));
+            foreach (var button in buttons)
             {
-                AuthorWrapPanel.Visibility = Visibility.Visible;
-                AuthorWrapPanel.Children.Clear();
-                AuthorWrapPanel.Children.Add(GetTitieTextBlock("Uploader:"));
-                AuthorWrapPanel.Children.Add(GetTagButton(item.Uploader));
-                if (!string.IsNullOrWhiteSpace(item.UploaderId))
-                {
-                    AuthorWrapPanel.Children.Add(GetTitieTextBlock("UpID:"));
-                    AuthorWrapPanel.Children.Add(GetTagButton(item.UploaderId));
-                }
+                p.Children.Add(GetTagButton(button));
             }
-
-            // load title info
-            if (!string.IsNullOrWhiteSpace(item.Title))
-            {
-                TitleWrapPanel.Visibility = Visibility.Visible;
-                TitleWrapPanel.Children.Clear();
-                TitleWrapPanel.Children.Add(GetTitieTextBlock("Title:"));
-                TitleWrapPanel.Children.Add(GetTagButton(item.Title));
-            }
-            else
-            {
-                TitleWrapPanel.Visibility = Visibility.Collapsed;
-            }
-
-            // load date info
-            if (!string.IsNullOrWhiteSpace(item.DateString))
-            {
-                DateWrapPanel.Visibility = Visibility.Visible;
-                DateWrapPanel.Children.Clear();
-                DateWrapPanel.Children.Add(GetTitieTextBlock("Date:"));
-                DateWrapPanel.Children.Add(GetTagButton(item.DateString));
-            }
-            else
-            {
-                DateWrapPanel.Visibility = Visibility.Collapsed;
-            }
-
-            // load tag info
-            if (MouseOnImageControl.ImageItem.Tags.Count > 0)
-            {
-                TagsWrapPanel.Visibility = Visibility.Visible;
-                TagsWrapPanel.Children.Clear();
-
-                TagsWrapPanel.Children.Add(GetTitieTextBlock("Tags:"));
-                foreach (var tag in MouseOnImageControl.ImageItem.Tags)
-                {
-                    var button = GetTagButton(tag);
-                    button.Click += (o, args) => { ContextMenuTagButtonClicked?.Invoke(MouseOnImageControl.ImageItem, tag); };
-                    TagsWrapPanel.Children.Add(button);
-                }
-            }
-            else
-            {
-                TagsWrapPanel.Visibility = Visibility.Collapsed;
-            }
+            ContextMenuImageInfoStackPanel.Children.Add(p);
         }
         
         private Button GetTagButton(string text)
@@ -362,7 +314,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Margin = new Thickness(1),
                 ToolTip = text
             };
-            button.MouseRightButtonUp += (o, args) => text.CopyToClipboard();
+            button.Click += (o, args) => text.CopyToClipboard();
             return button;
         }
 
@@ -376,11 +328,11 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Text = text
             };
 
-            var grid = new Grid {VerticalAlignment = VerticalAlignment.Center};
+            var grid = new Grid { VerticalAlignment = VerticalAlignment.Center };
             grid.Children.Add(textBlock);
             var button = new Button
             {
-                Template = (ControlTemplate)FindResource("MoeContextMunuButtonControlTemplate"),
+                Template = (ControlTemplate)FindResource("MoeContextMenuButtonControlTemplate"),
                 Content = grid,
                 Margin = new Thickness(1),
                 Height = 32,
@@ -404,14 +356,15 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
 
-
         public void AddImages(MoeItems imgs)
         {
             foreach (var img in imgs)
             {
                 var itemCtrl = new ImageControl(Settings, img);
-
-                itemCtrl.DownloadButton.Click += (sender, args) => ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source);
+                itemCtrl.DownloadButton.Click += (sender, args) =>
+                {
+                    ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source);
+                };
                 itemCtrl.MouseEnter += (sender, args) => MouseOnImageControl = itemCtrl;
                 itemCtrl.ImageCheckBox.Checked += (sender, args) => SelectedImageControls.Add(itemCtrl);
                 itemCtrl.ImageCheckBox.Unchecked += (sender, args) => SelectedImageControls.Remove(itemCtrl);
@@ -471,16 +424,6 @@ namespace MoeLoaderP.Wpf.ControlParts
         private void ItemOnImageLoaded(ImageControl obj)
         {
             ImageLoadingPool.Remove(obj);
-            if (ImageLoadingPool.Count == 0) // all image loaded
-            {
-               // Extend.ShowMessage("图片加载完毕", null, Extend.MessagePos.InfoBar);
-            }
-            else
-            {
-                var remain = ImageLoadingPool.Count + ImageWaitForLoadingPool.Count;
-                //Extend.ShowMessage($"剩余 {remain} 张图片等待加载", null, Extend.MessagePos.InfoBar);
-            }
-
             if (ImageWaitForLoadingPool.Any())
             {
                 var item = ImageWaitForLoadingPool[0];

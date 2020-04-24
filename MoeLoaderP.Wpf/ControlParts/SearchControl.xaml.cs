@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
@@ -19,9 +20,20 @@ namespace MoeLoaderP.Wpf.ControlParts
     /// </summary>
     public partial class SearchControl : INotifyPropertyChanged
     {
+        private MoeSite _currentSelectedSite;
 
         public SiteManager SiteManager { get; set; }
-        public MoeSite CurrentSelectedSite { get; set; }
+
+        public MoeSite CurrentSelectedSite
+        {
+            get => _currentSelectedSite;
+            set
+            {
+                _currentSelectedSite = value;
+                OnPropertyChanged(nameof(CurrentSelectedSite));
+            }
+        }
+
         public Settings Settings { get; set; }
         public AutoHintItems CurrentHintItems { get; set; } = new AutoHintItems();
 
@@ -53,7 +65,13 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv4ComboBox.SelectionChanged += MoeSitesLv4ComboBoxOnSelectionChanged;// 四级菜单选择改变
 
             MoeSitesLv1ComboBox.SelectedIndex = 0;
+            AccountButton.MouseRightButtonUp += AccountButtonOnMouseRightButtonUp;
+        }
 
+        private void AccountButtonOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            CurrentSelectedSite.CurrentSiteSetting.LoginCookie = null;
+            Extend.ShowMessage("已清除登录信息！");
         }
 
         private void SitesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -191,7 +209,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             CurrentHintItems.Clear();
             AddHistoryItems();
             MoeDatePicker.SelectedDate = null;
-            
+
         }
 
         private CancellationTokenSource CurrentHintTaskCts { get; set; }
@@ -242,7 +260,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 MinHeight = FilterMinHeightBox.NumCount,
                 Orientation = (ImageOrientation)OrientationComboBox.SelectedIndex,
                 IsFilterFileType = FilterFileTypeCheckBox.IsChecked == true,
-                FilterFileTpyeText = FilterFileTypeTextBox.Text,
+                FilterFileTypeText = FilterFileTypeTextBox.Text,
                 IsFileTypeShowSpecificOnly = FileTypeShowSpecificOnlyComboBox.SelectedIndex == 1,
                 DownloadType = CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
                 Date = MoeDatePicker.SelectedDate,

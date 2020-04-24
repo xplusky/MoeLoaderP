@@ -164,31 +164,5 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
     }
 
-    public class GelbooruSite : BooruSite
-    {
-        public override string HomeUrl => "https://gelbooru.com";
-        public override string DisplayName => "Gelbooru";
-        public override string ShortName => "gelbooru";
-
-        public override string GetDetailPageUrl(MoeItem item) => $"{HomeUrl}/index.php?page=post&s=view&id={item.Id}";
-
-        public override string GetHintQuery(SearchPara para)
-            => $"{HomeUrl}/index.php?page=autocomplete&term={para.Keyword}";
-
-        public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
-        public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
-        {
-            var ahis = new AutoHintItems();
-            var jsonlist = await new NetDocker(Settings).GetJsonAsync(GetHintQuery(para),token);
-            foreach (var item in jsonlist)
-            {
-                ahis.Add(new AutoHintItem
-                {
-                    Word = $"{item}".Replace("\"",""),
-                });
-            }
-            return ahis;
-        }
-    }
+    
 }

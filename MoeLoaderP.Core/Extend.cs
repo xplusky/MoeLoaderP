@@ -28,9 +28,9 @@ namespace MoeLoaderP.Core
             var query = string.Empty;
             var i = 0;
             if (pairs == null) return query;
-            foreach (var para in pairs.Where(para => !string.IsNullOrEmpty(para.Value)))
+            foreach (var para in pairs.Where(para => !para.Value.IsNaN()))
             {
-                query += string.Format("{2}{0}={1}", para.Key, para.Value, i > 0 ? "&" : "?");
+                query += $"{(i > 0 ? "&" : "?")}{para.Key}={para.Value}";
                 i++;
             }
 
@@ -38,13 +38,11 @@ namespace MoeLoaderP.Core
         }
         public static dynamic CheckListNull(dynamic dyObj) => dyObj ?? new List<dynamic>();
 
-        public static bool IsNaN(this string text)
-        {
-            return string.IsNullOrWhiteSpace(text);
-        }
+        public static bool IsNaN(this string text) => string.IsNullOrWhiteSpace(text);
+
         public static DateTime? ToDateTime(this string dateTime)
         {
-            if (string.IsNullOrWhiteSpace(dateTime)) return null;
+            if (dateTime.IsNaN()) return null;
             var timeInt = dateTime.ToLong();
             if (timeInt != 0)
             {
@@ -70,19 +68,13 @@ namespace MoeLoaderP.Core
             return id;
         }
 
-        public static string ToEncodedUrl(this string orgstr)
-        {
-            return HttpUtility.UrlEncode(orgstr, Encoding.UTF8);
-        }
+        public static string ToEncodedUrl(this string orgStr) => HttpUtility.UrlEncode(orgStr, Encoding.UTF8);
 
-        public static string ToDecodedUrl(this string orgstr)
-        {
-            return HttpUtility.UrlDecode(orgstr, Encoding.UTF8);
-        }
+        public static string ToDecodedUrl(this string orgStr) => HttpUtility.UrlDecode(orgStr, Encoding.UTF8);
 
         public static void GoUrl(this string url)
         {
-            if (string.IsNullOrWhiteSpace(url)) return;
+            if (url.IsNaN()) return;
             try
             {
                 Process.Start(url);

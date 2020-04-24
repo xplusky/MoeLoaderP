@@ -53,7 +53,7 @@ namespace MoeLoaderP.Wpf
             {
                 base.OnStartup(e);
                 var settings = Settings.Load(SettingJsonFilePath);
-                if (string.IsNullOrWhiteSpace(settings.ImageSavePath)) settings.ImageSavePath = MoePicFolder;
+                if (settings.ImageSavePath.IsNaN()) settings.ImageSavePath = MoePicFolder;
                 var mainWin = new MainWindow();
                 mainWin.Init(settings);
                 mainWin.Show();

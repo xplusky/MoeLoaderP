@@ -1,11 +1,10 @@
-﻿using System;
+﻿using CefSharp;
+using MoeLoaderP.Core;
+using MoeLoaderP.Core.Sites;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using CefSharp;
-using MoeLoaderP.Core;
-using MoeLoaderP.Core.Sites;
 using Cookie = CefSharp.Cookie;
 
 namespace MoeLoaderP.Wpf
@@ -23,7 +22,7 @@ namespace MoeLoaderP.Wpf
         {
             InitializeComponent();
             this.GoState(nameof(HideChromeState));
-            
+
         }
 
         public void Init(Settings setting, MoeSite site)
@@ -67,21 +66,7 @@ namespace MoeLoaderP.Wpf
                     return;
                 }
                 AuthMesTextBlock.Text = "认证成功，4秒后将关闭窗口";
-                Site.LoginCookies = _cookies;
-                var sitesets = Setting.MoeSiteSettings ?? new Dictionary<string, MoeSiteSetting>();
-                var siteset = new MoeSiteSetting
-                {
-                    LonginCookie = _cookies
-                };
-                if (sitesets.ContainsKey(Site.ShortName))
-                {
-                    sitesets[Site.ShortName] = siteset;
-                }
-                else
-                {
-                    sitesets.Add(Site.ShortName, siteset);
-                }
-
+                Site.CurrentSiteSetting.LoginCookie = _cookies;
                 await Task.Delay(4000);
                 Close();
             }));
@@ -103,7 +88,7 @@ namespace MoeLoaderP.Wpf
                         {"mode", "fixed_servers"}
                     };
                     var add = Setting.ProxySetting;
-                    if(Setting.ProxyMode == Settings.ProxyModeEnum.Custom) dict.Add("server", add);
+                    if (Setting.ProxyMode == Settings.ProxyModeEnum.Custom) dict.Add("server", add);
                     //设置代理
                     rc.SetPreference("proxy", dict, out var error);
                     //如果 error 不为空则表示设置失败。
