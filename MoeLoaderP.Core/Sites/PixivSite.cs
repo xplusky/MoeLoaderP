@@ -3,10 +3,14 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using ImageMagick;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -21,7 +25,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override string ShortName => "pixiv";
 
-        public virtual bool IsR18 { get; set; } = false;
+        public virtual bool IsR18 => false;
 
         public string R18Query => IsR18 ? "true" : "false";
         public string R18ModeQuery => IsR18 ? "r18" : "safe";
@@ -354,10 +358,71 @@ namespace MoeLoaderP.Core.Sites
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
             {
-                img.Urls.Add(2, $"{img1.src}", refer, true);
-                img.Urls.Add(3, $"{img1.src}", refer, true);
-                img.Urls.Add(4, $"{img1.originalSrc}", refer, true);
+                img.Urls.Add(2, $"{img1.src}", refer, UgoiraAfterEffects);
+                img.Urls.Add(3, $"{img1.src}", refer, UgoiraAfterEffects);
+                img.Urls.Add(4, $"{img1.originalSrc}", refer, UgoiraAfterEffects);
                 img.ExtraFile = new TextFileInfo { FileExt = "json", Content = jsonStr };
+            }
+        }
+
+        private async Task UgoiraAfterEffects(DownloadItem item, HttpContent content, CancellationToken token)
+        {
+            // save json
+            var path = Path.ChangeExtension(item.LocalFileFullPath, item.CurrentMoeItem.ExtraFile.FileExt);
+            if (path != null)
+            {
+                try
+                {
+                    File.WriteAllText(path, item.CurrentMoeItem.ExtraFile.Content);
+                }
+                catch (Exception e)
+                {
+                    Extend.Log(e);
+                }
+            }
+
+            // save gif
+            dynamic json = JsonConvert.DeserializeObject(item.CurrentMoeItem.ExtraFile.Content);
+            var list = json.body.frames;
+            var gifpath = Path.ChangeExtension(item.LocalFileFullPath, "gif");
+            if(gifpath == null)return;
+            var fi = new FileInfo(gifpath);
+            using (var stream = await content.ReadAsStreamAsync())
+            {
+                item.StatusText = "正在转换为GIF..";
+                await Task.Run(() =>
+                {
+                    // ConvertPixivZipToGif
+                    var delayList = new List<int>();
+                    using (var images = new MagickImageCollection())
+                    {
+                        foreach (var frame in list)
+                        {
+                            delayList.Add($"{frame.delay}".ToInt());
+                        }
+                        using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
+                        {
+                            for (var i = 0; i < zip.Entries.Count; i++)
+                            {
+                                var ms = new MemoryStream();
+                                using (var aStream = zip.Entries[i].Open())
+                                {
+                                    aStream.CopyTo(ms);
+                                    ms.Position = 0L;
+                                }
+                                var img = new MagickImage(ms);
+                                img.AnimationDelay = delayList[i] / 10;
+                                images.Add(img);
+                                ms.Dispose();
+                            }
+                        }
+                        var set = new QuantizeSettings();
+                        set.Colors = 256;
+                        images.Quantize(set);
+                        images.Optimize();
+                        images.Write(fi, MagickFormat.Gif);
+                    }
+                }, token);
             }
         }
 
@@ -381,7 +446,7 @@ namespace MoeLoaderP.Core.Sites
     public class PixivR18Site : PixivSite
     {
         public override string DisplayName => "Pixiv[R18]";
-        public override bool IsR18 { get; set; } = true;
+        public override bool IsR18 => true;
 
     }
 }

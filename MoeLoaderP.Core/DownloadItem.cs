@@ -175,37 +175,19 @@ namespace MoeLoaderP.Core
                         await fs.WriteAsync(bytes, 0, bytes.Length, token);
                     }
 
-                    if (CurrentMoeItem.ExtraFile != null)
+                    if (url.AfterEffects != null)
                     {
-                        var path = Path.ChangeExtension(LocalFileFullPath, CurrentMoeItem.ExtraFile.FileExt) ?? $"{LocalFileFullPath}.{CurrentMoeItem.ExtraFile.FileExt}";
-                        File.WriteAllText(path, CurrentMoeItem.ExtraFile.Content);
-                    }
-
-                    if (url.IsPixivGifZip && CurrentMoeItem.ExtraFile != null)
-                    {
-                        dynamic json = JsonConvert.DeserializeObject(CurrentMoeItem.ExtraFile.Content);
-                        var list = json.body.frames;
-                        var gifpath = Path.ChangeExtension(LocalFileFullPath, "gif");
-                        if (gifpath != null)
+                        try
                         {
-                            var fi = new FileInfo(gifpath);
-                            try
-                            {
-                                StatusText = "正在转换为GIF格式...";
-                                using (var stream = await data.Content.ReadAsStreamAsync())
-                                {
-                                    await Task.Run(() =>
-                                    {
-                                        ConvertPixivZipToGif(stream, list, fi);
-                                    }, token);
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Extend.Log(e);
-                            }
+                            await url.AfterEffects.Invoke(this, data.Content, token);
+                        }
+                        catch (Exception e)
+                        {
+                            Extend.Log(e);
                         }
                     }
+                    
+
                     data.Dispose();
                     Progress = 100;
                     StatusText = "下载完成";
@@ -221,7 +203,7 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public void ConvertPixivZipToGif(Stream stream, dynamic frames, FileInfo fi)
+        public static void ConvertPixivZipToGif(Stream stream, dynamic frames, FileInfo fi)
         {
             var delayList = new List<int>();
             using (var images = new MagickImageCollection())

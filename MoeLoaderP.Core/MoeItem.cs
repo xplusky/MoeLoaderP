@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using MoeLoaderP.Core.Sites;
 
@@ -187,6 +189,7 @@ namespace MoeLoaderP.Core
         public string Content { get; set; }
     }
 
+    public delegate Task AfterEffectsDelegate(DownloadItem item,HttpContent content, CancellationToken token);
     public class UrlInfo
     {
         /// <summary>
@@ -197,13 +200,14 @@ namespace MoeLoaderP.Core
         public string Md5 { get; set; }
         public string Referer { get; set; }
         public ulong BiteSize { get; set; }
-        public bool IsPixivGifZip { get; set; }
-
-        public UrlInfo(int priority, string url, string referer = null)
+        public AfterEffectsDelegate AfterEffects { get; set; }
+        
+        public UrlInfo(int priority, string url, string referer = null, AfterEffectsDelegate afterEffects = null)
         {
             Priority = priority;
             Url = url;
             if (referer != null) Referer = referer;
+            if (afterEffects != null) AfterEffects = afterEffects;
         }
 
         public string GetFileExtFromUrl()
@@ -254,13 +258,9 @@ namespace MoeLoaderP.Core
             return info;
         }
 
-        public void Add(int p, string url, string referer=null,bool ispixivgif = false)
+        public void Add(int p, string url, string referer=null, AfterEffectsDelegate afterEffects=null)
         {
-            var urlinfo = new UrlInfo(p, url, referer);
-            if (ispixivgif)
-            {
-                urlinfo.IsPixivGifZip = true;
-            } 
+            var urlinfo = new UrlInfo(p, url, referer,afterEffects);
             Add(urlinfo);
         }
     }

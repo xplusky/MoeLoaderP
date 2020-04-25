@@ -39,7 +39,7 @@ namespace MoeLoaderP.Core.Sites
         public MoeSiteFuncSupportState FuncSupportState { get; set; } = new MoeSiteFuncSupportState();
         public MenuItemFunc MenuFunc { get; set; } = new MenuItemFunc();
 
-        public virtual NetDocker Net { get; set; }
+        public NetDocker Net { get; set; }
 
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
@@ -145,9 +145,7 @@ namespace MoeLoaderP.Core.Sites
             Settings = set;
         }
     }
-
     
-
     /// <summary>
     /// 自动提示列表中的一项
     /// </summary>
