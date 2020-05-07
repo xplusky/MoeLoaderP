@@ -32,7 +32,7 @@ namespace MoeLoaderP.Core.Sites
                 {"direction","descend" }
             };
             
-            if (!para.Keyword.IsNaN())
+            if (!para.Keyword.IsEmpty())
             {
                 //http://worldcosplay.net/api/photo/search?page=2&rows=48&q=%E5%90%8A%E5%B8%A6%E8%A2%9C%E5%A4%A9%E4%BD%BF
                 url =  $"{HomeUrl}/api/photo/search";

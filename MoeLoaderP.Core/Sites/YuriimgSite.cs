@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// yuriimg.com Last change 20200414
+    /// yuriimg.com Last change 20200428
     /// </summary>
     public class YuriimgSite : MoeSite
     {
@@ -15,7 +15,7 @@ namespace MoeLoaderP.Core.Sites
         public YuriimgSite()
         {
             SupportState.IsSupportAutoHint = false;
-            SupportState.IsSupportRating = false;
+            SupportState.IsSupportRating = true;
 
             DownloadTypes.Add("原图", 4);
         }
@@ -31,6 +31,7 @@ namespace MoeLoaderP.Core.Sites
             img.Artist = $"{json.artist?.name}";
             img.Uploader = $"{json.user?.name}";
             img.UploaderId = $"{json.user?.id}";
+            
             foreach (var tag in Extend.CheckListNull(json.tags.general))
             {
                 img.Tags.Add($"{tag.tags?.jp}");
@@ -52,8 +53,8 @@ namespace MoeLoaderP.Core.Sites
             foreach (var post in json.posts)
             {
                 var img = new MoeItem(this, para);
-                var rating = post.rating;
-                if ($"{rating}" == "e") img.IsExplicit = true;
+                img.IsExplicit = $"{post.rating}" == "e";
+                if (CurrentSiteSetting.LoginCookie.IsEmpty() && img.IsExplicit) continue;
                 img.Id = $"{post.pid}".ToInt();
                 img.Width = $"{post.width}".ToInt();
                 img.Height = $"{post.height}".ToInt();
@@ -61,6 +62,7 @@ namespace MoeLoaderP.Core.Sites
                 img.DetailUrl = $"{HomeUrl}/show/{post.id}";
                 img.GetDetailTaskFunc = async () => await GetDetailTask(img, $"{post.id}", token);
                 img.OriginString = $"{post}";
+                
                 imgs.Add(img);
             }
 

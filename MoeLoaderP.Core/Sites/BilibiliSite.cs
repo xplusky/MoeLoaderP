@@ -30,7 +30,7 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             var imgs = new MoeItems();
-            if (para.Keyword.IsNaN())
+            if (para.Keyword.IsEmpty())
             {
                 await SearchByNewOrHot(para, token, imgs);
             }

@@ -21,7 +21,6 @@ namespace MoeLoaderP.Wpf
         public LoginWindow()
         {
             InitializeComponent();
-            this.GoState(nameof(HideChromeState));
 
         }
 
@@ -40,16 +39,20 @@ namespace MoeLoaderP.Wpf
             MainBrower.Address = Site.LoginPageUrl;
         }
 
+        private string _cookies;
         private async void AuthButtonOnClick(object sender, RoutedEventArgs e)
         {
             AuthLoadingBorder.Visibility = Visibility.Visible;
             AuthMesTextBlock.Text = "认证中，请稍后";
 
-            while (string.IsNullOrEmpty(_cookies))
+            while (_cookies.IsEmpty())
             {
                 var cookieManager = Cef.GetGlobalCookieManager();
                 var visitor = new CookieVisitor();
-                visitor.SendCookie += Visitor_SendCookie;
+                visitor.SendCookie += cookie =>
+                {
+                    _cookies += cookie.Domain.TrimStart('.') + "^" + cookie.Name + "^" + cookie.Value + ";";
+                };
                 cookieManager.VisitAllCookies(visitor);
                 await Task.Delay(100);
             }
@@ -103,7 +106,6 @@ namespace MoeLoaderP.Wpf
         private void MainBrowerOnLoaded(object sender, RoutedEventArgs e)
         {
             MainBrower.Address = Site.LoginPageUrl;
-            this.GoState(nameof(ShowChromeState));
         }
 
         public class CookieVisitor : ICookieVisitor
@@ -122,12 +124,7 @@ namespace MoeLoaderP.Wpf
                 //throw new NotImplementedException();
             }
         }
-        /// 回调事件
-        private void Visitor_SendCookie(Cookie obj)
-        {
-            _cookies += obj.Domain.TrimStart('.') + "^" + obj.Name + "^" + obj.Value + ";";
-        }
 
-        private string _cookies;
+       
     }
 }

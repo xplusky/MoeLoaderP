@@ -70,7 +70,7 @@ namespace MoeLoaderP.Core.Sites
             }
             else
             {
-                url = para.Keyword.IsNaN() ? url : $"{_beforeUrl}?p={para.PageIndex}";
+                url = para.Keyword.IsEmpty() ? url : $"{_beforeUrl}?p={para.PageIndex}";
                 var res = await Net.Client.GetAsync(url, token);
 
                 pageString = await res.Content.ReadAsStringAsync();
@@ -94,7 +94,7 @@ namespace MoeLoaderP.Core.Sites
                 if (mo?.ToLower().Trim().Contains("members only") == true) continue;
                 var strId = imgNode.SelectSingleNode("a").Attributes["href"].Value;
                 var fav = imgNode.SelectSingleNode("a/span")?.InnerText;
-                if (!fav.IsNaN()) img.Score = Regex.Replace(fav, @"[^0-9]+", "")?.ToInt() ?? 0;
+                if (!fav.IsEmpty()) img.Score = Regex.Replace(fav, @"[^0-9]+", "")?.ToInt() ?? 0;
                 var imgHref = imgNode.SelectSingleNode(".//img");
                 var previewUrl = imgHref?.Attributes["src"]?.Value;
                 //http://s3.zerochan.net/Morgiana.240.1355397.jpg   preview
@@ -104,14 +104,14 @@ namespace MoeLoaderP.Core.Sites
                 //string folder = (id % 2500 % 50).ToString("00") + "/" + (id % 2500 / 50).ToString("00");
                 var sampleUrl = "";
                 var fileUrl = "";
-                if (!previewUrl.IsNaN())
+                if (!previewUrl.IsEmpty())
                 {
                     sampleUrl = previewUrl?.Replace("240", "600");
                     fileUrl = Regex.Replace(previewUrl, "^(.+?)zerochan.net/", "https://static.zerochan.net/").Replace("240", "full");
                 }
 
                 var resAndFileSize = imgHref?.Attributes["title"]?.Value;
-                if (!resAndFileSize.IsNaN())
+                if (!resAndFileSize.IsEmpty())
                     foreach (var s in resAndFileSize.Split(' '))
                     {
                         if (!s.Contains("x")) continue;
@@ -124,7 +124,7 @@ namespace MoeLoaderP.Core.Sites
                 var title = imgHref?.Attributes["alt"]?.Value;
 
                 //convert relative url to absolute
-                if (!fileUrl.IsNaN() && fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
+                if (!fileUrl.IsEmpty() && fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
                 if (sampleUrl != null && sampleUrl.StartsWith("/")) sampleUrl = HomeUrl + sampleUrl;
 
                 img.Description = title;
@@ -158,7 +158,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 //Tony Taka|Mangaka|
                 var word = h.Contains("|") ? h.Substring(0, h.IndexOf('|')).Trim() : h;
-                if (!word.IsNaN()) re.Add(new AutoHintItem { Word = word });
+                if (!word.IsEmpty()) re.Add(new AutoHintItem { Word = word });
             }
 
             return re;

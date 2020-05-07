@@ -68,7 +68,7 @@ namespace MoeLoaderP.Core
                 // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动过滤相关条件）
                 var sb = new StringBuilder();
                 sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
-                sb.Append($"(参数：kw：{(!tempPara.Keyword.IsNaN() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
+                sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
                 var imagesOrg = await tempPara.Site.GetRealPageImagesAsync(tempPara, token);
                 if (imagesOrg == null || imagesOrg.Count == 0)
@@ -123,7 +123,7 @@ namespace MoeLoaderP.Core
                 var sb = new StringBuilder();
                 sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
                 sb.AppendLine($"已获取第{tempPara.PageIndex - 1}页{images.Count}张图片，还需{tempPara.Count - images.Count}张");
-                sb.Append($"(参数：kw：{(!tempPara.Keyword.IsNaN() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
+                sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
                 var imagesNextRPage = await tempPara.Site.GetRealPageImagesAsync(tempPara, token); // 搜索下一页（真）的所有图片
                 if (imagesNextRPage == null || imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
@@ -166,7 +166,7 @@ namespace MoeLoaderP.Core
                 var del = false;
                 var item = items[i];
                 var state = item.Site.SupportState;
-                if (state.IsSupportRating) // 过滤Explicit评级图片
+                if (state.IsSupportRating) // 过滤r18评级图片
                 {
                     if ((!Settings.IsXMode || !para.IsShowExplicit) && item.IsExplicit) del = true;
                     if (Settings.IsXMode && para.IsShowExplicitOnly && item.IsExplicit == false) del = true;
@@ -191,7 +191,7 @@ namespace MoeLoaderP.Core
                 {
                     foreach (var s in para.FilterFileTypeText.Split(';'))
                     {
-                        if (s.IsNaN()) continue;
+                        if (s.IsEmpty()) continue;
                         if (string.Equals(item.FileType, s, StringComparison.CurrentCultureIgnoreCase))
                         {
                             if (!para.IsFileTypeShowSpecificOnly) del = true;
@@ -240,7 +240,7 @@ namespace MoeLoaderP.Core
                 }
             }
 
-            if (!para.Keyword.IsNaN()) sb += $"→\"{para.Keyword}\"";
+            if (!para.Keyword.IsEmpty()) sb += $"→\"{para.Keyword}\"";
             return sb;
         }
     }

@@ -85,7 +85,7 @@ namespace MoeLoaderP.Core.Sites
                 var reg = Regex.Replace(idattr, @"[^0-9]+", "");
                 img.Id = reg.ToInt();
                 var src = imgnode.GetAttributeValue("src", "");
-                if (!src.IsNaN()) img.Urls.Add(new UrlInfo( 1, $"{pre}{src}", url));
+                if (!src.IsEmpty()) img.Urls.Add(new UrlInfo( 1, $"{pre}{src}", url));
                 var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
                 if (resstrs?.Length == 2)
                 {
@@ -96,7 +96,7 @@ namespace MoeLoaderP.Core.Sites
                 var match = Regex.Replace(scorestr ?? "0", @"[^0-9]+", "");
                 img.Score = match.ToInt();
                 var detail = node.SelectSingleNode("a").GetAttributeValue("href", "");
-                if (!detail.IsNaN())
+                if (!detail.IsEmpty())
                 {
                     img.DetailUrl = $"{HomeUrl}{detail}";
                     img.GetDetailTaskFunc = async () => await GetDetailTask(img);
@@ -119,13 +119,13 @@ namespace MoeLoaderP.Core.Sites
                 if (docnodes == null) return;
                 var downnode = docnodes.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");
                 var fileurl = downnode?.GetAttributeValue("href", "");
-                if (!fileurl.IsNaN()) img.Urls.Add( 4, $"{HomeUrl}{fileurl}", detialurl);
+                if (!fileurl.IsEmpty()) img.Urls.Add( 4, $"{HomeUrl}{fileurl}", detialurl);
                 var tagnodes = docnodes.SelectNodes("*//div[@id='post_tags']//a");
                 if (tagnodes != null)
                 {
                     foreach (var tagnode in tagnodes)
                     {
-                        if (!tagnode.InnerText.IsNaN()) img.Tags.Add(tagnode.InnerText);
+                        if (!tagnode.InnerText.IsEmpty()) img.Tags.Add(tagnode.InnerText);
                     }
                 }
             }

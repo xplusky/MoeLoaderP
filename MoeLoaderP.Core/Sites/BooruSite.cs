@@ -92,7 +92,7 @@ namespace MoeLoaderP.Core.Sites
                 var tags = post.Attribute("tags")?.Value ?? "";
                 foreach (var tag in tags.Split(' '))
                 {
-                    if (!tag.IsNaN()) img.Tags.Add(tag.Trim());
+                    if (!tag.IsEmpty()) img.Tags.Add(tag.Trim());
                 }
 
                 img.Id = post.Attribute("id")?.Value.ToInt() ?? 0;

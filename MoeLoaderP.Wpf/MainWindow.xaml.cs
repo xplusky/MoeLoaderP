@@ -47,7 +47,6 @@ namespace MoeLoaderP.Wpf
             MoeExplorer.Settings = Settings;
             MoeExplorer.NextPageButton.Click += NextPageButtonOnClick;
             MoeExplorer.ImageItemDownloadButtonClicked += MoeExplorerOnImageItemDownloadButtonClicked;
-            MoeExplorer.ContextMenuTagButtonClicked += (item, s) => SearchControl.KeywordTextBox.Text = s;
             MoeExplorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
             MoeExplorer.SearchByAuthorIdAction += SearchByAuthorIdAction;
             
@@ -71,8 +70,7 @@ namespace MoeLoaderP.Wpf
 
         private void ChangeModeButtonOnClick(object sender, RoutedEventArgs e)
         {
-            
-            VisualStateManager.GoToElementState(LayoutRoot, Settings.IsCustomSiteMode ? nameof(DefaultSitesState) : nameof(CustomSitesState),true);
+            LayoutRoot.GoElementState(Settings.IsCustomSiteMode ? nameof(DefaultSitesState) : nameof(CustomSitesState));
             Settings.IsCustomSiteMode = !Settings.IsCustomSiteMode;
         }
 
@@ -217,7 +215,7 @@ namespace MoeLoaderP.Wpf
         private void DownloaderMenuCheckBoxCheckChanged(object sender, RoutedEventArgs e)
         {
             var ischecked = DownloaderMenuCheckBox.IsChecked == true;
-            VisualStateManager.GoToElementState(LayoutRoot, ischecked ? nameof(ShowDownloadPanelState) : nameof(HideDownloadPanelState), true);
+            LayoutRoot.GoElementState(ischecked ? nameof(ShowDownloadPanelState) : nameof(HideDownloadPanelState));
         }
 
         private void DownloadSelectedImagesButtonOnClick(object sender, RoutedEventArgs e)
@@ -227,7 +225,6 @@ namespace MoeLoaderP.Wpf
             {
                 if (ctrl.ImageItem.DownloadUrlInfo == null) continue;
                 MoeDownloaderControl.Downloader.AddDownload(ctrl.ImageItem, ctrl.PreviewImage.Source);
-
             }
 
             foreach (ImageControl ct in MoeExplorer.ImageItemsWrapPanel.Children)

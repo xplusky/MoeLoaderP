@@ -27,7 +27,7 @@ namespace MoeLoaderP.Wpf
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (!(value is string path)) return App.MoePicFolder;
-            return string.IsNullOrWhiteSpace(path) ? App.MoePicFolder : path;
+            return path.IsEmpty() ? App.MoePicFolder : path;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
@@ -169,10 +169,10 @@ namespace MoeLoaderP.Wpf
             var text = (string)value;
             if ((parameter as string) == "reverse")
             {
-                return text.IsNaN() ? Visibility.Visible : Visibility.Collapsed;
+                return text.IsEmpty() ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            return text.IsNaN() ? Visibility.Collapsed : Visibility.Visible;
+            return text.IsEmpty() ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;

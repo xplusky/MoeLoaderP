@@ -221,7 +221,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             CurrentHintItems.Clear();
             AddHistoryItems();
-            if (keyword.IsNaN()) throw new TaskCanceledException();
+            if (keyword.IsEmpty()) throw new TaskCanceledException();
             await Task.Delay(600, token);// 等待0.6再开始获取，避免每输入一个字都进行网络操作 
             var task = CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
             if (task == null) throw new TaskCanceledException();

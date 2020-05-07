@@ -19,7 +19,7 @@ namespace MoeLoaderP.Core.Sites
     /// </summary>
     public class PixivSite : MoeSite
     {
-        public override string HomeUrl => "https://www.pixiv.net";
+        public override string HomeUrl =>  "https://www.pixiv.net";//"https://img.cheerfun.dev:233";
 
         public override string DisplayName => "Pixiv";
 
@@ -70,7 +70,7 @@ namespace MoeLoaderP.Core.Sites
         public override CookieContainer GetCookies()
         {
             var cookieStr = CurrentSiteSetting.LoginCookie;
-            if (cookieStr.IsNaN()) return null;
+            if (cookieStr.IsEmpty()) return null;
             var cookies = cookieStr.Split(';');
             var cc = new CookieContainer();
             foreach (var cookie in cookies)
@@ -139,7 +139,7 @@ namespace MoeLoaderP.Core.Sites
         {
             string referer, api; Pairs pairs;
             var isIllust = para.Lv3MenuIndex == 0;
-            if (para.Keyword.IsNaN()) // new
+            if (para.Keyword.IsEmpty()) // new
             {
                 api = $"{HomeUrl}/ajax/illust/new";
                 referer = isIllust ? $"{HomeUrl}/new_illust.php" : $"{HomeUrl}/new_illust.php?type=manga";
@@ -168,7 +168,7 @@ namespace MoeLoaderP.Core.Sites
 
             Net.SetReferer(referer);
             var json = await Net.GetJsonAsync(api, token, pairs);
-            var list = para.Keyword.IsNaN()
+            var list = para.Keyword.IsEmpty()
                 ? (json?.body?.illusts)
                 : (isIllust ? (json?.body?.illust?.data) : (json?.body?.manga?.data));
 
@@ -190,7 +190,7 @@ namespace MoeLoaderP.Core.Sites
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
             }
-            if (!para.Keyword.IsNaN() && json != null)
+            if (!para.Keyword.IsEmpty() && json != null)
             {
                 var count = $"{json?.body?.illust?.total}".ToInt();
                 Extend.ShowMessage($"共搜索到{count}张图片，当前已加载至第{para.PageIndex}页，共{count / 60}页", null, Extend.MessagePos.InfoBar);
@@ -348,7 +348,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task GetUgoiraDetailPageTask(MoeItem img)
         {
-            if (img.Tip.IsNaN()) img.Tip = "动图";
+            if (img.Tip.IsEmpty()) img.Tip = "动图";
             var net = Net.CloneWithOldCookie();
             var api = $"{HomeUrl}/ajax/illust/{img.Id}/ugoira_meta";
             var jsonRes = await net.Client.GetAsync(api);

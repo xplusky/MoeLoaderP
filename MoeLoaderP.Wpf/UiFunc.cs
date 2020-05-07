@@ -186,6 +186,14 @@ namespace MoeLoaderP.Wpf
             }
         }
 
+        public static void GoElementState(this FrameworkElement fe, params string[] stateNames)
+        {
+            foreach (var stateName in stateNames)
+            {
+                VisualStateManager.GoToElementState(fe, stateName, true);
+            }
+        }
+
         public static void CopyToClipboard(this string text)
         {
             try

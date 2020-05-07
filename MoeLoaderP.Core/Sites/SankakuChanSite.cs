@@ -33,7 +33,8 @@ namespace MoeLoaderP.Core.Sites
                 {"page", $"{para.PageIndex}"},
                 {"limit", $"{para.Count}"},
                 {"hide_posts_in_books", "in-larger-tags"},
-                {"default_threshold", "1"}
+                {"default_threshold", "1"},
+                {"tags",para.Keyword.ToEncodedUrl() }
             };
             var json = await Net.GetJsonAsync($"{api}/posts", token, pairs);
             foreach (var jitem in Extend.CheckListNull(json))
@@ -48,9 +49,10 @@ namespace MoeLoaderP.Core.Sites
                 };
                 img.Urls.Add(1, $"{jitem.preview_url}",beta);
                 img.Urls.Add(4, $"{jitem.file_url}",$"{beta}/post/show/{img.Id}");
-                img.IsExplicit = $"{jitem.rating}" == "e";
+                img.IsExplicit = $"{jitem.rating}" != "s";
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();
                 img.Uploader = $"{jitem.author?.name}";
+                img.DetailUrl = $"{beta}/post/show/{img.Id}";
                 foreach (var tag in Extend.CheckListNull(jitem.tags))
                 {
                     img.Tags.Add($"{tag.name_en}");
@@ -62,7 +64,31 @@ namespace MoeLoaderP.Core.Sites
 
             return imgs;
         }
-        
+
+        public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
+        {
+            var ahitems = new AutoHintItems();
+            const string api = "https://capi-v2.sankakucomplex.com";
+            Net = Net == null ? new NetDocker(Settings, api) : Net.CloneWithOldCookie();
+            var pairs = new Pairs
+            {
+                {"lang", "en"},
+                {"tag", para.Keyword.ToEncodedUrl()},
+                {"target", "post"},
+                {"show_meta", "1"}
+            };
+            var json = await Net.GetJsonAsync($"{api}/tags/autosuggestCreating",token, pairs);
+            foreach (var jitem in Extend.CheckListNull(json))
+            {
+                var ahitem = new AutoHintItem();
+                ahitem.Word = $"{jitem.name}";
+                ahitem.Count = $"{jitem.count}";
+                ahitems.Add(ahitem);
+            }
+
+            return ahitems;
+
+        }
     }
 
 }

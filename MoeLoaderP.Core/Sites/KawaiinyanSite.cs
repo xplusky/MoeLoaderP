@@ -66,18 +66,18 @@ namespace MoeLoaderP.Core.Sites
                 var tags = $"{image.tags}";
                 foreach (var s in tags.Split(','))
                 {
-                    if (s.IsNaN()) continue;
+                    if (s.IsEmpty()) continue;
                     img.Tags.Add(s);
                 }
                 var small = $"{image.small}";
                 img.Urls.Add(1, $"{sub}{UrlInner($"{id}")}/small.{small}");
                 var orig = $"{image.orig}";
                 var big = $"{image.big}";
-                if (!orig.IsNaN())
+                if (!orig.IsEmpty())
                 {
                     img.Urls.Add(4, $"{sub}{UrlInner($"{id}")}/orig.{orig}");
                 }
-                else if (!big.IsNaN())
+                else if (!big.IsEmpty())
                 {
                     img.Urls.Add(4, $"{sub}{UrlInner($"{id}")}/big.{big}");
                 }

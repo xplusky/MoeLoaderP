@@ -150,7 +150,7 @@ namespace MoeLoaderP.Core
                     }
 
                     var net = CurrentMoeItem.Net == null ? new NetDocker(Set) : CurrentMoeItem.Net.CloneWithOldCookie();
-                    if (!url.Referer.IsNaN()) net.SetReferer(url.Referer);
+                    if (!url.Referer.IsEmpty()) net.SetReferer(url.Referer);
                     net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) =>
                     {
                         Progress = args.ProgressPercentage;
@@ -247,7 +247,7 @@ namespace MoeLoaderP.Core
         {
             var img = father ?? CurrentMoeItem;
             var format = Set.SortFolderNameFormat;
-            var sub = format.IsNaN() ? $"{img.Site.ShortName}" : FormatText(format, img, true);
+            var sub = format.IsEmpty() ? $"{img.Site.ShortName}" : FormatText(format, img, true);
 
             LocalFileFullPath = Path.Combine(Set.ImageSavePath, sub, $"{LocalFileShortNameWithoutExt}.{img.FileType?.ToLower()}");
         }
@@ -257,7 +257,7 @@ namespace MoeLoaderP.Core
             var img = father ?? CurrentMoeItem;
 
             var format = Set.SaveFileNameFormat;
-            if (format.IsNaN())
+            if (format.IsEmpty())
             {
                 LocalFileShortNameWithoutExt = $"{img.Site.ShortName} {img.Id}";
                 return;
@@ -273,7 +273,7 @@ namespace MoeLoaderP.Core
             var sb = new StringBuilder(format);
             sb.Replace("%site", img.Site.ShortName);
             sb.Replace("%id", $"{img.Id}");
-            sb.Replace("%keyword", img.Para.Keyword.IsNaN() ? "no-keyword" : img.Para.Keyword);
+            sb.Replace("%keyword", img.Para.Keyword.IsEmpty() ? "no-keyword" : img.Para.Keyword);
             var tags = string.Empty;
             var i = 0;
             foreach (var tag in img.Tags)

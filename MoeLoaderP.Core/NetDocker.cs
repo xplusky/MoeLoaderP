@@ -48,7 +48,7 @@ namespace MoeLoaderP.Core
 
         public void SetReferer(string rfurl)
         {
-            if (rfurl.IsNaN()) return;
+            if (rfurl.IsEmpty()) return;
             Client.DefaultRequestHeaders.Referrer = new Uri(rfurl);
         }
 

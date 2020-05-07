@@ -31,7 +31,7 @@ namespace MoeLoaderP.Core.Sites
             var imgs = new MoeItems();
             var url = $"{HomeUrl}/?page={para.PageIndex}";
             if (Net == null) Net = new NetDocker(Settings);
-            if (!para.Keyword.IsNaN())
+            if (!para.Keyword.IsEmpty())
             {
                 url = $"{HomeUrl}/search/process/";
                 var i = para.SubMenuIndex;
@@ -57,7 +57,7 @@ namespace MoeLoaderP.Core.Sites
                 var loc303 = res.Headers.Location?.OriginalString;     //todo 无法实现，需要大神
 
                 //http://e-shuushuu.net/search/results/?tags=2
-                if (!loc303.IsNaN()) url = $"{loc303}&page={para.PageIndex}";
+                if (!loc303.IsEmpty()) url = $"{loc303}&page={para.PageIndex}";
                 else return new MoeItems { Message = "没有搜索到关键词相关的图片" };
             }
 
@@ -99,7 +99,7 @@ namespace MoeLoaderP.Core.Sites
                 {
                     foreach (var tag in tags)
                     {
-                        if (tag.InnerText.IsNaN()) continue;
+                        if (tag.InnerText.IsEmpty()) continue;
                         img.Tags.Add(tag.InnerText);
                     }
                     img.Uploader = tags.LastOrDefault()?.InnerText;

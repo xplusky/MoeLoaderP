@@ -67,7 +67,7 @@ namespace MoeLoaderP.Core.Sites
 
             var imgs = new MoeItems();
             string query;
-            if (para.Keyword.IsNaN()) // by new
+            if (para.Keyword.IsEmpty()) // by new
             {
                 // recent:
                 // wall http://gallery.minitokyo.net/wallpapers?display=thumbnails&order=id&page=2
@@ -150,7 +150,7 @@ namespace MoeLoaderP.Core.Sites
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)
             {
-                if (lines[i].IsNaN()) continue;
+                if (lines[i].IsEmpty()) continue;
                 items.Add(lines[i].Substring(0, lines[i].IndexOf('|')).Trim());
             }
             return items;

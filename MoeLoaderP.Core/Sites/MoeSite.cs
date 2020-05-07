@@ -37,6 +37,8 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         public MoeSiteSupportState SupportState { get; set; } = new MoeSiteSupportState();
         public MoeSiteFuncSupportState FuncSupportState { get; set; } = new MoeSiteFuncSupportState();
+
+
         public MenuItemFunc MenuFunc { get; set; } = new MenuItemFunc();
 
         public NetDocker Net { get; set; }
@@ -68,6 +70,7 @@ namespace MoeLoaderP.Core.Sites
         public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
 
     }
+
 
     public class DownloadType
     {
@@ -130,6 +133,15 @@ namespace MoeLoaderP.Core.Sites
         public bool IsSupportSearchByAuthorId { get; set; } = false;
     }
 
+    public class MoeSiteOnlineUserFunc
+    {
+        public delegate CookieContainer GetCookieDelegate(string cookieStr);
+        public GetCookieDelegate GetCookieFunc { get; set; }
+
+        public delegate bool VerifyCookie(string cookieStr);
+        
+    }
+
 
     public class MoeSites : ObservableCollection<MoeSite>
     {
@@ -161,7 +173,7 @@ namespace MoeLoaderP.Core.Sites
     {
         public void AddHistory(string keyword, Settings settings)
         {
-            if (keyword.IsNaN()) return;
+            if (keyword.IsEmpty()) return;
             foreach (var item in this)
             {
                 if (item.Word == keyword) return;

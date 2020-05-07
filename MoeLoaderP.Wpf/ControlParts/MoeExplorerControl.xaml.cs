@@ -23,7 +23,6 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public Settings Settings { get; set; }
         public event Action<MoeItem, ImageSource> ImageItemDownloadButtonClicked;
-        public event Action<MoeItem, string> ContextMenuTagButtonClicked;
         public ImageControl MouseOnImageControl { get; set; }
         public ObservableCollection<ImageControl> SelectedImageControls { get; set; } = new ObservableCollection<ImageControl>();
 
@@ -31,7 +30,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             InitializeComponent();
             KeyDown += OnKeyDown;
-            ImageItemsScrollViewer.MouseRightButtonUp += ImageItemsScrollViewerOnMouseRightButtonDown;
+            ImageItemsScrollViewer.MouseRightButtonUp += ImageItemsScrollViewerOnMouseRightButtonUp;
             ImageItemsWrapPanel.PreviewMouseLeftButtonDown += ImageItemsWrapPanelOnPreviewMouseLeftButtonDown;
             ImageItemsWrapPanel.PreviewMouseMove += ImageItemsWrapPanelOnPreviewMouseMove;
             ImageItemsWrapPanel.PreviewMouseLeftButtonUp += ImageItemsWrapPanelOnPreviewMouseLeftButtonUp;
@@ -48,6 +47,13 @@ namespace MoeLoaderP.Wpf.ControlParts
             Extend.ShowMessageAction += ShowMessageAction;
         }
 
+        private void ImageItemsScrollViewerOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            SpPanel.Children.Clear();
+            ContextMenuImageInfoStackPanel.Children.Clear();
+            ContextMenuPopup.IsOpen = true;
+        }
+        
         private void ShowMessageAction(string arg1, string arg2, Extend.MessagePos arg3)
         {
             switch (arg3)
@@ -220,20 +226,9 @@ namespace MoeLoaderP.Wpf.ControlParts
         /// <summary>
         /// 显示右键菜单并生成信息
         /// </summary>
-        private void ImageItemsScrollViewerOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        public void LoadExtFunc(MoeItem moeItem)
         {
-            if (MouseOnImageControl == null) return;
-            ContextMenuPopup.IsOpen = true;
-            ContextMenuPopupGrid.EnlargeShowSb().Begin();
-
-            LoadExtFunc();
-            LoadImgInfo();
-        }
-
-        public void LoadExtFunc()
-        {
-            var cimg = MouseOnImageControl.ImageItem;
-            var para = MouseOnImageControl.ImageItem.Para;
+            var para = moeItem.Para;
             var site = para.Site;
             SpPanel.Children.Clear();
 
@@ -257,10 +252,10 @@ namespace MoeLoaderP.Wpf.ControlParts
             // load search by author id
             if (site.FuncSupportState.IsSupportSearchByAuthorId)
             {
-                var b = GetSpButton($"搜索该作者{cimg.Uploader}的所有作品");
+                var b = GetSpButton($"搜索该作者{moeItem.Uploader}的所有作品");
                 b.Click += (sender, args) =>
                 {
-                    SearchByAuthorIdAction?.Invoke(site, cimg.UploaderId);
+                    SearchByAuthorIdAction?.Invoke(site, moeItem.UploaderId);
                     ContextMenuPopup.IsOpen = false;
                 };
                 SpPanel.Children.Add(b);
@@ -269,22 +264,21 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public Action<MoeSite, string> SearchByAuthorIdAction;
 
-        public void LoadImgInfo()
+        public void LoadImgInfo(MoeItem item)
         {
-            var item = MouseOnImageControl.ImageItem;
             ContextMenuImageInfoStackPanel.Children.Clear();
             if (item.Id > 0) GenImageInfoVisual("ID:", $"{item.Id}");
-            if (!item.Uploader.IsNaN())
+            if (!item.Uploader.IsEmpty())
             {
                 GenImageInfoVisual("Uploader:", item.Uploader);
-                if (!item.UploaderId.IsNaN()) GenImageInfoVisual("UpID:", item.UploaderId);
+                if (!item.UploaderId.IsEmpty()) GenImageInfoVisual("UpID:", item.UploaderId);
             }
-            if (!item.Title.IsNaN()) GenImageInfoVisual("Title:", item.Title);
-            if (!item.DateString.IsNaN()) GenImageInfoVisual("Date:", item.DateString);
+            if (!item.Title.IsEmpty()) GenImageInfoVisual("Title:", item.Title);
+            if (!item.DateString.IsEmpty()) GenImageInfoVisual("Date:", item.DateString);
             if (MouseOnImageControl.ImageItem.Tags.Count > 0) GenImageInfoVisual("Tags:", item.Tags.ToArray());
-            if(!item.Artist.IsNaN()) GenImageInfoVisual("Artist:",item.Artist);
-            if(!item.Character.IsNaN()) GenImageInfoVisual("Character:", item.Character);
-            if(!item.Copyright.IsNaN()) GenImageInfoVisual("Copyright:", item.Copyright);
+            if(!item.Artist.IsEmpty()) GenImageInfoVisual("Artist:",item.Artist);
+            if(!item.Character.IsEmpty()) GenImageInfoVisual("Character:", item.Character);
+            if(!item.Copyright.IsEmpty()) GenImageInfoVisual("Copyright:", item.Copyright);
         }
 
         public void GenImageInfoVisual(string title, params string[] buttons)
@@ -372,8 +366,23 @@ namespace MoeLoaderP.Wpf.ControlParts
                 itemCtrl.Sb("ShowSb").Begin();
                 if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount) ImageLoadingPool.Add(itemCtrl);
                 else ImageWaitForLoadingPool.Add(itemCtrl);
+                itemCtrl.MouseRightButtonUp += ItemCtrlOnMouseRightButtonUp;
             }
         }
+
+        private void ItemCtrlOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ContextMenuPopup.IsOpen = true;
+            //ContextMenuPopupGrid.EnlargeShowSb().Begin();
+            if (sender is ImageControl obj)
+            {
+                LoadExtFunc(obj.ImageItem);
+                LoadImgInfo(obj.ImageItem);
+                e.Handled = true;
+            }
+            
+        }
+
 
         public void ResetVisual()
         {

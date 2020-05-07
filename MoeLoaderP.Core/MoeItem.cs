@@ -24,7 +24,7 @@ namespace MoeLoaderP.Core
 
         public string DateString
         {
-            get => _dateString.IsNaN() ? Date?.ToString("G", new CultureInfo("zh-CN")) : _dateString;
+            get => _dateString.IsEmpty() ? Date?.ToString("G", new CultureInfo("zh-CN")) : _dateString;
             set => _dateString = value;
         }
 
@@ -212,7 +212,7 @@ namespace MoeLoaderP.Core
 
         public string GetFileExtFromUrl()
         {
-            if (Url.IsNaN()) return null;
+            if (Url.IsEmpty()) return null;
             var type = Path.GetExtension(Url)?.Replace(".", "").ToUpper();
             if (type == null) return null;
             if (type.Contains("?"))

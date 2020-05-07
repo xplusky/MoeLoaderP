@@ -254,6 +254,9 @@ namespace MoeLoaderP.Core
             get => _loginCookie;
             set => SetField(ref _loginCookie, value, nameof(LoginCookie));
         }
+
+        public string LoginUserName { get; set; }
+        public string LoginUserId { get; set; }
     }
     
     public class CustomSiteSetting

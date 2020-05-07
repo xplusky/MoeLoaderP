@@ -21,6 +21,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public event Action<ImageControl> ImageLoadEnd;
 
+
         public ImageControl(Settings settings , MoeItem item)
         {
             Settings = settings;
@@ -36,6 +37,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             RefreshButton.Click += RefreshButtonOnClick;
             ImageCheckBox.Click += ImageCheckBoxOnClick;
         }
+
 
         private void ImageCheckBoxOnClick(object sender, RoutedEventArgs e)
         {
