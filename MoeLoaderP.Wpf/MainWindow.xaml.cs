@@ -18,6 +18,8 @@ namespace MoeLoaderP.Wpf
         private Settings Settings { get; set; }
         private SiteManager SiteManager { get; set; }
         private SearchSession CurrentSearch { get; set; }
+
+        public PreviewWindow PreviewWindowInstance { get; set; }
         
         public MainWindow()
         {
@@ -49,6 +51,7 @@ namespace MoeLoaderP.Wpf
             MoeExplorer.ImageItemDownloadButtonClicked += MoeExplorerOnImageItemDownloadButtonClicked;
             MoeExplorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
             MoeExplorer.SearchByAuthorIdAction += SearchByAuthorIdAction;
+            MoeExplorer.MoeItemPreviewButtonClicked += MoeExplorerOnMoeItemPreviewButtonClicked;
             
             // search
             SearchControl.Init(SiteManager, Settings);
@@ -66,6 +69,25 @@ namespace MoeLoaderP.Wpf
             LogoImageButton.Click += LogoImageButtonOnClick;
             ChangeBgImage();
             
+        }
+
+        private void MoeExplorerOnMoeItemPreviewButtonClicked(MoeItem item,ImageSource imgSource)
+        {
+            if (PreviewWindowInstance == null)
+            {
+                PreviewWindowInstance = new PreviewWindow();
+                PreviewWindowInstance.Owner = this;
+                PreviewWindowInstance.Closed += (sender, args) => PreviewWindowInstance = null;
+                PreviewWindowInstance.Width = Width * 0.85d;
+                PreviewWindowInstance.Height = Height * 0.85d;
+                PreviewWindowInstance.Show();
+            }
+            else
+            {
+                PreviewWindowInstance.Activate();
+            }
+            PreviewWindowInstance.Init(item,imgSource);
+
         }
 
         private void ChangeModeButtonOnClick(object sender, RoutedEventArgs e)

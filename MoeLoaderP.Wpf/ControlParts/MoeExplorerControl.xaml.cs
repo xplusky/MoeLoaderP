@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace MoeLoaderP.Wpf.ControlParts
@@ -23,6 +24,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public Settings Settings { get; set; }
         public event Action<MoeItem, ImageSource> ImageItemDownloadButtonClicked;
+        public event Action<MoeItem, ImageSource> MoeItemPreviewButtonClicked; 
         public ImageControl MouseOnImageControl { get; set; }
         public ObservableCollection<ImageControl> SelectedImageControls { get; set; } = new ObservableCollection<ImageControl>();
 
@@ -355,10 +357,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             foreach (var img in imgs)
             {
                 var itemCtrl = new ImageControl(Settings, img);
-                itemCtrl.DownloadButton.Click += (sender, args) =>
-                {
-                    ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source);
-                };
+                itemCtrl.DownloadButton.Click += (sender, args) => { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.PreviewButton.Click += (sender, args) => { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
                 itemCtrl.MouseEnter += (sender, args) => MouseOnImageControl = itemCtrl;
                 itemCtrl.ImageCheckBox.Checked += (sender, args) => SelectedImageControls.Add(itemCtrl);
                 itemCtrl.ImageCheckBox.Unchecked += (sender, args) => SelectedImageControls.Remove(itemCtrl);

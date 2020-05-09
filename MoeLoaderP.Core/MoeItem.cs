@@ -242,6 +242,17 @@ namespace MoeLoaderP.Core
             return info;
         }
 
+        public UrlInfo GetPreview()
+        {
+            if (this.Count < 2) return null;
+            var min = GetMin();
+            foreach (var urlInfo in this.OrderBy(u=> u.Priority))
+            {
+                if (urlInfo.Priority > min.Priority) return urlInfo;
+            }
+            return null;
+        }
+
         public UrlInfo GetMin()
         {
             UrlInfo info = null;
