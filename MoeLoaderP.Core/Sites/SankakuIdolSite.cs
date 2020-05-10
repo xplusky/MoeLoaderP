@@ -83,6 +83,7 @@ namespace MoeLoaderP.Core.Sites
                 img.IsExplicit = $"{item.rating}" == "e";
                 img.Net = Net.CloneWithOldCookie();
                 img.Urls.Add( 1, $"{https}{item.preview_url}", img.DetailUrl);
+                img.Urls.Add( 2, $"{https}{item.sample_url}", img.DetailUrl);
                 img.Urls.Add(4, $"{https}{item.file_url}", img.DetailUrl);
                 img.OriginString = $"{item}";
                 imgs.Add(img);

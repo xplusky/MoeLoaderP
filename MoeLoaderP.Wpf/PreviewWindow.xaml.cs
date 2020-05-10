@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Net.Http.Handlers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MoeLoaderP.Core;
 
 namespace MoeLoaderP.Wpf
@@ -34,7 +28,7 @@ namespace MoeLoaderP.Wpf
         private double PicWidth { get; set; }
         private double PicHeight { get; set; }
         private int _currentpos;
-
+        
         public PreviewWindow()
         {
             InitializeComponent();
@@ -52,6 +46,7 @@ namespace MoeLoaderP.Wpf
             var info = CurrentMoeItem.Urls.GetPreview();
             if(info == null )return;
             RootGrid.GoElementState(nameof(LoadingBarShowState));
+            ImageLoadProgressBar.Value = 0;
             await LoadImageAsync();
             RootGrid.GoElementState(nameof(LoadingBarHideState));
             InitImagePosition();
@@ -141,6 +136,17 @@ namespace MoeLoaderP.Wpf
             Canvas.SetTop(LargeImageThumb, ImageCanvas.ActualHeight / 2 - LargeImage.Height / 2);
         }
 
+        private bool _isGhost;
+        public void SetImage(BitmapImage img)
+        {
+            var sb = LargeImage.FadeHideSb();
+            sb.Completed += (sender, args) =>
+            {
+                LargeImage.Source = img;
+                LargeImage.EnlargeShowSb().Begin();
+            };
+            sb.Begin();
+        }
         
         /// <summary>
         /// 异步加载图片
@@ -155,8 +161,9 @@ namespace MoeLoaderP.Wpf
             Exception loadEx = null;
             try
             {
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-                var response = await net.Client.GetAsync(CurrentMoeItem.Urls.GetPreview().Url, cts.Token);
+                Cts?.Cancel();
+                Cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                var response = await net.Client.GetAsync(CurrentMoeItem.Urls.GetPreview().Url, Cts.Token);
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
                     var source = await Task.Run(() =>
@@ -177,7 +184,6 @@ namespace MoeLoaderP.Wpf
                         {
                             try
                             {
-                                
                                 var bitmap = new Bitmap(stream);
                                 var ms = new MemoryStream();
                                 bitmap.Save(ms, ImageFormat.Png);
@@ -202,12 +208,12 @@ namespace MoeLoaderP.Wpf
                             loadEx = ex;
                             return null;
                         }
-                    }, cts.Token);
+                    }, Cts.Token);
 
                     if (source != null)
                     {
                         PreviewBitmapImage = source;
-                        LargeImage.Source = source;
+                        SetImage(source);
                     }
                 }
             }
@@ -240,5 +246,10 @@ namespace MoeLoaderP.Wpf
             }));
 
         }
+    }
+
+    public class PreviewWindowPagingItem : BindingObject
+    {
+        public string Index { get; set; }
     }
 }

@@ -152,6 +152,13 @@ namespace MoeLoaderP.Wpf
             return sb;
         }
 
+        public static Storyboard FadeHideSb(this FrameworkElement target)
+        {
+            var sb = new Storyboard();
+            sb.AddEasyDoubleAnime(target, 1, 0, 0.3, "opacity");
+            return sb;
+        }
+
         public static void SetBgPos(this Viewbox vb,string filename)
         {
             var pairs = filename.Split(' ');

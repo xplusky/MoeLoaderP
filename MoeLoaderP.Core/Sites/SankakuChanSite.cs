@@ -48,6 +48,7 @@ namespace MoeLoaderP.Core.Sites
                     Score = $"{jitem.total_score}".ToInt()
                 };
                 img.Urls.Add(1, $"{jitem.preview_url}",beta);
+                img.Urls.Add(2, $"{jitem.sample_url}",beta);
                 img.Urls.Add(4, $"{jitem.file_url}",$"{beta}/post/show/{img.Id}");
                 img.IsExplicit = $"{jitem.rating}" != "s";
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();

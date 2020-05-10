@@ -244,7 +244,11 @@ namespace MoeLoaderP.Core
 
         public UrlInfo GetPreview()
         {
-            if (this.Count < 2) return null;
+            if (Count ==0 ) return null;
+            if (Count == 1)
+            {
+                return this.FirstOrDefault();
+            }
             var min = GetMin();
             foreach (var urlInfo in this.OrderBy(u=> u.Priority))
             {

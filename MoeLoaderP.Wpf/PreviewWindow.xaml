@@ -8,7 +8,36 @@
         fw:AcrylicWindow.Enabled="True"
         mc:Ignorable="d"
         Title="预览" Height="531.912" Width="867.089" Background="{x:Null}" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <ControlTemplate x:Key="PreviewPagingListBoxControlTemplate" TargetType="{x:Type ListBox}">
+            <Border x:Name="Bd" BorderThickness="{TemplateBinding BorderThickness}" Padding="1" SnapsToDevicePixels="True">
+                <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}">
+                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                </ScrollViewer>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" TargetName="Bd" Value="White"/>
+                    <Setter Property="BorderBrush" TargetName="Bd" Value="#FFD9D9D9"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsGrouping" Value="True"/>
+                        <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="False"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+                </MultiTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <ItemsPanelTemplate x:Key="PagingItemsPanelTemplate">
+            <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+    </Window.Resources>
     <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="LoadingBarVSG">
                 <VisualStateGroup.Transitions>
@@ -39,7 +68,8 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-            <Thumb x:Name="LargeImageThumb" Height="{Binding ActualHeight, ElementName=LargeImage}" Width="{Binding ActualWidth, ElementName=LargeImage}" Background="{x:Null}" Canvas.Left="0" Canvas.Top="0">
+            <Thumb x:Name="LargeImageThumb" Height="{Binding ActualHeight, ElementName=LargeImage}" 
+                   Width="{Binding ActualWidth, ElementName=LargeImage}" Background="{x:Null}" Canvas.Left="0" Canvas.Top="0">
                 <Thumb.Template>
                     <ControlTemplate>
                         <Border Background="#00E000FF"/>
@@ -49,6 +79,29 @@
 
         </Canvas>
         <ProgressBar x:Name="ImageLoadProgressBar" Width="156" Height="16" Template="{DynamicResource MoeProgressBarControlTemplate}"/>
+        <Grid x:Name="MultiPagingGrid" Grid.Row="1" Height="0">
+            <ListBox x:Name="PagingListBox" Template="{DynamicResource PreviewPagingListBoxControlTemplate}" ItemsPanel="{DynamicResource PagingItemsPanelTemplate}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Width="72" Height="72" Margin="4">
+                            <Border x:Name="ImageBorder" BorderBrush="#FF9C9C9C" BorderThickness="1" CornerRadius="12">
+                                <Border.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="White" Offset="0.995"/>
+                                        <GradientStop Color="#FFDEDEDE"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <TextBlock x:Name="IndexTextBlock" TextWrapping="Wrap" Text="12" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="White" ShadowDepth="0"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
 
     </Grid>
 </Window>

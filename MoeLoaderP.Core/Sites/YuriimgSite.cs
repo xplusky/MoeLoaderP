@@ -36,6 +36,31 @@ namespace MoeLoaderP.Core.Sites
             {
                 img.Tags.Add($"{tag.tags?.jp}");
             }
+
+            if ($"{json.page_count}".ToInt() > 1)
+            {
+                var q = $"{api}/multi";
+                var json2 = await Net.GetJsonAsync(q, token);
+
+                var child1 = new MoeItem(this,img.Para);
+                child1.Width = img.Width;
+                child1.Height = img.Height;
+                foreach (var urlInfo in img.Urls)
+                {
+                    child1.Urls.Add(urlInfo);
+                }
+                img.ChildrenItems.Add(child1);
+
+                foreach (var jitem in Extend.CheckListNull(json2))
+                {
+                    var childImg = new MoeItem(this,img.Para);
+                    childImg.Width = $"{jitem.width}".ToInt();
+                    childImg.Height = $"{jitem.height}".ToInt();
+                    childImg.Urls.Add(4, $"https://i.yuriimg.com/{jitem.src}");
+                    img.ChildrenItems.Add(childImg);
+                }
+            }
+
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)

@@ -57,8 +57,8 @@ namespace MoeLoaderP.Core.Sites
             SupportState.IsSupportAccount = true;
 
             DownloadTypes.Add("原图", 4);
-            DownloadTypes.Add("常规", 3);
-            DownloadTypes.Add("小图", 2);
+            DownloadTypes.Add("中图", 3);
+            //DownloadTypes.Add("小图", 2);
 
             SupportState.IsSupportRating = false;
             SupportState.IsSupportSearchByImageLastId = true;
@@ -328,7 +328,7 @@ namespace MoeLoaderP.Core.Sites
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
             {
-                img.Urls.Add(2, $"{img1.urls.small}", refer);
+                //img.Urls.Add(2, $"{img1.urls.small}", refer);
                 img.Urls.Add(3, $"{img1.urls.regular}", refer);
                 img.Urls.Add(4, $"{img1.urls.original}", refer);
             }
@@ -338,7 +338,7 @@ namespace MoeLoaderP.Core.Sites
                 foreach (var item in json.body)
                 {
                     var imgItem = new MoeItem(this, para);
-                    imgItem.Urls.Add(2, $"{img1?.urls.small}", refer);
+                    //imgItem.Urls.Add(2, $"{img1?.urls.small}", refer);
                     imgItem.Urls.Add(3, $"{img1?.urls.regular}", refer);
                     imgItem.Urls.Add(4, $"{item?.urls?.original}", refer);
                     img.ChildrenItems.Add(imgItem);
@@ -358,7 +358,7 @@ namespace MoeLoaderP.Core.Sites
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
             {
-                img.Urls.Add(2, $"{img1.src}", refer, UgoiraAfterEffects);
+                //img.Urls.Add(2, $"{img1.src}", refer, UgoiraAfterEffects);
                 img.Urls.Add(3, $"{img1.src}", refer, UgoiraAfterEffects);
                 img.Urls.Add(4, $"{img1.originalSrc}", refer, UgoiraAfterEffects);
                 img.ExtraFile = new TextFileInfo { FileExt = "json", Content = jsonStr };

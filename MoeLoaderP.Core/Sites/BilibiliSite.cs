@@ -81,6 +81,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Height = $"{i0?.img_height}".ToInt();
                 img.Date = $"{item.item?.upload_time}".ToDateTime();
                 img.Urls.Add(1, $"{i0?.img_src}@336w_336h_1e_1c.jpg", HomeUrl + cat);
+                img.Urls.Add(2, $"{i0?.img_src}@1024w_768h.jpg");
                 img.Urls.Add(4, $"{i0?.img_src}");
                 img.Title = $"{item.item?.title}";
                 var list = item.item?.pictures as JArray;
@@ -90,6 +91,7 @@ namespace MoeLoaderP.Core.Sites
                     {
                         var child = new MoeItem(this, para);
                         child.Urls.Add(1, $"{pic.img_src}@336w_336h_1e_1c.jpg", HomeUrl + cat);
+                        child.Urls.Add(2, $"{pic.img_src}@1024w_768h.jpg", HomeUrl + cat);
                         child.Urls.Add(4, $"{pic.img_src}");
                         child.Width = $"{pic.img_width}".ToInt();
                         child.Height = $"{pic.img_height}".ToInt();
@@ -125,6 +127,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 var img = new MoeItem(this,para);
                 img.Urls.Add(1,$"{item.cover}@336w_336h_1e_1c.jpg");
+                img.Urls.Add(2, $"{item.cover}@1024w_768h.jpg");
                 img.Urls.Add(4, $"{item.cover}");
                 img.Id = $"{item.id}".ToInt();
                 img.Score = $"{item.like}".ToInt();
@@ -154,6 +157,7 @@ namespace MoeLoaderP.Core.Sites
                 {
                     var child = new MoeItem(this, para);
                     child.Urls.Add(1, $"{pic.img_src}@336w_336h_1e_1c.jpg");
+                    child.Urls.Add(2, $"{pic.img_src}@1024w_768h.jpg");
                     child.Urls.Add(4,$"{pic.img_src}");
                     if (i == 0)
                     {
