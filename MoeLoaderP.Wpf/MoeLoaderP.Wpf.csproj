@@ -337,7 +337,7 @@
       <Version>79.1.360</Version>
     </PackageReference>
     <PackageReference Include="CefSharp.Wpf">
-      <Version>79.1.360</Version>
+      <Version>86.0.241</Version>
     </PackageReference>
     <PackageReference Include="FluentWPF">
       <Version>0.8.0</Version>
