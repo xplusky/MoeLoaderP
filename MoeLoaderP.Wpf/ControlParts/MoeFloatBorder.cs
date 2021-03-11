@@ -5,6 +5,9 @@ using System.Windows.Media.Effects;
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
+    /// <summary>
+    /// 设置框，右键菜单等
+    /// </summary>
     public class MoeFloatBorder : Border
     {
         public MoeFloatBorder()

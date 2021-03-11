@@ -14,21 +14,21 @@ namespace MoeLoaderP.Core
     /// <summary>
     /// 统一网络操作客户端
     /// </summary>
-    public class NetDocker
+    public class NetOperator
     {
         public HttpClientHandler HttpClientHandler { get; set; }
         public ProgressMessageHandler ProgressMessageHandler { get; set; }
         public HttpClient Client { get; set; }
         public Settings Settings { get; set; }
 
-        public NetDocker()
+        public NetOperator()
         {
             HttpClientHandler = new HttpClientHandler();
             ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
             Client = new HttpClient(ProgressMessageHandler);
         }
 
-        public NetDocker(Settings settings, string cookieurl = null)
+        public NetOperator(Settings settings, string cookieurl = null,double timeout = 40)
         {
             Settings = settings;
             HttpClientHandler = new HttpClientHandler { Proxy = Proxy };
@@ -42,8 +42,7 @@ namespace MoeLoaderP.Core
             Client = new HttpClient(ProgressMessageHandler);
             const string agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36";
             Client.DefaultRequestHeaders.UserAgent.ParseAdd(agent);
-            Client.Timeout = TimeSpan.FromSeconds(40);
-
+            Client.Timeout = TimeSpan.FromSeconds(timeout);
         }
 
         public void SetReferer(string rfurl)
@@ -57,9 +56,9 @@ namespace MoeLoaderP.Core
             Client.Timeout = TimeSpan.FromSeconds(sec);
         }
 
-        public NetDocker CloneWithOldCookie()
+        public NetOperator CloneWithOldCookie()
         {
-            var net = new NetDocker(Settings)
+            var net = new NetOperator(Settings)
             {
                 HttpClientHandler =
                 {
@@ -153,7 +152,6 @@ namespace MoeLoaderP.Core
             }
             return xml;
         }
-
     }
 
 

@@ -3,14 +3,17 @@ using System.Linq;
 
 namespace MoeLoaderP.Core
 {
-    public class Downloader
+    /// <summary>
+    /// 下载管理器
+    /// </summary>
+    public class DownloadManager
     {
         public DownloadItems DownloadItems { get; set; } = new DownloadItems();
 
         public bool IsDownloading => DownloadItems.Any(t => t.Status == DownloadStatusEnum.Downloading || t.Status == DownloadStatusEnum.WaitForDownload);
         public Settings Set { get; set; }
         
-        public Downloader(Settings set)
+        public DownloadManager(Settings set)
         {
             Set = set;
         }

@@ -24,7 +24,7 @@ namespace MoeLoaderP.Core.Sites
         {
             if (Net == null)
             {
-                Net = new NetDocker(Settings);
+                Net = new NetOperator(Settings);
                 Net.SetReferer(HomeUrl);
                 await Net.Client.GetAsync(HomeUrl, token);
             }

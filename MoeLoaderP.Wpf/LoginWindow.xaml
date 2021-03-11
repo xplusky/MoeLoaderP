@@ -8,21 +8,22 @@
         fw:AcrylicWindow.Enabled="True"
         x:Class="MoeLoaderP.Wpf.LoginWindow"
         mc:Ignorable="d"
-        Title="账号登陆窗口" Height="800" Width="1000" WindowStartupLocation="CenterOwner">
+        Title="账号登陆窗口" Height="900" Width="1280" 
+    WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="41.333"/>
+            <RowDefinition Height="44"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid Margin="0,6,0,0" Grid.Row="1">
             <wpf:ChromiumWebBrowser x:Name="MainBrower"/>
         </Grid>
-        <Grid Margin="0">
+        <Grid Grid.Row="0" Margin="0">
             <Button x:Name="GoToLoginPageButton" Content="转到登陆页面" Template="{DynamicResource MoeButtonControlTemplate}" HorizontalAlignment="Left" Width="136" Margin="6,6,6,0"/>
             <Button x:Name="AuthButton" Content="登陆完毕后点击此按钮，开始验证并保存登陆信息" Template="{DynamicResource MoeButtonControlTemplate}" HorizontalAlignment="Right" Width="292" Margin="0,6,6,0"/>
-            <TextBlock TextWrapping="Wrap" Margin="156,8,306,0" Foreground="#FFCA0000" ><Run Text="提示：在登陆页面登陆完成后，即可点击右侧按钮，保存登陆信息，以便进行搜索"/><Run Text="。由于技术原因，若在墙内"/><Run Text="且梯子非全局模式"/><Run Text="，请使用自定义代理模式"/><Run Text="而非系统模式"/><Run Text="，否则页面无法显示"/></TextBlock>
+            <TextBlock TextWrapping="Wrap" Margin="156,0,306,0" Foreground="#FFCA0000" VerticalAlignment="Center" ><Run Text="提示：在登陆页面登陆完成后，即可点击右侧按钮，保存登陆信息，以便进行搜索"/><Run Text="。"/></TextBlock>
         </Grid>
-        <Border x:Name="AuthLoadingBorder" Grid.RowSpan="2" Margin="100" CornerRadius="30" BorderThickness="2" BorderBrush="#FF8E8E8E" Visibility="Collapsed">
+        <Border x:Name="AuthLoadingBorder" Grid.Row="0" Grid.RowSpan="2" Margin="100" CornerRadius="30" BorderThickness="2" BorderBrush="#FF8E8E8E" Visibility="Collapsed">
             <Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#CCE9E9E9" Offset="0.011"/>

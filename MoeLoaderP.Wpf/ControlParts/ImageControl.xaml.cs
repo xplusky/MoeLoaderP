@@ -68,7 +68,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             Task detailTask = null;
             if (ImageItem.GetDetailTaskFunc != null)
             {
-                detailTask = ImageItem.TryGetDetailTask();
+                detailTask = ImageItem.TryGetDetail();
             }
 
             // 等待图片加载和详情页分析完成
@@ -93,7 +93,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         public async Task<Exception> LoadImageAsync()
         {
             // client
-            var net = ImageItem.Net ?? new NetDocker(Settings);
+            var net = ImageItem.Net ?? new NetOperator(Settings);
             net.SetTimeOut(15);
             net.SetReferer(ImageItem.ThumbnailUrlInfo.Referer);
             Exception loadEx = null;

@@ -36,7 +36,7 @@ namespace MoeLoaderP.Core
 
             return query;
         }
-        public static dynamic CheckListNull(dynamic dyObj) => dyObj ?? new List<dynamic>();
+        public static dynamic GetList(dynamic dyObj) => dyObj ?? new List<dynamic>();
 
         public static bool IsEmpty(this string text) => string.IsNullOrWhiteSpace(text);
 

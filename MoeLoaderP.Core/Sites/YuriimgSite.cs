@@ -31,10 +31,14 @@ namespace MoeLoaderP.Core.Sites
             img.Artist = $"{json.artist?.name}";
             img.Uploader = $"{json.user?.name}";
             img.UploaderId = $"{json.user?.id}";
-            
-            foreach (var tag in Extend.CheckListNull(json.tags.general))
+
+            foreach (var tag in Extend.GetList(json.tags.general))
             {
-                img.Tags.Add($"{tag.tags?.jp}");
+                var t = $"{tag.tags?.cn}";
+                if (!t.IsEmpty())
+                {
+                    img.Tags.Add(t);
+                }
             }
 
             if ($"{json.page_count}".ToInt() > 1)
@@ -51,12 +55,13 @@ namespace MoeLoaderP.Core.Sites
                 }
                 img.ChildrenItems.Add(child1);
 
-                foreach (var jitem in Extend.CheckListNull(json2))
+                foreach (var jitem in Extend.GetList(json2))
                 {
                     var childImg = new MoeItem(this,img.Para);
                     childImg.Width = $"{jitem.width}".ToInt();
                     childImg.Height = $"{jitem.height}".ToInt();
-                    childImg.Urls.Add(4, $"https://i.yuriimg.com/{jitem.src}");
+                    //childImg.Urls.Add(4, $"https://i.yuriimg.com/{post.src}/yuriimg.com%20{post.id}%20contain.jpg");
+                    //childImg.Urls.Add(4,null,null,null, ResolveUrlFunc);
                     img.ChildrenItems.Add(childImg);
                 }
             }
@@ -65,7 +70,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            if (Net == null) Net = new NetDocker(Settings, HomeUrl);
+            if (Net == null) Net = new NetOperator(Settings, HomeUrl);
             const string api = "https://api.yuriimg.com/posts";
             var pairs = new Pairs
             {
@@ -81,9 +86,10 @@ namespace MoeLoaderP.Core.Sites
                 img.IsExplicit = $"{post.rating}" == "e";
                 if (CurrentSiteSetting.LoginCookie.IsEmpty() && img.IsExplicit) continue;
                 img.Id = $"{post.pid}".ToInt();
+                img.Sid = $"{post.id}";
                 img.Width = $"{post.width}".ToInt();
                 img.Height = $"{post.height}".ToInt();
-                img.Urls.Add( 1, $"https://i.yuriimg.com/{post.src}");
+                img.Urls.Add( 1, $"https://i.yuriimg.com/{post.src}/yuriimg.com%20{post.id}%20contain.jpg");
                 img.DetailUrl = $"{HomeUrl}/show/{post.id}";
                 img.GetDetailTaskFunc = async () => await GetDetailTask(img, $"{post.id}", token);
                 img.OriginString = $"{post}";

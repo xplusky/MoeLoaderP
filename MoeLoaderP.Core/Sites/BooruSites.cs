@@ -1,38 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
+// Booru 类型通用站点集合
 namespace MoeLoaderP.Core.Sites
 {
-    // Booru 类型通用站点集合
-    public class KonachanSite : BooruSite
-    {
-        public override string HomeUrl => "https://konachan.com";
-        public override string DisplayName => "Konachan";
-        public override string ShortName => "konachan";
-
-        public override string GetHintQuery(SearchPara para)
-        {
-            var pairs = new Pairs
-            {
-                {"limit", "15"},
-                {"order", "count"},
-                {"name", para.Keyword}
-            };
-            return $"{HomeUrl}/tag.xml{pairs.ToPairsString()}";
-        }
-
-        public override string GetPageQuery(SearchPara para)
-        {
-            var pairs = new Pairs
-            {
-                {"page",$"{para.PageIndex}" },
-                {"limit",$"{para.Count}" },
-                {"tags",para.Keyword.ToEncodedUrl() }
-            };
-            return $"{HomeUrl}/post.xml{pairs.ToPairsString()}";
-        }
-    }
-
+    /// <summary>
+    /// yande.re fixed 2021.1.1
+    /// </summary>
     public class YandeSite : BooruSite
     {
         public override string HomeUrl => "https://yande.re";
@@ -62,6 +36,9 @@ namespace MoeLoaderP.Core.Sites
         }
     }
 
+    /// <summary>
+    /// behoimi.org fixed 2021.2.8
+    /// </summary>
     public class BehoimiSite : BooruSite
     {
         public override string HomeUrl => "http://behoimi.org";
@@ -76,6 +53,9 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/post/index.xml?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
     }
 
+    /// <summary>
+    /// safebooru.org fixed 2021.2.8
+    /// </summary>
     public class SafebooruSite : BooruSite
     {
         public override string HomeUrl => "https://safebooru.org";
@@ -104,6 +84,9 @@ namespace MoeLoaderP.Core.Sites
         public override string GetDetailPageUrl(MoeItem item) => $"{HomeUrl}/index.php?page=post&s=view&id={item.Id}";
     }
 
+    /// <summary>
+    /// danbooru.donmai.us fixed 2021.2.8
+    /// </summary>
     public class DonmaiSite : BooruSite
     {
         public override string HomeUrl => "https://danbooru.donmai.us";
@@ -122,6 +105,9 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/posts/{item.Id}";
     }
 
+    /// <summary>
+    /// lolibooru.moe fixed 2021.2.8
+    /// </summary>
     public class LolibooruSite : BooruSite
     {
         public override string HomeUrl => "https://lolibooru.moe";
@@ -136,9 +122,12 @@ namespace MoeLoaderP.Core.Sites
 
     }
 
+    /// <summary>
+    /// atfbooru.ninja fixed 2021.2.8
+    /// </summary>
     public class AtfbooruSite : BooruSite
     {
-        public override string HomeUrl => "https://atfbooru.ninja";
+        public override string HomeUrl => "https://booru.allthefallen.moe/";
         public override string DisplayName => "Atfbooru";
         public override string ShortName => "atfbooru";
 
@@ -151,6 +140,9 @@ namespace MoeLoaderP.Core.Sites
         public override SiteTypeEnum SiteType => SiteTypeEnum.Json;
     }
 
+    /// <summary>
+    /// rule34.xxx fixed 2021/2/8
+    /// </summary>
     public class Rule34Site : BooruSite
     {
         public override string HomeUrl => "https://rule34.xxx";

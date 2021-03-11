@@ -1,9 +1,6 @@
-﻿using ImageMagick;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -16,11 +13,22 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class DownloadItem : BindingObject
     {
-        public Settings Set { get; set; }
-        public MoeItem CurrentMoeItem { get; set; }
-        public dynamic BitImg { get; set; } // bitmap image
+        public Settings Settings { get; set; }
+        public MoeItem DownloadMoeItem { get; set; }
+        /// <summary>
+        /// bitmap image 用于显示下载图片图标
+        /// </summary>
+        public dynamic BitImg { get; set; } 
+
+        /// <summary>
+        /// 网站上原始文件名
+        /// </summary>
         public string OriginFileName { get; set; }
-        public string OriginFileNameWithoutExt { get; set; }
+        /// <summary>
+        /// 网站上原始文件名（不含后缀）
+        /// </summary>
+        public string OriginFileNameWithoutExtension { get; set; }
+
         private string _localFileShortNameWithoutExt;
 
         public string LocalFileShortNameWithoutExt
@@ -81,12 +89,12 @@ namespace MoeLoaderP.Core
 
         public DownloadItem(Settings set, dynamic bitimg, MoeItem item, int subindex = 0, MoeItem fatheritem = null)
         {
-            Set = set;
+            Settings = set;
             BitImg = bitimg;
-            CurrentMoeItem = item;
+            DownloadMoeItem = item;
             SubIndex = subindex;
             OriginFileName = Path.GetFileName(item.DownloadUrlInfo.Url);
-            OriginFileNameWithoutExt = Path.GetFileNameWithoutExtension(item.DownloadUrlInfo.Url).ToDecodedUrl();
+            OriginFileNameWithoutExtension = Path.GetFileNameWithoutExtension(item.DownloadUrlInfo.Url).ToDecodedUrl();
             var father = subindex == 0 ? null : fatheritem;
             GenFileNameWithoutExt(father);
             GenLocalFileFullPath(father);
@@ -101,13 +109,13 @@ namespace MoeLoaderP.Core
             if (SubItems.Count > 0)
             {
                 Status = DownloadStatusEnum.Downloading;
-                var b = Set.DownloadFirstSeveralCount < SubItems.Count && Set.IsDownloadFirstSeveral;
-                var count = b ? Set.DownloadFirstSeveralCount : SubItems.Count;
+                var b = Settings.DownloadFirstSeveralCount < SubItems.Count && Settings.IsDownloadFirstSeveral;
+                var count = b ? Settings.DownloadFirstSeveralCount : SubItems.Count;
                 for (var i = 0; i < SubItems.Count; i++)
                 {
                     
                     StatusText = $"正在下载 {i+1} / {count} 张";
-                    if (i < Set.DownloadFirstSeveralCount || Set.IsDownloadFirstSeveral == false)
+                    if (i < Settings.DownloadFirstSeveralCount || Settings.IsDownloadFirstSeveral == false)
                     {
                         var item = SubItems[i];
                         await item.DownloadFileAsync();
@@ -125,73 +133,7 @@ namespace MoeLoaderP.Core
                 var token = CurrentDownloadTaskCts.Token;
                 try
                 {
-                    var url = CurrentMoeItem.DownloadUrlInfo;
-                    if (url == null)
-                    {
-                        Status = DownloadStatusEnum.Failed;
-                        StatusText = "下载失败";
-                        return;
-                    }
-                    if (File.Exists(LocalFileFullPath))
-                    {
-                        if (Set.IsAutoRenameWhenSame)
-                        {
-                            var filename = AutoRenameFullPath();
-                            LocalFileFullPath = filename;
-                        }
-                        else
-                        {
-                            Status = DownloadStatusEnum.Skip;
-                            StatusText = "已存在，跳过";
-                            return;
-                        }
-
-                    }
-
-                    var net = CurrentMoeItem.Net == null ? new NetDocker(Set) : CurrentMoeItem.Net.CloneWithOldCookie();
-                    if (!url.Referer.IsEmpty()) net.SetReferer(url.Referer);
-                    net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) =>
-                    {
-                        Progress = args.ProgressPercentage;
-                        StatusText = $"正在下载：{Progress}%";
-                    };
-                    net.SetTimeOut(500);
-
-                    if (File.Exists(LocalFileFullPath))
-                    {
-                        Status = DownloadStatusEnum.Skip;
-                        StatusText = "已存在，跳过";
-                        return;
-                    }
-                    Status = DownloadStatusEnum.Downloading;
-                    var data = await net.Client.GetAsync(url.Url, token);
-                    var bytes = await data.Content.ReadAsByteArrayAsync();
-
-                    var dir = Path.GetDirectoryName(LocalFileFullPath);
-                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
-                    using (var fs = new FileStream(LocalFileFullPath, FileMode.Create))
-                    {
-                        await fs.WriteAsync(bytes, 0, bytes.Length, token);
-                    }
-
-                    if (url.AfterEffects != null)
-                    {
-                        try
-                        {
-                            await url.AfterEffects.Invoke(this, data.Content, token);
-                        }
-                        catch (Exception e)
-                        {
-                            Extend.Log(e);
-                        }
-                    }
-                    
-
-                    data.Dispose();
-                    Progress = 100;
-                    StatusText = "下载完成";
-                    Extend.Log($"{url.Url} download ok");
-                    Status = DownloadStatusEnum.Success;
+                    await DownloadSingleFileAsync(token);
                 }
                 catch (Exception ex)
                 {
@@ -202,40 +144,107 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public static void ConvertPixivZipToGif(Stream stream, dynamic frames, FileInfo fi)
+        public async Task DownloadSingleFileAsync(CancellationToken token)
         {
-            var delayList = new List<int>();
-            using (var images = new MagickImageCollection())
+            // url不正常判断
+            var durl = DownloadMoeItem.DownloadUrlInfo;
+            if (durl == null)
             {
-                foreach (var frame in frames)
-                {
-                    delayList.Add($"{frame.delay}".ToInt());
-                }
-                using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
-                {
-                    for (var i = 0; i < zip.Entries.Count; i++)
-                    {
-                        var ms = new MemoryStream();
-                        using (var aStream = zip.Entries[i].Open())
-                        {
-                            aStream.CopyTo(ms);
-                            ms.Position = 0L;
-                        }
-                        var img = new MagickImage(ms);
-                        img.AnimationDelay = delayList[i] / 10;
-                        images.Add(img);
-                        ms.Dispose();
-                    }
-                }
-                var set = new QuantizeSettings();
-                set.Colors = 256;
-                images.Quantize(set);
-                images.Optimize();
-                images.Write(fi, MagickFormat.Gif);
+                Status = DownloadStatusEnum.Failed;
+                StatusText = "下载失败";
+                return;
             }
+
+            // url解析、前置操作
+            if (durl.ResolveUrlFunc != null)
+            {
+                try
+                {
+                    await durl.ResolveUrlFunc.Invoke(this, token);
+                }
+                catch (Exception e)
+                {
+                    Extend.Log(e);
+                }
+            }
+
+            // 文件已存在判断、改名
+            if (File.Exists(LocalFileFullPath))
+            {
+                if (Settings.IsAutoRenameWhenSame)
+                {
+                    var filename = AutoRenameFullPath();
+                    LocalFileFullPath = filename;
+                }
+                else
+                {
+                    Status = DownloadStatusEnum.Skip;
+                    StatusText = "已存在，跳过";
+                    return;
+                }
+
+            }
+
+            // 设置下载网络
+            var net = DownloadMoeItem.Net == null ? new NetOperator(Settings) : DownloadMoeItem.Net.CloneWithOldCookie();
+            if (!durl.Referer.IsEmpty()) net.SetReferer(durl.Referer);
+            net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) =>
+            {
+                Progress = args.ProgressPercentage;
+                StatusText = $"正在下载：{Progress}%";
+            };
+            net.SetTimeOut(500);
+            if (File.Exists(LocalFileFullPath))
+            {
+                Status = DownloadStatusEnum.Skip;
+                StatusText = "已存在，跳过";
+                return;
+            }
+            Status = DownloadStatusEnum.Downloading;
+            var data = await net.Client.GetAsync(durl.Url, token);
+            
+            // 写入文件
+            var stream = await data.Content.ReadAsStreamAsync();
+            var dir = Path.GetDirectoryName(LocalFileFullPath);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
+            var file = new FileInfo(LocalFileFullPath);
+            using (var fileStream = file.Create())
+            using (stream)
+            {
+                var buffer = new byte[1024];
+                int length;
+                while ((length = await stream.ReadAsync(buffer, 0, buffer.Length, token)) != 0)
+                {
+                    // 写入到文件
+                    fileStream.Write(buffer, 0, length);
+                }
+            }
+
+            // 下载完成后期效果
+            if (durl.AfterEffects != null)
+            {
+                try
+                {
+                    await durl.AfterEffects.Invoke(this, data.Content, token);
+                }
+                catch (Exception e)
+                {
+                    Extend.Log(e);
+                }
+            }
+
+            // 完成
+            Progress = 100;
+            StatusText = "下载完成";
+            Extend.Log($"{durl.Url} download ok");
+            Status = DownloadStatusEnum.Success;
         }
 
+
         private string _statusText;
+        /// <summary>
+        /// 状态文字
+        /// </summary>
         public string StatusText
         {
             get => _statusText;
@@ -244,18 +253,18 @@ namespace MoeLoaderP.Core
 
         public void GenLocalFileFullPath(MoeItem father = null)
         {
-            var img = father ?? CurrentMoeItem;
-            var format = Set.SortFolderNameFormat;
+            var img = father ?? DownloadMoeItem;
+            var format = Settings.SortFolderNameFormat;
             var sub = format.IsEmpty() ? $"{img.Site.ShortName}" : FormatText(format, img, true);
 
-            LocalFileFullPath = Path.Combine(Set.ImageSavePath, sub, $"{LocalFileShortNameWithoutExt}.{img.FileType?.ToLower()}");
+            LocalFileFullPath = Path.Combine(Settings.ImageSavePath, sub, $"{LocalFileShortNameWithoutExt}.{img.FileType?.ToLower()}");
         }
 
         public void GenFileNameWithoutExt(MoeItem father = null)
         {
-            var img = father ?? CurrentMoeItem;
+            var img = father ?? DownloadMoeItem;
 
-            var format = Set.SaveFileNameFormat;
+            var format = Settings.SaveFileNameFormat;
             if (format.IsEmpty())
             {
                 LocalFileShortNameWithoutExt = $"{img.Site.ShortName} {img.Id}";
@@ -285,7 +294,7 @@ namespace MoeLoaderP.Core
             sb.Replace("%title", img.Title ?? "no-title");
             sb.Replace("%uploader", img.Uploader ?? "no-uploader");
             sb.Replace("%date", img.DateString ?? "no-date");
-            sb.Replace("%origin", OriginFileNameWithoutExt);
+            sb.Replace("%origin", OriginFileNameWithoutExtension);
             sb.Replace("%character", img.Character ?? "no-character");
             sb.Replace("%artist", img.Artist ?? "no-artist");
             sb.Replace("%copyright", img.Copyright ?? "no-copyright");
@@ -321,6 +330,33 @@ namespace MoeLoaderP.Core
 
     public enum DownloadStatusEnum
     {
-        Success, Failed, Cancel, Stop, Downloading, WaitForDownload, Skip
+        /// <summary>
+        /// 成功
+        /// </summary>
+        Success,
+        /// <summary>
+        /// 下载失败
+        /// </summary>
+        Failed, 
+        /// <summary>
+        /// 下载取消
+        /// </summary>
+        Cancel, 
+        /// <summary>
+        /// 下载停止
+        /// </summary>
+        Stop, 
+        /// <summary>
+        /// 正在下载
+        /// </summary>
+        Downloading,
+        /// <summary>
+        /// 进入下载列队等待下载
+        /// </summary>
+        WaitForDownload,
+        /// <summary>
+        /// 跳过（重名等）
+        /// </summary>
+        Skip
     }
 }

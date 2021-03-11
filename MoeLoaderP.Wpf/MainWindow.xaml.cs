@@ -125,6 +125,7 @@ namespace MoeLoaderP.Wpf
             wnd.Init(Settings, SearchControl.CurrentSelectedSite);
             wnd.Owner = this;
             wnd.ShowDialog();
+            SearchControl.Refresh();
         }
 
         private void LogListBoxOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -242,20 +243,28 @@ namespace MoeLoaderP.Wpf
 
         private void DownloadSelectedImagesButtonOnClick(object sender, RoutedEventArgs e)
         {
-            if (DownloaderMenuCheckBox.IsChecked == false) DownloaderMenuCheckBox.IsChecked = true;
+            
+            var count = 0;
             foreach (var ctrl in MoeExplorer.SelectedImageControls)
             {
-                if (ctrl.ImageItem.DownloadUrlInfo == null) continue;
-                MoeDownloaderControl.Downloader.AddDownload(ctrl.ImageItem, ctrl.PreviewImage.Source);
+                var img = ctrl.ImageItem;
+                if (img.DownloadUrlInfo?.Url == null) continue;
+                MoeDownloaderControl.Downloader.AddDownload(img, ctrl.PreviewImage.Source);
+                count++;
             }
-
+            if (DownloaderMenuCheckBox.IsChecked == false && count>0) DownloaderMenuCheckBox.IsChecked = true;
+            else Extend.ShowMessage("没有图片可以下载T_T");
             foreach (ImageControl ct in MoeExplorer.ImageItemsWrapPanel.Children)
             {
                 ct.ImageCheckBox.IsChecked = false;
             }
 
             var lb = MoeDownloaderControl.DownloadItemsListBox;
-            lb.ScrollIntoView(lb.Items[lb.Items.Count - 1]);
+            if (lb.Items.Count != 0)
+            {
+                lb.ScrollIntoView(lb.Items[lb.Items.Count - 1]);
+            }
+                
         }
 
         private void ImageSizeSliderOnMouseWheel(object sender, MouseWheelEventArgs e)
@@ -281,7 +290,7 @@ namespace MoeLoaderP.Wpf
             switch (e.Key)
             {
                 case Key.Right:
-                    if (CurrentSearch?.LoadedPages?.Count > 0) NextPageButtonOnClick(this, null);
+                    if (CurrentSearch?.LoadedVisualPages?.Count > 0) NextPageButtonOnClick(this, null);
                     break;
                 case Key.F1: // 用于测试功能
                     ShowMessage("test");

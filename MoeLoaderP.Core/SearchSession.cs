@@ -16,7 +16,7 @@ namespace MoeLoaderP.Core
     {
         public Settings Settings { get; set; }
         public SearchPara CurrentSearchPara { get; set; }
-        public SearchedPages LoadedPages { get; set; } = new SearchedPages();
+        public SearchedVisualPages LoadedVisualPages { get; set; } = new SearchedVisualPages();
         public int CurrentPageIndex { get; set; }
         public bool IsSearching => SearchingTasksCts.Count > 0;
         public List<CancellationTokenSource> SearchingTasksCts { get; set; } = new List<CancellationTokenSource>();
@@ -27,7 +27,7 @@ namespace MoeLoaderP.Core
             CurrentSearchPara = para;
         }
 
-        public int AllImageCount => LoadedPages.Sum(page => page.ImageItems.Count);
+        public int AllImageCount => LoadedVisualPages.Sum(page => page.ImageItems.Count);
 
         public async Task<Task> TrySearchNextPageAsync()
         {
@@ -58,10 +58,10 @@ namespace MoeLoaderP.Core
         /// </summary>
         public async Task SearchNextPageAsync(CancellationToken token)
         {
-            var newVPage = new SearchedPage(); // 建立虚拟页信息
+            var newVPage = new SearchedVisualPage(); // 建立虚拟页信息
             var images = new MoeItems();
             SearchPara tempPara;
-            if (LoadedPages.Count == 0)
+            if (LoadedVisualPages.Count == 0)
             {
                 tempPara = CurrentSearchPara.Clone(); // 浅复制一份参数
                 newVPage.LastRealPageIndex = tempPara.PageIndex;
@@ -71,6 +71,7 @@ namespace MoeLoaderP.Core
                 sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
                 var imagesOrg = await tempPara.Site.GetRealPageImagesAsync(tempPara, token);
+                CurrentSearchPara.NextPagePara = tempPara.NextPagePara;
                 if (imagesOrg == null || imagesOrg.Count == 0)
                 {
                     Extend.ShowMessage("无搜索结果", null, Extend.MessagePos.Searching);
@@ -87,20 +88,20 @@ namespace MoeLoaderP.Core
                     }
                 }
             }
-            else if (!LoadedPages.Last().HasNextPage) // 若无下一页则返回
+            else if (!LoadedVisualPages.Last().HasNextPage) // 若无下一页则返回
             {
                 return;
             }
             else
             {
                 tempPara = CurrentSearchPara.Clone(); // 浅复制一份参数
-                tempPara.PageIndex = LoadedPages.Last().LastRealPageIndex;
+                tempPara.PageIndex = LoadedVisualPages.Last().LastRealPageIndex;
 
                 // 若不是第一页则使用上一页搜索多出来的图片作为本页基数
                 images = new MoeItems();
-                for (var i = 0; i < LoadedPages.Last().PreLoadNextPageItems.Count; i++)
+                for (var i = 0; i < LoadedVisualPages.Last().PreLoadNextPageItems.Count; i++)
                 {
-                    var item = LoadedPages.Last().PreLoadNextPageItems[i];
+                    var item = LoadedVisualPages.Last().PreLoadNextPageItems[i];
                     if (i < tempPara.Count) images.Add(item);
                     else
                     {
@@ -126,6 +127,7 @@ namespace MoeLoaderP.Core
                 sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
                 var imagesNextRPage = await tempPara.Site.GetRealPageImagesAsync(tempPara, token); // 搜索下一页（真）的所有图片
+                CurrentSearchPara.NextPagePara = tempPara.NextPagePara;
                 if (imagesNextRPage == null || imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
                 {
                     newVPage.HasNextPage = false; // 没有下一页
@@ -148,7 +150,7 @@ namespace MoeLoaderP.Core
             token.ThrowIfCancellationRequested();
             // Load end
             newVPage.ImageItems = images;
-            LoadedPages.Add(newVPage);
+            LoadedVisualPages.Add(newVPage);
             if (images.Message != null) Extend.ShowMessage(images.Message);
             if (images.Ex != null) Extend.ShowMessage(images.Ex.Message, images.Ex.ToString(), Extend.MessagePos.Window);
             Extend.ShowMessage("搜索完毕", null, Extend.MessagePos.Searching);
@@ -248,7 +250,7 @@ namespace MoeLoaderP.Core
     /// <summary>
     /// 搜索的其中一页（虚拟页）
     /// </summary>
-    public class SearchedPage
+    public class SearchedVisualPage
     {
         public MoeItems ImageItems { get; set; }
         public MoeItems PreLoadNextPageItems { get; set; } = new MoeItems();
@@ -256,7 +258,7 @@ namespace MoeLoaderP.Core
         public bool HasNextPage { get; set; } = true;
     }
 
-    public class SearchedPages : ObservableCollection<SearchedPage> { }
+    public class SearchedVisualPages : ObservableCollection<SearchedVisualPage> { }
 
     /// <summary>
     /// 搜索参数
@@ -268,6 +270,7 @@ namespace MoeLoaderP.Core
         public string Keyword { get; set; }
         public int PageIndex { get; set; }
         public int LastId { get; set; }
+        public string NextPagePara { get; set; }
         public int Count { get; set; }
 
         public bool IsShowExplicit { get; set; }

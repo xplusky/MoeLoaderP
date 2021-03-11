@@ -8,6 +8,28 @@
     mc:Ignorable="d" 
     d:DesignHeight="611.286" d:DesignWidth="380.882" Width="310" Height="560" >
     <ScrollViewer Template="{DynamicResource MoeScrollViewerControlTemplate}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="NameFormatVSG">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0:0:0.3">
+                        <VisualTransition.GeneratedEasingFunction>
+                            <BackEase EasingMode="EaseInOut"/>
+                        </VisualTransition.GeneratedEasingFunction>
+                    </VisualTransition>
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="Noraml">
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Height)" Storyboard.TargetName="NameFormatButtonsPanel">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="NameFormatButtonsPanel">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Show"/>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <StackPanel>
             <GroupBox
                 Header="{DynamicResource TextSettingsProxyGroup}" Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
@@ -20,7 +42,7 @@
                         ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}">
                         <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeNone}" />
                         <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeCustom}" />
-                        <ComboBoxItem Content="IE浏览器设置"/>
+                        <ComboBoxItem Content="系统代理"/>
                     </ComboBox>
                     <TextBox
                         x:Name="CustomProxyTextBox"
@@ -118,6 +140,73 @@
                             VerticalAlignment="Center"
                             Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" Grid.Column="1" Margin="6,0,0,0" ToolTip="恢复默认" />
                     </Grid>
+                    <StackPanel x:Name="SortFolderFormatSpan">
+                        <WrapPanel x:Name="NameFormatButtonsPanel" Orientation="Horizontal" Margin="0,4,0,0" Height="86" >
+                            <Button
+                                x:Name="NameFormatSiteButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="站点名"
+                                ToolTip="%site" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="52.444" Margin="2" />
+                            <Button
+                            x:Name="NameFormatSiteButton_Copy"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Content="搜索关键字"
+                            ToolTip="%keyword" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="71.111" Margin="2" />
+                            <Button
+                                x:Name="NameFormatIdButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="作品ID"
+                                ToolTip="%id" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="48.444" Margin="2" />
+                            <Button
+                                x:Name="NameFormatAuthorButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="作者"
+                                ToolTip="%uploader" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="50" Margin="2" />
+                            <Button
+                                x:Name="NameFormatDiescButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="标题"
+                                ToolTip="%title" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="42.444" Margin="2" />
+                            <Button
+                                x:Name="NameFormatTagButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="标签"
+                                ToolTip="%tag" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="41.556" Margin="2" />
+                            <Button
+                                x:Name="NameFormatDateButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="日期"
+                                ToolTip="%date" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="44.223" Margin="2" />
+                            <Button
+                                x:Name="NameFormatOriginButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="原始文件名"
+                                ToolTip="%origin" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="69.667" Margin="2" />
+                            <Button
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="作品名"
+                                ToolTip="%copyright" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="54.333" Margin="2" />
+                            <Button
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="角色名"
+                                ToolTip="%character" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="53.333" Margin="2" />
+                            <Button
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="画师名"
+                                ToolTip="%artist" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="57" Margin="2" />
+                        </WrapPanel>
+                    </StackPanel>
                     <TextBlock
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top" Text="自定义文件命名格式（不带扩展名）" Margin="0,2"/>
@@ -140,71 +229,7 @@
                             VerticalAlignment="Center"
                             Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" ToolTip="恢复默认" Grid.Column="1" Margin="6,0,0,0" />
                     </Grid>
-                    <WrapPanel x:Name="NameFormatPanel" Orientation="Horizontal" Margin="0,4,0,0" >
-                        <Button
-                                x:Name="NameFormatSiteButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="站点名"
-                                ToolTip="%site" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="52.444" Margin="2" />
-                        <Button
-                            x:Name="NameFormatSiteButton_Copy"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Bottom"
-                            Content="搜索关键字"
-                            ToolTip="%keyword" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="71.111" Margin="2" />
-                        <Button
-                                x:Name="NameFormatIdButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="作品ID"
-                                ToolTip="%id" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="48.444" Margin="2" />
-                        <Button
-                                x:Name="NameFormatAuthorButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="作者"
-                                ToolTip="%uploader" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="50" Margin="2" />
-                        <Button
-                                x:Name="NameFormatDiescButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="标题"
-                                ToolTip="%title" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="42.444" Margin="2" />
-                        <Button
-                                x:Name="NameFormatTagButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="标签"
-                                ToolTip="%tag" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="41.556" Margin="2" />
-                        <Button
-                                x:Name="NameFormatDateButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="日期"
-                                ToolTip="%date" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="44.223" Margin="2" />
-                        <Button
-                                x:Name="NameFormatOriginButton"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="原始文件名"
-                                ToolTip="%origin" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="69.667" Margin="2" />
-                        <Button
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="作品名"
-                                ToolTip="%copyright" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="54.333" Margin="2" />
-                        <Button
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="角色名"
-                                ToolTip="%character" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="53.333" Margin="2" />
-                        <Button
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Content="画师名"
-                                ToolTip="%artist" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="57" Margin="2" />
-                    </WrapPanel>
+                    <StackPanel x:Name="FileNameFormatSpan"/>
                     <CheckBox x:Name="AutoRenameCheckBox" Content="文件名相同时自动重命名（否则直接跳过）" IsChecked="{Binding IsAutoRenameWhenSame}" Margin="0,4,0,0"/>
                 </StackPanel>
             </GroupBox>

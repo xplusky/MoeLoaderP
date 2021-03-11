@@ -36,7 +36,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public async Task CheckUpdateAsync()
         {
-            var json = await new NetDocker().GetJsonAsync($"{App.SaeUrl}/moeloader/update.json");
+            var json = await new NetOperator().GetJsonAsync($"{App.SaeUrl}/moeloader/update.json");
             if (json == null) return;
             if (Version.Parse($"{json.NetVersion}") > App.Version)
             {
@@ -49,7 +49,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public async Task CheckThankListAsync()
         {
-            var json = await new NetDocker().GetJsonAsync($"{App.SaeUrl}/thanklist.json");
+            var json = await new NetOperator().GetJsonAsync($"{App.SaeUrl}/thanklist.json");
             if (json == null) return;
             foreach (var user in json)
             {

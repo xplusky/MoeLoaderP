@@ -25,7 +25,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override string ShortName => "pixiv";
 
-        public virtual bool IsR18 => false;
+        public bool IsR18 { get; set; }
 
         public string R18Query => IsR18 ? "true" : "false";
         public string R18ModeQuery => IsR18 ? "r18" : "safe";
@@ -62,8 +62,8 @@ namespace MoeLoaderP.Core.Sites
 
             SupportState.IsSupportRating = false;
             SupportState.IsSupportSearchByImageLastId = true;
-            FuncSupportState.IsSupportSelectPixivRankNew = true;
-            FuncSupportState.IsSupportSearchByAuthorId = true;
+            SupportState.IsSupportSelectPixivRankNew = true;
+            SupportState.IsSupportSearchByAuthorId = true;
             LoginPageUrl = "https://accounts.pixiv.net/login";
         }
 
@@ -97,7 +97,7 @@ namespace MoeLoaderP.Core.Sites
         {
             if (Net?.HttpClientHandler?.CookieContainer == null)
             {
-                Net = new NetDocker(Settings, HomeUrl);
+                Net = new NetOperator(Settings, HomeUrl);
                 Net.HttpClientHandler.AllowAutoRedirect = true;
                 Net.HttpClientHandler.UseCookies = true;
                 var cc = GetCookies();
@@ -172,18 +172,21 @@ namespace MoeLoaderP.Core.Sites
                 ? (json?.body?.illusts)
                 : (isIllust ? (json?.body?.illust?.data) : (json?.body?.manga?.data));
 
-            foreach (var illus in Extend.CheckListNull(list))
+            foreach (var illus in Extend.GetList(list))
             {
-                var img = new MoeItem(this, para) { Site = this, Net = Net.CloneWithOldCookie(), Id = $"{illus.illustId}".ToInt() };
+                var img = new MoeItem(this, para);
+                img.Site = this;
+                img.Net = Net.CloneWithOldCookie();
+                img.Id = $"{illus.id}".ToInt();
                 img.Urls.Add(new UrlInfo(1, $"{illus.url}", $"{HomeUrl}/new_illust.php"));
-                img.Title = $"{illus.illustTitle}";
+                img.Title = $"{illus.title}";
                 img.Uploader = $"{illus.userName}";
                 img.UploaderId = $"{illus.userId}";
                 img.Width = $"{illus.width}".ToInt();
                 img.Height = $"{illus.height}".ToInt();
                 img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
                 img.ImagesCount = $"{illus.pageCount}".ToInt();
-                foreach (var tag in Extend.CheckListNull(illus.tags)) img.Tags.Add($"{tag}");
+                foreach (var tag in Extend.GetList(illus.tags)) img.Tags.Add($"{tag}");
                 img.Date = GetDateFromUrl($"{illus.url}");
                 if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
                 else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
@@ -229,7 +232,7 @@ namespace MoeLoaderP.Core.Sites
             }
             var picIds = new List<string>();
             var arts = isIorM ? allJson?.body?.illusts : allJson?.body?.manga;
-            foreach (var ill in Extend.CheckListNull(arts)) picIds.Add((ill as JProperty)?.Name);
+            foreach (var ill in Extend.GetList(arts)) picIds.Add((ill as JProperty)?.Name);
             var picCurrentPage = picIds.OrderByDescending(i => i.ToInt()).Skip((para.PageIndex - 1) * para.Count).Take(para.Count).ToList();
             if (!picCurrentPage.Any()) return;
             var pairs = new Pairs();
@@ -238,26 +241,31 @@ namespace MoeLoaderP.Core.Sites
             pairs.Add("is_first_page", "1");
             var picsJson = await Net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/illusts", token, pairs);
             var works = picsJson?.body?.works;
-            foreach (var item in Extend.CheckListNull(works))
+            foreach (var item in Extend.GetList(works))
             {
                 dynamic illus = (item as JProperty)?.Value;
                 if (illus == null) continue;
                 var img = new MoeItem(this, para);
                 img.Urls.Add(1, $"{illus.url}", $"{HomeUrl}/users/{uid}/{mi}");
-                img.Id = $"{illus.illustId}".ToInt();
+                img.Id = $"{illus.id}".ToInt();
                 img.Net = Net.CloneWithOldCookie();
-                img.Title = $"{illus.illustTitle}";
+                img.Title = $"{illus.title}";
                 img.Uploader = $"{illus.userName}";
                 img.UploaderId = $"{illus.userId}";
+                img.UploaderHeadUrl = $"{illus.profileImageUrl}";
                 img.Width = $"{illus.width}".ToInt();
                 img.Height = $"{illus.height}".ToInt();
                 img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
                 img.ImagesCount = $"{illus.pageCount}".ToInt();
-                foreach (var tag in Extend.CheckListNull(illus.tags)) img.Tags.Add($"{tag}");
+                foreach (var tag in Extend.GetList(illus.tags))
+                {
+                    img.Tags.Add($"{tag}");
+                }
                 img.Date = GetDateFromUrl($"{illus.url}");
                 if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
                 else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
                 img.OriginString = $"{item}";
+                
                 imgs.Add(img);
             }
             Extend.ShowMessage($"该作者共有{mi3}{picIds.Count}张,当前第{para.Count * (para.PageIndex - 1) + 1}张", null, Extend.MessagePos.InfoBar);
@@ -283,7 +291,7 @@ namespace MoeLoaderP.Core.Sites
                 {"format", "json"}
             };
             var json = await Net.GetJsonAsync(q, token, pair);
-            foreach (var illus in Extend.CheckListNull(json?.contents))
+            foreach (var illus in Extend.GetList(json?.contents))
             {
                 var img = new MoeItem(this, para)
                 {
@@ -306,7 +314,7 @@ namespace MoeLoaderP.Core.Sites
                     img.Tip = yes == 0 ? "首次登场" : $"之前#{yes}";
                     if (yes == 0) img.TipHighLight = true;
                 }
-                foreach (var tag in Extend.CheckListNull(illus.tags)) img.Tags.Add($"{tag}");
+                foreach (var tag in Extend.GetList(illus.tags)) img.Tags.Add($"{tag}");
 
                 img.Date = GetDateFromUrl($"{illus.url}");
                 if ($"{illus.illust_type}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
@@ -368,12 +376,12 @@ namespace MoeLoaderP.Core.Sites
         private async Task UgoiraAfterEffects(DownloadItem item, HttpContent content, CancellationToken token)
         {
             // save json
-            var path = Path.ChangeExtension(item.LocalFileFullPath, item.CurrentMoeItem.ExtraFile.FileExt);
+            var path = Path.ChangeExtension(item.LocalFileFullPath, item.DownloadMoeItem.ExtraFile.FileExt);
             if (path != null)
             {
                 try
                 {
-                    File.WriteAllText(path, item.CurrentMoeItem.ExtraFile.Content);
+                    File.WriteAllText(path, item.DownloadMoeItem.ExtraFile.Content);
                 }
                 catch (Exception e)
                 {
@@ -382,11 +390,11 @@ namespace MoeLoaderP.Core.Sites
             }
 
             // save gif
-            dynamic json = JsonConvert.DeserializeObject(item.CurrentMoeItem.ExtraFile.Content);
+            dynamic json = JsonConvert.DeserializeObject(item.DownloadMoeItem.ExtraFile.Content);
             var list = json.body.frames;
-            var gifpath = Path.ChangeExtension(item.LocalFileFullPath, "gif");
-            if(gifpath == null)return;
-            var fi = new FileInfo(gifpath);
+            var gifPath = Path.ChangeExtension(item.LocalFileFullPath, "gif");
+            if (gifPath == null) return;
+            var fi = new FileInfo(gifPath);
             using (var stream = await content.ReadAsStreamAsync())
             {
                 item.StatusText = "正在转换为GIF..";
@@ -426,19 +434,19 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        private NetDocker AutoHintNet { get; set; }
+        private NetOperator AutoHintNet { get; set; }
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             if (AutoHintNet == null)
             {
-                AutoHintNet = new NetDocker(Settings, HomeUrl);
+                AutoHintNet = new NetOperator(Settings, HomeUrl);
                 AutoHintNet.SetReferer(HomeUrl);
             }
             var items = new AutoHintItems();
             if (para.SubMenuIndex != 0 && para.SubMenuIndex != 5) return items;
             var url = $"{HomeUrl}/rpc/cps.php?keyword={para.Keyword}";
             var jList = await AutoHintNet.GetJsonAsync(url, token);
-            foreach (var obj in Extend.CheckListNull(jList?.candidates)) items.Add($"{obj.tag_name}");
+            foreach (var obj in Extend.GetList(jList?.candidates)) items.Add($"{obj.tag_name}");
             return items;
         }
     }
@@ -446,7 +454,10 @@ namespace MoeLoaderP.Core.Sites
     public class PixivR18Site : PixivSite
     {
         public override string DisplayName => "Pixiv[R18]";
-        public override bool IsR18 => true;
 
+        public PixivR18Site()
+        {
+            IsR18 = true;
+        }
     }
 }

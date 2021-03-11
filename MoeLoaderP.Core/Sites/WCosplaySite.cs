@@ -20,7 +20,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            if (Net == null) Net = new NetDocker();
+            if (Net == null) Net = new NetOperator();
 
             //http://worldcosplay.net/api/photo/list?page=3&limit=2&sort=created_at&direction=descend
             var url = $"{HomeUrl}/api/photo/list";

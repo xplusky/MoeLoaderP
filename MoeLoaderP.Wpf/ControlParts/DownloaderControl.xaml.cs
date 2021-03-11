@@ -11,7 +11,7 @@ namespace MoeLoaderP.Wpf.ControlParts
     public partial class DownloaderControl
     {
         public Settings Settings { get; set; }
-        public Downloader Downloader { get; set; }
+        public DownloadManager Downloader { get; set; }
         public DispatcherTimer Timer { get; set; } = new DispatcherTimer();
         public DownloaderControl()
         {
@@ -21,7 +21,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         public void Init(Settings settings)
         {
             Settings = settings;
-            Downloader = new Downloader(Settings);
+            Downloader = new DownloadManager(Settings);
 
             DownloadItemsListBox.ItemsSource = Downloader.DownloadItems;
             DownloadItemsListBox.MouseRightButtonUp += DownloadItemsListBoxOnMouseRightButtonUp;

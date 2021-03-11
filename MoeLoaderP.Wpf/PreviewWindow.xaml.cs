@@ -27,7 +27,6 @@ namespace MoeLoaderP.Wpf
         public CancellationTokenSource Cts { get; set; }
         private double PicWidth { get; set; }
         private double PicHeight { get; set; }
-        private int _currentpos;
         
         public PreviewWindow()
         {
@@ -45,11 +44,34 @@ namespace MoeLoaderP.Wpf
             
             var info = CurrentMoeItem.Urls.GetPreview();
             if(info == null )return;
+            DisplayItemInfo();
             RootGrid.GoElementState(nameof(LoadingBarShowState));
             ImageLoadProgressBar.Value = 0;
             await LoadImageAsync();
             RootGrid.GoElementState(nameof(LoadingBarHideState));
             InitImagePosition();
+        }
+
+        public void DisplayItemInfo()
+        {
+            var i = CurrentMoeItem;
+            InfoTitleTextBlock.Text = i.Title;
+            InfoIDTextBlock.Text = $"{i.Id}";
+            InfoUploaderTextBlock.Text = i.Uploader;
+            InfoScoreTextBlock.Text = $"{i.Score}";
+            InfoResolutionTextBlock.Text = $"{i.Width}x{i.Height}";
+            InfoDateTextBlock.Text = i.DateString;
+            TagsWrapPanel.Children.Clear();
+            foreach (var iTag in i.Tags)
+            {
+                var tagTb = new TextBlock();
+                tagTb.Text = iTag;
+                tagTb.FontSize = 14;
+                tagTb.Foreground = (SolidColorBrush)FindResource("HightLightFontColorBrush");
+                tagTb.Margin = new Thickness(0,0,8,8);
+                TagsWrapPanel.Children.Add(tagTb);
+            }
+
         }
 
         private void LargeImageThumbOnDragDelta(object sender, DragDeltaEventArgs e)
@@ -136,7 +158,6 @@ namespace MoeLoaderP.Wpf
             Canvas.SetTop(LargeImageThumb, ImageCanvas.ActualHeight / 2 - LargeImage.Height / 2);
         }
 
-        private bool _isGhost;
         public void SetImage(BitmapImage img)
         {
             var sb = LargeImage.FadeHideSb();
@@ -154,7 +175,7 @@ namespace MoeLoaderP.Wpf
         public async Task<Exception> LoadImageAsync()
         {
             // client
-            var net = CurrentMoeItem.Net ?? new NetDocker(Settings);
+            var net = CurrentMoeItem.Net ?? new NetOperator(Settings);
             //net.SetTimeOut(30);
             net.SetReferer(CurrentMoeItem.ThumbnailUrlInfo.Referer);
             net.ProgressMessageHandler.HttpReceiveProgress += ProgressMessageHandlerOnHttpReceiveProgress;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// www.minitokyo.net fixed 20200317
+    /// www.minitokyo.net fixed 20210311
     /// </summary>
     public class MiniTokyoSite : MoeSite
     {
@@ -49,7 +49,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            Net = Net == null ? new NetDocker(Settings, HomeUrl) : Net.CloneWithOldCookie();
+            Net = Net == null ? new NetOperator(Settings, HomeUrl) : Net.CloneWithOldCookie();
 
             if (!IsLogin)
             {
@@ -122,7 +122,7 @@ namespace MoeLoaderP.Core.Sites
                 const string api2 = "http://static2.minitokyo.net";
                 const string api = "http://static.minitokyo.net";
                 var previewUrl = $"{api2}/view{sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
-                var fileUrl = $"{api}t/downloads{previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
+                var fileUrl = $"{api}/downloads{previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
                 img.Urls.Add(4, fileUrl, HomeUrl);
                 img.Title = node.SelectSingleNode("./p/a").InnerText.Trim();
                 img.Uploader = node.SelectSingleNode("./p").InnerText.Delete("by ").Trim();

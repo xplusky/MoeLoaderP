@@ -28,7 +28,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task LoginAsync(CancellationToken token)
         {
-            Net = new NetDocker(Settings, HomeUrl);
+            Net = new NetOperator(Settings, HomeUrl);
             const string loginhost = "https://iapi.sankakucomplex.com";
             var accountIndex = new Random().Next(0, _user.Length);
             var tempuser = _user[accountIndex];
@@ -76,7 +76,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Uploader = $"{item.uploader_name}";
                 img.DetailUrl = $"{HomeUrl}/post/show/{img.Id}";
                 img.Date = $"{item.created_at?.s}".ToDateTime();
-                foreach (var tag in Extend.CheckListNull(item.tags))
+                foreach (var tag in Extend.GetList(item.tags))
                 {
                     img.Tags.Add($"{tag.name}");
                 }

@@ -65,6 +65,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv4ComboBox.SelectionChanged += MoeSitesLv4ComboBoxOnSelectionChanged;// 四级菜单选择改变
 
             MoeSitesLv1ComboBox.SelectedIndex = 0;
+
             AccountButton.MouseRightButtonUp += AccountButtonOnMouseRightButtonUp;
         }
 
@@ -117,6 +118,10 @@ namespace MoeLoaderP.Wpf.ControlParts
             FilterStartPageBox.NumCount = 1;
         }
 
+        public void Refresh()
+        {
+            MoeSitesLv1ComboBoxOnSelectionChanged(null, null);
+        }
         private void MoeSitesLv1ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)// site change
         {
             var lv1Si = MoeSitesLv1ComboBox.SelectedIndex;

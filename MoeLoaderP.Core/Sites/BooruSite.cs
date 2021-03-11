@@ -28,7 +28,7 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var list = new AutoHintItems();
-            var net = new NetDocker(Settings);
+            var net = new NetOperator(Settings);
             switch (SiteType)
             {
                 case SiteTypeEnum.Xml:
@@ -48,7 +48,7 @@ namespace MoeLoaderP.Core.Sites
                     return list;
                 case SiteTypeEnum.Json:
                     var json = await net.GetJsonAsync(GetHintQuery(para), token);
-                    foreach (var item in Extend.CheckListNull(json))
+                    foreach (var item in Extend.GetList(json))
                     {
                         list.Add(new AutoHintItem
                         {
@@ -78,7 +78,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task<MoeItems> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)
         {
-            var client = new NetDocker(Settings).Client;
+            var client = new NetOperator(Settings).Client;
             var query = GetPageQuery(para);
             var xmlRes = await client.GetAsync(query, token);
             var xmlStr = await xmlRes.Content.ReadAsStreamAsync();
@@ -125,7 +125,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task<MoeItems> GetRealPageImagesAsyncFromJson(SearchPara para, CancellationToken token)
         {
-            var list = await new NetDocker(Settings).GetJsonAsync(GetPageQuery(para), token);
+            var list = await new NetOperator(Settings).GetJsonAsync(GetPageQuery(para), token);
 
             return await Task.Run(() =>
             {

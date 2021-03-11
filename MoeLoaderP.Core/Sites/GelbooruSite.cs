@@ -20,7 +20,7 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var ahis = new AutoHintItems();
-            var jsonlist = await new NetDocker(Settings).GetJsonAsync(GetHintQuery(para), token);
+            var jsonlist = await new NetOperator(Settings).GetJsonAsync(GetHintQuery(para), token);
             foreach (var item in jsonlist)
             {
                 ahis.Add(new AutoHintItem
@@ -36,7 +36,7 @@ namespace MoeLoaderP.Core.Sites
         public static async Task GetDetailTask(MoeItem img, SearchPara para, CancellationToken token)
         {
             var url = img.DetailUrl;
-            var net = new NetDocker(img.Site.Settings);
+            var net = new NetOperator(img.Site.Settings);
             var html = await net.GetHtmlAsync(url,token);
             if(html == null )return;
             var nodes = html.DocumentNode;

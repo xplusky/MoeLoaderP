@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 
 namespace MoeLoaderP.Wpf
@@ -16,72 +10,6 @@ namespace MoeLoaderP.Wpf
     public static class UiFunc
     {
 
-        public static async Task<BitmapImage> LoadImageAsync(NetDocker net,double timeout, UrlInfo url)
-        {
-            // client
-            net.SetTimeOut(timeout);
-            net.SetReferer(url.Referer);
-            Exception loadEx = null;
-            var bitimg = new BitmapImage();
-            try
-            {
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-                var response = await net.Client.GetAsync(url.Url, cts.Token);
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                {
-                    bitimg = await Task.Run(() =>
-                    {
-                        try
-                        {
-                            
-                            bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                            bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                            bitimg.BeginInit();
-                            bitimg.StreamSource = stream;
-                            bitimg.EndInit();
-                            bitimg.Freeze();
-                            return bitimg;
-                        }
-                        catch (IOException)
-                        {
-                            try
-                            {
-                                var bitmap = new Bitmap(stream);
-                                var ms = new MemoryStream();
-                                bitmap.Save(ms, ImageFormat.Png);
-                                bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                                bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                                bitimg.BeginInit();
-                                bitimg.StreamSource = ms;
-                                bitimg.EndInit();
-                                bitimg.Freeze();
-                                return bitimg;
-                            }
-                            catch (Exception e)
-                            {
-                                loadEx = e;
-                                return null;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            loadEx = ex;
-                            return null;
-                        }
-                    }, cts.Token);
-                }
-            }
-            catch (Exception ex)
-            {
-                loadEx = ex;
-            }
-
-            if (loadEx == null) return bitimg;
-
-            Extend.Log(loadEx.Message, loadEx.StackTrace);
-            Extend.Log($"{url.Url} 图片加载失败");
-            return null;
-        }
         public static string LangText(this FrameworkElement el, string key)
         {
             var text = el.TryFindResource(key) as string;

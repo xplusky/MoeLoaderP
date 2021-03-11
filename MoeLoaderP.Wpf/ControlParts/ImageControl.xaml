@@ -191,6 +191,9 @@
                         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="LeftTopInfosStackPanel">
                             <EasingDoubleKeyFrame KeyTime="0" Value="28"/>
                         </DoubleAnimationUsingKeyFrames>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LeftOperationBorder">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                        </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
                 <VisualState x:Name="NormalState"/>
@@ -293,7 +296,7 @@
                         <TextBlock x:Name="TipTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="{Binding ImageItem.Tip}" FontSize="12" Foreground="{Binding ImageItem.TipHighLight, Converter={StaticResource BoolToHighLightBrush}}"/></TextBlock>
                     </Border>
                 </StackPanel>
-                <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding ImageItem.DownloadUrlInfo.Url, Converter={StaticResource StringToVisibilityConverter}, FallbackValue=Collapsed}" VerticalAlignment="Bottom" CornerRadius="5" Margin="0,0,4,4"   Padding="1" >
+                <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding ImageItem.FileType, Converter={StaticResource StringToVisibilityConverter}, FallbackValue=Collapsed}" VerticalAlignment="Bottom" CornerRadius="5" Margin="0,0,4,4"   Padding="1" >
                     <Border.Background>
                         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                             <GradientStop Color="#A5000000" Offset="0"/>
@@ -340,6 +343,20 @@
                 </Button>
                 <Button x:Name="DownloadButton" Visibility="{Binding ImageItem.DownloadUrlInfo, Converter={StaticResource ObjectToVisibilityConverter}}" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF019;"/></TextBlock>
+                </Button>
+            </StackPanel>
+        </Border>
+        <Border x:Name="LeftOperationBorder" VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="6" Margin="3" Opacity="0">
+            <StackPanel Visibility="{Binding ImageItem.Site.SupportState.IsSupportAccount,Converter={StaticResource BoolToVisibilityConverter}}">
+                <Button x:Name="ThumbButton" Template="{DynamicResource MoeImageOprateButtonControlTemplate}" 
+                        Visibility="{Binding ImageItem.Site.SupportState.IsSupportStarButton,Converter={StaticResource BoolToVisibilityConverter}}"
+                        Width="28" Height="28" Margin="1">
+                    <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xf164;"/></TextBlock>
+                </Button>
+                <Button x:Name="StarButton" Template="{DynamicResource MoeImageOprateButtonControlTemplate}"
+                        Visibility="{Binding ImageItem.Site.SupportState.IsSupportStarButton,Converter={StaticResource BoolToVisibilityConverter}}"
+                        Width="28" Height="28" Margin="1">
+                    <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xf005;"/></TextBlock>
                 </Button>
             </StackPanel>
         </Border>

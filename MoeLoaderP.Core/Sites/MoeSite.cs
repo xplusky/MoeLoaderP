@@ -35,12 +35,16 @@ namespace MoeLoaderP.Core.Sites
         /// 站点支持的功能情况
         /// </summary>
         public MoeSiteSupportState SupportState { get; set; } = new MoeSiteSupportState();
-        public MoeSiteFuncSupportState FuncSupportState { get; set; } = new MoeSiteFuncSupportState();
 
 
         public MenuItemFunc MenuFunc { get; set; } = new MenuItemFunc();
 
-        public NetDocker Net { get; set; }
+        public NetOperator Net { get; set; }
+
+        /// <summary>
+        /// 包含cookie的网络接口
+        /// </summary>
+        public NetOperator AccountNet { get; set; }
 
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
@@ -52,17 +56,32 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         public virtual Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token) => null;
 
+        /// <summary>
+        /// 点赞
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="token"></param>
+        /// <returns>是否成功</returns>
+        public virtual Task<bool> ThumbAsync(MoeItem item,CancellationToken token) => null;
+
+        /// <summary>
+        /// 标心或者喜欢
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>是否成功</returns>
+        public virtual Task<bool> StarAsync(CancellationToken token) => null;
+
         public Settings Settings { get; set; }
 
-        public MoeSiteSetting CurrentSiteSetting
+        public SingleMoeSiteSettings CurrentSiteSetting
         {
             get
             {
-                if (Settings?.MoeSiteSettings?.ContainsKey(ShortName) == true) return Settings.MoeSiteSettings[ShortName];
+                if (Settings?.AllMoeSitesSettings?.ContainsKey(ShortName) == true) return Settings.AllMoeSitesSettings[ShortName];
                 if (Settings == null) return null;
-                if(Settings.MoeSiteSettings == null) Settings.MoeSiteSettings = new Dictionary<string, MoeSiteSetting>();
-                Settings.MoeSiteSettings.Add(ShortName, new MoeSiteSetting());
-                return Settings.MoeSiteSettings[ShortName];
+                if(Settings.AllMoeSitesSettings == null) Settings.AllMoeSitesSettings = new AllMoeSitesSettings();
+                Settings.AllMoeSitesSettings.Add(ShortName, new SingleMoeSiteSettings());
+                return Settings.AllMoeSitesSettings[ShortName];
             }
         }
 
@@ -123,14 +142,15 @@ namespace MoeLoaderP.Core.Sites
         public bool IsSupportKeyword { get; set; } = true;
 
         public bool IsSupportSearchByImageLastId { get; set; } = false;
-    }
 
-    public class MoeSiteFuncSupportState
-    {
         public bool IsSupportSelectPixivRankNew { get; set; } = false;
 
         public bool IsSupportSearchByAuthorId { get; set; } = false;
+
+        public bool IsSupportThumbButton { get; set; } = false;
+        public bool IsSupportStarButton { get; set; } = false;
     }
+
 
     public class MoeSiteOnlineUserFunc
     {

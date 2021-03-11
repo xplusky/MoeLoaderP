@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace MoeLoaderP.Core
 {
     /// <summary>
-    /// 用于存储设置、绑定及运行时参数传递
+    /// 用于存储设置、绑定及运行时参数传递（整个软件）可保存为JSON文件
     /// </summary>
     public class Settings : BindingObject
     {
@@ -166,7 +166,7 @@ namespace MoeLoaderP.Core
 
         #endregion 
 
-        #region R18 Mode
+        #region R18 Mode Setting
 
         private bool _isXMode;
 
@@ -195,16 +195,19 @@ namespace MoeLoaderP.Core
 
         #endregion
 
-        #region MoeSites
+        #region MoeSites Settings
 
         /// <summary>
-        /// 每一个站点分别的设置
+        /// 每一个站点分别的设置（所有站点集合）
         /// </summary>
-        public Dictionary<string, MoeSiteSetting> MoeSiteSettings { get; set; } =new Dictionary<string, MoeSiteSetting>();
+        public AllMoeSitesSettings AllMoeSitesSettings { get; set; } =new AllMoeSitesSettings();
 
-        public CustomSiteSettingList CustomSiteSettingList { get; set; } = new CustomSiteSettingList();
+        /// <summary>
+        /// 自定义站点设置集合
+        /// </summary>
+        public AllCustomSitesSettings CustomSiteSettingList { get; set; } = new AllCustomSitesSettings();
 
-        private bool _isCustomSiteMode = false;
+        private bool _isCustomSiteMode;
         [JsonIgnore]
         public bool IsCustomSiteMode
         {
@@ -213,7 +216,9 @@ namespace MoeLoaderP.Core
         }
 
         #endregion
-        
+
+        #region Save&Load Func
+
         public void Save(string jsonPath)
         {
             var json = JsonConvert.SerializeObject(this);
@@ -243,9 +248,14 @@ namespace MoeLoaderP.Core
             }
             return settings;
         }
+
+        #endregion
     }
 
-    public class MoeSiteSetting : BindingObject
+    #region Settings Helper Class
+
+    public class AllMoeSitesSettings : Dictionary<string, SingleMoeSiteSettings> { }
+    public class SingleMoeSiteSettings : BindingObject
     {
         private string _loginCookie;
 
@@ -258,14 +268,15 @@ namespace MoeLoaderP.Core
         public string LoginUserName { get; set; }
         public string LoginUserId { get; set; }
     }
-    
-    public class CustomSiteSetting
+
+    public class AllCustomSitesSettings : Dictionary<string, SingleCustomSiteSettings> { }
+    public class SingleCustomSiteSettings
     {
+        public string Name { get; set; }
         public string DisplayName { get; set; }
     }
 
-    public class CustomSiteSettingList : List<CustomSiteSetting> { }
-
+    
     /// <summary>
     /// 实现绑定所需的属性值变更通知接口
     /// </summary>
@@ -285,4 +296,6 @@ namespace MoeLoaderP.Core
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+
+    #endregion
 }

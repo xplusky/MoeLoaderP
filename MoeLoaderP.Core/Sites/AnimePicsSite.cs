@@ -33,7 +33,7 @@ namespace MoeLoaderP.Core.Sites
         public async Task LoginAsync(CancellationToken token)
         {
 
-            Net = new NetDocker(Settings, HomeUrl);
+            Net = new NetOperator(Settings, HomeUrl);
             Net.SetTimeOut(20);
             var index = new Random().Next(0, _user.Length);
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -53,7 +53,7 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public NetDocker AutoHintNet { get; set; }
+        public NetOperator AutoHintNet { get; set; }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
@@ -136,7 +136,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (AutoHintNet == null) AutoHintNet = new NetDocker(Settings, HomeUrl);
+            if (AutoHintNet == null) AutoHintNet = new NetOperator(Settings, HomeUrl);
             AutoHintNet.SetReferer($"{HomeUrl}/?lang=zh_CN");
             //AutoHintNet.Client.DefaultRequestHeaders.Add("content-type", "multipart/form-data; boundary=----WebKitFormBoundaryzFqgWZTqudUG0vBb");
             var re = new AutoHintItems();

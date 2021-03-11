@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace MoeLoaderP.Wpf.ControlParts
@@ -235,7 +234,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             SpPanel.Children.Clear();
 
             // load choose 首次登场图片
-            if (site.FuncSupportState.IsSupportSelectPixivRankNew && para.SubMenuIndex == 2)
+            if (site.SupportState.IsSupportSelectPixivRankNew && para.SubMenuIndex == 2)
             {
 
                 var b = GetSpButton("全选首次登场图片");
@@ -252,7 +251,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
 
             // load search by author id
-            if (site.FuncSupportState.IsSupportSearchByAuthorId)
+            if (site.SupportState.IsSupportSearchByAuthorId)
             {
                 var b = GetSpButton($"搜索该作者{moeItem.Uploader}的所有作品");
                 b.Click += (sender, args) =>
@@ -277,10 +276,14 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             if (!item.Title.IsEmpty()) GenImageInfoVisual("Title:", item.Title);
             if (!item.DateString.IsEmpty()) GenImageInfoVisual("Date:", item.DateString);
-            if (MouseOnImageControl.ImageItem.Tags.Count > 0) GenImageInfoVisual("Tags:", item.Tags.ToArray());
+            if (MouseOnImageControl.ImageItem.Tags.Count > 0)
+            {
+                GenImageInfoVisual("Tags:", item.Tags.ToArray());
+            }
             if(!item.Artist.IsEmpty()) GenImageInfoVisual("Artist:",item.Artist);
             if(!item.Character.IsEmpty()) GenImageInfoVisual("Character:", item.Character);
             if(!item.Copyright.IsEmpty()) GenImageInfoVisual("Copyright:", item.Copyright);
+            if(!item.Source.IsEmpty()) GenImageInfoVisual("Source:",item.Source);
         }
 
         public void GenImageInfoVisual(string title, params string[] buttons)
@@ -411,13 +414,13 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public void AddPage(SearchSession session)
         {
-            var lastPage = session.LoadedPages?.LastOrDefault();
+            var lastPage = session.LoadedVisualPages?.LastOrDefault();
             if (lastPage == null) return;
             AddImages(lastPage.ImageItems);
             StartDownloadShowImages();
 
-            this.GoState(session.LoadedPages.Last().HasNextPage ? nameof(HasNextPageState) : nameof(NoNextPageState));
-            NewPageButtonNumTextBlock.Text = $"{session.LoadedPages.Count + 1}";
+            this.GoState(session.LoadedVisualPages.Last().HasNextPage ? nameof(HasNextPageState) : nameof(NoNextPageState));
+            NewPageButtonNumTextBlock.Text = $"{session.LoadedVisualPages.Count + 1}";
         }
 
         public void StartDownloadShowImages()

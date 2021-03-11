@@ -21,7 +21,6 @@ namespace MoeLoaderP.Wpf
         public LoginWindow()
         {
             InitializeComponent();
-
         }
 
         public void Init(Settings setting, MoeSite site)
@@ -44,8 +43,8 @@ namespace MoeLoaderP.Wpf
         {
             AuthLoadingBorder.Visibility = Visibility.Visible;
             AuthMesTextBlock.Text = "认证中，请稍后";
-
-            while (_cookies.IsEmpty())
+            var b = false;
+            while (b == false || _cookies.IsEmpty())
             {
                 var cookieManager = Cef.GetGlobalCookieManager();
                 var visitor = new CookieVisitor();
@@ -55,6 +54,7 @@ namespace MoeLoaderP.Wpf
                 };
                 cookieManager.VisitAllCookies(visitor);
                 await Task.Delay(100);
+                b = true;
             }
 
             Dispatcher?.BeginInvoke(new Action(async () =>
@@ -77,7 +77,7 @@ namespace MoeLoaderP.Wpf
 
         private void MainBrowerOnIsBrowserInitializedChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (Setting.ProxyMode != Settings.ProxyModeEnum.None
+            if (Setting.ProxyMode == Settings.ProxyModeEnum.Custom
                 && MainBrower.IsBrowserInitialized
                 && Cef.IsInitialized)
             {
@@ -91,7 +91,7 @@ namespace MoeLoaderP.Wpf
                         {"mode", "fixed_servers"}
                     };
                     var add = Setting.ProxySetting;
-                    if (Setting.ProxyMode == Settings.ProxyModeEnum.Custom) dict.Add("server", add);
+                     dict.Add("server", add);
                     //设置代理
                     rc.SetPreference("proxy", dict, out var error);
                     //如果 error 不为空则表示设置失败。
@@ -111,6 +111,7 @@ namespace MoeLoaderP.Wpf
         public class CookieVisitor : ICookieVisitor
         {
             public event Action<Cookie> SendCookie;
+            // ReSharper disable once RedundantAssignment
             public bool Visit(Cookie cookie, int count, int total, ref bool deleteCookie)
             {
                 deleteCookie = false;

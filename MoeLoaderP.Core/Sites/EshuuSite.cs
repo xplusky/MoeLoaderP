@@ -30,7 +30,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var imgs = new MoeItems();
             var url = $"{HomeUrl}/?page={para.PageIndex}";
-            if (Net == null) Net = new NetDocker(Settings);
+            if (Net == null) Net = new NetOperator(Settings);
             if (!para.Keyword.IsEmpty())
             {
                 url = $"{HomeUrl}/search/process/";
@@ -116,7 +116,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (Net == null) Net = new NetDocker(para.Site.Settings);
+            if (Net == null) Net = new NetOperator(para.Site.Settings);
             //type 1 tag 2 source 3 artist | chara no type
             var items = new AutoHintItems();
             //chara without hint

@@ -24,20 +24,21 @@ namespace MoeLoaderP.Core.Sites
             var imgs = new MoeItems();
             const string api = "https://capi-v2.sankakucomplex.com";
             const string beta = "https://beta.sankakucomplex.com";
-            Net = Net == null ? new NetDocker(Settings, api) : Net.CloneWithOldCookie();
+            Net = Net == null ? new NetOperator(Settings, api) : Net.CloneWithOldCookie();
 
             Net.SetReferer(beta);
             var pairs = new Pairs
             {
                 {"lang", "en"},
-                {"page", $"{para.PageIndex}"},
+                {"next", $"{para.NextPagePara}"},
                 {"limit", $"{para.Count}"},
                 {"hide_posts_in_books", "in-larger-tags"},
                 {"default_threshold", "1"},
                 {"tags",para.Keyword.ToEncodedUrl() }
             };
-            var json = await Net.GetJsonAsync($"{api}/posts", token, pairs);
-            foreach (var jitem in Extend.CheckListNull(json))
+            var json = await Net.GetJsonAsync($"{api}/posts/keyset", token, pairs);
+            para.NextPagePara = $"{json.meta.next}";
+            foreach (var jitem in Extend.GetList(json.data))
             {
                 var img = new MoeItem(this, para)
                 {
@@ -54,7 +55,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();
                 img.Uploader = $"{jitem.author?.name}";
                 img.DetailUrl = $"{beta}/post/show/{img.Id}";
-                foreach (var tag in Extend.CheckListNull(jitem.tags))
+                foreach (var tag in Extend.GetList(jitem.tags))
                 {
                     img.Tags.Add($"{tag.name_en}");
                 }
@@ -70,7 +71,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var ahitems = new AutoHintItems();
             const string api = "https://capi-v2.sankakucomplex.com";
-            Net = Net == null ? new NetDocker(Settings, api) : Net.CloneWithOldCookie();
+            Net = Net == null ? new NetOperator(Settings, api) : Net.CloneWithOldCookie();
             var pairs = new Pairs
             {
                 {"lang", "en"},
@@ -79,7 +80,7 @@ namespace MoeLoaderP.Core.Sites
                 {"show_meta", "1"}
             };
             var json = await Net.GetJsonAsync($"{api}/tags/autosuggestCreating",token, pairs);
-            foreach (var jitem in Extend.CheckListNull(json))
+            foreach (var jitem in Extend.GetList(json))
             {
                 var ahitem = new AutoHintItem();
                 ahitem.Word = $"{jitem.name}";

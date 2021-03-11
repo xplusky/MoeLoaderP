@@ -16,10 +16,29 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class MoeItem : BindingObject
     {
+        /// <summary>
+        /// 所属站点
+        /// </summary>
         public MoeSite Site { get; set; }
-        public NetDocker Net { get; set; }
+        /// <summary>
+        /// 浏览、下载所用网络
+        /// </summary>
+        public NetOperator Net { get; set; }
+        /// <summary>
+        /// 搜索参数
+        /// </summary>
         public SearchPara Para { get; set; }
+        /// <summary>
+        /// 子项目
+        /// </summary>
+        public MoeItems ChildrenItems { get; set; } = new MoeItems();
+
+        // 以下为图片从网络获取到的本身参数
         public int Id { get; set; }
+
+        // Id字符串
+        public string Sid { get; set; }
+
         public string Title { get; set; }
 
         public string DateString
@@ -29,6 +48,7 @@ namespace MoeLoaderP.Core
         }
 
         public DateTime? Date { get; set; }
+
         /// <summary>
         /// 上传用户
         /// </summary>
@@ -38,6 +58,11 @@ namespace MoeLoaderP.Core
         /// </summary>
         public string UploaderId { get; set; }
 
+        public string UploaderHeadUrl { get; set; }
+
+        /// <summary>
+        /// 评分
+        /// </summary>
         public double Score
         {
             get => _score;
@@ -46,7 +71,9 @@ namespace MoeLoaderP.Core
                 _score = value; OnPropertyChanged(nameof(Score));
             }
         }
-
+        /// <summary>
+        /// 排名
+        /// </summary>
         public int Rank { get; set; }
         public bool TipHighLight { get; set; }
 
@@ -109,6 +136,9 @@ namespace MoeLoaderP.Core
             }
         }
 
+        /// <summary>
+        /// 分辨率文字
+        /// </summary>
         public string ResolutionText
         {
             get
@@ -117,8 +147,6 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
-
-        public MoeItems ChildrenItems { get; set; } = new MoeItems();
 
         private int _imageCount;
         private string _dateString;
@@ -136,7 +164,7 @@ namespace MoeLoaderP.Core
         /// </summary>
         public Func<Task> GetDetailTaskFunc { get; set; }
 
-        public async Task TryGetDetailTask()
+        public async Task TryGetDetail()
         {
             try
             {
@@ -144,9 +172,13 @@ namespace MoeLoaderP.Core
             }
             catch (Exception e)
             {
-                Extend.Log($"获取详情页失败!ID:{Id},PAGE:{DetailUrl}",e);
+                var m = $"获取详情页失败!ID:{Id},PAGE:{DetailUrl}";
+                Extend.Log(m,e);
+                ErrorMessage = m;
             }
         }
+
+        public string ErrorMessage { get; set; }
 
         public MoeItem(MoeSite site, SearchPara para)
         {
@@ -161,6 +193,28 @@ namespace MoeLoaderP.Core
                 OnPropertyChanged(nameof(FileType));
                 OnPropertyChanged(nameof(DownloadUrlInfo));
             };
+        }
+    }
+
+    public class MoeItemTag
+    {
+        public int Id { get; set; }
+        public string NameEn { get; set; }
+        public string NameJp { get; set; }
+        public string NameCn { get; set; }
+        public int PostCount { get; set; }
+        public override string ToString()
+        {
+            return string.IsNullOrWhiteSpace(NameCn) ? NameEn : NameCn;
+        }
+    }
+
+    public class MoeItemTags : List<MoeItemTag>
+    {
+        public void AddTag(string name)
+        {
+            var tag = new MoeItemTag {NameEn = name};
+            Add(tag);
         }
     }
 
@@ -190,6 +244,9 @@ namespace MoeLoaderP.Core
     }
 
     public delegate Task AfterEffectsDelegate(DownloadItem item,HttpContent content, CancellationToken token);
+
+    public delegate Task ResolveUrlDelegate(DownloadItem item, CancellationToken token);
+
     public class UrlInfo
     {
         /// <summary>
@@ -200,14 +257,24 @@ namespace MoeLoaderP.Core
         public string Md5 { get; set; }
         public string Referer { get; set; }
         public ulong BiteSize { get; set; }
+        /// <summary>
+        /// 下载完后处理代理
+        /// </summary>
         public AfterEffectsDelegate AfterEffects { get; set; }
-        
-        public UrlInfo(int priority, string url, string referer = null, AfterEffectsDelegate afterEffects = null)
+
+        /// <summary>
+        /// 下载前解析出下载地址
+        /// </summary>
+        public ResolveUrlDelegate ResolveUrlFunc { get; set; }
+
+
+        public UrlInfo(int priority, string url, string referer = null, AfterEffectsDelegate afterEffects = null,ResolveUrlDelegate resolveUrlFunc = null)
         {
             Priority = priority;
             Url = url;
             if (referer != null) Referer = referer;
             if (afterEffects != null) AfterEffects = afterEffects;
+            ResolveUrlFunc = resolveUrlFunc;
         }
 
         public string GetFileExtFromUrl()
@@ -273,9 +340,9 @@ namespace MoeLoaderP.Core
             return info;
         }
 
-        public void Add(int p, string url, string referer=null, AfterEffectsDelegate afterEffects=null)
+        public void Add(int p, string url, string referer=null, AfterEffectsDelegate afterEffects=null, ResolveUrlDelegate resolveUrlFunc = null)
         {
-            var urlinfo = new UrlInfo(p, url, referer,afterEffects);
+            var urlinfo = new UrlInfo(p, url, referer,afterEffects,resolveUrlFunc);
             Add(urlinfo);
         }
     }

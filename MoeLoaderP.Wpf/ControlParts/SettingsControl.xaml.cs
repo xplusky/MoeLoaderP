@@ -12,11 +12,12 @@ namespace MoeLoaderP.Wpf.ControlParts
     {
         private Settings Settings { get; set; }
         private string _tempCustomProxyText;
+        private WrapPanel NameFormatTempPanel { get; set; }
         public SettingsControl()
         {
             InitializeComponent();
-
-            foreach (Button button in NameFormatPanel.Children)
+            NameFormatTempPanel = NameFormatButtonsPanel;
+            foreach (Button button in NameFormatButtonsPanel.Children)
             {
                 button.Click += FileNameFormatButtonOnClick;
             }
@@ -31,8 +32,14 @@ namespace MoeLoaderP.Wpf.ControlParts
             FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
             FileNameFormatResetButton.Click += FileNameFormatResetButtonOnClick;
             SortFolderNameFormatTextBox.LostFocus += SortFolderNameFormatTextBoxOnLostFocus;
+            SortFolderNameFormatTextBox.GotFocus += SortFolderNameFormatTextBoxOnGotFocus;
             SortFolderNameFormatResetButton.Click += SortFolderNameFormatResetButtonOnClick;
 
+        }
+
+        private void SortFolderNameFormatTextBoxOnGotFocus(object sender, RoutedEventArgs e)
+        {
+            FileNameFormatSpan.Children.Add(NameFormatButtonsPanel);
         }
 
         private void FileNameFormatResetButtonOnClick(object sender, RoutedEventArgs e)

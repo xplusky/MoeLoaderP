@@ -33,7 +33,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async void Login(CancellationToken token)
         {
-            Net = new NetDocker(Settings, HomeUrl);
+            Net = new NetOperator(Settings, HomeUrl);
             var index = new Random().Next(0, _user.Length);
             var loginurl = "https://www.zerochan.net/login";
 
