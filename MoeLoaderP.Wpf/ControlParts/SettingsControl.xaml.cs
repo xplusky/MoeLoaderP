@@ -39,7 +39,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void SortFolderNameFormatTextBoxOnGotFocus(object sender, RoutedEventArgs e)
         {
-            FileNameFormatSpan.Children.Add(NameFormatButtonsPanel);
+            //FileNameFormatSpan.Children.Add(NameFormatButtonsPanel);
         }
 
         private void FileNameFormatResetButtonOnClick(object sender, RoutedEventArgs e)

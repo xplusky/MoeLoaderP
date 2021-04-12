@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MoeLoaderP.Core.Sites
@@ -17,6 +18,38 @@ namespace MoeLoaderP.Core.Sites
         public SankakuChanSite()
         {
             DownloadTypes.Add("原图", 4);
+            LoginPageUrl = "https://beta.sankakucomplex.com/home";
+            SupportState.IsSupportAccount = true;
+            SupportState.IsSupportStarButton = true;
+        }
+
+        public override CookieContainer GetCookies()
+        {
+            var cookieStr = CurrentSiteSetting.LoginCookie;
+            if (cookieStr.IsEmpty()) return null;
+            var cookies = cookieStr.Split(';');
+            var cc = new CookieContainer();
+            foreach (var cookie in cookies)
+            {
+                var values = cookie.Trim().Split('^');
+                if (values.Length != 3) continue;
+                if (values[0].ToLower().Contains("sankakucomplex.com"))
+                {
+                    cc.Add(new Cookie(values[1], values[2], "/", values[0]));
+                }
+            }
+
+            if (cc.Count == 0)
+            {
+                CurrentSiteSetting.LoginCookie = null;
+                return null;
+            }
+            return cc;
+        }
+
+        public override bool VerifyCookie(string cookieStr)
+        {
+            return cookieStr.Contains("_session");
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -24,7 +57,20 @@ namespace MoeLoaderP.Core.Sites
             var imgs = new MoeItems();
             const string api = "https://capi-v2.sankakucomplex.com";
             const string beta = "https://beta.sankakucomplex.com";
-            Net = Net == null ? new NetOperator(Settings, api) : Net.CloneWithOldCookie();
+            if (Net == null)
+            {
+                Net = new NetOperator(Settings, api);
+                var cc = GetCookies();
+                
+                if (cc != null)
+                {
+                    Net.SetCookie(cc);
+                }
+            }
+            else
+            {
+                Net.CloneWithOldCookie();
+            }
 
             Net.SetReferer(beta);
             var pairs = new Pairs
@@ -55,6 +101,10 @@ namespace MoeLoaderP.Core.Sites
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();
                 img.Uploader = $"{jitem.author?.name}";
                 img.DetailUrl = $"{beta}/post/show/{img.Id}";
+                if ($"{jitem.redirect_to_signup}".ToLower() == "true")
+                {
+                    img.Tip = "此图片需要登录查看";
+                }
                 foreach (var tag in Extend.GetList(jitem.tags))
                 {
                     img.Tags.Add($"{tag.name_en}");

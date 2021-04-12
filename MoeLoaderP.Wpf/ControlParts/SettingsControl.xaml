@@ -140,6 +140,28 @@
                             VerticalAlignment="Center"
                             Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" Grid.Column="1" Margin="6,0,0,0" ToolTip="恢复默认" />
                     </Grid>
+                    <TextBlock
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top" Text="自定义文件命名格式（不带扩展名）" Margin="0,2"/>
+                    <Grid Height="26">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            x:Name="FileNameFormatTextBox"
+                            VerticalAlignment="Top"
+                            Text="{Binding SaveFileNameFormat}"
+                            TextWrapping="NoWrap" 
+                            Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" 
+                            Height="26" />
+                        <Button x:Name="FileNameFormatResetButton"
+                            Width="26"
+                            Height="26"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" ToolTip="恢复默认" Grid.Column="1" Margin="6,0,0,0" />
+                    </Grid>
                     <StackPanel x:Name="SortFolderFormatSpan">
                         <WrapPanel x:Name="NameFormatButtonsPanel" Orientation="Horizontal" Margin="0,4,0,0" Height="86" >
                             <Button
@@ -207,28 +229,6 @@
                                 ToolTip="%artist" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="57" Margin="2" />
                         </WrapPanel>
                     </StackPanel>
-                    <TextBlock
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top" Text="自定义文件命名格式（不带扩展名）" Margin="0,2"/>
-                    <Grid Height="26">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox
-                            x:Name="FileNameFormatTextBox"
-                            VerticalAlignment="Top"
-                            Text="{Binding SaveFileNameFormat}"
-                            TextWrapping="NoWrap" 
-                            Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" 
-                            Height="26" />
-                        <Button x:Name="FileNameFormatResetButton"
-                            Width="26"
-                            Height="26"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Content="&#xF3E5;" Template="{DynamicResource MoeButtonControlTemplate}" FontFamily="{DynamicResource FontAwesomeSolid}" ToolTip="恢复默认" Grid.Column="1" Margin="6,0,0,0" />
-                    </Grid>
                     <StackPanel x:Name="FileNameFormatSpan"/>
                     <CheckBox x:Name="AutoRenameCheckBox" Content="文件名相同时自动重命名（否则直接跳过）" IsChecked="{Binding IsAutoRenameWhenSame}" Margin="0,4,0,0"/>
                 </StackPanel>

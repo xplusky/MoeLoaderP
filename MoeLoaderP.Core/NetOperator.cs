@@ -56,6 +56,11 @@ namespace MoeLoaderP.Core
             Client.Timeout = TimeSpan.FromSeconds(sec);
         }
 
+        public void SetCookie(CookieContainer cc)
+        {
+            HttpClientHandler.CookieContainer = cc;
+        }
+
         public NetOperator CloneWithOldCookie()
         {
             var net = new NetOperator(Settings)
