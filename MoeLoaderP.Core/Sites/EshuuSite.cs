@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// e-shuushuu.net Fixed 20180928
+    /// e-shuushuu.net Fixed 2021.5.13 
     /// </summary>
     public class EshuuSite : MoeSite
     {
@@ -35,7 +35,8 @@ namespace MoeLoaderP.Core.Sites
             {
                 url = $"{HomeUrl}/search/process/";
                 var i = para.SubMenuIndex;
-                var kw = $"{$"\"{para.Keyword.Delete("\"")}\"".ToEncodedUrl()}+";
+                //var kw = $"{$"\"{para.Keyword.Delete("\"")}\"".ToEncodedUrl()}";
+                var kw = $"\"{para.Keyword}\"";
                 //e-shuushuu需要将关键词转换为tag id，然后进行搜索
                 var mc = new FormUrlEncodedContent(new Pairs
                 {

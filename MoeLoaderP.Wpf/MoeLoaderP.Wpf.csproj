@@ -279,7 +279,7 @@
     <Resource Include="Assets\SiteIcon\atfbooru.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\SiteIcon\behoimi.ico" />
+    <Resource Include="Assets\SiteIcon\3dBooru.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\donmai.ico" />

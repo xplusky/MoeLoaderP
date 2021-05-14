@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace MoeLoaderP.Core.Sites
 {
+    /// <summary>
+    /// fixed 2021.5.13
+    /// </summary>
     public class GelbooruSite : BooruSite
     {
         public override string HomeUrl => "https://gelbooru.com";
@@ -13,7 +16,7 @@ namespace MoeLoaderP.Core.Sites
         public override string GetDetailPageUrl(MoeItem item) => $"{HomeUrl}/index.php?page=post&s=view&id={item.Id}";
 
         public override string GetHintQuery(SearchPara para)
-            => $"{HomeUrl}/index.php?page=autocomplete&term={para.Keyword}";
+            => $"{HomeUrl}/index.php?page=autocomplete2&term={para.Keyword}&type=tag_query&limit=10";
 
         public override string GetPageQuery(SearchPara para)
             => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
@@ -21,11 +24,12 @@ namespace MoeLoaderP.Core.Sites
         {
             var ahis = new AutoHintItems();
             var jsonlist = await new NetOperator(Settings).GetJsonAsync(GetHintQuery(para), token);
-            foreach (var item in jsonlist)
+            foreach (var item in Extend.GetList(jsonlist))
             {
                 ahis.Add(new AutoHintItem
                 {
-                    Word = $"{item}".Replace("\"", "")
+                    Word = $"{item.value}",
+                    Count = $"{item.post_count}"
                 });
             }
             return ahis;

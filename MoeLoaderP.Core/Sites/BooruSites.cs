@@ -42,8 +42,8 @@ namespace MoeLoaderP.Core.Sites
     public class BehoimiSite : BooruSite
     {
         public override string HomeUrl => "http://behoimi.org";
-        public override string DisplayName => "Behoimi";
-        public override string ShortName => "behoimi";
+        public override string DisplayName => "3dBooru";
+        public override string ShortName => "3dBooru";
         public override string GetThumbnailReferer(MoeItem item) => "http://behoimi.org/post";
 
         public override string GetHintQuery(SearchPara para)
@@ -85,7 +85,7 @@ namespace MoeLoaderP.Core.Sites
     }
 
     /// <summary>
-    /// danbooru.donmai.us fixed 2021.2.8
+    /// danbooru.donmai.us fixed 2021.5.13
     /// </summary>
     public class DonmaiSite : BooruSite
     {
@@ -94,7 +94,7 @@ namespace MoeLoaderP.Core.Sites
         public override string ShortName => "donmai";
 
         public override string GetHintQuery(SearchPara para)
-            => $"{HomeUrl}/tags/autocomplete.json?search%5Bname_matches%5D={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/autocomplete.json?search%5Bquery%5D={para.Keyword.ToEncodedUrl()}&search%5Btype%5D=tag_query&limit=10";
 
         public override string GetPageQuery(SearchPara para)
             => $"{HomeUrl}/posts.json?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
@@ -103,6 +103,22 @@ namespace MoeLoaderP.Core.Sites
 
         public override string GetDetailPageUrl(MoeItem item)
             => $"{HomeUrl}/posts/{item.Id}";
+
+        public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
+        {
+            var list = new AutoHintItems();
+            var net = new NetOperator(Settings);
+            var json = await net.GetJsonAsync(GetHintQuery(para), token);
+            foreach (var item in Extend.GetList(json))
+            {
+                list.Add(new AutoHintItem
+                {
+                    Word = $"{item.value}",
+                    Count = $"{item.post_count}"
+                });
+            }
+            return list;
+        }
     }
 
     /// <summary>
