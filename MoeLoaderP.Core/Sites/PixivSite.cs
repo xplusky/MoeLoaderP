@@ -113,6 +113,15 @@ namespace MoeLoaderP.Core.Sites
             else
             {
                 Net = Net.CloneWithOldCookie();
+                var cc = GetCookies();
+                if (cc == null)
+                {
+                    Extend.ShowMessage("需要重新登录Pixiv站点", null, Extend.MessagePos.Window);
+                    Net = null;
+                    return null;
+                }
+                Net.HttpClientHandler.CookieContainer = cc;
+                
             }
 
             var imgs = new MoeItems();
