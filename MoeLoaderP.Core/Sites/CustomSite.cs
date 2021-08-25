@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace MoeLoaderP.Core.Sites
 {
+    /// <summary>
+    /// 自定义站点/测试
+    /// </summary>
     public abstract class CustomSite : MoeSite
     {
         
