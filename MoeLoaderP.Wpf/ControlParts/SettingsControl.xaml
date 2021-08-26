@@ -189,6 +189,12 @@
                                 Content="作者"
                                 ToolTip="%uploader" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="50" Margin="2" />
                             <Button
+                                x:Name="NameFormatAuthorIdButton"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Content="作者ID"
+                                ToolTip="%uploader_id" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Width="50" Margin="2" />
+                            <Button
                                 x:Name="NameFormatDiescButton"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom"

@@ -293,6 +293,7 @@ namespace MoeLoaderP.Core
             sb.Replace("%tag", $"{tags}");
             sb.Replace("%title", img.Title ?? "no-title");
             sb.Replace("%uploader", img.Uploader ?? "no-uploader");
+            sb.Replace("%uploader_id", img.UploaderId ?? "no-uploader-id");
             sb.Replace("%date", img.DateString ?? "no-date");
             sb.Replace("%origin", OriginFileNameWithoutExtension);
             sb.Replace("%character", img.Character ?? "no-character");

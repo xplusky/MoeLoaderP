@@ -62,7 +62,16 @@ namespace MoeLoaderP.Wpf
             catch (Exception ex)
             {
                 Extend.Log(ex);
-                throw;
+                var result = MessageBox.Show("启动失败，是否尝试删除配置文件？", "错误", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                if (result == MessageBoxResult.Yes)
+                {
+                    File.Delete(SettingJsonFilePath);
+                    Current.Shutdown();
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
 

@@ -11,6 +11,11 @@ namespace MoeLoaderP.Core.Sites
         public override string HomeUrl => "https://e-hentai.org";
         public override string DisplayName => "e-hentai";
         public override string ShortName => "e-hentai";
+
+        public EHentai()
+        {
+
+        }
         public override Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             throw new NotImplementedException();
