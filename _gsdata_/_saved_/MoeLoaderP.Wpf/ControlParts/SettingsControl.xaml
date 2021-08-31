@@ -65,13 +65,13 @@
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88" Text="{DynamicResource TextSettingsParallelLoadMaxCount}" Foreground="Black"/>
+                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88" Text="{DynamicResource TextSettingsParallelLoadMaxCount}"/>
                         <controlParts:VariableCountControl x:Name="ImageParallelLoadMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="20" NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="24"/>
-                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsHistoryMaxCount}" VerticalAlignment="Center" Height="15.24" Margin="0,7.228,0,10.652" Grid.Row="1" Foreground="Black"/>
+                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsHistoryMaxCount}" VerticalAlignment="Center" Height="15.24" Margin="0,7.228,0,10.652" Grid.Row="1"/>
                         <controlParts:VariableCountControl x:Name="HistoryMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="30" NumCount="{Binding HistoryKeywordsMaxCount, Mode=TwoWay}" Grid.Row="1" Width="150" Height="24"/>
                     </Grid>
                     <Button x:Name="ClearHistoryButton" Content="{DynamicResource TextSettingsClearHistory}" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="0,4,0,0"/>
-                    <CheckBox x:Name="ClearImgsWhenSerachNextPageCheckBox" Content="搜索下一页时清除当前页图片" IsChecked="{Binding IsClearImgsWhenSerachNextPage}" Margin="0,6,0,0" Foreground="Black"/>
+                    <CheckBox x:Name="ClearImgsWhenSerachNextPageCheckBox" Content="搜索下一页时清除当前页图片" IsChecked="{Binding IsClearImgsWhenSerachNextPage}" Margin="0,6,0,0"/>
                 </StackPanel>
             </GroupBox>
 
@@ -84,7 +84,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <controlParts:VariableCountControl x:Name="ParallelDownloadingMaxCountBox" MinCount="1" MaxCount="15" NumCount="{Binding MaxOnDownloadingImageCount, Mode=TwoWay}" Grid.Column="1" Width="150" Height="24"/>
-                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsDownloadParallelDownloadingCount}" VerticalAlignment="Center" Foreground="Black"/>
+                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSettingsDownloadParallelDownloadingCount}" VerticalAlignment="Center"/>
                     </Grid>
                     <Grid Height="25" Margin="0,2,0,0">
                         <Grid.ColumnDefinitions>
@@ -98,7 +98,7 @@
                     </Grid>
                     <TextBlock
                         HorizontalAlignment="Left"
-                        VerticalAlignment="Top" Margin="0,4" Foreground="Black"><Run Text="图片"/><Run Text="存储文件夹位置"/></TextBlock>
+                        VerticalAlignment="Top" Margin="0,4"><Run Text="图片"/><Run Text="存储文件夹位置"/></TextBlock>
                     <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="215*"/>
@@ -120,7 +120,7 @@
                     </Grid>
                     <TextBlock
                             HorizontalAlignment="Left"
-                            VerticalAlignment="Top" Margin="0,2,0,0" Foreground="Black"><Run Text="自定义"/><Run Text="图片保存"/><Run Text="子"/><Run Text="文件夹"/></TextBlock>
+                            VerticalAlignment="Top" Margin="0,2,0,0"><Run Text="自定义"/><Run Text="图片保存"/><Run Text="子"/><Run Text="文件夹"/></TextBlock>
                     <Grid x:Name="SortFolderNameFormatGrid" Height="26" Margin="0,2" >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -142,7 +142,7 @@
                     </Grid>
                     <TextBlock
                             HorizontalAlignment="Left"
-                            VerticalAlignment="Top" Text="自定义文件命名格式（不带扩展名）" Margin="0,2" Foreground="Black"/>
+                            VerticalAlignment="Top" Text="自定义文件命名格式（不带扩展名）" Margin="0,2"/>
                     <Grid Height="26">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>

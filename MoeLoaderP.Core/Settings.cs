@@ -258,15 +258,19 @@ namespace MoeLoaderP.Core
     public class SingleMoeSiteSettings : BindingObject
     {
         private string _loginCookie;
+        private Dictionary<string, string> _otherSettings;
 
         public string LoginCookie
         {
             get => _loginCookie;
             set => SetField(ref _loginCookie, value, nameof(LoginCookie));
         }
-
-        public string LoginUserName { get; set; }
-        public string LoginUserId { get; set; }
+        
+        public Dictionary<string, string> OtherSettings
+        {
+            get => _otherSettings;
+            set => SetField(ref _otherSettings, value, nameof(OtherSettings));
+        }
     }
 
     public class AllCustomSitesSettings : Dictionary<string, SingleCustomSiteSettings> { }

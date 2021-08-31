@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -10,14 +12,41 @@ namespace MoeLoaderP.Core.Sites
     {
         public override string HomeUrl => "http://yuriimg.com";
         public override string ShortName => "yuriimg";
-        public override string DisplayName => "Yuriimg（百合居）";
+        public override string DisplayName => "Yuriimg";
 
         public YuriimgSite()
         {
             SupportState.IsSupportAutoHint = false;
             SupportState.IsSupportRating = true;
 
+            DownloadTypes.Add("预览图", 3);
             DownloadTypes.Add("原图", 4);
+        }
+
+        /// <summary>
+        /// 图片地址拼接  图片类型 0缩略图 1预览图 2原图
+        /// </summary>
+        private string TranslateImageUrl(dynamic json, int type = 0)
+        {
+            var fileExt = $"{json.file_ext}";
+            var sb = new StringBuilder();
+            sb.Append($"https://i.yuriimg.com/{json.src}/");
+            sb.Append("yuriimg.com ");
+            sb.Append($"{json.id} ");
+            if (!fileExt.IsEmpty())
+            {
+                switch (type)
+                {
+                    case 1: sb.Append("thumb"); break;
+                    case 2: sb.Append($"{fileExt}"); break;
+                    default: sb.Append("contain"); break;
+                }
+            }
+            else { sb.Append("contain"); }
+
+            sb.Append($"{(json.page == null ? string.Empty : $" p{$"{json.page}".ToInt() + 1}")}");
+            sb.Append($".{(fileExt.IsEmpty() ? "webp" : fileExt)}");
+            return sb.ToString();
         }
 
         public async Task GetDetailTask(MoeItem img, string id, CancellationToken token = new CancellationToken())
@@ -27,7 +56,8 @@ namespace MoeLoaderP.Core.Sites
             if (json == null) return;
             img.Score = $"{json.praise}".ToInt();
             img.Date = $"{json.format_date}".ToDateTime();
-            img.Urls.Add( 4, $"https://i.yuriimg.com/{json.src}");
+            img.Urls.Add(3, TranslateImageUrl(json, 1));
+            img.Urls.Add( 4, TranslateImageUrl(json,2));
             img.Artist = $"{json.artist?.name}";
             img.Uploader = $"{json.user?.name}";
             img.UploaderId = $"{json.user?.id}";
@@ -68,6 +98,7 @@ namespace MoeLoaderP.Core.Sites
 
         }
 
+        
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             if (Net == null) Net = new NetOperator(Settings, HomeUrl);

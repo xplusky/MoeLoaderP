@@ -149,6 +149,8 @@ namespace MoeLoaderP.Core.Sites
 
         public bool IsSupportThumbButton { get; set; } = false;
         public bool IsSupportStarButton { get; set; } = false;
+
+        public bool IsSupportMultiKeywords { get; set; } = false;
     }
 
 

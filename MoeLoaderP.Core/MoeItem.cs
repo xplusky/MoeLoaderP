@@ -243,7 +243,7 @@ namespace MoeLoaderP.Core
         public string Content { get; set; }
     }
 
-    public delegate Task AfterEffectsDelegate(DownloadItem item,HttpContent content, CancellationToken token);
+    public delegate Task AfterEffectsDelegate(DownloadItem item, CancellationToken token);
 
     public delegate Task ResolveUrlDelegate(DownloadItem item, CancellationToken token);
 

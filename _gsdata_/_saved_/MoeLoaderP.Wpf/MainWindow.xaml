@@ -185,16 +185,13 @@
         </Grid.RowDefinitions>
         <Grid x:Name="LogoBannerGrid">
             <StackPanel x:Name="MenuButtonGrid"
-                        
                 HorizontalAlignment="Right"
-                VerticalAlignment="Top" 
-                        Margin="0,4,6,0" 
-                        Orientation="Horizontal">
+                VerticalAlignment="Top" Margin="0,4,6,0" Orientation="Horizontal">
                 <Grid Margin="0,0,4,0">
                     <CheckBox x:Name="SettingsMenuCheckBox" Template="{DynamicResource MoeMenuCheckBoxControlTemplate}" FontSize="14">
-                        <StackPanel Orientation="Horizontal" >
-                            <TextBlock Text="&#xF013;"  Foreground="{DynamicResource SystemBaseHighColorBrush}" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Width="15" TextAlignment="Center" />
-                            <TextBlock TextWrapping="Wrap"  Foreground="{DynamicResource SystemBaseHighColorBrush}"><Run Text="软件"/><Run Text="设置"/></TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF013;" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Width="15" TextAlignment="Center" />
+                            <TextBlock TextWrapping="Wrap"><Run Text="软件"/><Run Text="设置"/></TextBlock>
                         </StackPanel>
                     </CheckBox>
                     <Popup x:Name="SeetingsPopup" IsOpen="{Binding IsChecked, ElementName=SettingsMenuCheckBox}" HorizontalOffset="-235" Focusable="True" StaysOpen="False" AllowsTransparency="True">
@@ -218,8 +215,8 @@
                     Text="|" Margin="0,0,4,0" />
                 <CheckBox x:Name="DownloaderMenuCheckBox" Template="{DynamicResource MoeMenuCheckBoxControlTemplate}" FontSize="14" Margin="0,0,4,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xF063;"  Foreground="{DynamicResource SystemBaseHighColorBrush}" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Width="15" />
-                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseHighColorBrush}"><Run Text="下载管理"/></TextBlock>
+                        <TextBlock Text="&#xF063;" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Width="15" />
+                        <TextBlock TextWrapping="Wrap"><Run Text="下载管理"/></TextBlock>
                     </StackPanel>
                 </CheckBox>
                 <TextBlock
@@ -228,8 +225,8 @@
                 <Grid>
                     <CheckBox x:Name="AboutMenuCheckBox" Template="{DynamicResource MoeMenuCheckBoxControlTemplate}" FontSize="14">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xF129;" Foreground="{DynamicResource SystemBaseHighColorBrush}" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Width="14" TextAlignment="Center" />
-                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseHighColorBrush}"><Run Text="关于/帮助"/></TextBlock>
+                            <TextBlock Text="&#xF129;" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Width="14" TextAlignment="Center" />
+                            <TextBlock TextWrapping="Wrap"><Run Text="关于/帮助"/></TextBlock>
                         </StackPanel>
                     </CheckBox>
                     <Popup x:Name="AboutPopup" IsOpen="{Binding IsChecked, ElementName=AboutMenuCheckBox}" Focusable="True" StaysOpen="False" AllowsTransparency="True" HorizontalOffset="-200">

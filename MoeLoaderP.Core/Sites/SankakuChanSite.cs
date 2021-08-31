@@ -19,7 +19,7 @@ namespace MoeLoaderP.Core.Sites
         {
             DownloadTypes.Add("原图", 4);
             LoginPageUrl = "https://beta.sankakucomplex.com/home";
-            SupportState.IsSupportAccount = true;
+            SupportState.IsSupportAccount = false;
             SupportState.IsSupportStarButton = true;
         }
 
@@ -69,7 +69,7 @@ namespace MoeLoaderP.Core.Sites
             }
             else
             {
-                Net.CloneWithOldCookie();
+                Net = Net.CloneWithOldCookie();
             }
 
             Net.SetReferer(beta);

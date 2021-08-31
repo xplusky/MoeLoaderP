@@ -69,8 +69,14 @@ namespace MoeLoaderP.Wpf
                     return;
                 }
                 AuthMesTextBlock.Text = "认证成功，4秒后将关闭窗口";
+                await Task.Delay(1000);
+                AuthMesTextBlock.Text = "认证成功，3秒后将关闭窗口";
+                await Task.Delay(1000);
+                AuthMesTextBlock.Text = "认证成功，2秒后将关闭窗口";
+                await Task.Delay(1000);
+                AuthMesTextBlock.Text = "认证成功，1秒后将关闭窗口";
+                await Task.Delay(1000);
                 Site.CurrentSiteSetting.LoginCookie = _cookies;
-                await Task.Delay(4000);
                 Close();
             }));
         }

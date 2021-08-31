@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("leaful.com")]
 [assembly: AssemblyProduct("MoeLoader +1s")]
-[assembly: AssemblyCopyright("© leaful.com 2018-2020")]
+[assembly: AssemblyCopyright("© leaful.com 2018-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

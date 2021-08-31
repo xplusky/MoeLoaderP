@@ -10,6 +10,7 @@
                 <!-- style --><ResourceDictionary Source="Assets/MoeResource.xaml" />
                 <!-- lang --><ResourceDictionary Source="Assets/Lang/zh-CN.xaml" />
                 <!-- lang override --><ResourceDictionary />
+                <ResourceDictionary Source="pack://application:,,,/FluentWPF;component/Styles/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -225,7 +225,7 @@ namespace MoeLoaderP.Core
             {
                 try
                 {
-                    await durl.AfterEffects.Invoke(this, data.Content, token);
+                    await durl.AfterEffects.Invoke(this, token);
                 }
                 catch (Exception e)
                 {

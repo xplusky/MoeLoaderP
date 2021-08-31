@@ -382,7 +382,7 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        private async Task UgoiraAfterEffects(DownloadItem item, HttpContent content, CancellationToken token)
+        private async Task UgoiraAfterEffects(DownloadItem item,  CancellationToken token)
         {
             // save json
             var path = Path.ChangeExtension(item.LocalFileFullPath, item.DownloadMoeItem.ExtraFile.FileExt);
@@ -404,20 +404,21 @@ namespace MoeLoaderP.Core.Sites
             var gifPath = Path.ChangeExtension(item.LocalFileFullPath, "gif");
             if (gifPath == null) return;
             var fi = new FileInfo(gifPath);
-            using (var stream = await content.ReadAsStreamAsync())
+            using (var stream = new FileStream(item.LocalFileFullPath, FileMode.Open))
             {
                 item.StatusText = "正在转换为GIF..";
                 await Task.Run(() =>
                 {
                     // ConvertPixivZipToGif
                     var delayList = new List<int>();
+                    
                     using (var images = new MagickImageCollection())
                     {
                         foreach (var frame in list)
                         {
                             delayList.Add($"{frame.delay}".ToInt());
                         }
-                        using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
+                        using (var zip = new ZipArchive(stream, ZipArchiveMode.Read)) //todo 失败
                         {
                             for (var i = 0; i < zip.Entries.Count; i++)
                             {
