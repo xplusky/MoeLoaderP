@@ -24,7 +24,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var ahis = new AutoHintItems();
             var jsonlist = await new NetOperator(Settings).GetJsonAsync(GetHintQuery(para), token);
-            foreach (var item in Extend.GetList(jsonlist))
+            foreach (var item in Ex.GetList(jsonlist))
             {
                 ahis.Add(new AutoHintItem
                 {

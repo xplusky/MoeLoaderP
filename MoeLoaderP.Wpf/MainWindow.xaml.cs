@@ -34,16 +34,17 @@ namespace MoeLoaderP.Wpf
             DataContext = Settings;
             Closing += OnClosing;
             PreviewKeyDown += OnPreviewKeyDown;
-            MouseLeftButtonDown += (sender, args) => DragMove();
-            Extend.ShowMessageAction += ShowMessage;
+            MouseLeftButtonDown += (_, _) => DragMove();
+            Ex.ShowMessageAction += ShowMessage;
 
-            // menu : setting ,downloader, about
+            // logo / menu : setting ,downloader, about
             DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
             DownloaderMenuCheckBox.Unchecked += DownloaderMenuCheckBoxCheckChanged;
             MoeDownloaderControl.Init(Settings);
             MoeSettingsControl.Init(Settings);
             AboutControl.Init();
             ChangeModeButton.Click += ChangeModeButtonOnClick;
+            LogoImageButton.MouseRightButtonDown += LogoImageButtonOnMouseRightButtonDown;
 
             // explorer
             MoeExplorer.Settings = Settings;
@@ -57,18 +58,39 @@ namespace MoeLoaderP.Wpf
             SearchControl.Init(SiteManager, Settings);
             SearchControl.SearchButton.Click += SearchButtonOnClick;
             SearchControl.AccountButton.Click += AccountButtonOnClick;
+            SearchControl.KeywordTextBox.KeyDown += (sender, args) =>
+            {
+                if (args.Key == Key.Enter)
+                {
+                    SearchButtonOnClick(sender, args);
+                    SearchControl.KeywordPopup.IsOpen = false;
+                }
+                
+            };
 
             // helper : collect ,log
             MoeExplorer.OutputSelectedImagesUrlsButton.Click += OutputSelectedImagesUrlsButtonOnClick;
-            CollectCopyAllButton.Click += (sender, args) => CollectTextBox.Text.CopyToClipboard(); 
-            CollectClearButton.Click += (sender, args) => CollectTextBox.Text = string.Empty;
-            Extend.LogAction += Log;
+            CollectCopyAllButton.Click += (_, _) => CollectTextBox.Text.CopyToClipboard(); 
+            CollectClearButton.Click += (_, _) => CollectTextBox.Text = string.Empty;
+            Ex.LogAction += Log;
             LogListBox.MouseRightButtonUp += LogListBoxOnMouseRightButtonUp;
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
             // egg
             LogoImageButton.Click += LogoImageButtonOnClick;
             ChangeBgImage();
             
+            // 
+            var cus = new CustomSiteFactory();
+            cus.GenTestSites();
+            cus.OutputJson(Path.Combine(App.AppDataDir,"CustomSites"));
+        }
+
+        private void LogoImageButtonOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Settings.IsCustomSiteMode = !Settings.IsCustomSiteMode;
+            LayoutRoot.GoElementState(Settings.IsCustomSiteMode ? nameof(CustomSitesState): nameof(DefaultSitesState));
+            LogoImage.Visibility = Settings.IsCustomSiteMode ? Visibility.Collapsed : Visibility.Visible;
+            LogoImage2.Visibility = Settings.IsCustomSiteMode ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void MoeExplorerOnMoeItemPreviewButtonClicked(MoeItem item,ImageSource imgSource)
@@ -77,7 +99,7 @@ namespace MoeLoaderP.Wpf
             {
                 PreviewWindowInstance = new PreviewWindow();
                 PreviewWindowInstance.Owner = this;
-                PreviewWindowInstance.Closed += (sender, args) => PreviewWindowInstance = null;
+                PreviewWindowInstance.Closed += (_, _) => PreviewWindowInstance = null;
                 PreviewWindowInstance.Width = Width * 0.85d;
                 PreviewWindowInstance.Height = Height * 0.85d;
                 PreviewWindowInstance.Show();
@@ -116,16 +138,25 @@ namespace MoeLoaderP.Wpf
 
             foreach(ImageControl ct in MoeExplorer.ImageItemsWrapPanel.Children) ct.ImageCheckBox.IsChecked = false;
 
-            Extend.ShowMessage("已添加至收集箱");
+            Ex.ShowMessage("已添加至收集箱");
         }
         
-        private void AccountButtonOnClick(object sender, RoutedEventArgs e)
+        private async void AccountButtonOnClick(object sender, RoutedEventArgs e)
         {
             var wnd = new LoginWindow();
-            wnd.Init(Settings, SearchControl.CurrentSelectedSite);
-            wnd.Owner = this;
-            wnd.ShowDialog();
-            SearchControl.Refresh();
+            
+            await wnd.Init(Settings, SearchControl.CurrentSelectedSite);
+
+            try
+            {
+                wnd.Owner = this;
+                wnd.ShowDialog();
+                SearchControl.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Ex.Log(ex);
+            }
         }
 
         private void LogListBoxOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -153,7 +184,7 @@ namespace MoeLoaderP.Wpf
             if (c == 60) ShowMessage("我不想和你说(╬￣皿￣)");
             if (c == 70) ShowMessage("再点就要爆炸了！！＜(▰˘◡˘▰)");
             if (c == 80) ShowMessage("你不信吗？？？？(*｀Ω´*)v");
-            if (c > 90 && c < 100) ShowMessage($"{100 - c}");
+            if (c is > 90 and < 100) ShowMessage($"{100 - c}");
             if (c >= 100)
             {
                 var dir = new DirectoryInfo($"{App.ExeDir}\\Egg\\Res");
@@ -196,7 +227,7 @@ namespace MoeLoaderP.Wpf
             }
             catch (Exception e)
             {
-                Extend.Log(e);
+                Ex.Log(e);
             }
         }
 
@@ -210,26 +241,28 @@ namespace MoeLoaderP.Wpf
 
         private void Log(string obj)
         {
-            var tb = new TextBlock();
-            tb.Text = obj;
+            var tb = new TextBlock
+            {
+                Text = obj
+            };
             LogListBox.Items.Add(tb);
             LogListBox.ScrollIntoView(tb);
             if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
         }
 
-        private void ShowMessage(string mes, string detailMes =null,Extend.MessagePos pos = Extend.MessagePos.Popup)
+        private void ShowMessage(string mes, string detailMes =null,Ex.MessagePos pos = Ex.MessagePos.Popup)
         {
             switch (pos)
             {
-                case Extend.MessagePos.Popup:
+                case Ex.MessagePos.Popup:
                     PopupMessageTextBlock.Text = mes;
                     this.Sb("PopupMessageShowSb").Begin();
                     break;
-                case Extend.MessagePos.InfoBar:
+                case Ex.MessagePos.InfoBar:
                     StatusTextBlock.Text = mes;
                     this.Sb("InfoBarEmphasisSb").Begin();
                     break;
-                case Extend.MessagePos.Window:
+                case Ex.MessagePos.Window:
                     MessageWindow.Show(mes, detailMes, this);
                     break;
             }
@@ -253,7 +286,7 @@ namespace MoeLoaderP.Wpf
                 count++;
             }
             if (DownloaderMenuCheckBox.IsChecked == false && count>0) DownloaderMenuCheckBox.IsChecked = true;
-            else Extend.ShowMessage("没有图片可以下载T_T");
+            else Ex.ShowMessage("没有图片可以下载T_T");
             foreach (ImageControl ct in MoeExplorer.ImageItemsWrapPanel.Children)
             {
                 ct.ImageCheckBox.IsChecked = false;
@@ -262,7 +295,7 @@ namespace MoeLoaderP.Wpf
             var lb = MoeDownloaderControl.DownloadItemsListBox;
             if (lb.Items.Count != 0)
             {
-                lb.ScrollIntoView(lb.Items[lb.Items.Count - 1]);
+                lb.ScrollIntoView(lb.Items[^1]);
             }
                 
         }
@@ -278,7 +311,7 @@ namespace MoeLoaderP.Wpf
         {
             MoeDownloaderControl.Downloader.AddDownload(item, imgSource);
             var lb = MoeDownloaderControl.DownloadItemsListBox;
-            var ctrl = lb.Items[lb.Items.Count - 1];
+            var ctrl = lb.Items[^1];
             lb.ScrollIntoView(ctrl);
             if (DownloaderMenuCheckBox.IsChecked != false) return;
             DownloaderMenuCheckBox.IsChecked = true;
@@ -300,7 +333,7 @@ namespace MoeLoaderP.Wpf
                     {
                         _f8KeyDownTimes++;
                         if (_f8KeyDownTimes <= 3) break;
-                        if (_f8KeyDownTimes > 3 && _f8KeyDownTimes < 10)
+                        if (_f8KeyDownTimes is > 3 and < 10)
                         {
                             ShowMessage($"还剩 {10 - _f8KeyDownTimes} 次粉碎！");
                             break;

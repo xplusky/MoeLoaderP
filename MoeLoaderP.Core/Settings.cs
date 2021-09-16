@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
 using MoeLoaderP.Core.Sites;
 using Newtonsoft.Json;
 
 namespace MoeLoaderP.Core
 {
     /// <summary>
-    /// 用于存储设置、绑定及运行时参数传递（整个软件）可保存为JSON文件
+    /// 用于存储设置、绑定及运行时参数传递（整个软件）。可保存为json文件
     /// </summary>
     public class Settings : BindingObject
     {
@@ -28,10 +29,6 @@ namespace MoeLoaderP.Core
             set => SetField(ref _mainWindowHeight, value, nameof(MainWindowHeight));
         }
 
-        #endregion
-
-        #region Searching Settings
-
         private bool _isShowBgImage = true;
         public bool IsShowBgImage
         {
@@ -39,6 +36,16 @@ namespace MoeLoaderP.Core
             set => SetField(ref _isShowBgImage, value, nameof(IsShowBgImage));
         }
 
+        private bool _isEnableAcrylicStyle = true;
+        public bool IsEnableAcrylicStyle
+        {
+            get => _isEnableAcrylicStyle;
+            set => SetField(ref _isEnableAcrylicStyle, value, nameof(IsEnableAcrylicStyle));
+        }
+
+        #endregion
+
+        #region Searching Settings
         private int _maxOnLoadingImageCount = 8;
         public int MaxOnLoadingImageCount
         {
@@ -67,7 +74,7 @@ namespace MoeLoaderP.Core
             set => SetField(ref _searchHistory, value, nameof(SearchHistory));
         }
 
-        private int _historyKeywordsMaxCount = 15;
+        private int _historyKeywordsMaxCount = 25;
         public int HistoryKeywordsMaxCount
         {
             get => _historyKeywordsMaxCount;
@@ -80,10 +87,17 @@ namespace MoeLoaderP.Core
             get => _historyKeywords;
             set => SetField(ref _historyKeywords, value, nameof(HistoryKeywords));
         }
+
+        private bool _isClearImgsWhenSerachNextPage = true;
+        public bool IsClearImgsWhenSerachNextPage
+        {
+            get => _isClearImgsWhenSerachNextPage;
+            set => SetField(ref _isClearImgsWhenSerachNextPage, value, nameof(IsClearImgsWhenSerachNextPage));
+        }
+
         #endregion
 
         #region Download Settings
-
         
         private int _downloadFirstSeveralCount = 1;
         public int DownloadFirstSeveralCount
@@ -104,13 +118,6 @@ namespace MoeLoaderP.Core
         {
             get => _imageSavePath;
             set => SetField(ref _imageSavePath, value, nameof(ImageSavePath));
-        }
-
-        private bool _isClearImgsWhenSerachNextPage;
-        public bool IsClearImgsWhenSerachNextPage
-        {
-            get => _isClearImgsWhenSerachNextPage;
-            set => SetField(ref _isClearImgsWhenSerachNextPage, value, nameof(IsClearImgsWhenSerachNextPage));
         }
 
         public const string SaveFileNameFormatDefaultValue = "%site %id";
@@ -200,27 +207,29 @@ namespace MoeLoaderP.Core
         /// <summary>
         /// 每一个站点分别的设置（所有站点集合）
         /// </summary>
-        public AllMoeSitesSettings AllMoeSitesSettings { get; set; } =new AllMoeSitesSettings();
+        public MoeSitesSettings AllSitesSettings { get; set; } =new MoeSitesSettings();
 
         /// <summary>
         /// 自定义站点设置集合
         /// </summary>
-        public AllCustomSitesSettings CustomSiteSettingList { get; set; } = new AllCustomSitesSettings();
+        public CustomSitesSettings CustomSiteSettingList { get; set; } = new CustomSitesSettings();
 
         private bool _isCustomSiteMode;
+        
+
         [JsonIgnore]
         public bool IsCustomSiteMode
         {
             get => _isCustomSiteMode;
             set => SetField(ref _isCustomSiteMode, value, nameof(IsCustomSiteMode));
         }
-
         #endregion
 
         #region Save&Load Func
 
         public void Save(string jsonPath)
         {
+            // 保存 json
             var json = JsonConvert.SerializeObject(this);
             File.WriteAllText(jsonPath, json);
         }
@@ -242,8 +251,8 @@ namespace MoeLoaderP.Core
             }
             catch (Exception ex)
             {
-                Extend.ShowMessage("设置读取失败，将读取默认设置", null, Extend.MessagePos.Window);
-                Extend.Log(ex);
+                Ex.ShowMessage("设置读取失败，将读取默认设置", null, Ex.MessagePos.Window);
+                Ex.Log(ex);
                 settings = new Settings();
             }
             return settings;
@@ -254,31 +263,67 @@ namespace MoeLoaderP.Core
 
     #region Settings Helper Class
 
-    public class AllMoeSitesSettings : Dictionary<string, SingleMoeSiteSettings> { }
-    public class SingleMoeSiteSettings : BindingObject
+    public class MoeSitesSettings : Dictionary<string, IndividualSiteSettings>
     {
-        private string _loginCookie;
-        private Dictionary<string, string> _otherSettings;
-
-        public string LoginCookie
+        public IndividualSiteSettings GetSiteSettings(MoeSite site)
         {
-            get => _loginCookie;
-            set => SetField(ref _loginCookie, value, nameof(LoginCookie));
+            if (!ContainsKey(site.ShortName))
+            {
+                Add(site.ShortName, new IndividualSiteSettings());
+            }
+            var set = this[site.ShortName];
+            return set;
+        }
+    }
+    public class IndividualSiteSettings : BindingObject
+    {
+        private Dictionary<string, string> _items = new Dictionary<string, string>();
+        public Dictionary<string, string> Items
+        {
+            get => _items;
+            set => SetField(ref _items, value, nameof(Items));
+        }
+
+        public string GetSetting(string key)
+        {
+            return Items.ContainsKey(key) ? Items[key] : null;
+        }
+
+        public void SetSetting(string key, string value)
+        {
+            var b =Items.TryAdd(key, value);
+            Ex.Log($"Add Key:{key} Value:{value} Result{b}");
         }
         
-        public Dictionary<string, string> OtherSettings
+        private CookieCollection _loginCookies;
+
+
+        public CookieContainer GetCookieContainer()
         {
-            get => _otherSettings;
-            set => SetField(ref _otherSettings, value, nameof(OtherSettings));
+            if (LoginCookies?.Count > 0)
+            {
+                var cc = new CookieContainer();
+                foreach (Cookie cookie in LoginCookies)
+                {
+                    cc.Add(cookie);
+                }
+
+                return cc;
+            }
+
+            return null;
         }
+
+        public CookieCollection LoginCookies
+        {
+            get => _loginCookies;
+            set => SetField(ref _loginCookies, value, nameof(LoginCookies));
+        }
+
+        public DateTime? LoginExpiresTime { get; set; }
     }
 
-    public class AllCustomSitesSettings : Dictionary<string, SingleCustomSiteSettings> { }
-    public class SingleCustomSiteSettings
-    {
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-    }
+    
 
     
     /// <summary>

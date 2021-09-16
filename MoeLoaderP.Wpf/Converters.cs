@@ -5,14 +5,31 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
+using SourceChord.FluentWPF;
 
 namespace MoeLoaderP.Wpf
 {
+    [ValueConversion(typeof(bool), typeof(AcrylicAccentState))]
+    public class BoolToAcrylicAccentStateConvertor : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var b = value as bool?;
+            return b == true ? AcrylicAccentState.Default : AcrylicAccentState.Disabled;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var s = value as AcrylicAccentState?;
+            return s is not (AcrylicAccentState.Disabled or null);
+        }
+    }
+
     public class DoubleToRectConvertor : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is double width)) return Rect.Empty;
+            if (value is not double width) return Rect.Empty;
             return Rect.Parse($"0,0,{width},{width}");
         }
 
@@ -26,7 +43,7 @@ namespace MoeLoaderP.Wpf
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is string path)) return App.MoePicFolder;
+            if (value is not string path) return App.MoePicFolder;
             return path.IsEmpty() ? App.MoePicFolder : path;
         }
 
@@ -37,7 +54,7 @@ namespace MoeLoaderP.Wpf
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is int count)) return Visibility.Collapsed;
+            if (value is not int count) return Visibility.Collapsed;
             if (count > 1) return Visibility.Visible;
             return Visibility.Collapsed;
         }
@@ -49,7 +66,7 @@ namespace MoeLoaderP.Wpf
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(!(value is string path))return null;
+            if(value is not string path)return null;
              return  new BitmapImage(new Uri($"/Assets/SiteIcon/{path}.ico", UriKind.Relative));
         }
 
@@ -75,8 +92,9 @@ namespace MoeLoaderP.Wpf
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             var defMargin = new Thickness(6,8,6,8);
+            if ((values[0] is not double) || (values[1] is not double)) return defMargin;
             var outerWidth = (double) values[0];
-            var itemWidth = (double)values[1];
+            var itemWidth = (double) values[1];
             var countd = outerWidth / (itemWidth + 12d);
             var count = (int)countd;
             if (count == 0) return defMargin;
@@ -103,7 +121,7 @@ namespace MoeLoaderP.Wpf
             return !v;
         }
     }
-
+    
     [ValueConversion(typeof(double), typeof(Visibility))]
     public class DoubleToVisibilityConverter : IValueConverter
     {
@@ -136,14 +154,12 @@ namespace MoeLoaderP.Wpf
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var v = (bool?)value;
-            switch (v)
+            return v switch
             {
-                case true:
-                    return Visibility.Visible;
-                case false:
-                    return Visibility.Collapsed;
-            }
-            return Visibility.Collapsed;
+                true => Visibility.Visible,
+                false => Visibility.Collapsed,
+                _ => Visibility.Collapsed
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
@@ -171,7 +187,25 @@ namespace MoeLoaderP.Wpf
                 return text.IsEmpty() ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            return text.IsEmpty() ? Visibility.Collapsed : Visibility.Visible;
+            var b = text.IsEmpty();
+            return b ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+    }
+
+    [ValueConversion(typeof(ulong), typeof(Visibility))]
+    public class UlongToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var text = (ulong)value;
+            if ((parameter as string) == "reverse")
+            {
+                return text==0 ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            return text==0 ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;

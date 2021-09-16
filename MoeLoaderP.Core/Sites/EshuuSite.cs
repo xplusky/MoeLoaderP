@@ -19,10 +19,10 @@ namespace MoeLoaderP.Core.Sites
         public EshuuSite()
         {
             SupportState.IsSupportScore = false;
-            SubMenu.Add("标签");
-            SubMenu.Add("来源");
-            SubMenu.Add("画师");
-            SubMenu.Add("角色");
+            SubCategories.Add("标签");
+            SubCategories.Add("来源");
+            SubCategories.Add("画师");
+            SubCategories.Add("角色");
             DownloadTypes.Add("原图", 4);
         }
 
@@ -30,7 +30,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var imgs = new MoeItems();
             var url = $"{HomeUrl}/?page={para.PageIndex}";
-            if (Net == null) Net = new NetOperator(Settings);
+            Net ??= new NetOperator(Settings);
             if (!para.Keyword.IsEmpty())
             {
                 url = $"{HomeUrl}/search/process/";
@@ -47,11 +47,11 @@ namespace MoeLoaderP.Core.Sites
                     {"postcontent","" },
                     {"txtposter","" }
                 });
-                var net = Net.CloneWithOldCookie();
+                var net = Net.CreateNewWithOldCookie();
                 var r = await net.Client.GetAsync(HomeUrl, token);
                 if (r.IsSuccessStatusCode == false) return imgs;
 
-                net = net.CloneWithOldCookie();
+                net = net.CreateNewWithOldCookie();
                 net.SetReferer($"{HomeUrl}/search");
                 net.HttpClientHandler.AllowAutoRedirect = false; //prevent 303
                 var res = await net.Client.PostAsync(url, mc, token);
@@ -81,7 +81,7 @@ namespace MoeLoaderP.Core.Sites
                 if (fileUrl.StartsWith("/")) fileUrl = $"{HomeUrl}{fileUrl}";
                 var previewUrl = imgHref.SelectSingleNode("img").Attributes["src"].Value;
                 if (previewUrl.StartsWith("/")) previewUrl = $"{HomeUrl}{previewUrl}";
-                img.Urls.Add(1, previewUrl, HomeUrl);
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, previewUrl, HomeUrl);
                 var meta = imgNode.SelectSingleNode(".//div[@class='meta']");
                 img.Date = meta.SelectSingleNode(".//dd[2]").InnerText.ToDateTime();
                 var dimension = meta.SelectSingleNode(".//dd[4]").InnerText;
@@ -117,7 +117,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (Net == null) Net = new NetOperator(para.Site.Settings);
+            Net ??= new NetOperator(Settings);
             //type 1 tag 2 source 3 artist | chara no type
             var items = new AutoHintItems();
             //chara without hint
@@ -129,7 +129,8 @@ namespace MoeLoaderP.Core.Sites
                 {"type",$"{para.SubMenuIndex + 1}" }
             };
             var url = $"{HomeUrl}/httpreq.php{pairs.ToPairsString()}";
-            var res = await Net.Client.GetAsync(url, token);
+            var net = Net.CreateNewWithOldCookie();
+            var res = await net.Client.GetAsync(url, token);
             var txt = await res.Content.ReadAsStringAsync();
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)

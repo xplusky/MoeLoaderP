@@ -240,7 +240,7 @@ d:DesignHeight="450" d:DesignWidth="800">
                                     <GradientStop Color="#99FEFFA0"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <TextBlock x:Name="SearchingMessageTextBlock" TextWrapping="Wrap" Text="Seaching Info" TextAlignment="Center"/>
+                            <TextBlock x:Name="SearchingMessageTextBlock" TextWrapping="Wrap" Text="Seaching Info" TextAlignment="Center" Foreground="Black"/>
                         </Border>
                     </Grid>
                 </StackPanel>

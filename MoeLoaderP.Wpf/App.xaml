@@ -6,11 +6,13 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+
                 <ResourceDictionary Source="Assets/Simple Styles.xaml"/>
                 <!-- style --><ResourceDictionary Source="Assets/MoeResource.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/FluentWPF;component/Styles/Controls.xaml" />
                 <!-- lang --><ResourceDictionary Source="Assets/Lang/zh-CN.xaml" />
                 <!-- lang override --><ResourceDictionary />
-                <ResourceDictionary Source="pack://application:,,,/FluentWPF;component/Styles/Controls.xaml" />
+                
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

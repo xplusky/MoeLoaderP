@@ -1,0 +1,19 @@
+﻿<Application
+    x:Class="MoeLoaderP.Wpf.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--  FluentWPF Controls  -->
+                <ResourceDictionary Source="pack://application:,,,/FluentWPF;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="Assets/Simple Styles.xaml"/>
+                <!-- style --><ResourceDictionary Source="Assets/MoeResource.xaml" />
+                <!-- lang --><ResourceDictionary Source="Assets/Lang/zh-CN.xaml" />
+                <!-- lang override --><ResourceDictionary />
+                
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

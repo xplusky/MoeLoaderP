@@ -1,11 +1,12 @@
-﻿using CefSharp;
-using MoeLoaderP.Core;
+﻿using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using Cookie = CefSharp.Cookie;
+using System.Windows.Media;
+using Microsoft.Web.WebView2.Core;
 
 namespace MoeLoaderP.Wpf
 {
@@ -14,124 +15,112 @@ namespace MoeLoaderP.Wpf
     /// </summary>
     public partial class LoginWindow
     {
-        private Settings Setting { get; set; }
+        //private Settings Setting { get; set; }
 
         private MoeSite Site { get; set; }
-
+        
         public LoginWindow()
         {
             InitializeComponent();
+
+            AuthLoadingBorder.Visibility = Visibility.Collapsed;
         }
 
-        public void Init(Settings setting, MoeSite site)
+        public async Task Init(Settings setting, MoeSite site)
         {
-            Setting = setting;
+            //Setting = setting;
             Site = site;
-            MainBrower.IsBrowserInitializedChanged += MainBrowerOnIsBrowserInitializedChanged;
-            MainBrower.Loaded += MainBrowerOnLoaded;
-            AuthButton.Click += AuthButtonOnClick;
-            GoToLoginPageButton.Click += GoToLoginPageButtonOnClick;
+            
+            try
+            {
+                MainBroswer.CoreWebView2InitializationCompleted += MainBroswerOnCoreWebView2InitializationCompleted;
+                if (MainBroswer == null) return;
+                var option = new CoreWebView2EnvironmentOptions();
+                switch (setting.ProxyMode)
+                {
+                    case Settings.ProxyModeEnum.None:
+                        option.AdditionalBrowserArguments = "--no-proxy-server";
+                        break;
+                    case Settings.ProxyModeEnum.Custom:
+                        option.AdditionalBrowserArguments = $"--proxy-server=http://{setting.ProxySetting}";
+                        break;
+                    case Settings.ProxyModeEnum.Ie:
+                        break;
+                }
+                var env = await CoreWebView2Environment.CreateAsync(null,null,option);
+                
+                AuthButton.Click += AuthButtonOnClick;
+                GoToLoginPageButton.Click += GoToLoginPageButtonOnClick;
+                var _ = MainBroswer.EnsureCoreWebView2Async(env);
+            }
+            catch(Exception ex)
+            {
+                var result = MessageBox.Show(this, "未找到WebView2组件，需要下载吗？（需要Webview2组件才能显示网页登录界面）", App.DisplayName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    "https://go.microsoft.com/fwlink/p/?LinkId=2124703".GoUrl();
+                }
+                Ex.Log(ex);
+                Close();
+            }
+
+        }
+
+        private void MainBroswerOnCoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            var wv = MainBroswer.CoreWebView2;
+            wv?.Navigate(Site.LoginPageUrl);
         }
 
         private void GoToLoginPageButtonOnClick(object sender, RoutedEventArgs e)
         {
-            MainBrower.Address = Site.LoginPageUrl;
+            var wv = MainBroswer.CoreWebView2;
+            wv?.Navigate(Site.LoginPageUrl);
         }
-
-        private string _cookies;
+        
         private async void AuthButtonOnClick(object sender, RoutedEventArgs e)
         {
             AuthLoadingBorder.Visibility = Visibility.Visible;
-            AuthMesTextBlock.Text = "认证中，请稍后";
-            var b = false;
-            while (b == false || _cookies.IsEmpty())
+            AuthTextBlock.Text = "认证中，请稍候";
+            AuthLoadingBorder.Background = Brushes.Gray;
+
+            var cookies = new List<CoreWebView2Cookie>();
+            foreach (var url in Site.GetCookieUrls())
             {
-                var cookieManager = Cef.GetGlobalCookieManager();
-                var visitor = new CookieVisitor();
-                visitor.SendCookie += cookie =>
-                {
-                    _cookies += cookie.Domain.TrimStart('.') + "^" + cookie.Name + "^" + cookie.Value + ";";
-                };
-                cookieManager.VisitAllCookies(visitor);
-                await Task.Delay(100);
-                b = true;
+                var wcookies = await MainBroswer.CoreWebView2.CookieManager.GetCookiesAsync(url);
+                cookies.AddRange(wcookies);
+            }
+                
+            var ccol = new CookieCollection();
+            foreach (var cookie in cookies)
+            {
+                var sc = cookie.ToSystemNetCookie();
+                ccol.Add(sc);
             }
 
-            Dispatcher?.BeginInvoke(new Action(async () =>
+            var b = Site.VerifyCookieAndSave(ccol);
+
+            if (!b)
             {
-                Extend.Log(_cookies);
-
-                if (!Site.VerifyCookie(_cookies))
-                {
-                    AuthMesTextBlock.Text = "认证失败，请确认登录成功";
-                    await Task.Delay(4000);
-                    AuthLoadingBorder.Visibility = Visibility.Collapsed;
-                    return;
-                }
-                AuthMesTextBlock.Text = "认证成功，4秒后将关闭窗口";
-                await Task.Delay(1000);
-                AuthMesTextBlock.Text = "认证成功，3秒后将关闭窗口";
-                await Task.Delay(1000);
-                AuthMesTextBlock.Text = "认证成功，2秒后将关闭窗口";
-                await Task.Delay(1000);
-                AuthMesTextBlock.Text = "认证成功，1秒后将关闭窗口";
-                await Task.Delay(1000);
-                Site.CurrentSiteSetting.LoginCookie = _cookies;
-                Close();
-            }));
-        }
-
-        private void MainBrowerOnIsBrowserInitializedChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (Setting.ProxyMode == Settings.ProxyModeEnum.Custom
-                && MainBrower.IsBrowserInitialized
-                && Cef.IsInitialized)
-            {
-                //只能在WebBrowser UI呈现后获取 Request 上下文
-                Cef.UIThreadTaskFactory.StartNew(delegate
-                {
-                    //获取 Request 上下文
-                    var rc = MainBrower.GetBrowser().GetHost().RequestContext;
-                    var dict = new Dictionary<string, object>
-                    {
-                        {"mode", "fixed_servers"}
-                    };
-                    var add = Setting.ProxySetting;
-                     dict.Add("server", add);
-                    //设置代理
-                    rc.SetPreference("proxy", dict, out var error);
-                    //如果 error 不为空则表示设置失败。
-                    if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        MessageBox.Show(error, "Tip", MessageBoxButton.OK);
-                    }
-                });
-            }
-        }
-
-        private void MainBrowerOnLoaded(object sender, RoutedEventArgs e)
-        {
-            MainBrower.Address = Site.LoginPageUrl;
-        }
-
-        public class CookieVisitor : ICookieVisitor
-        {
-            public event Action<Cookie> SendCookie;
-            // ReSharper disable once RedundantAssignment
-            public bool Visit(Cookie cookie, int count, int total, ref bool deleteCookie)
-            {
-                deleteCookie = false;
-                SendCookie?.Invoke(cookie);
-
-                return true;
+                AuthTextBlock.Text = "认证失败，请确认登录成功";
+                AuthLoadingBorder.Background = Brushes.Red;
+                await Task.Delay(4000);
+                AuthLoadingBorder.Visibility = Visibility.Collapsed;
+                return;
             }
 
-            public void Dispose()
+            AuthLoadingBorder.Background = Brushes.Green;
+            for (var i = 4; i > 0; i--)
             {
-                //throw new NotImplementedException();
+                AuthTextBlock.Text = $"认证成功，{i}秒后将关闭窗口"; 
+                await Task.Delay(1000);
             }
-        }
 
+            Site.Net = null;
+            Site.SiteSettings.LoginCookies = ccol;
+            Close();
+        }
+        
        
     }
 }

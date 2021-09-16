@@ -4,7 +4,8 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
+using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MoeLoaderP.Core.Sites;
@@ -29,14 +30,35 @@ namespace MoeLoaderP.Core
         /// </summary>
         public SearchPara Para { get; set; }
         /// <summary>
-        /// 子项目
+        /// 图组项目集合
         /// </summary>
         public MoeItems ChildrenItems { get; set; } = new MoeItems();
+        
+        private Settings Set => Site.Settings;
 
-        // 以下为图片从网络获取到的本身参数
+
+        public MoeItem(MoeSite site, SearchPara para)
+        {
+            Site = site;
+            Para = para;
+            ChildrenItems.CollectionChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(ChildrenItemsCount));
+            };
+            Urls.CollectionChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(FileType));
+                OnPropertyChanged(nameof(DownloadUrlInfo));
+            };
+        }
+
+        #region 参数属性--当前图片从网络获取到的本身参数及相关处理方法
+        
         public int Id { get; set; }
 
-        // Id字符串
+        /// <summary>
+        /// Id字符串
+        /// </summary>
         public string Sid { get; set; }
 
         public string Title { get; set; }
@@ -75,17 +97,10 @@ namespace MoeLoaderP.Core
         /// 排名
         /// </summary>
         public int Rank { get; set; }
-        public bool TipHighLight { get; set; }
-
-        public string Tip
-        {
-            get => _tip;
-            set
-            {
-                _tip = value; OnPropertyChanged(nameof(Tip));
-            }
-        }
-
+        
+        /// <summary>
+        /// 图源
+        /// </summary>
         public string Source { get; set; }
         public string Description { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
@@ -107,7 +122,12 @@ namespace MoeLoaderP.Core
 
         public UrlInfo ThumbnailUrlInfo => Urls.GetMin();
 
-        public UrlInfo DownloadUrlInfo => Urls.FirstOrDefault(urlInfo => urlInfo.Priority > 1 && urlInfo.Priority == Para.DownloadType.Priority);
+        public UrlInfo DownloadUrlInfo
+        {
+            get => Urls.FirstOrDefault(urlInfo =>
+                (int)urlInfo.DownloadType > 1 && urlInfo.DownloadType == Para.DownloadType.Type);
+            set => Urls[^0] = value;
+        }
 
         public UrlInfos Urls { get; set; } = new UrlInfos();
         public TextFileInfo ExtraFile { get; set; }
@@ -139,31 +159,42 @@ namespace MoeLoaderP.Core
         /// <summary>
         /// 分辨率文字
         /// </summary>
-        public string ResolutionText
-        {
-            get
-            {
-                if (Width != 0 && Height != 0) return $"{Width} × {Height}";
-                return null;
-            }
-        }
+        public string ResolutionText => (Width != 0 && Height != 0) ? $"{Width} × {Height}" : null;
 
         private int _imageCount;
         private string _dateString;
         private string _tip;
         private double _score;
 
-        public int ImagesCount
+        public int ChildrenItemsCount
         {
             get => _imageCount == 0 ? ChildrenItems.Count : _imageCount;
             set => _imageCount = value;
         }
-        
+
+        #endregion
+
+        #region 辅助属性及方法
+
+        /// <summary>
+        /// 是否显示注释
+        /// </summary>
+        public bool TipHighLight { get; set; }
+        /// <summary>
+        /// 注释，显示在左上角
+        /// </summary>
+        public string Tip
+        {
+            get => _tip;
+            set
+            {
+                _tip = value; OnPropertyChanged(nameof(Tip));
+            }
+        }
         /// <summary>
         /// 获取详细信息Task委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
         public Func<Task> GetDetailTaskFunc { get; set; }
-
         public async Task TryGetDetail()
         {
             try
@@ -173,57 +204,414 @@ namespace MoeLoaderP.Core
             catch (Exception e)
             {
                 var m = $"获取详情页失败!ID:{Id},PAGE:{DetailUrl}";
-                Extend.Log(m,e);
+                Ex.Log(m,e);
                 ErrorMessage = m;
             }
         }
 
         public string ErrorMessage { get; set; }
 
-        public MoeItem(MoeSite site, SearchPara para)
+        #endregion
+
+        #region 下载相关
+
+        /// <summary>
+        /// 子项目专用 ---- 父级对象
+        /// </summary>
+        public MoeItem FatherItem { get; set; }
+
+        /// <summary>
+        /// 子项目专用--子项目所在列表中的位置
+        /// </summary>
+        public int SubIndex { get; set; }
+
+        /// <summary>
+        /// bitmap image 用于显示下载图片图标
+        /// </summary>
+        public dynamic BitImg { get; set; }
+
+        public bool IsResolveAndDownloadNextItem { get; set; }
+
+        public Func<CancellationToken,Task<MoeItems>> GetNextItemsTaskFunc { get; set; }
+
+        /// <summary>
+        /// 网站上原始文件名
+        /// </summary>
+        public string OriginFileName { get; set; }
+        /// <summary>
+        /// 网站上原始文件名（不含后缀）
+        /// </summary>
+        public string OriginFileNameWithoutExtension { get; set; }
+
+        private string _localFileShortNameWithoutExt;
+
+        public string LocalFileShortNameWithoutExt
         {
-            Site = site;
-            Para = para;
-            ChildrenItems.CollectionChanged += (sender, args) =>
+            get => _localFileShortNameWithoutExt;
+            set => SetField(ref _localFileShortNameWithoutExt, value, nameof(LocalFileShortNameWithoutExt));
+        }
+
+        public string LocalFileFullPath { get; set; }
+
+        public event Action<MoeItem> DownloadStatusChanged;
+
+        private string _size;
+        public string Size
+        {
+            get => _size;
+            set => SetField(ref _size, value, nameof(Size));
+        }
+
+        private double _progress;
+        public double Progress
+        {
+            get => _progress;
+            set => SetField(ref _progress, value, nameof(Progress));
+        }
+
+        public string DownloadStatusIconText
+        {
+            get
             {
-                OnPropertyChanged(nameof(ImagesCount));
-            };
-            Urls.CollectionChanged += (sender, args) =>
+                var strings = new[] { "", "", "", WebUtility.HtmlDecode("&#xF04D;"), "", "", "" };
+                return strings[(int)DlStatus];
+            }
+        }
+
+        private DownloadStatus _dlStatus = DownloadStatus.WaitForDownload;
+        /// <summary>
+        /// 设置或获取下载状态
+        /// </summary>
+        public DownloadStatus DlStatus
+        {
+            get => _dlStatus;
+            set
             {
-                OnPropertyChanged(nameof(FileType));
-                OnPropertyChanged(nameof(DownloadUrlInfo));
+                var isChanged = value != _dlStatus;
+                SetField(ref _dlStatus, value, nameof(DlStatus));
+                if (isChanged)
+                {
+                    OnPropertyChanged(nameof(DownloadStatusIconText));
+                    DownloadStatusChanged?.Invoke(this);
+                }
+            }
+        }
+
+        public void InitDownload(dynamic bitimg, int subindex = 0, MoeItem fatheritem = null)
+        {
+            BitImg = bitimg;
+            SubIndex = subindex;
+            FatherItem = fatheritem;
+            if (DownloadUrlInfo.ResolveUrlFunc == null)
+            {
+                OriginFileName = Path.GetFileName(DownloadUrlInfo.Url);
+                OriginFileNameWithoutExtension = Path.GetFileNameWithoutExtension(DownloadUrlInfo.Url).ToDecodedUrl();
+                var father = SubIndex == 0 ? null : FatherItem;
+                GenFileNameWithoutExt(father);
+                GenLocalFileFullPath(father);
+            }
+            
+            
+        }
+
+        /// <summary>
+        /// 当前下载指示器
+        /// </summary>
+        public CancellationTokenSource CurrentDownloadTaskCts { get; set; } = new CancellationTokenSource();
+        
+        /// <summary>
+        /// 异步下载图片
+        /// </summary>
+        /// <returns></returns>
+        public async Task DownloadFileAsync(CancellationToken token)
+        {
+            if (ChildrenItems.Count > 0)
+            {
+                DlStatus = DownloadStatus.Downloading;
+                var i = 0;
+                while (true)
+                {
+                    if(i>= ChildrenItemsCount || 
+                       (i>Set.DownloadFirstSeveralCount && Set.IsDownloadFirstSeveral)) break;
+                    
+                    if (token.IsCancellationRequested)
+                    {
+                        DlStatus = DownloadStatus.Cancel;
+                        break;
+                    }
+                    Progress = i / (double)ChildrenItemsCount * 100d;
+                    StatusText = $"正在下载 {i + 1} / {ChildrenItemsCount} 张";
+                    if (i < Set.DownloadFirstSeveralCount || Set.IsDownloadFirstSeveral == false)
+                    {
+                        var subItem = ChildrenItems[i];
+                        try
+                        {
+                            await subItem.DownloadFileAsync(token);
+                        }
+                        catch (Exception e)
+                        {
+                            Ex.Log(e);
+                            DlStatus = DownloadStatus.Failed;
+                            i++;
+                            continue;
+                        }
+
+                        // 解析下一个
+                        if (subItem.IsResolveAndDownloadNextItem)
+                        {
+                            try
+                            {
+                                var newitems = await subItem.GetNextItemsTaskFunc(token);
+                                var k = ChildrenItems.Count + 1;
+                                foreach (var newitem in newitems)
+                                {
+                                    ChildrenItems.Add(newitem);
+                                    newitem.InitDownload(null,k,this);
+                                    k++;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                DlStatus = DownloadStatus.Failed;
+                                Ex.Log(e);
+                                break;
+                            }
+                        }
+                    }
+                    i++;
+                }
+
+                var count = ChildrenItems.Count;
+                if (DlStatus == DownloadStatus.Cancel)
+                {
+                    StatusText = $"{count-1}张成功，失败{ChildrenItemsCount - count}张";
+                }
+                else if(DlStatus == DownloadStatus.Failed)
+                {
+                    StatusText = $"{count-1}张成功，失败{ChildrenItemsCount - count}张";
+                }
+                else
+                {
+                    DlStatus = DownloadStatus.Success;
+                    Progress = 100d;
+                    StatusText = $"{count} 张下载完成";
+                }
+                
+            }
+            else // 为子项目
+            {
+                try
+                {
+                    await DownloadSingleFileAsync(token);
+                }
+                catch (Exception ex)
+                {
+                    Ex.Log(ex);
+                    DlStatus = DownloadStatus.Failed;
+                    CurrentDownloadTaskCts = null;
+                }
+            }
+        }
+
+        public async Task DownloadSingleFileAsync(CancellationToken token)
+        {
+            var durl = DownloadUrlInfo;
+            // url不正常判断
+            if (durl == null)
+            {
+                DlStatus = DownloadStatus.Failed;
+                StatusText = "下载失败";
+                return;
+            }
+
+            // url解析、前置操作
+            if (durl.ResolveUrlFunc != null)
+            {
+                try
+                {
+                    await durl.ResolveUrlFunc.Invoke(this, durl, token);
+                    durl.ResolveUrlFunc = null;
+                    InitDownload(BitImg, SubIndex, FatherItem);
+                    
+                }
+                catch (Exception e)
+                {
+                    Ex.Log(e);
+                }
+            }
+
+
+            // 文件已存在判断、改名
+            if (File.Exists(LocalFileFullPath))
+            {
+                if (Set.IsAutoRenameWhenSame)
+                {
+                    var filename = AutoRenameFullPath();
+                    LocalFileFullPath = filename;
+                }
+                else
+                {
+                    DlStatus = DownloadStatus.Skip;
+                    StatusText = "已存在，跳过";
+                    return;
+                }
+
+            }
+
+            // 设置下载网络
+            var net = Net == null ? new NetOperator(Set) : Net.CreateNewWithOldCookie();
+            if (!durl.Referer.IsEmpty()) net.SetReferer(durl.Referer);
+            net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) =>
+            {
+                Progress = args.ProgressPercentage;
+                StatusText = $"正在下载：{Progress}%";
             };
-        }
-    }
+            net.SetTimeOut(500);
+            if (File.Exists(LocalFileFullPath))
+            {
+                DlStatus = DownloadStatus.Skip;
+                StatusText = "已存在，跳过";
+                return;
+            }
+            DlStatus = DownloadStatus.Downloading;
+            var data = await net.Client.GetAsync(durl.Url, token);
 
-    public class MoeItemTag
-    {
-        public int Id { get; set; }
-        public string NameEn { get; set; }
-        public string NameJp { get; set; }
-        public string NameCn { get; set; }
-        public int PostCount { get; set; }
-        public override string ToString()
+            // 写入文件
+            var stream = await data.Content.ReadAsStreamAsync();
+            var dir = Path.GetDirectoryName(LocalFileFullPath);
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
+            var file = new FileInfo(LocalFileFullPath);
+            await using (var fileStream = file.Create())
+            {
+                await using (stream)
+                {
+                    var buffer = new byte[1024];
+                    int length;
+                    while ((length = await stream.ReadAsync(buffer, 0, buffer.Length, token)) != 0)
+                    {
+                        // 写入到文件
+                        await fileStream.WriteAsync(buffer, 0, length, token);
+                    }
+                }
+            }
+
+            // 下载完成后期效果
+            if (durl.AfterEffectsFunc != null)
+            {
+                try
+                {
+                    await durl.AfterEffectsFunc.Invoke(this, token);
+                }
+                catch (Exception e)
+                {
+                    Ex.Log(e);
+                }
+            }
+
+
+            // 完成
+            Progress = 100d;
+            StatusText = "下载完成";
+            Ex.Log($"{durl.Url} download ok");
+            DlStatus = DownloadStatus.Success;
+
+            
+        }
+
+
+        private string _statusText;
+        /// <summary>
+        /// 状态文字
+        /// </summary>
+        public string StatusText
         {
-            return string.IsNullOrWhiteSpace(NameCn) ? NameEn : NameCn;
+            get => _statusText;
+            set => SetField(ref _statusText, value, nameof(StatusText));
         }
-    }
 
-    public class MoeItemTags : List<MoeItemTag>
-    {
-        public void AddTag(string name)
+        public void GenLocalFileFullPath(MoeItem father = null)
         {
-            var tag = new MoeItemTag {NameEn = name};
-            Add(tag);
-        }
-    }
+            var img = father ?? this;
+            var format = Set.SortFolderNameFormat;
+            var sub = format.IsEmpty() ? $"{img.Site.ShortName}" : FormatText(format, img, true);
 
+            LocalFileFullPath = Path.Combine(Set.ImageSavePath, sub, $"{LocalFileShortNameWithoutExt}.{img.FileType?.ToLower()}");
+        }
+
+        public void GenFileNameWithoutExt(MoeItem father = null)
+        {
+            var img = father ?? this;
+
+            var format = Set.SaveFileNameFormat;
+            if (format.IsEmpty())
+            {
+                LocalFileShortNameWithoutExt = $"{img.Site.ShortName} {img.Id}";
+                return;
+            }
+
+            var sb = FormatText(format, img);
+
+            LocalFileShortNameWithoutExt = SubIndex > 0 ? $"{sb} p{SubIndex}" : $"{sb}";
+        }
+
+        public string FormatText(string format, MoeItem img, bool isFolder = false)
+        {
+            var sb = new StringBuilder(format);
+            sb.Replace("%site", img.Site.ShortName);
+            sb.Replace("%id", $"{img.Id}");
+            sb.Replace("%keyword", img.Para.Keyword.IsEmpty() ? "no-keyword" : img.Para.Keyword);
+            var tags = string.Empty;
+            var i = 0;
+            foreach (var tag in img.Tags)
+            {
+                if (i > 15) break;
+                tags += $"{tag} ";
+                i++;
+            }
+            sb.Replace("%tag", $"{tags}");
+            sb.Replace("%title", img.Title ?? "no-title");
+            sb.Replace("%uploader", img.Uploader ?? "no-uploader");
+            sb.Replace("%uploader_id", img.UploaderId ?? "no-uploader-id");
+            sb.Replace("%date", img.DateString ?? "no-date");
+            sb.Replace("%origin", OriginFileNameWithoutExtension);
+            sb.Replace("%character", img.Character ?? "no-character");
+            sb.Replace("%artist", img.Artist ?? "no-artist");
+            sb.Replace("%copyright", img.Copyright ?? "no-copyright");
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                if (c == '\\' && isFolder) continue;
+                sb.Replace($"{c}", "_");
+            }
+
+            return sb.ToString();
+        }
+
+        public string AutoRenameFullPath()
+        {
+            var oldF = LocalFileFullPath;
+            var ext = Path.GetExtension(oldF);
+            var dir = Path.GetDirectoryName(oldF);
+            var file = Path.GetFileNameWithoutExtension(oldF);
+            var i = 2;
+            var newF = $"{dir}\\{file}{-i}{ext}";
+            while (File.Exists(newF))
+            {
+                i++;
+                newF = $"{dir}{-i}{ext}";
+            }
+
+            return newF;
+        }
+
+        #endregion
+    }
+    
     public class MoeItems : ObservableCollection<MoeItem>
     {
         public Exception Ex { get; set; }
         public string Message { get; set; }
-        public enum ResponseMode { Ok, Fail, OkAndOver }
-        public ResponseMode Response { get; set; }
+        //public enum ResponseMode { Ok, Fail, OkAndOver }
+        //public ResponseMode Response { get; set; }
 
         public bool Has(MoeItem item)
         {
@@ -237,113 +625,4 @@ namespace MoeLoaderP.Core
         }
     }
 
-    public class TextFileInfo
-    {
-        public string FileExt { get; set; }
-        public string Content { get; set; }
-    }
-
-    public delegate Task AfterEffectsDelegate(DownloadItem item, CancellationToken token);
-
-    public delegate Task ResolveUrlDelegate(DownloadItem item, CancellationToken token);
-
-    public class UrlInfo
-    {
-        /// <summary>
-        /// 优先级， size 越大，数字越大,优先下载大的,从1开始
-        /// </summary>
-        public int Priority { get; set; }
-        public string Url { get; set; }
-        public string Md5 { get; set; }
-        public string Referer { get; set; }
-        public ulong BiteSize { get; set; }
-        /// <summary>
-        /// 下载完后处理代理
-        /// </summary>
-        public AfterEffectsDelegate AfterEffects { get; set; }
-
-        /// <summary>
-        /// 下载前解析出下载地址
-        /// </summary>
-        public ResolveUrlDelegate ResolveUrlFunc { get; set; }
-
-
-        public UrlInfo(int priority, string url, string referer = null, AfterEffectsDelegate afterEffects = null,ResolveUrlDelegate resolveUrlFunc = null)
-        {
-            Priority = priority;
-            Url = url;
-            if (referer != null) Referer = referer;
-            if (afterEffects != null) AfterEffects = afterEffects;
-            ResolveUrlFunc = resolveUrlFunc;
-        }
-
-        public string GetFileExtFromUrl()
-        {
-            if (Url.IsEmpty()) return null;
-            var type = Path.GetExtension(Url)?.Replace(".", "").ToUpper();
-            if (type == null) return null;
-            if (type.Contains("?"))
-            {
-                type = type.Split('?')[0];
-            }
-            return type.Length < 5 ? type : null;
-        }
-
-    }
-
-    public class UrlInfos : ObservableCollection<UrlInfo>
-    {
-        public UrlInfo GetMax()
-        {
-            UrlInfo info = null;
-            foreach (var i in this)
-            {
-                if (info == null)
-                {
-                    info = i; continue;
-                }
-
-                if (i.Priority > info.Priority) info = i;
-            }
-
-            return info;
-        }
-
-        public UrlInfo GetPreview()
-        {
-            if (Count ==0 ) return null;
-            if (Count == 1)
-            {
-                return this.FirstOrDefault();
-            }
-            var min = GetMin();
-            foreach (var urlInfo in this.OrderBy(u=> u.Priority))
-            {
-                if (urlInfo.Priority > min.Priority) return urlInfo;
-            }
-            return null;
-        }
-
-        public UrlInfo GetMin()
-        {
-            UrlInfo info = null;
-            foreach (var i in this)
-            {
-                if (info == null)
-                {
-                    info = i; continue;
-                }
-
-                if (i.Priority < info.Priority) info = i;
-            }
-
-            return info;
-        }
-
-        public void Add(int p, string url, string referer=null, AfterEffectsDelegate afterEffects=null, ResolveUrlDelegate resolveUrlFunc = null)
-        {
-            var urlinfo = new UrlInfo(p, url, referer,afterEffects,resolveUrlFunc);
-            Add(urlinfo);
-        }
-    }
 }

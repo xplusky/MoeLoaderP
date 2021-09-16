@@ -57,8 +57,8 @@ namespace MoeLoaderP.Core.Sites
                     DetailUrl = $"{HomeUrl}{jitem.photo?.url}", 
                     Id = (int) (jitem.photo?.id ?? 0d)
                 };
-                img.Urls.Add(1, $"{jitem.photo?.thumbnail_url_display}", HomeUrl);
-                img.Urls.Add(3, $"{jitem.photo?.large_url}", img.DetailUrl);
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{jitem.photo?.thumbnail_url_display}", HomeUrl);
+                img.Urls.Add(DownloadTypeEnum.Large, $"{jitem.photo?.large_url}", img.DetailUrl);
                 img.Score = $"{jitem.photo?.good_cnt}".ToInt();
                 img.Date = $"{jitem.photo?.created_at}".ToDateTime();
                 var twidth = (int)(jitem.photo?.thumbnail_width ?? 0d);
@@ -77,7 +77,7 @@ namespace MoeLoaderP.Core.Sites
                     }
                 }
                 img.Title = $"{jitem.photo?.subject}";
-                img.IsExplicit = jitem.photo?.viewable ?? false;
+                //img.IsExplicit = jitem.photo?.viewable ?? false;
                 img.OriginString = $"{jitem}";
                 imgs.Add(img);
             }

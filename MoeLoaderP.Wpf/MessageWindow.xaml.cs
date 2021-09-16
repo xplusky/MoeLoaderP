@@ -8,8 +8,8 @@ namespace MoeLoaderP.Wpf
         public MessageWindow()
         {
             InitializeComponent();
-            OkButton.Click += (sender, args) => Close(); 
-            MouseLeftButtonDown += (sender, args) => DragMove();
+            OkButton.Click += (_, _) => Close(); 
+            MouseLeftButtonDown += (_, _) => DragMove();
         }
         
         public static bool? Show(Exception ex,string mes = null)
@@ -26,7 +26,7 @@ namespace MoeLoaderP.Wpf
         {
             var wnd = new MessageWindow();
             wnd.MessageTextBlock.Text = messgage;
-            wnd.MessageTextBox.Text = detail;
+            if (detail != null) wnd.MessageTextBox.Text = detail;
             wnd.Owner = owner;
             return wnd.ShowDialog();
         }
@@ -35,7 +35,7 @@ namespace MoeLoaderP.Wpf
         {
             var wnd = new MessageWindow();
             wnd.MessageTextBlock.Text = messgage;
-            wnd.MessageTextBox.Text = detail;
+            if (detail != null) wnd.MessageTextBox.Text = detail;
             wnd.MessageTextBoxExpander.IsExpanded = true;
             return wnd.ShowDialog();
         }

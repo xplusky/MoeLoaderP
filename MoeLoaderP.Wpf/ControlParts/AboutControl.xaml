@@ -21,7 +21,7 @@
                     <ColumnDefinition Width="21*"/>
                 </Grid.ColumnDefinitions>
                 <Image Source="/MoeLoaderP;component/Assets/m-icon.ico" Stretch="Fill" Width="32" Height="32"/>
-                <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" FontSize="14"><Run Text="MoeLoader "/><Run Text="P"/></TextBlock>
+                <TextBlock TextWrapping="Wrap" Grid.Column="1" VerticalAlignment="Center" FontSize="14" Foreground="Black"><Run Text="MoeLoader "/><Run Text="P"/></TextBlock>
             </Grid>
             <Rectangle Opacity="0.5" Margin="8,2">
                 <Rectangle.Effect>
@@ -44,7 +44,7 @@
             <Button x:Name="AboutHomeLinkButton" Content="使用帮助/更新记录" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
             <Button x:Name="AboutReportButton" Content="反馈问题" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
             <TextBlock Foreground="Black" TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="若你喜欢本软件的话可以请我喝杯饮料哦~"/><LineBreak/><Run/><Run x:Name="AboutDonateLink" Cursor="Hand" Foreground="DarkRed" FontWeight="Bold" Text="支付宝" TextDecorations="Underline"/><Run Text="或"/><Run Text=" "/><Run x:Name="AboutDonateWexinLink" Cursor="Hand" Foreground="DarkRed" FontWeight="Bold" Text="微信支付" TextDecorations="Underline"/><Run Text="均可"/><Run Text="，可以备注昵称和网址。"/></TextBlock>
-            <TextBlock TextWrapping="Wrap" Text="感谢下列用户的捐助！" Margin="0,6,0,0"/>
+            <TextBlock TextWrapping="Wrap" Text="感谢下列用户的捐助！" Margin="0,6,0,0" Foreground="Black"/>
             <WrapPanel x:Name="ThanksUserWrapPanel"/>
         </StackPanel>
         <Grid x:Name="AboutDonateImageGrid" Visibility="Collapsed">

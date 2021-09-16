@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using MoeLoaderP.Core;
+﻿using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
 using System;
 using System.Collections.Generic;
@@ -35,7 +34,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         }
 
         public Settings Settings { get; set; }
-        public AutoHintItems CurrentHintItems { get; set; } = new AutoHintItems();
+        public AutoHintItems CurrentHintItems { get; set; } = new();
 
         public SearchControl()
         {
@@ -49,14 +48,15 @@ namespace MoeLoaderP.Wpf.ControlParts
             Settings = settings;
             DataContext = Settings;
 
-            ShowExlicitOnlyCheckBox.Checked += (sender, args) => FilterExlicitCheckBox.IsChecked = true;
-            FilterExlicitCheckBox.Unchecked += (sender, args) => ShowExlicitOnlyCheckBox.IsChecked = false;
+            ShowExlicitOnlyCheckBox.Checked += (_, _) => FilterExlicitCheckBox.IsChecked = true;
+            FilterExlicitCheckBox.Unchecked += (_, _) => ShowExlicitOnlyCheckBox.IsChecked = false;
 
             KeywordTextBox.TextChanged += KeywordTextBoxOnTextChanged;
-            KeywordTextBox.GotFocus += (sender, args) => KeywordPopup.IsOpen = true;
-            KeywordTextBox.LostFocus += (sender, args) => KeywordPopup.IsOpen = false;
+            KeywordTextBox.GotFocus += (_, _) => KeywordPopup.IsOpen = true;
+            KeywordTextBox.LostFocus += (_, _) => KeywordPopup.IsOpen = false;
             KeywordListBox.ItemsSource = CurrentHintItems;
             KeywordListBox.SelectionChanged += KeywordComboBoxOnSelectionChanged;
+
             SiteManager.Sites.CollectionChanged += SitesOnCollectionChanged;
 
             MoeSitesLv1ComboBox.SelectionChanged += MoeSitesLv1ComboBoxOnSelectionChanged;// 一级菜单选择改变
@@ -64,15 +64,15 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv3ComboBox.SelectionChanged += MoeSitesLv3ComboBoxOnSelectionChanged;// 三级菜单选择改变
             MoeSitesLv4ComboBox.SelectionChanged += MoeSitesLv4ComboBoxOnSelectionChanged;// 四级菜单选择改变
 
+
             MoeSitesLv1ComboBox.SelectedIndex = 0;
 
             AccountButton.MouseRightButtonUp += AccountButtonOnMouseRightButtonUp;
         }
-
         private void AccountButtonOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            CurrentSelectedSite.CurrentSiteSetting.LoginCookie = null;
-            Extend.ShowMessage("已清除登录信息！");
+            CurrentSelectedSite.SiteSettings.LoginCookies = null;
+            Ex.ShowMessage("已清除登录信息！");
         }
 
         private void SitesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -82,29 +82,42 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void VisualUpdate()
         {
-            this.GoState(CurrentSelectedSite.SupportState.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
-            var list = new List<MenuItemFunc>
-            {
-                CurrentSelectedSite.MenuFunc
-            };
-            var lv2 = CurrentSelectedSite.SubMenu;
+            AdaptSupportState(CurrentSelectedSite.SupportState);
+            var lv2 = CurrentSelectedSite.SubCategories;
             if (MoeSitesLv2ComboBox.SelectedIndex != -1 && lv2.Any())
             {
-                list.Add(lv2[MoeSitesLv2ComboBox.SelectedIndex].Func);
-                var lv3 = lv2[MoeSitesLv2ComboBox.SelectedIndex].SubMenu;
+                var lv2ItemCat = CurrentSelectedSite
+                    .SubCategories[MoeSitesLv2ComboBox.SelectedIndex];
+                AdaptSupportState(lv2ItemCat.OverrideSupportState);
+                var lv3 = lv2[MoeSitesLv2ComboBox.SelectedIndex].SubCategories;
                 if (MoeSitesLv3ComboBox.SelectedIndex != -1 && lv3.Any())
                 {
-                    list.Add(lv3[MoeSitesLv3ComboBox.SelectedIndex].Func);
-                    var lv4 = lv3[MoeSitesLv3ComboBox.SelectedIndex].SubMenu;
+                    var lv3ItemCat = CurrentSelectedSite
+                        .SubCategories[MoeSitesLv2ComboBox.SelectedIndex]
+                        .SubCategories[MoeSitesLv3ComboBox.SelectedIndex];
+                    AdaptSupportState(lv3ItemCat.OverrideSupportState);
+                    var lv4 = lv3[MoeSitesLv3ComboBox.SelectedIndex].SubCategories;
                     if (MoeSitesLv4ComboBox.SelectedIndex != -1 && lv4.Any())
                     {
-                        list.Add(lv4[MoeSitesLv4ComboBox.SelectedIndex].Func);
+                        var lv4ItemCat = CurrentSelectedSite
+                            .SubCategories[MoeSitesLv2ComboBox.SelectedIndex]
+                            .SubCategories[MoeSitesLv3ComboBox.SelectedIndex]
+                            .SubCategories[MoeSitesLv4ComboBox.SelectedIndex];
+                        AdaptSupportState(lv4ItemCat.OverrideSupportState);
                     }
                 }
             }
+        }
 
-            this.GoState(list.Any(f => f.ShowDatePicker == true) ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
-            this.GoState(list.Any(f => f.ShowKeyword == false) ? nameof(NotSurportKeywordState) : nameof(SurportKeywordState));
+        public MoeSiteSupportState CurrentSupportState { get; set; }
+
+        public void AdaptSupportState(MoeSiteSupportState state)
+        {
+            if(state == null) return;
+            CurrentSupportState = state;
+            this.GoState(state.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
+            this.GoState(state.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
+            this.GoState(state.IsSupportKeyword ?  nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
         }
 
         public void FilterBoxVisualUpdate()
@@ -122,13 +135,14 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             MoeSitesLv1ComboBoxOnSelectionChanged(null, null);
         }
+        
         private void MoeSitesLv1ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)// site change
         {
             var lv1Si = MoeSitesLv1ComboBox.SelectedIndex;
             if (lv1Si == -1) return;
             CurrentSelectedSite = SiteManager.Sites[lv1Si];
             InitSearch();
-            var lv2 = CurrentSelectedSite.SubMenu;
+            var lv2 = CurrentSelectedSite.SubCategories;
             if (lv2.Any())
             {
                 MoeSitesLv2ComboBox.ItemsSource = lv2;
@@ -150,7 +164,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             var lv2Si = MoeSitesLv2ComboBox.SelectedIndex;
             if (lv2Si == -1) return;
-            var lv3 = CurrentSelectedSite.SubMenu[lv2Si].SubMenu;
+            var lv3 = CurrentSelectedSite.SubCategories[lv2Si].SubCategories;
             if (lv3.Any())
             {
                 MoeSitesLv3ComboBox.ItemsSource = lv3;
@@ -170,7 +184,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             var lv3Si = MoeSitesLv3ComboBox.SelectedIndex;
             if (lv3Si == -1) return;
-            var lv4 = CurrentSelectedSite.SubMenu[MoeSitesLv2ComboBox.SelectedIndex].SubMenu[lv3Si].SubMenu;
+            var lv4 = CurrentSelectedSite.SubCategories[MoeSitesLv2ComboBox.SelectedIndex].SubCategories[lv3Si].SubCategories;
             if (lv4.Any())
             {
                 MoeSitesLv4ComboBox.ItemsSource = lv4;
@@ -183,18 +197,47 @@ namespace MoeLoaderP.Wpf.ControlParts
         }
         private void MoeSitesLv4ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e) { VisualUpdate(); }
 
+
         private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (CurrentHintTaskCts == null) this.Sb("SearchingSpinSb").Begin();
-            CurrentHintTaskCts?.Cancel();
+            if (CurrentHintTaskCts == null)
+            {
+                this.Sb("SearchingSpinSb").Begin();
+            }
+
+            if (CurrentHintTaskCts != null)
+            {
+                CurrentHintTaskCts.Cancel();
+                if (KeywordTextBox.Text.Length == 0)
+                {
+                    this.Sb("SearchingSpinSb").Stop();
+                }
+            }
+            
             CurrentHintTaskCts = new CancellationTokenSource();
+
+            var tempCts = CurrentHintTaskCts;
             try
             {
-                await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, CurrentHintTaskCts.Token);
+                await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, tempCts.Token);
+                this.Sb("SearchingSpinSb").Stop();
             }
-            catch (TaskCanceledException) { }
-            catch (Exception ex) { Extend.Log(ex.Message); }
-            this.Sb("SearchingSpinSb").Stop();
+            catch (TaskCanceledException)
+            {
+                if (tempCts.Equals(CurrentHintTaskCts))
+                {
+                    this.Sb("SearchingSpinSb").Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                Ex.Log(ex.Message);
+                if (tempCts.Equals(CurrentHintTaskCts))
+                {
+                    this.Sb("SearchingSpinSb").Stop();
+                }
+            }
+            
             CurrentHintTaskCts = null;
 
         }
@@ -236,13 +279,13 @@ namespace MoeLoaderP.Wpf.ControlParts
                 CurrentHintItems.Clear();
                 foreach (var item in list) CurrentHintItems.Add(item);
                 AddHistoryItems();
-                Extend.Log($"AutoHint 搜索完成 结果个数{list.Count}");
+                Ex.Log($"AutoHint 搜索完成 结果个数{list.Count}");
             }
         }
 
         private void AddHistoryItems()
         {
-            CurrentHintItems.Add(new AutoHintItem() { IsEnable = false, Word = "---------历史---------" });
+            CurrentHintItems.Add(new AutoHintItem { IsEnable = false, Word = "---------历史---------" });
             if (Settings?.HistoryKeywords?.Count == 0 || Settings?.HistoryKeywords == null) return;
             foreach (var item in Settings.HistoryKeywords)
             {
@@ -269,10 +312,11 @@ namespace MoeLoaderP.Wpf.ControlParts
                 IsFileTypeShowSpecificOnly = FileTypeShowSpecificOnlyComboBox.SelectedIndex == 1,
                 DownloadType = CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
                 Date = MoeDatePicker.SelectedDate,
-                LastId = FilterStartIdBox.NumCount,
+                NextPageMark = $"{FilterStartIdBox.NumCount}" == "0"? null: $"{FilterStartIdBox.NumCount}",
                 SubMenuIndex = MoeSitesLv2ComboBox.SelectedIndex,
                 Lv3MenuIndex = MoeSitesLv3ComboBox.SelectedIndex,
-                Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex
+                Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex,
+                SupportState = CurrentSupportState
             };
             if (!Settings.IsXMode) para.IsShowExplicit = false;
             return para;
@@ -280,7 +324,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
+        //[NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

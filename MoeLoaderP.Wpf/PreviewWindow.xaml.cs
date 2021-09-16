@@ -18,7 +18,7 @@ namespace MoeLoaderP.Wpf
     /// <summary>
     /// PreviewWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class PreviewWindow : Window
+    public partial class PreviewWindow
     {
         public MoeItem CurrentMoeItem { get; set; }
         public Settings Settings { get; set; }
@@ -34,7 +34,7 @@ namespace MoeLoaderP.Wpf
             MouseWheel += OnMouseWheel;
             LargeImageThumb.DragDelta += LargeImageThumbOnDragDelta;
             LargeImage.ClearValue(MarginProperty);
-            MouseLeftButtonDown += (sender, args) => DragMove();
+            MouseLeftButtonDown += (_, _) => DragMove();
         }
 
         public async void Init(MoeItem moeitem,ImageSource imgSource)
@@ -161,7 +161,7 @@ namespace MoeLoaderP.Wpf
         public void SetImage(BitmapImage img)
         {
             var sb = LargeImage.FadeHideSb();
-            sb.Completed += (sender, args) =>
+            sb.Completed += (_, _) =>
             {
                 LargeImage.Source = img;
                 LargeImage.EnlargeShowSb().Begin();
@@ -185,57 +185,55 @@ namespace MoeLoaderP.Wpf
                 Cts?.Cancel();
                 Cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 var response = await net.Client.GetAsync(CurrentMoeItem.Urls.GetPreview().Url, Cts.Token);
-                using (var stream = await response.Content.ReadAsStreamAsync())
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                var source = await Task.Run(() =>
                 {
-                    var source = await Task.Run(() =>
+                    try
+                    {
+                        var bitimg = new BitmapImage();
+                        bitimg.CacheOption = BitmapCacheOption.OnLoad;
+                        bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                        bitimg.BeginInit();
+                        bitimg.StreamSource = stream;
+                        bitimg.EndInit();
+                        bitimg.Freeze();
+                            
+                        return bitimg;
+                    }
+                    catch (IOException)
                     {
                         try
                         {
+                            var bitmap = new Bitmap(stream);
+                            var ms = new MemoryStream();
+                            bitmap.Save(ms, ImageFormat.Png);
                             var bitimg = new BitmapImage();
                             bitimg.CacheOption = BitmapCacheOption.OnLoad;
                             bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
                             bitimg.BeginInit();
-                            bitimg.StreamSource = stream;
+                            bitimg.StreamSource = ms;
                             bitimg.EndInit();
                             bitimg.Freeze();
-                            
+                            //ms.Dispose();
                             return bitimg;
                         }
-                        catch (IOException)
+                        catch (Exception e)
                         {
-                            try
-                            {
-                                var bitmap = new Bitmap(stream);
-                                var ms = new MemoryStream();
-                                bitmap.Save(ms, ImageFormat.Png);
-                                var bitimg = new BitmapImage();
-                                bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                                bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                                bitimg.BeginInit();
-                                bitimg.StreamSource = ms;
-                                bitimg.EndInit();
-                                bitimg.Freeze();
-                                //ms.Dispose();
-                                return bitimg;
-                            }
-                            catch (Exception e)
-                            {
-                                loadEx = e;
-                                return null;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            loadEx = ex;
+                            loadEx = e;
                             return null;
                         }
-                    }, Cts.Token);
-
-                    if (source != null)
-                    {
-                        PreviewBitmapImage = source;
-                        SetImage(source);
                     }
+                    catch (Exception ex)
+                    {
+                        loadEx = ex;
+                        return null;
+                    }
+                }, Cts.Token);
+
+                if (source != null)
+                {
+                    PreviewBitmapImage = source;
+                    SetImage(source);
                 }
             }
             catch (Exception ex)
@@ -251,8 +249,8 @@ namespace MoeLoaderP.Wpf
             else
             {
                 //this.Sb("LoadFailSb").Begin();
-                Extend.Log(loadEx.Message, loadEx.StackTrace);
-                Extend.Log($"{CurrentMoeItem.ThumbnailUrlInfo.Url} 图片加载失败");
+                Ex.Log(loadEx.Message, loadEx.StackTrace);
+                Ex.Log($"{CurrentMoeItem.ThumbnailUrlInfo.Url} 图片加载失败");
             }
 
             return loadEx;
@@ -263,7 +261,6 @@ namespace MoeLoaderP.Wpf
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 ImageLoadProgressBar.Value = e.ProgressPercentage;
-                ;
             }));
 
         }

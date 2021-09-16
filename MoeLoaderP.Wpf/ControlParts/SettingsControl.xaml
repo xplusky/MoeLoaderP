@@ -4,9 +4,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:controlParts="clr-namespace:MoeLoaderP.Wpf.ControlParts"
+    xmlns:Wpf="clr-namespace:MoeLoaderP.Wpf"
     x:Class="MoeLoaderP.Wpf.ControlParts.SettingsControl"
     mc:Ignorable="d" 
-    d:DesignHeight="611.286" d:DesignWidth="380.882" Width="310" Height="560" >
+    d:DesignHeight="1000" d:DesignWidth="380.882" Width="310" Height="560" >
+    <UserControl.Resources>
+        <Wpf:BoolToAcrylicAccentStateConvertor x:Key="BoolToAcrylicAccentStateConvertor"/>
+    </UserControl.Resources>
     <ScrollViewer Template="{DynamicResource MoeScrollViewerControlTemplate}">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="NameFormatVSG">
@@ -32,7 +36,10 @@
         </VisualStateManager.VisualStateGroups>
         <StackPanel>
             <GroupBox
-                Header="{DynamicResource TextSettingsProxyGroup}" Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
+                Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
+                <GroupBox.Header>
+                    <TextBlock Text="{DynamicResource TextSettingsProxyGroup}" Foreground="Black"/>
+                </GroupBox.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -54,7 +61,11 @@
                 </Grid>
             </GroupBox>
 
-            <GroupBox Header="{DynamicResource TextSettingsGroupSearch}" Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
+            <GroupBox Template="{DynamicResource MoeGroupBoxControlTemplate}" 
+                      Margin="0,2">
+                <GroupBox.Header>
+                    <TextBlock Text="{DynamicResource TextSettingsGroupSearch}" Foreground="Black"/>
+                </GroupBox.Header>
                 <StackPanel Margin="4">
                     <Grid Height="66.24">
                         <Grid.RowDefinitions>
@@ -76,7 +87,12 @@
             </GroupBox>
 
             <GroupBox
-                Header="{DynamicResource TextSettingsDownloadGroup}" Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
+                
+                Template="{DynamicResource MoeGroupBoxControlTemplate}"
+                Margin="0,2">
+                <GroupBox.Header >
+                    <TextBlock Text="{DynamicResource TextSettingsDownloadGroup}" Foreground="Black"/>
+                </GroupBox.Header>
                 <StackPanel Margin="4">
                     <Grid Height="24">
                         <Grid.ColumnDefinitions>
@@ -239,9 +255,13 @@
                     <CheckBox x:Name="AutoRenameCheckBox" Content="文件名相同时自动重命名（否则直接跳过）" IsChecked="{Binding IsAutoRenameWhenSame}" Margin="0,4,0,0"/>
                 </StackPanel>
             </GroupBox>
-            <GroupBox Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2" Header="软件设置">
+            <GroupBox Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
+                <GroupBox.Header>
+                    <TextBlock Text="软件设置" Foreground="Black"/>
+                </GroupBox.Header>
                 <StackPanel Margin="4">
                     <CheckBox x:Name="IsShowBgImage" Content="显示软件背景图片" IsChecked="{Binding IsShowBgImage}" Margin="0,4,0,0"/>
+                    <CheckBox x:Name="IsEnableAcrylicStyleCheckBox" Content="显示亚克力毛玻璃效果" IsChecked="{Binding IsEnableAcrylicStyle}" Margin="0,4,0,0"/>
                 </StackPanel>
             </GroupBox>
 

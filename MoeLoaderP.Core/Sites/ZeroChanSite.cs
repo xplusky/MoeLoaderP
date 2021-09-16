@@ -61,7 +61,7 @@ namespace MoeLoaderP.Core.Sites
                     _beforeUrl = respose.Headers.Location.AbsoluteUri;
                 else
                 {
-                    Extend.ShowMessage("搜索失败，请检查您输入的关键词");
+                    Ex.ShowMessage("搜索失败，请检查您输入的关键词");
                     return new MoeItems();
                 }
 
@@ -131,9 +131,9 @@ namespace MoeLoaderP.Core.Sites
                 img.Title = title;
                 img.Id = strId.Substring(1).ToInt();
 
-                img.Urls.Add(1, previewUrl, HomeUrl);
-                img.Urls.Add(2, sampleUrl, HomeUrl);
-                img.Urls.Add(4, fileUrl, img.DetailUrl);
+                img.Urls.Add( DownloadTypeEnum.Thumbnail, previewUrl, HomeUrl);
+                img.Urls.Add(DownloadTypeEnum.Medium, sampleUrl, HomeUrl);
+                img.Urls.Add(DownloadTypeEnum.Origin, fileUrl, img.DetailUrl);
                 img.DetailUrl = $"{HomeUrl}/{img.Id}";
 
                 img.OriginString = imgNode.OuterHtml;

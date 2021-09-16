@@ -48,7 +48,7 @@ namespace MoeLoaderP.Core.Sites
             }
             else
             {
-                Extend.Log("https://anime-pictures.net 网站登陆失败");
+                Ex.Log("https://anime-pictures.net 网站登陆失败");
                 return;
             }
         }
@@ -78,13 +78,13 @@ namespace MoeLoaderP.Core.Sites
             if (listnode == null) return new MoeItems{Message = "读取HTML失败"};
             foreach (var node in listnode)
             {
-                var img = new MoeItem(this, para) {Site = this};
+                var img = new MoeItem(this, para);
                 var imgnode = node.SelectSingleNode("a/picture/img");
                 var idattr = imgnode.GetAttributeValue("id", "0");
                 var reg = Regex.Replace(idattr, @"[^0-9]+", "");
                 img.Id = reg.ToInt();
                 var src = imgnode.GetAttributeValue("src", "");
-                if (!src.IsEmpty()) img.Urls.Add(new UrlInfo( 1, $"{pre}{src}", url));
+                if (!src.IsEmpty()) img.Urls.Add(new UrlInfo( DownloadTypeEnum.Thumbnail, $"{pre}{src}", url));
                 var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
                 if (resstrs?.Length == 2)
                 {
@@ -109,7 +109,7 @@ namespace MoeLoaderP.Core.Sites
         public async Task GetDetailTask(MoeItem img)
         {
             var detialurl = img.DetailUrl;
-            var net = Net.CloneWithOldCookie();
+            var net = Net.CreateNewWithOldCookie();
             net.SetTimeOut(30);
             try
             {
@@ -118,7 +118,7 @@ namespace MoeLoaderP.Core.Sites
                 if (docnodes == null) return;
                 var downnode = docnodes.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");
                 var fileurl = downnode?.GetAttributeValue("href", "");
-                if (!fileurl.IsEmpty()) img.Urls.Add( 4, $"{HomeUrl}{fileurl}", detialurl);
+                if (!fileurl.IsEmpty()) img.Urls.Add(DownloadTypeEnum.Origin, $"{HomeUrl}{fileurl}", detialurl);
                 var tagnodes = docnodes.SelectNodes("*//div[@id='post_tags']//a");
                 if (tagnodes != null)
                 {
@@ -130,13 +130,13 @@ namespace MoeLoaderP.Core.Sites
             }
             catch (Exception e)
             {
-                Extend.Log(e, e.StackTrace);
+                Ex.Log(e, e.StackTrace);
             }
         }
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (AutoHintNet == null) AutoHintNet = new NetOperator(Settings, HomeUrl);
+            AutoHintNet ??= new NetOperator(Settings, HomeUrl);
             AutoHintNet.SetReferer($"{HomeUrl}/?lang=zh_CN");
             //AutoHintNet.Client.DefaultRequestHeaders.Add("content-type", "multipart/form-data; boundary=----WebKitFormBoundaryzFqgWZTqudUG0vBb");
             var re = new AutoHintItems();
@@ -155,12 +155,12 @@ namespace MoeLoaderP.Core.Sites
             //JSON format response
 
             dynamic json = JsonConvert.DeserializeObject(txt);
-            dynamic list = ((JProperty)json).Value;
-            foreach (var item in list)
+            dynamic list = ((JProperty)json)?.Value;
+            foreach (var item in Ex.GetList(list))
             {
                 re.Add(new AutoHintItem
                 {
-                    Word = $"{item.t}".Replace("<br>", "").Replace("</br>", ""),
+                    Word = $"{item.t}".Delete("<br>", "</br>"),
                     Count = $"{item.c}"
                 });
             }

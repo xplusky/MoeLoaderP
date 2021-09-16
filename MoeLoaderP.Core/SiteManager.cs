@@ -23,16 +23,9 @@ namespace MoeLoaderP.Core
         {
             if (e.PropertyName == nameof(Settings.IsCustomSiteMode))
             {
-                if (Settings.IsCustomSiteMode)
-                {
-                    Sites.Clear();
-                    SetCustomSiteList();
-                }
-                else
-                {
-                    Sites.Clear();
-                    SetDefaultSiteList();
-                }
+                Sites.Clear();
+                if (Settings.IsCustomSiteMode) SetCustomSiteList();
+                else SetDefaultSiteList();
             }
         }
 
@@ -65,7 +58,12 @@ namespace MoeLoaderP.Core
 
         public void SetCustomSiteList()
         {
-            Sites.Add(new CustomSiteItem());
+            var testSites = new CustomSiteFactory();
+            testSites.GenTestSites();
+            foreach (var set in testSites.SiteSets)
+            {
+                Sites.Add(new CustomSite(set));
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         public SettingsControl()
         {
             InitializeComponent();
+            //DataContext = Settings;
             NameFormatTempPanel = NameFormatButtonsPanel;
             foreach (Button button in NameFormatButtonsPanel.Children)
             {
@@ -64,7 +65,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 output = output.Replace($"{c}", "");
             }
             Settings.SortFolderNameFormat = output;
-            if (isBad) Extend.ShowMessage("路径名包含非法字符，已自动去除");
+            if (isBad) Ex.ShowMessage("路径名包含非法字符，已自动去除");
             LastLostTextBox = SortFolderNameFormatTextBox;
         }
 
@@ -86,7 +87,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 output = output.Replace($"{c}", "");
             }
             Settings.SaveFileNameFormat = output;
-            if (isBad) Extend.ShowMessage("文件名包含非法字符，已自动去除");
+            if (isBad) Ex.ShowMessage("文件名包含非法字符，已自动去除");
             LastLostTextBox = FileNameFormatTextBox;
         }
 
@@ -102,7 +103,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             catch
             {
-                Extend.ShowMessage(this.LangText("TextSettingsProxyModeErrorTip"));
+                Ex.ShowMessage(this.LangText("TextSettingsProxyModeErrorTip"));
                 CustomProxyTextBox.Text = _tempCustomProxyText;
             }
         }
@@ -110,7 +111,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         private void ClearHistoryButtonOnClick(object sender, RoutedEventArgs e)
         {
             Settings.HistoryKeywords.Clear();
-            Extend.ShowMessage("已清除历史记录");
+            Ex.ShowMessage("已清除历史记录");
         }
         
         private void SaveFolderBrowseButtonOnClick(object sender, RoutedEventArgs e)

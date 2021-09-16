@@ -17,7 +17,7 @@ namespace MoeLoaderP.Core
         public Settings Settings { get; set; }
         public SearchPara CurrentSearchPara { get; set; }
         public SearchedVisualPages LoadedVisualPages { get; set; } = new SearchedVisualPages();
-        public int CurrentPageIndex { get; set; }
+
         public bool IsSearching => SearchingTasksCts.Count > 0;
         public List<CancellationTokenSource> SearchingTasksCts { get; set; } = new List<CancellationTokenSource>();
 
@@ -40,12 +40,12 @@ namespace MoeLoaderP.Core
             }
             catch (OperationCanceledException)
             {
-                Extend.ShowMessage("搜索已取消");
+                Ex.ShowMessage("搜索已取消");
             }
             catch (Exception ex)
             {
-                Extend.ShowMessage(ex.Message, ex.ToString(), Extend.MessagePos.Window);
-                Extend.Log(ex.Message, ex.StackTrace);
+                Ex.ShowMessage(ex.Message, ex.ToString(), Ex.MessagePos.Window);
+                Ex.Log(ex.Message, ex.StackTrace);
             }
 
             SearchingTasksCts.Remove(cts);
@@ -59,22 +59,23 @@ namespace MoeLoaderP.Core
         public async Task SearchNextPageAsync(CancellationToken token)
         {
             var newVPage = new SearchedVisualPage(); // 建立虚拟页信息
+            // 虚拟页：本地设定的一页数量的图片页容器  真实页：在线网站上Get到的真实数量的图片页容器
             var images = new MoeItems();
             SearchPara tempPara;
             if (LoadedVisualPages.Count == 0)
             {
                 tempPara = CurrentSearchPara.Clone(); // 浅复制一份参数
                 newVPage.LastRealPageIndex = tempPara.PageIndex;
-                // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动过滤相关条件）
+                // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动在线过滤相关条件）
                 var sb = new StringBuilder();
                 sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
                 sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
-                Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
+                Ex.ShowMessage(sb.ToString(), null, Ex.MessagePos.Searching);
                 var imagesOrg = await tempPara.Site.GetRealPageImagesAsync(tempPara, token);
-                CurrentSearchPara.NextPagePara = tempPara.NextPagePara;
+                CurrentSearchPara.NextPageMark = tempPara.NextPageMark;
                 if (imagesOrg == null || imagesOrg.Count == 0)
                 {
-                    Extend.ShowMessage("无搜索结果", null, Extend.MessagePos.Searching);
+                    Ex.ShowMessage("无搜索结果", null, Ex.MessagePos.Searching);
                     return;
                 }
                 for (var i = 0; i < imagesOrg.Count; i++)
@@ -84,11 +85,11 @@ namespace MoeLoaderP.Core
                     else
                     {
                         newVPage.PreLoadNextPageItems.Add(item);
-                        if (!newVPage.HasNextPage) newVPage.HasNextPage = true;
+                        if (!newVPage.HasNextVisualPage) newVPage.HasNextVisualPage = true;
                     }
                 }
             }
-            else if (!LoadedVisualPages.Last().HasNextPage) // 若无下一页则返回
+            else if (!LoadedVisualPages.Last().HasNextVisualPage) // 若无下一页则返回
             {
                 return;
             }
@@ -106,12 +107,12 @@ namespace MoeLoaderP.Core
                     else
                     {
                         newVPage.PreLoadNextPageItems.Add(item);
-                        newVPage.HasNextPage = true;
+                        newVPage.HasNextVisualPage = true;
                     }
                 }
             }
 
-            Filter(images); // 本地过滤，images数量有可能减少
+            Filter(images); // 本地条件过滤，images数量有可能减少
 
             // 进入 loop 循环
             var startTime = DateTime.Now;
@@ -119,31 +120,36 @@ namespace MoeLoaderP.Core
             {
                 token.ThrowIfCancellationRequested(); // 整体Task的取消Token，取消时会抛出异常
                 tempPara.PageIndex++; // 设置新搜索参数为下一页（真）
-                tempPara.LastId = images.LastOrDefault()?.Id ?? 0; // 设置新搜索参数为最后ID（真）
+                //tempPara.LastImageId = images.LastOrDefault()?.Id ?? 0; // 设置新搜索参数为最后ID（真）
                 newVPage.LastRealPageIndex = tempPara.PageIndex;
                 var sb = new StringBuilder();
                 sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
                 sb.AppendLine($"已获取第{tempPara.PageIndex - 1}页{images.Count}张图片，还需{tempPara.Count - images.Count}张");
                 sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
-                Extend.ShowMessage(sb.ToString(), null, Extend.MessagePos.Searching);
-                var imagesNextRPage = await tempPara.Site.GetRealPageImagesAsync(tempPara, token); // 搜索下一页（真）的所有图片
-                CurrentSearchPara.NextPagePara = tempPara.NextPagePara;
-                if (imagesNextRPage == null || imagesNextRPage.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
+                Ex.ShowMessage(sb.ToString(), null, Ex.MessagePos.Searching);
+                var nextRealPageImageItems = await tempPara.Site.GetRealPageImagesAsync(tempPara, token); // 搜索下一页（真）的所有图片
+                CurrentSearchPara.NextPageMark = tempPara.NextPageMark;
+                if (nextRealPageImageItems == null || nextRealPageImageItems.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
                 {
-                    newVPage.HasNextPage = false; // 没有下一页
+                    newVPage.HasNextVisualPage = false; // 没有下一页
                     newVPage.LastRealPageIndex = tempPara.PageIndex;
                     break;
                 }
                 else // 当下一页（真）未过滤图片数量不为0时
                 {
-                    Filter(imagesNextRPage); // 本地过滤下一页（真）
 
-                    foreach (var item in imagesNextRPage)
+                    Filter(nextRealPageImageItems); // 本地过滤下一页（真）
+
+                    foreach (var item in nextRealPageImageItems)
                     {
                         if (images.Count < tempPara.Count) images.Add(item); // 添加图片数量直到够参数设定的图片数量为止
                         else newVPage.PreLoadNextPageItems.Add(item); // 多出来的图片存在另一个对象中，下一虚拟页可以调用
                     }
                     if (images.Count >= tempPara.Count) break; // 数量已够参数数量，当前虚拟页完成任务
+                    //if (nextRealPageImageItems.Count < tempPara.Count && !tempPara.NextPagePara.IsEmpty())
+                    //{
+                    //    break;
+                    //}
                 }
                 if (DateTime.Now - startTime > TimeSpan.FromSeconds(30)) break; // loop超时跳出循环（即使不够数量也跳出）
             }
@@ -151,9 +157,9 @@ namespace MoeLoaderP.Core
             // Load end
             newVPage.ImageItems = images;
             LoadedVisualPages.Add(newVPage);
-            if (images.Message != null) Extend.ShowMessage(images.Message);
-            if (images.Ex != null) Extend.ShowMessage(images.Ex.Message, images.Ex.ToString(), Extend.MessagePos.Window);
-            Extend.ShowMessage("搜索完毕", null, Extend.MessagePos.Searching);
+            if (images.Message != null) Ex.ShowMessage(images.Message);
+            if (images.Ex != null) Ex.ShowMessage(images.Ex.Message, images.Ex.ToString(), Ex.MessagePos.Window);
+            Ex.ShowMessage("搜索完毕", null, Ex.MessagePos.Searching);
         }
 
         /// <summary>
@@ -225,19 +231,19 @@ namespace MoeLoaderP.Core
             var para = CurrentSearchPara;
             var site = CurrentSearchPara.Site;
             var sb = $"当前搜索：{site.DisplayName}";
-            if (site.SubMenu.Count > 0 && para.SubMenuIndex > -1)
+            if (site.SubCategories.Count > 0 && para.SubMenuIndex > -1)
             {
-                var lv2 = site.SubMenu?[para.SubMenuIndex];
-                sb += $"→{lv2.MenuItemName}";
+                var lv2 = site.SubCategories?[para.SubMenuIndex];
+                sb += $"→{lv2.Name}";
 
-                if (lv2.SubMenu.Count > 0 && para.Lv3MenuIndex > -1)
+                if (lv2.SubCategories.Count > 0 && para.Lv3MenuIndex > -1)
                 {
-                    var lv3 = lv2.SubMenu?[para.Lv3MenuIndex];
-                    sb += $"→{lv3.MenuItemName}";
-                    if (lv3.SubMenu.Count > 0 && para.Lv4MenuIndex > -1)
+                    var lv3 = lv2.SubCategories?[para.Lv3MenuIndex];
+                    sb += $"→{lv3.Name}";
+                    if (lv3.SubCategories.Count > 0 && para.Lv4MenuIndex > -1)
                     {
-                        var lv4 = lv3.SubMenu?[para.Lv4MenuIndex];
-                        sb += $"→{lv4.MenuItemName}";
+                        var lv4 = lv3.SubCategories?[para.Lv4MenuIndex];
+                        sb += $"→{lv4.Name}";
                     }
                 }
             }
@@ -255,7 +261,7 @@ namespace MoeLoaderP.Core
         public MoeItems ImageItems { get; set; }
         public MoeItems PreLoadNextPageItems { get; set; } = new MoeItems();
         public int LastRealPageIndex { get; set; }
-        public bool HasNextPage { get; set; } = true;
+        public bool HasNextVisualPage { get; set; } = true;
     }
 
     public class SearchedVisualPages : ObservableCollection<SearchedVisualPage> { }
@@ -269,8 +275,7 @@ namespace MoeLoaderP.Core
         public SearchSession CurrentSearch { get; set; }
         public string Keyword { get; set; }
         public int PageIndex { get; set; }
-        public int LastId { get; set; }
-        public string NextPagePara { get; set; }
+        public string NextPageMark { get; set; }
         public int Count { get; set; }
 
         public bool IsShowExplicit { get; set; }
@@ -292,6 +297,8 @@ namespace MoeLoaderP.Core
         public int SubMenuIndex { get; set; }
         public int Lv3MenuIndex { get; set; }
         public int Lv4MenuIndex { get; set; }
+
+        public MoeSiteSupportState SupportState { get; set; }
 
         public SearchPara Clone() => (SearchPara)MemberwiseClone();
     }

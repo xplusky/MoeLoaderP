@@ -8,6 +8,7 @@ using System.Net.Http.Handlers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace MoeLoaderP.Core
 {
@@ -58,10 +59,10 @@ namespace MoeLoaderP.Core
 
         public void SetCookie(CookieContainer cc)
         {
-            HttpClientHandler.CookieContainer = cc;
+            if (cc != null) HttpClientHandler.CookieContainer = cc;
         }
 
-        public NetOperator CloneWithOldCookie()
+        public NetOperator CreateNewWithOldCookie()
         {
             var net = new NetOperator(Settings)
             {
@@ -69,6 +70,7 @@ namespace MoeLoaderP.Core
                 {
                     CookieContainer = HttpClientHandler.CookieContainer
                 }
+                
             };
             return net;
         }
@@ -94,7 +96,7 @@ namespace MoeLoaderP.Core
                             }
                             catch (Exception e)
                             {
-                                Extend.Log(e);
+                                Ex.Log(e);
                                 return WebRequest.DefaultWebProxy;
                             }
                         }
@@ -115,8 +117,8 @@ namespace MoeLoaderP.Core
             }
             catch (Exception e)
             {
-                Extend.Log(e);
-                Extend.ShowMessage(e.Message);
+                Ex.Log(e);
+                Ex.ShowMessage(e.Message);
                 return null;
             }
         }
@@ -133,8 +135,8 @@ namespace MoeLoaderP.Core
             }
             catch (Exception e)
             {
-                Extend.ShowMessage(e.Message);
-                Extend.Log(e);
+                Ex.ShowMessage(e.Message);
+                Ex.Log(e);
                 return null;
             }
         }
@@ -151,8 +153,27 @@ namespace MoeLoaderP.Core
             }
             catch (Exception e)
             {
-                Extend.ShowMessage(e.Message);
-                Extend.Log(e);
+                Ex.ShowMessage(e.Message);
+                Ex.Log(e);
+                return null;
+            }
+            return xml;
+        }
+
+        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = new CancellationToken(), Pairs pairs = null)
+        {
+            var query = pairs.ToPairsString();
+            XDocument xml ;
+            try
+            {
+                var response = await Client.GetAsync($"{api}{query}", token);
+                var s = await response.Content.ReadAsStreamAsync();
+                xml = XDocument.Load(s);
+            }
+            catch (Exception e)
+            {
+                Ex.ShowMessage(e.Message);
+                Ex.Log(e);
                 return null;
             }
             return xml;

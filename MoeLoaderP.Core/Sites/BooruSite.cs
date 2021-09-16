@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -32,7 +31,7 @@ namespace MoeLoaderP.Core.Sites
             switch (SiteType)
             {
                 case SiteTypeEnum.Xml:
-                    var xml =await  net.GetXmlAsync(GetHintQuery(para),token);
+                    var xml = await net.GetXmlAsync(GetHintQuery(para), token);
                     if (xml == null) return list;
                     var root = xml.SelectSingleNode("tags");
                     if (root?.ChildNodes == null) return list;
@@ -44,11 +43,10 @@ namespace MoeLoaderP.Core.Sites
                             Count = child.GetAttribute("count")
                         });
                     }
-
                     return list;
                 case SiteTypeEnum.Json:
                     var json = await net.GetJsonAsync(GetHintQuery(para), token);
-                    foreach (var item in Extend.GetList(json))
+                    foreach (var item in Ex.GetList(json))
                     {
                         list.Add(new AutoHintItem
                         {
@@ -78,11 +76,9 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task<MoeItems> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)
         {
-            var client = new NetOperator(Settings).Client;
+            var net = new NetOperator(Settings);
             var query = GetPageQuery(para);
-            var xmlRes = await client.GetAsync(query, token);
-            var xmlStr = await xmlRes.Content.ReadAsStreamAsync();
-            var xml = XDocument.Load(xmlStr);
+            var xml =await net.GetXDocAsync(query, token);
             var imageItems = new MoeItems();
             if (xml.Root == null) return imageItems;
             foreach (var post in xml.Root.Elements())
@@ -105,10 +101,10 @@ namespace MoeLoaderP.Core.Sites
                 img.Date = post.Attribute("created_at")?.Value.ToDateTime();
                 if (img.Date == null) img.DateString = post.Attribute("created_at")?.Value;
                 img.Score = post.Attribute("score")?.Value.ToInt() ?? 0;
-                img.Urls.Add(1, $"{UrlPre}{post.Attribute("preview_url")?.Value}", GetThumbnailReferer(img));
-                img.Urls.Add(2, $"{UrlPre}{post.Attribute("sample_url")?.Value}", GetThumbnailReferer(img));
-                img.Urls.Add(3, $"{UrlPre}{post.Attribute("jpeg_url")?.Value}", GetThumbnailReferer(img));
-                img.Urls.Add(4, $"{UrlPre}{post.Attribute("file_url")?.Value}", img.DetailUrl);
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{UrlPre}{post.Attribute("preview_url")?.Value}", GetThumbnailReferer(img));
+                img.Urls.Add(DownloadTypeEnum.Medium, $"{UrlPre}{post.Attribute("sample_url")?.Value}", GetThumbnailReferer(img));
+                img.Urls.Add(DownloadTypeEnum.Large, $"{UrlPre}{post.Attribute("jpeg_url")?.Value}", GetThumbnailReferer(img));
+                img.Urls.Add(DownloadTypeEnum.Origin, $"{UrlPre}{post.Attribute("file_url")?.Value}", img.DetailUrl,filesize:post.Attribute("file_size")?.Value.ToUlong()??0);
                 img.OriginString = $"{post}";
                 if (GetDetailTaskFunc != null)
                 {
@@ -119,7 +115,7 @@ namespace MoeLoaderP.Core.Sites
 
             var count = xml.Root.Attribute("count")?.Value.ToInt();
             var offset = xml.Root.Attribute("offset")?.Value.ToInt();
-            Extend.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.PageIndex}页，共{count / para.Count}页", null, Extend.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.PageIndex}页，共{count / para.Count}页", null, Ex.MessagePos.InfoBar);
             return imageItems;
         }
 
@@ -139,6 +135,7 @@ namespace MoeLoaderP.Core.Sites
                     img.Width = $"{item.image_width}".ToInt();
                     img.Height = $"{item.image_height}".ToInt();
                     img.Id = $"{item.id}".ToInt();
+                    if (img.Id == 0) continue;
                     img.Score = $"{item.score}".ToInt();
                     img.Uploader = $"{item.uploader_name}";
                     foreach (var tag in $"{item.tag_string}".Split(' ').SkipWhile(string.IsNullOrWhiteSpace))
@@ -150,9 +147,9 @@ namespace MoeLoaderP.Core.Sites
                     img.DetailUrl = GetDetailPageUrl(img);
                     img.Date = $"{item.created_at}".ToDateTime();
                     if (img.Date == null) img.DateString = $"{item.created_at}";
-                    img.Urls.Add(1, $"{item.preview_file_url}", GetThumbnailReferer(img));
-                    img.Urls.Add(2, $"{item.large_file_url}", GetThumbnailReferer(img));
-                    img.Urls.Add(4, $"{item.file_url}", img.DetailUrl);
+                    img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{item.preview_file_url}", GetThumbnailReferer(img));
+                    img.Urls.Add(DownloadTypeEnum.Large, $"{item.large_file_url}", GetThumbnailReferer(img));
+                    img.Urls.Add(DownloadTypeEnum.Origin, $"{item.file_url}", img.DetailUrl,filesize: $"{item.file_size}".ToUlong());
                     img.Copyright = $"{item.tag_string_copyright}";
                     img.Character = $"{item.tag_string_character}";
                     img.Artist = $"{item.tag_string_artist}";

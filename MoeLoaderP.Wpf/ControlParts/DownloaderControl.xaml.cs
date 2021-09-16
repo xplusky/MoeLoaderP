@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -11,7 +10,7 @@ namespace MoeLoaderP.Wpf.ControlParts
     public partial class DownloaderControl
     {
         public Settings Settings { get; set; }
-        public DownloadManager Downloader { get; set; }
+        public MoeDownloader Downloader { get; set; }
         public DispatcherTimer Timer { get; set; } = new DispatcherTimer();
         public DownloaderControl()
         {
@@ -21,7 +20,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         public void Init(Settings settings)
         {
             Settings = settings;
-            Downloader = new DownloadManager(Settings);
+            Downloader = new MoeDownloader(Settings);
 
             DownloadItemsListBox.ItemsSource = Downloader.DownloadItems;
             DownloadItemsListBox.MouseRightButtonUp += DownloadItemsListBoxOnMouseRightButtonUp;
@@ -105,8 +104,15 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void OpenFolderButtonOnClick(object sender, RoutedEventArgs e)
         {
-            var path = Path.GetDirectoryName(CastSelectToDwDownloadItems().FirstOrDefault()?.LocalFileFullPath);
-            path?.GoUrl();
+            var item = CastSelectToDwDownloadItems().FirstOrDefault();
+            if (item?.ChildrenItems.Count > 0)
+            {
+                item.ChildrenItems[0].LocalFileFullPath.GoFile();
+            }
+            else
+            {
+                item?.LocalFileFullPath.GoFile();
+            }
             ContextMenuPopup.IsOpen = false;
         }
 

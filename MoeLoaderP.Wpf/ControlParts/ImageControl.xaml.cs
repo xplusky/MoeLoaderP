@@ -30,10 +30,9 @@ namespace MoeLoaderP.Wpf.ControlParts
 
             InitializeComponent();
 
-            MouseEnter += (sender, args) => VisualStateManager.GoToState(this, nameof(MouseOverState), true);
-            MouseLeave += (sender, args) => VisualStateManager.GoToState(this, nameof(NormalState), true);
-            ResolutionBorder.Visibility = item.Site.SupportState.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
-            DetailPageLinkButton.Click += (sender, args) => ImageItem.DetailUrl.GoUrl();
+            MouseEnter += (_, _) => VisualStateManager.GoToState(this, nameof(MouseOverState), true);
+            MouseLeave += (_, _) => VisualStateManager.GoToState(this, nameof(NormalState), true);
+            DetailPageLinkButton.Click += (_, _) => ImageItem.DetailUrl.GoUrl();
             RefreshButton.Click += RefreshButtonOnClick;
             ImageCheckBox.Click += ImageCheckBoxOnClick;
         }
@@ -53,7 +52,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             catch (Exception ex)
             {
-                Extend.Log($"刷新错误：{ex.Message}");
+                Ex.Log($"刷新错误：{ex.Message}");
             }
         }
 
@@ -76,7 +75,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (detailTask != null) await detailTask;
 
             var loadedsb = this.Sb("LoadedAllSb");
-            loadedsb.Completed += (sender, args) =>
+            loadedsb.Completed += (_, _) =>
             {
                 loadingsb.Stop();
             };
@@ -87,9 +86,11 @@ namespace MoeLoaderP.Wpf.ControlParts
             ImageLoadEnd?.Invoke(this);
         }
 
+
         /// <summary>
         /// 异步加载图片
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0017:简化对象初始化", Justification = "<挂起>")]
         public async Task<Exception> LoadImageAsync()
         {
             // client
@@ -101,53 +102,51 @@ namespace MoeLoaderP.Wpf.ControlParts
             {
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 var response = await net.Client.GetAsync(ImageItem.ThumbnailUrlInfo.Url, cts.Token);
-                using (var stream = await response.Content.ReadAsStreamAsync())
+                await using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
+                var source = await Task.Run(() =>
                 {
-                    var source = await Task.Run(() =>
+                    try
+                    {
+                        var bitimg = new BitmapImage();
+                        bitimg.CacheOption = BitmapCacheOption.OnLoad;
+                        bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                        bitimg.BeginInit();
+                        bitimg.StreamSource = stream;
+                        bitimg.EndInit();
+                        bitimg.Freeze();
+                        return bitimg;
+                    }
+                    catch (IOException)
                     {
                         try
                         {
+                            var bitmap = new Bitmap(stream);
+                            var ms = new MemoryStream();
+                            bitmap.Save(ms, ImageFormat.Png);
                             var bitimg = new BitmapImage();
                             bitimg.CacheOption = BitmapCacheOption.OnLoad;
                             bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
                             bitimg.BeginInit();
-                            bitimg.StreamSource = stream;
+                            bitimg.StreamSource = ms;
                             bitimg.EndInit();
                             bitimg.Freeze();
+                            //ms.Dispose();
                             return bitimg;
                         }
-                        catch (IOException)
+                        catch (Exception e)
                         {
-                            try
-                            {
-                                var bitmap = new Bitmap(stream);
-                                var ms = new MemoryStream();
-                                bitmap.Save(ms, ImageFormat.Png);
-                                var bitimg = new BitmapImage();
-                                bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                                bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                                bitimg.BeginInit();
-                                bitimg.StreamSource = ms;
-                                bitimg.EndInit();
-                                bitimg.Freeze();
-                                //ms.Dispose();
-                                return bitimg;
-                            }
-                            catch (Exception e)
-                            {
-                                loadEx = e;
-                                return null;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            loadEx = ex;
+                            loadEx = e;
                             return null;
                         }
-                    }, cts.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        loadEx = ex;
+                        return null;
+                    }
+                }, cts.Token);
 
-                    if (source != null) PreviewImage.Source = source;
-                }
+                if (source != null) PreviewImage.Source = source;
             }
             catch (Exception ex)
             {
@@ -162,8 +161,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             else
             {
                 this.Sb("LoadFailSb").Begin();
-                Extend.Log(loadEx.Message,loadEx.StackTrace);
-                Extend.Log($"{ImageItem.ThumbnailUrlInfo.Url} 图片加载失败");
+                Ex.Log(loadEx.Message,loadEx.StackTrace);
+                Ex.Log($"{ImageItem.ThumbnailUrlInfo.Url} 图片加载失败");
             }
 
             return loadEx;

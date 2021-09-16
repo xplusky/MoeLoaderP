@@ -246,7 +246,7 @@
                 <TextBlock x:Name="AccountCheckedIconTextBlock" Text="&#xF00C;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" 
                            VerticalAlignment="Bottom" Foreground="#FF00B41F" FontSize="14" FontWeight="Bold" Margin="0,0,-1,-2" 
                            DataContext ="{Binding CurrentSelectedSite , ElementName=SearchControlRoot}"
-                           Visibility="{Binding CurrentSiteSetting.LoginCookie, Converter={StaticResource StringToVisibilityConverter}}" />
+                           Visibility="{Binding SiteSettings.LoginCookies, Converter={StaticResource ObjectToVisibilityConverter}}" />
             </Grid>
         </Button>
         <ComboBox x:Name="MoeSitesLv1ComboBox" Width="156" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Margin="2,0" Opacity="1">
@@ -257,7 +257,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Image Width="16" Height="16" Source="{Binding ShortName, Converter={StaticResource StringToBitmapImageConvertor}}" Margin="2"/>
+                        <Image Width="16" Height="16" Source="{Binding Icon}" Margin="2"/>
                         <TextBlock TextWrapping="NoWrap" Text="{Binding DisplayName}" Grid.Column="1" VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
@@ -374,7 +374,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black"/>
                                 <controlParts:VariableCountControl x:Name="FilterStartPageBox" NumCount="1" MaxCount="99999" MinCount="1" Grid.Column="1"/>
                             </Grid>
                             <Grid x:Name="FilterStartIdGrid" Height="26" Margin="0,4,0,0" DataContext="CurrentSelectedSite" >
@@ -382,7 +382,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,4,0" Width="76"><Run Text="起始搜索ID"/><LineBreak/><Run Text="（0为默认）"/></TextBlock>
+                                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,4,0" Width="76" Foreground="Black"><Run Text="起始搜索ID"/><LineBreak/><Run Text="（0为默认）"/></TextBlock>
                                 <controlParts:VariableCountControl x:Name="FilterStartIdBox" Grid.Column="1"/>
                             </Grid>
                             <Grid Height="26" Margin="0,4,0,0">
@@ -390,7 +390,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterCount}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterCount}" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black"/>
                                 <controlParts:VariableCountControl x:Name="FilterCountBox" NumCount="60" MaxCount="150" MinCount="10" Grid.Column="1"/>
                             </Grid>
                             <StackPanel x:Name="FilterExlicitGroup" Orientation="Vertical">
@@ -418,7 +418,7 @@
                                     <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationLandscape}"/>
                                     <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationPortrait}"/>
                                 </ComboBox>
-                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterOrientation}" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
+                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterOrientation}" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
                             </Grid>
                             <CheckBox x:Name="FilterFileTypeCheckBox" Margin="0,6,0,0">
                                 <Grid>
@@ -430,7 +430,7 @@
                                         <ComboBoxItem Content="过滤掉"/>
                                         <ComboBoxItem Content="只显示"/>
                                     </ComboBox>
-                                    <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterFileType}" Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                    <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterFileType}" Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0" Foreground="Black"/>
                                 </Grid>
                             </CheckBox>
                             <TextBox x:Name="FilterFileTypeTextBox" TextWrapping="Wrap" Text="gif;bmp" Height="24" IsEnabled="{Binding IsChecked, ElementName=FilterFileTypeCheckBox}" Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}" Margin="2" ToolTip="输入不带点&quot;.&quot;的扩展名，用半角分号&quot;;&quot;分隔不同后缀"/>
@@ -448,7 +448,7 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <TextBlock TextWrapping="Wrap" Text="下载图片类型" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0"/>
+                                <TextBlock TextWrapping="Wrap" Text="下载图片类型" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
                             </Grid>
                         </StackPanel>
                     </controlParts:MoeFloatBorder>

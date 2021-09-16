@@ -70,16 +70,16 @@ namespace MoeLoaderP.Core.Sites
                     img.Tags.Add(s);
                 }
                 var small = $"{image.small}";
-                img.Urls.Add(1, $"{sub}{UrlInner($"{id}")}/small.{small}");
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{sub}{UrlInner($"{id}")}/small.{small}");
                 var orig = $"{image.orig}";
                 var big = $"{image.big}";
                 if (!orig.IsEmpty())
                 {
-                    img.Urls.Add(4, $"{sub}{UrlInner($"{id}")}/orig.{orig}");
+                    img.Urls.Add(DownloadTypeEnum.Origin, $"{sub}{UrlInner($"{id}")}/orig.{orig}");
                 }
                 else if (!big.IsEmpty())
                 {
-                    img.Urls.Add(4, $"{sub}{UrlInner($"{id}")}/big.{big}");
+                    img.Urls.Add(DownloadTypeEnum.Origin, $"{sub}{UrlInner($"{id}")}/big.{big}");
                 }
                 img.DetailUrl = $"{HomeUrl}/image?id={id}";
 

@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -56,13 +55,13 @@ namespace MoeLoaderP.Core.Sites
             if (json == null) return;
             img.Score = $"{json.praise}".ToInt();
             img.Date = $"{json.format_date}".ToDateTime();
-            img.Urls.Add(3, TranslateImageUrl(json, 1));
-            img.Urls.Add( 4, TranslateImageUrl(json,2));
+            img.Urls.Add(DownloadTypeEnum.Medium, TranslateImageUrl(json, 1));
+            img.Urls.Add(DownloadTypeEnum.Origin, TranslateImageUrl(json,2));
             img.Artist = $"{json.artist?.name}";
             img.Uploader = $"{json.user?.name}";
             img.UploaderId = $"{json.user?.id}";
 
-            foreach (var tag in Extend.GetList(json.tags.general))
+            foreach (var tag in Ex.GetList(json.tags.general))
             {
                 var t = $"{tag.tags?.cn}";
                 if (!t.IsEmpty())
@@ -85,7 +84,7 @@ namespace MoeLoaderP.Core.Sites
                 }
                 img.ChildrenItems.Add(child1);
 
-                foreach (var jitem in Extend.GetList(json2))
+                foreach (var jitem in Ex.GetList(json2))
                 {
                     var childImg = new MoeItem(this,img.Para);
                     childImg.Width = $"{jitem.width}".ToInt();
@@ -115,12 +114,12 @@ namespace MoeLoaderP.Core.Sites
             {
                 var img = new MoeItem(this, para);
                 img.IsExplicit = $"{post.rating}" == "e";
-                if (CurrentSiteSetting.LoginCookie.IsEmpty() && img.IsExplicit) continue;
+                if (SiteSettings.GetCookieContainer() == null && img.IsExplicit) continue;
                 img.Id = $"{post.pid}".ToInt();
                 img.Sid = $"{post.id}";
                 img.Width = $"{post.width}".ToInt();
                 img.Height = $"{post.height}".ToInt();
-                img.Urls.Add( 1, $"https://i.yuriimg.com/{post.src}/yuriimg.com%20{post.id}%20contain.jpg");
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, $"https://i.yuriimg.com/{post.src}/yuriimg.com%20{post.id}%20contain.jpg");
                 img.DetailUrl = $"{HomeUrl}/show/{post.id}";
                 img.GetDetailTaskFunc = async () => await GetDetailTask(img, $"{post.id}", token);
                 img.OriginString = $"{post}";

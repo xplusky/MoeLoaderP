@@ -52,7 +52,7 @@ namespace MoeLoaderP.Core.Sites
             }
             else
             {
-                Extend.ShowMessage("idol登陆失败", null, Extend.MessagePos.Window);
+                Ex.ShowMessage("idol登陆失败", null, Ex.MessagePos.Window);
             }
             _idolQuery = $"{loginhost}/post/index.json?login={tempuser}&password_hash={temppass}&appkey={tempappkey}&";
         }
@@ -76,15 +76,15 @@ namespace MoeLoaderP.Core.Sites
                 img.Uploader = $"{item.uploader_name}";
                 img.DetailUrl = $"{HomeUrl}/post/show/{img.Id}";
                 img.Date = $"{item.created_at?.s}".ToDateTime();
-                foreach (var tag in Extend.GetList(item.tags))
+                foreach (var tag in Ex.GetList(item.tags))
                 {
                     img.Tags.Add($"{tag.name}");
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
-                img.Net = Net.CloneWithOldCookie();
-                img.Urls.Add( 1, $"{https}{item.preview_url}", img.DetailUrl);
-                img.Urls.Add( 2, $"{https}{item.sample_url}", img.DetailUrl);
-                img.Urls.Add(4, $"{https}{item.file_url}", img.DetailUrl);
+                img.Net = Net.CreateNewWithOldCookie();
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{https}{item.preview_url}", img.DetailUrl);
+                img.Urls.Add(DownloadTypeEnum.Medium, $"{https}{item.sample_url}", img.DetailUrl);
+                img.Urls.Add(DownloadTypeEnum.Origin, $"{https}{item.file_url}", img.DetailUrl);
                 img.OriginString = $"{item}";
                 imgs.Add(img);
             }

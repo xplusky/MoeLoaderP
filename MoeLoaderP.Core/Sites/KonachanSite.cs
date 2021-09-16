@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,22 +7,25 @@ namespace MoeLoaderP.Core.Sites
     public class KonachanSite : MoeSite
     {
         public override string HomeUrl => "https://konachan.com";
+        public string SafeHomeUrl => "https://konachan.net";
         public override string DisplayName => "Konachan";
         public override string ShortName => "konachan";
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
+            var homeUrl = para.IsShowExplicit ? HomeUrl : SafeHomeUrl;
             var pairs = new Pairs
                 {
                     {"page",$"{para.PageIndex}" },
                     {"limit",$"{para.Count}" },
                     {"tags",para.Keyword.ToEncodedUrl() }
                 };
-            var query= $"{HomeUrl}/post.json{pairs.ToPairsString()}";
+
+            var query= $"{homeUrl}/post.json{pairs.ToPairsString()}";
             var net = new NetOperator(Settings);
             var json = await net.GetJsonAsync(query, token);
             var imageItems = new MoeItems();
-            foreach (var item in Extend.GetList(json))
+            foreach (var item in Ex.GetList(json))
             {
                 
                 var img = new MoeItem(this, para);
@@ -41,12 +41,12 @@ namespace MoeLoaderP.Core.Sites
                 }
 
                 img.IsExplicit = $"{item.rating}" == "e";
-                img.DetailUrl = $"{HomeUrl}/post/show/{img.Id}";
+                img.DetailUrl = $"{homeUrl}/post/show/{img.Id}";
                 img.Date = $"{item.created_at}".ToDateTime();
                 if (img.Date == null) img.DateString = $"{item.created_at}";
-                img.Urls.Add(1, $"{item.preview_url}");
-                img.Urls.Add(2, $"{item.sample_url}");
-                img.Urls.Add(4, $"{item.file_url}", img.DetailUrl);
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{item.preview_url}");
+                img.Urls.Add(DownloadTypeEnum.Medium, $"{item.sample_url}");
+                img.Urls.Add(DownloadTypeEnum.Origin, $"{item.file_url}", img.DetailUrl,filesize:$"{item.file_size}".ToUlong());
                 img.Source = $"{item.source}";
                 img.OriginString = $"{item}";
                 imageItems.Add(img);
@@ -76,7 +76,7 @@ namespace MoeLoaderP.Core.Sites
 
             var items = new AutoHintItems();
 
-            foreach (var item in Extend.GetList(json))
+            foreach (var item in Ex.GetList(json))
             {
                 var hintItem = new AutoHintItem();
                 hintItem.Count = $"{item.count}";
@@ -86,26 +86,5 @@ namespace MoeLoaderP.Core.Sites
 
             return items;
         }
-        //public override string GetHintQuery(SearchPara para)
-        //{
-        //    var pairs = new Pairs
-        //    {
-        //        {"limit", "15"},
-        //        {"order", "count"},
-        //        {"name", para.Keyword}
-        //    };
-        //    return $"{HomeUrl}/tag.json{pairs.ToPairsString()}";
-        //}
-
-        //public override string GetPageQuery(SearchPara para)
-        //{
-        //    var pairs = new Pairs
-        //    {
-        //        {"page",$"{para.PageIndex}" },
-        //        {"limit",$"{para.Count}" },
-        //        {"tags",para.Keyword.ToEncodedUrl() }
-        //    };
-        //    return $"{HomeUrl}/post.json{pairs.ToPairsString()}";
-        //}
     }
 }

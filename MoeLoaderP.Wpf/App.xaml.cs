@@ -61,7 +61,7 @@ namespace MoeLoaderP.Wpf
             }
             catch (Exception ex)
             {
-                Extend.Log(ex);
+                Ex.Log(ex);
                 var result = MessageBox.Show("启动失败，是否尝试删除配置文件？", "错误", MessageBoxButton.YesNo, MessageBoxImage.Error);
                 if (result == MessageBoxResult.Yes)
                 {
@@ -82,11 +82,11 @@ namespace MoeLoaderP.Wpf
                 var client = new HttpClient();
                 if (Debugger.IsAttached) await client.GetAsync("http://sae.leaful.com/func.php?arg=incr-moeloader-debug-startup");
                 else await client.GetAsync("http://sae.leaful.com/func.php?arg=incr-moeloader-startup");
-                Extend.Log("StatStartupTimesAsync ok");
+                Ex.Log("StatStartupTimesAsync ok");
             }
             catch (Exception ex)
             {
-                Extend.Log(ex);
+                Ex.Log(ex);
             }
         }
 

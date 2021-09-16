@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading;
@@ -26,18 +27,14 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         public abstract string ShortName { get; }
 
-        public string LoginPageUrl { get; set; }
-        public MoeMenuItems SubMenu { get; set; } = new MoeMenuItems();
+        public virtual Uri Icon => new Uri($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative);
 
-        public virtual CookieContainer GetCookies() => null;
-        public virtual bool VerifyCookie(string cookieStr) => false;
+        public Categories SubCategories { get; set; } = new Categories();
+
         /// <summary>
         /// 站点支持的功能情况
         /// </summary>
         public MoeSiteSupportState SupportState { get; set; } = new MoeSiteSupportState();
-
-
-        public MenuItemFunc MenuFunc { get; set; } = new MenuItemFunc();
 
         public NetOperator Net { get; set; }
 
@@ -56,13 +53,27 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         public virtual Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token) => null;
 
+        public Settings Settings { get; set; }
+
+        public IndividualSiteSettings SiteSettings => Settings.AllSitesSettings.GetSiteSettings(this);
+
+        public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
+
+        #region 账户及在线功能相关
+
+        public virtual bool VerifyCookieAndSave(CookieCollection ccol) => false;
+        public virtual string[] GetCookieUrls()
+        {
+            return new[] { HomeUrl };
+        }
+        public string LoginPageUrl { get; set; }
         /// <summary>
         /// 点赞
         /// </summary>
         /// <param name="item"></param>
         /// <param name="token"></param>
         /// <returns>是否成功</returns>
-        public virtual Task<bool> ThumbAsync(MoeItem item,CancellationToken token) => null;
+        public virtual Task<bool> ThumbAsync(MoeItem item, CancellationToken token) => null;
 
         /// <summary>
         /// 标心或者喜欢
@@ -71,41 +82,7 @@ namespace MoeLoaderP.Core.Sites
         /// <returns>是否成功</returns>
         public virtual Task<bool> StarAsync(CancellationToken token) => null;
 
-        public Settings Settings { get; set; }
-
-        public SingleMoeSiteSettings CurrentSiteSetting
-        {
-            get
-            {
-                if (Settings?.AllMoeSitesSettings?.ContainsKey(ShortName) == true) return Settings.AllMoeSitesSettings[ShortName];
-                if (Settings == null) return null;
-                if(Settings.AllMoeSitesSettings == null) Settings.AllMoeSitesSettings = new AllMoeSitesSettings();
-                Settings.AllMoeSitesSettings.Add(ShortName, new SingleMoeSiteSettings());
-                return Settings.AllMoeSitesSettings[ShortName];
-            }
-        }
-
-        public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
-
-    }
-
-
-    public class DownloadType
-    {
-        public string Name { get; set; }
-        public int Priority { get; set; }
-    }
-
-    public class DownloadTypes : ObservableCollection<DownloadType>
-    {
-        public void Add(string name, int pr)
-        {
-            Add(new DownloadType
-            {
-                Name = name,
-                Priority = pr
-            });
-        }
+        #endregion
     }
 
 
@@ -140,30 +117,16 @@ namespace MoeLoaderP.Core.Sites
         /// 是否支持关键字搜索
         /// </summary>
         public bool IsSupportKeyword { get; set; } = true;
-
         public bool IsSupportSearchByImageLastId { get; set; } = false;
-
         public bool IsSupportSelectPixivRankNew { get; set; } = false;
-
         public bool IsSupportSearchByAuthorId { get; set; } = false;
-
         public bool IsSupportThumbButton { get; set; } = false;
         public bool IsSupportStarButton { get; set; } = false;
-
         public bool IsSupportMultiKeywords { get; set; } = false;
+        public bool IsSupportDatePicker { get; set; } = false;
     }
 
-
-    public class MoeSiteOnlineUserFunc
-    {
-        public delegate CookieContainer GetCookieDelegate(string cookieStr);
-        public GetCookieDelegate GetCookieFunc { get; set; }
-
-        public delegate bool VerifyCookie(string cookieStr);
-        
-    }
-
-
+    
     public class MoeSites : ObservableCollection<MoeSite>
     {
         public Settings Settings { get; set; }
@@ -210,53 +173,45 @@ namespace MoeLoaderP.Core.Sites
 
         public void Add(string word, string count = null)
         {
-            var item = new AutoHintItem {Word = word, Count = count};
+            var item = new AutoHintItem { Word = word, Count = count };
             Add(item);
         }
     }
 
-    public class MoeMenuItem
+    public class Category
     {
-        public MoeMenuItem() { }
-        public MoeMenuItem(string name, MoeMenuItems menu = null)
+        public string Name { get; set; }
+        public Categories SubCategories { get; set; } = new Categories();
+        public MoeSiteSupportState OverrideSupportState { get; set; }
+
+        public Category() { }
+        public Category(string name, Categories menu = null)
         {
-            MenuItemName = name;
-            if (menu != null) SubMenu = menu;
+            Name = name;
+            if (menu != null) SubCategories = menu;
         }
-        public string MenuItemName { get; set; }
-
-        public MenuItemFunc Func { get; set; } = new MenuItemFunc();
-
-        public MoeMenuItems SubMenu { get; set; } = new MoeMenuItems();
-
     }
 
-    public class MenuItemFunc
+    public class Categories : List<Category>
     {
-        public bool? ShowKeyword { get; set; } = true;
-        public bool? ShowDatePicker { get; set; } = false;
-    }
-
-    public class MoeMenuItems : List<MoeMenuItem>
-    {
-        public void Add(string name, MoeMenuItems subMenu)
+        public void Add(string name, Categories subMenu)
         {
-            Add(new MoeMenuItem
+            Add(new Category
             {
-                MenuItemName = name,
-                SubMenu = subMenu
+                Name = name,
+                SubCategories = subMenu
             });
         }
 
         public void Add(string name)
         {
-            Add(new MoeMenuItem
+            Add(new Category
             {
-                MenuItemName = name
+                Name = name
             });
         }
 
-        public MoeMenuItems(params MoeMenuItem[] items)
+        public Categories(params Category[] items)
         {
             foreach (var item in items)
             {
@@ -264,15 +219,23 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public MoeMenuItems(MoeMenuItems submenu, params string[] itemsNames)
+        public Categories(params string[] itemsNames)
         {
-            foreach (var name in itemsNames)
+            foreach (var item in itemsNames)
             {
-                Add(new MoeMenuItem(name, submenu));
+                Add(new Category(item));
             }
         }
 
-        public MoeMenuItems() { }
+        public Categories(Categories submenu, params string[] itemsNames)
+        {
+            foreach (var name in itemsNames)
+            {
+                Add(new Category(name, submenu));
+            }
+        }
 
+        public Categories(){}
     }
+    
 }

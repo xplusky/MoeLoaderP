@@ -35,15 +35,15 @@
                     </LinearGradientBrush>
                 </Rectangle.Stroke>
             </Rectangle>
-            <TextBlock x:Name="AboutVersionTextBlock" TextWrapping="Wrap" Text="版本" Margin="16,2,16,0"/>
+            <TextBlock x:Name="AboutVersionTextBlock" TextWrapping="Wrap" Text="版本" Margin="16,2,16,0" Foreground="Black"/>
             <StackPanel x:Name="NewVersionPanel" Margin="0,4,0,0" Background="#FFFFDEDE">
                 <TextBlock x:Name="NewVersionTextBlock" TextWrapping="Wrap" Text="TextBlock" Foreground="#FF9E0000" Margin="4,4,4,0"/>
                 <Button x:Name="NewVersionDownloadButton" Content="前往下载新版" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="4"/>
             </StackPanel>
-            <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="MoeLoader"/><Run Text=" "/><Run Text="P"/><Run Text=" "/><Run Text="的诞生离不开"/><Run Text=" "/><Run Text="Moe"/><Run Text=" "/><Run Text="Loader"/><Run Text=" "/><Run Text="开源项目以及以下开发者的贡献：esonic"/><Run Text="、YIU"/></TextBlock>
+            <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" Foreground="Black"><Run Text="MoeLoader"/><Run Text=" "/><Run Text="P"/><Run Text=" "/><Run Text="的诞生离不开"/><Run Text=" "/><Run Text="Moe"/><Run Text=" "/><Run Text="Loader"/><Run Text=" "/><Run Text="开源项目以及以下开发者的贡献：esonic"/><Run Text="、YIU"/></TextBlock>
             <Button x:Name="AboutHomeLinkButton" Content="使用帮助/更新记录" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
             <Button x:Name="AboutReportButton" Content="反馈问题" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
-            <TextBlock TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="若你喜欢本软件的话可以请我喝杯饮料哦~"/><LineBreak/><Run/><Run x:Name="AboutDonateLink" Cursor="Hand" Foreground="DarkRed" FontWeight="Bold" Text="支付宝" TextDecorations="Underline"/><Run Text="或"/><Run Text=" "/><Run x:Name="AboutDonateWexinLink" Cursor="Hand" Foreground="DarkRed" FontWeight="Bold" Text="微信支付" TextDecorations="Underline"/><Run Text="均可"/><Run Text="，可以备注昵称和网址。"/></TextBlock>
+            <TextBlock Foreground="Black" TextWrapping="Wrap" Margin="0,6,0,0"><Run Text="若你喜欢本软件的话可以请我喝杯饮料哦~"/><LineBreak/><Run/><Run x:Name="AboutDonateLink" Cursor="Hand" Foreground="DarkRed" FontWeight="Bold" Text="支付宝" TextDecorations="Underline"/><Run Text="或"/><Run Text=" "/><Run x:Name="AboutDonateWexinLink" Cursor="Hand" Foreground="DarkRed" FontWeight="Bold" Text="微信支付" TextDecorations="Underline"/><Run Text="均可"/><Run Text="，可以备注昵称和网址。"/></TextBlock>
             <TextBlock TextWrapping="Wrap" Text="感谢下列用户的捐助！" Margin="0,6,0,0"/>
             <WrapPanel x:Name="ThanksUserWrapPanel"/>
         </StackPanel>

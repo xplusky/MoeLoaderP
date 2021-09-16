@@ -36,24 +36,21 @@ namespace MoeLoaderP.Core.Sites
 
         public MiniTokyoSite()
         {
-            var lv3 = new MoeMenuItems(null, "最新", "最热");
-            SubMenu.Add("壁纸", lv3);
-            SubMenu.Add("扫描图", lv3);
-            SubMenu.Add("手机壁纸", lv3);
-            SubMenu.Add("Indy Art", lv3);
+            var lv3 = new Categories("最新", "最热");
+            SubCategories.Add("壁纸", lv3);
+            SubCategories.Add("扫描图", lv3);
+            SubCategories.Add("手机壁纸", lv3);
+            SubCategories.Add("Indy Art", lv3);
 
             DownloadTypes.Add("原图", 4);
         }
 
-        public bool IsLogin { get; set; }
-
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public async Task<bool> IsLogin(CancellationToken token)
         {
-            Net = Net == null ? new NetOperator(Settings, HomeUrl) : Net.CloneWithOldCookie();
-
-            if (!IsLogin)
+            if (Net == null)
             {
-                Extend.ShowMessage("MiniTokyo 正在自动登录中……", null, Extend.MessagePos.Searching);
+                Net = new NetOperator(Settings, HomeUrl);
+                Ex.ShowMessage("MiniTokyo 正在自动登录中……", null, Ex.MessagePos.Searching);
                 var accIndex = new Random().Next(0, _user.Length);
                 var content = new FormUrlEncodedContent(new Pairs
                 {
@@ -61,8 +58,23 @@ namespace MoeLoaderP.Core.Sites
                     {"password", _pass[accIndex]}
                 });
                 var p = await Net.Client.PostAsync("http://my.minitokyo.net/login", content, token);
-                if (p.IsSuccessStatusCode) IsLogin = true;
+                if (p.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    Net = null;
+                    return false;
+                }
             }
+
+            return true;
+        }
+
+        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        {
+            if (await IsLogin(token) == false) return null;
 
             var imgs = new MoeItems();
             string query;
@@ -83,12 +95,12 @@ namespace MoeLoaderP.Core.Sites
             else
             {
                 var q = $"{HomeUrl}/search?q={para.Keyword}";
-                var net = Net.CloneWithOldCookie();
+                var net = Net.CreateNewWithOldCookie();
                 net.SetReferer(HomeUrl);
                 net.HttpClientHandler.AllowAutoRedirect = false;
                 var res = await net.Client.GetAsync(q, token);
                 var loc303 = res.Headers.Location.OriginalString;
-                var net2 = Net.CloneWithOldCookie();
+                var net2 = Net.CreateNewWithOldCookie();
                 var doc1 = await net2.GetHtmlAsync($"{HomeUrl}{loc303}", token);
                 var tabnodes = doc1.DocumentNode.SelectNodes("*//ul[@id='tabs']//a");
                 var url = tabnodes[1].Attributes["href"]?.Value;
@@ -112,18 +124,15 @@ namespace MoeLoaderP.Core.Sites
                 var img = new MoeItem(this, para);
                 var detailUrl = node.SelectSingleNode("a").Attributes["href"].Value;
                 img.DetailUrl = detailUrl;
-                img.Id = detailUrl.Substring(detailUrl.LastIndexOf('/') + 1).ToInt();
+                img.Id = detailUrl[(detailUrl.LastIndexOf('/') + 1)..].ToInt();
                 var imgHref = node.SelectSingleNode(".//img");
                 var sampleUrl = imgHref.Attributes["src"].Value;
-                img.Urls.Add(1, sampleUrl, HomeUrl);
-                //http://static2.minitokyo.net/thumbs/24/25/583774.jpg preview
-                //http://static2.minitokyo.net/view/24/25/583774.jpg   sample
-                //http://static.minitokyo.net/downloads/24/25/583774.jpg   full
+                img.Urls.Add(DownloadTypeEnum.Thumbnail, sampleUrl, HomeUrl);
                 const string api2 = "http://static2.minitokyo.net";
                 const string api = "http://static.minitokyo.net";
-                var previewUrl = $"{api2}/view{sampleUrl.Substring(sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
-                var fileUrl = $"{api}/downloads{previewUrl.Substring(previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5))}";
-                img.Urls.Add(4, fileUrl, HomeUrl);
+                var previewUrl = $"{api2}/view{sampleUrl[sampleUrl.IndexOf('/', sampleUrl.IndexOf(".net/", StringComparison.Ordinal) + 5)..]}";
+                var fileUrl = $"{api}/downloads{previewUrl[previewUrl.IndexOf('/', previewUrl.IndexOf(".net/", StringComparison.Ordinal) + 5)..]}";
+                img.Urls.Add(DownloadTypeEnum.Origin, fileUrl, HomeUrl);
                 img.Title = node.SelectSingleNode("./p/a").InnerText.Trim();
                 img.Uploader = node.SelectSingleNode("./p").InnerText.Delete("by ").Trim();
                 var res = node.SelectSingleNode("./a/img").Attributes["title"].Value;
@@ -142,9 +151,13 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
+            if (await IsLogin(token) == false) return null;
+
             var items = new AutoHintItems();
             var url = $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
-            var txtres = await Net.Client.GetAsync(url, token);
+            var net = Net.CreateNewWithOldCookie();
+            net.SetTimeOut(15);
+            var txtres = await net.Client.GetAsync(url, token);
             var txt = await txtres.Content.ReadAsStringAsync();
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)

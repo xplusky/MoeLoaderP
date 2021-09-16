@@ -18,14 +18,14 @@ namespace MoeLoaderP.Wpf.ControlParts
     /// </summary>
     public partial class MoeExplorerControl
     {
-        public List<ImageControl> ImageLoadingPool { get; set; } = new List<ImageControl>();
-        public List<ImageControl> ImageWaitForLoadingPool { get; set; } = new List<ImageControl>();
+        public List<ImageControl> ImageLoadingPool { get; set; } = new();
+        public List<ImageControl> ImageWaitForLoadingPool { get; set; } = new();
 
         public Settings Settings { get; set; }
         public event Action<MoeItem, ImageSource> ImageItemDownloadButtonClicked;
         public event Action<MoeItem, ImageSource> MoeItemPreviewButtonClicked; 
         public ImageControl MouseOnImageControl { get; set; }
-        public ObservableCollection<ImageControl> SelectedImageControls { get; set; } = new ObservableCollection<ImageControl>();
+        public ObservableCollection<ImageControl> SelectedImageControls { get; set; } = new();
 
         public MoeExplorerControl()
         {
@@ -45,24 +45,24 @@ namespace MoeLoaderP.Wpf.ControlParts
             _padTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
             _padTimer.Tick += PadTimerOnTick;
 
-            Extend.ShowMessageAction += ShowMessageAction;
+            Ex.ShowMessageAction += ShowMessageAction;
         }
 
         private void ImageItemsScrollViewerOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             SpPanel.Children.Clear();
             ContextMenuImageInfoStackPanel.Children.Clear();
-            ContextMenuPopup.IsOpen = true;
+            if (ImageItemsWrapPanel.Children.Count != 0) ContextMenuPopup.IsOpen = true;
         }
         
-        private void ShowMessageAction(string arg1, string arg2, Extend.MessagePos arg3)
+        private void ShowMessageAction(string arg1, string arg2, Ex.MessagePos arg3)
         {
             switch (arg3)
             {
-                case Extend.MessagePos.Searching:
+                case Ex.MessagePos.Searching:
                     SearchingMessageTextBlock.Text = arg1;
                     break;
-                case Extend.MessagePos.Page:
+                case Ex.MessagePos.Page:
                     PageMessageTextBlock.Text = arg1;
                     break;
             }
@@ -212,14 +212,15 @@ namespace MoeLoaderP.Wpf.ControlParts
         /// <summary>
         /// 生成右键菜单中的小标题TextBlock
         /// </summary>
-        public TextBlock GetTitleTextBlock(string text)
+        public static TextBlock GetTitleTextBlock(string text)
         {
             var textBlock = new TextBlock
             {
                 Text = text,
                 Margin = new Thickness(2),
                 FontSize = 10,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = Brushes.Black
             };
             return textBlock;
         }
@@ -238,7 +239,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             {
 
                 var b = GetSpButton("全选首次登场图片");
-                b.Click += (o, args) =>
+                b.Click += (_, _) =>
                 {
                     foreach (ImageControl img in ImageItemsWrapPanel.Children)
                     {
@@ -254,7 +255,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (site.SupportState.IsSupportSearchByAuthorId)
             {
                 var b = GetSpButton($"搜索该作者{moeItem.Uploader}的所有作品");
-                b.Click += (sender, args) =>
+                b.Click += (_, _) =>
                 {
                     SearchByAuthorIdAction?.Invoke(site, moeItem.UploaderId);
                     ContextMenuPopup.IsOpen = false;
@@ -313,7 +314,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Margin = new Thickness(1),
                 ToolTip = text
             };
-            button.Click += (o, args) => text.CopyToClipboard();
+            button.Click += (_, _) => text.CopyToClipboard();
             return button;
         }
 
@@ -360,11 +361,11 @@ namespace MoeLoaderP.Wpf.ControlParts
             foreach (var img in imgs)
             {
                 var itemCtrl = new ImageControl(Settings, img);
-                itemCtrl.DownloadButton.Click += (sender, args) => { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.PreviewButton.Click += (sender, args) => { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.MouseEnter += (sender, args) => MouseOnImageControl = itemCtrl;
-                itemCtrl.ImageCheckBox.Checked += (sender, args) => SelectedImageControls.Add(itemCtrl);
-                itemCtrl.ImageCheckBox.Unchecked += (sender, args) => SelectedImageControls.Remove(itemCtrl);
+                itemCtrl.DownloadButton.Click += (_, _) => { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.PreviewButton.Click += (_, _) => { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.MouseEnter += (_, _) => MouseOnImageControl = itemCtrl;
+                itemCtrl.ImageCheckBox.Checked += (_, _) => SelectedImageControls.Add(itemCtrl);
+                itemCtrl.ImageCheckBox.Unchecked += (_, _) => SelectedImageControls.Remove(itemCtrl);
                 ImageItemsWrapPanel.Children.Add(itemCtrl);
                 itemCtrl.Sb("ShowSb").Begin();
                 if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount) ImageLoadingPool.Add(itemCtrl);
@@ -407,7 +408,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         public void SearchStopVisual()
         {
             var showSb = this.Sb("ShowSb");
-            showSb.Completed += (sender, args) => this.Sb("SearchingSb").Stop();
+            showSb.Completed += (_, _) => this.Sb("SearchingSb").Stop();
             showSb.Begin();
             this.GoState(nameof(HideSearchingMessageState));
         }
@@ -419,7 +420,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             AddImages(lastPage.ImageItems);
             StartDownloadShowImages();
 
-            this.GoState(session.LoadedVisualPages.Last().HasNextPage ? nameof(HasNextPageState) : nameof(NoNextPageState));
+            this.GoState(session.LoadedVisualPages.Last().HasNextVisualPage ? nameof(HasNextPageState) : nameof(NoNextPageState));
             NewPageButtonNumTextBlock.Text = $"{session.LoadedVisualPages.Count + 1}";
         }
 

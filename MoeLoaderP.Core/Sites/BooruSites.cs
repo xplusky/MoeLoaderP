@@ -109,7 +109,7 @@ namespace MoeLoaderP.Core.Sites
             var list = new AutoHintItems();
             var net = new NetOperator(Settings);
             var json = await net.GetJsonAsync(GetHintQuery(para), token);
-            foreach (var item in Extend.GetList(json))
+            foreach (var item in Ex.GetList(json))
             {
                 list.Add(new AutoHintItem
                 {

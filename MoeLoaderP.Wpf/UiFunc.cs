@@ -133,13 +133,14 @@ namespace MoeLoaderP.Wpf
         {
             try
             {
-                Clipboard.SetText(text);
-                Extend.ShowMessage("已复制到剪贴板");
+                //Clipboard.SetText(text);
+                Clipboard.SetDataObject(text);
+                Ex.ShowMessage("已复制到剪贴板");
             }
             catch (Exception ex)
             {
-                Extend.Log(ex.Message);
-                Extend.ShowMessage("复制失败");
+                Ex.Log(ex.Message);
+                Ex.ShowMessage("复制失败");
             }
         }
     }

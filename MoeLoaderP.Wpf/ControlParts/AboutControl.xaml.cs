@@ -14,24 +14,27 @@ namespace MoeLoaderP.Wpf.ControlParts
     {
         public AboutControl()
         {
-            Initialized += async (sender, args) => 
-            {
-                await CheckUpdateAsync();
-                await CheckThankListAsync();
-            };
+            Initialized += OnInitialized;
             InitializeComponent();
         }
+
+        private async void OnInitialized(object sender, EventArgs e)
+        {
+            await CheckUpdateAsync();
+            await CheckThankListAsync();
+        }
+
 
         public void Init()
         {
             NewVersionPanel.Visibility = Visibility.Collapsed;
             AboutVersionTextBlock.Text = $"版本：{App.Version.ToString(3)} ({App.CompileTime:yyyy/MM/dd})";
-            AboutDonateLink.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Visible;
-            AboutDonateImage.MouseLeftButtonUp += (sender, args) => AboutDonateImageGrid.Visibility = Visibility.Collapsed;
-            AboutDonateWexinLink.MouseLeftButtonUp += (sender, args) => AboutDonateWeixinImageGrid.Visibility = Visibility.Visible;
-            AboutDonateWeixinImage.MouseLeftButtonUp += (sender, args) => AboutDonateWeixinImageGrid.Visibility = Visibility.Collapsed;
-            AboutHomeLinkButton.Click += (sender, args) => "http://leaful.com/moeloader-p/?tab=1".GoUrl();
-            AboutReportButton.Click += (sender, args) => "http://leaful.com/moeloader-p/?tab=2".GoUrl();
+            AboutDonateLink.MouseLeftButtonUp += (_, _) => AboutDonateImageGrid.Visibility = Visibility.Visible;
+            AboutDonateImage.MouseLeftButtonUp += (_, _) => AboutDonateImageGrid.Visibility = Visibility.Collapsed;
+            AboutDonateWexinLink.MouseLeftButtonUp += (_, _) => AboutDonateWeixinImageGrid.Visibility = Visibility.Visible;
+            AboutDonateWeixinImage.MouseLeftButtonUp += (_, _) => AboutDonateWeixinImageGrid.Visibility = Visibility.Collapsed;
+            AboutHomeLinkButton.Click += (_, _) => "http://leaful.com/moeloader-p/?tab=1".GoUrl();
+            AboutReportButton.Click += (_, _) => "http://leaful.com/moeloader-p/?tab=2".GoUrl();
         }
 
         public async Task CheckUpdateAsync()
@@ -40,10 +43,10 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (json == null) return;
             if (Version.Parse($"{json.NetVersion}") > App.Version)
             {
-                Extend.ShowMessage($"软件新版提示：{json.NetVersion}({json.RealeseDate})；更新内容：{json.RealeseNotes}；更新请点“关于”按钮");
+                Ex.ShowMessage($"软件新版提示：{json.NetVersion}({json.RealeseDate})；更新内容：{json.RealeseNotes}；更新请点“关于”按钮");
                 NewVersionTextBlock.Text = $"新版提示：{json.NetVersion}({json.RealeseDate})；更新内容：{json.RealeseNotes}";
                 NewVersionPanel.Visibility = Visibility.Visible;
-                NewVersionDownloadButton.Click += (sender, args) => $"{json.UpdateUrl}".GoUrl();
+                NewVersionDownloadButton.Click += (_, _) => $"{json.UpdateUrl}".GoUrl();
             }
         }
 
@@ -68,7 +71,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                     Margin = new Thickness(1),
                     ToolTip = $"{text} {user.tip}"
                 };
-                button.Click += (sender, args) =>
+                button.Click += (_, _) =>
                 {
                     $"{user.url}".GoUrl();
                 };

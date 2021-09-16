@@ -22,7 +22,9 @@
             ItemsSource="{Binding DownloadItems}"
             SelectionMode="Extended" 
             ItemContainerStyle="{DynamicResource MoeDownloaderListBoxItemStyle}" 
-            Grid.RowSpan="2" Template="{DynamicResource MoeDownloderItemsListBoxControlTemplate}"/>
+            ScrollViewer.CanContentScroll="False"
+            Grid.RowSpan="2" 
+            Template="{DynamicResource MoeDownloaderItemsListBoxControlTemplate}"/>
         <Border
             Background="#66F5F5F5"
             BorderBrush="Black"

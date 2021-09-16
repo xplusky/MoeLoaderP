@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Linq;
+using System.Net;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,48 +20,24 @@ namespace MoeLoaderP.Core.Sites
 
         public BilibiliSite()
         {
-            var sub = new MoeMenuItems(new MoeMenuItem("最新"), new MoeMenuItem("最热"));
-            SubMenu.Add("画友", sub);
-            SubMenu.Add("摄影(COS)", sub);
-            SubMenu.Add("摄影(私服)", sub);
+            var lv3 = new Categories("最新", "最热");
+            SubCategories.Add("画友", lv3);
+            SubCategories.Add("摄影(COS)", lv3);
+            SubCategories.Add("摄影(私服)", lv3);
 
-            SupportState.IsSupportRating = false;
             DownloadTypes.Add("原图", 4);
 
+            SupportState.IsSupportRating = false;
             SupportState.IsSupportAccount = true;
             SupportState.IsSupportThumbButton = true;
             SupportState.IsSupportStarButton = true;
             LoginPageUrl = "https://passport.bilibili.com/login";
 
         }
-
-        public override CookieContainer GetCookies()
+        
+        public override bool VerifyCookieAndSave(CookieCollection ccol)
         {
-            var cookieStr = CurrentSiteSetting.LoginCookie;
-            if (cookieStr.IsEmpty()) return null;
-            var cookies = cookieStr.Split(';');
-            var cc = new CookieContainer();
-            foreach (var cookie in cookies)
-            {
-                var values = cookie.Trim().Split('^');
-                if (values.Length != 3) continue;
-                if (values[0].ToLower().Contains("bilibili.com") )
-                {
-                    cc.Add(new Cookie(values[1], values[2], "/", values[0]));
-                }
-            }
-
-            if (cc.Count == 0)
-            {
-                CurrentSiteSetting.LoginCookie = null;
-                return null;
-            }
-            return cc;
-        }
-
-        public override bool VerifyCookie(string cookieStr)
-        {
-            return cookieStr.Contains("DedeUserID");
+            return ccol.Cast<Cookie>().Any(cookie => cookie.Name.Equals("DedeUserID", StringComparison.OrdinalIgnoreCase));
         }
 
         //public override async Task<bool> ThumbAsync(MoeItem item, CancellationToken token)
@@ -73,21 +51,20 @@ namespace MoeLoaderP.Core.Sites
             AccountNet = new NetOperator(Settings, HomeUrl);
             AccountNet.HttpClientHandler.AllowAutoRedirect = true;
             AccountNet.HttpClientHandler.UseCookies = true;
-            var cc = GetCookies();
-            if (cc == null)
+            if (SiteSettings.GetCookieContainer() == null)
             {
-                Extend.ShowMessage("需要重新登录", null, Extend.MessagePos.Window);
+                Ex.ShowMessage("需要重新登录", null, Ex.MessagePos.Window);
                 AccountNet = null;
                 return false;
             }
-            AccountNet.HttpClientHandler.CookieContainer = cc;
+            AccountNet.SetCookie(SiteSettings.GetCookieContainer());
             AccountNet.SetTimeOut(40);
             return true;
         }
 
         public bool IsLogin()
         {
-            return GetCookies() != null;
+            return SiteSettings.GetCookieContainer() != null;
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -130,7 +107,7 @@ namespace MoeLoaderP.Core.Sites
             });
 
 
-            foreach (var item in Extend.GetList(json?.data?.items))
+            foreach (var item in Ex.GetList(json?.data?.items))
             {
                 var cat = para.SubMenuIndex == 0 ? "/d" : "/p";
                 var img = new MoeItem(this, para)
@@ -167,7 +144,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             var c = $"{json?.data.total_count}".ToInt();
-            Extend.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.Count}页", null, Extend.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task SearchByKeyword(SearchPara para, CancellationToken token, MoeItems imgs)
@@ -186,7 +163,7 @@ namespace MoeLoaderP.Core.Sites
             var net = new NetOperator(Settings);
             var json = await net.GetJsonAsync(api, token, pairs);
             if(json == null) return;
-            foreach (var item in Extend.GetList(json.data?.result))
+            foreach (var item in Ex.GetList(json.data?.result))
             {
                 var img = new MoeItem(this,para);
                 img.Urls.Add(1,$"{item.cover}@336w_336h_1e_1c.jpg");
@@ -204,7 +181,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             var c = $"{json.data?.numResults}".ToInt();
-            Extend.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.Count}页", null, Extend.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task GetSearchByKeywordDetailTask(MoeItem img,CancellationToken token,SearchPara para)
@@ -216,7 +193,7 @@ namespace MoeLoaderP.Core.Sites
             if ((item.pictures as JArray)?.Count > 1)
             {
                 var i = 0;
-                foreach (var pic in Extend.GetList(item.pictures))
+                foreach (var pic in Ex.GetList(item.pictures))
                 {
                     var child = new MoeItem(this, para);
                     child.Urls.Add(1, $"{pic.img_src}@336w_336h_1e_1c.jpg");
@@ -239,7 +216,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Urls.Add(4, $"{pic?.img_src}");
             }
 
-            foreach (var tag in Extend.GetList(item.tags))
+            foreach (var tag in Ex.GetList(item.tags))
             {
                 img.Tags.Add($"{tag.name}");
             }
@@ -254,7 +231,7 @@ namespace MoeLoaderP.Core.Sites
             var json = await new NetOperator(Settings).GetJsonAsync(query, token);
             var item = json.data?.item;
             if (item == null) return;
-            foreach (var tag in Extend.GetList(item.tags))
+            foreach (var tag in Ex.GetList(item.tags))
             {
                 img.Tags.Add($"{tag.name}");
             }
