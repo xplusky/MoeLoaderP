@@ -33,9 +33,9 @@ namespace MoeLoaderP.Core
         {
             var x = Settings.IsXMode;
 
-            Sites.Add(new BilibiliSite());
             Sites.Add(new PixivSite());
             if (x) Sites.Add(new PixivR18Site());
+            Sites.Add(new BilibiliSite());
             Sites.Add(new KonachanSite());
             Sites.Add(new YandeSite());
             Sites.Add(new SankakuChanSite());
@@ -60,7 +60,7 @@ namespace MoeLoaderP.Core
         {
             var testSites = new CustomSiteFactory();
             testSites.GenTestSites();
-            foreach (var set in testSites.SiteSets)
+            foreach (var set in testSites.SiteConfigList)
             {
                 Sites.Add(new CustomSite(set));
             }

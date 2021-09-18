@@ -221,7 +221,7 @@ namespace MoeLoaderP.Core
         public MoeItem FatherItem { get; set; }
 
         /// <summary>
-        /// 子项目专用--子项目所在列表中的位置
+        /// 子项目专用--子项目所在列表中的位置（从1开始）
         /// </summary>
         public int SubIndex { get; set; }
 

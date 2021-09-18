@@ -184,14 +184,6 @@ namespace MoeLoaderP.Core
                 Type = pr
             });
         }
-        public void Add(string name, int pr)
-        {
-            Add(new DownloadType
-            {
-                Name = name,
-                Type = (DownloadTypeEnum)pr
-            });
-        }
     }
 
 

@@ -7,7 +7,10 @@
         xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
         fw:AcrylicWindow.Enabled="True"
         mc:Ignorable="d"
-        Title="预览" Height="531.912" Width="867.089" Background="{x:Null}" WindowStartupLocation="CenterOwner">
+        Title="预览" Height="531.912" Width="867.089" 
+        fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}"
+
+        WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <ControlTemplate x:Key="PreviewPagingListBoxControlTemplate" TargetType="{x:Type ListBox}">
             <Border x:Name="Bd" BorderThickness="{TemplateBinding BorderThickness}" Padding="1" SnapsToDevicePixels="True">
@@ -97,11 +100,14 @@
                 </Border>
                 <Border BorderThickness="1" Width="48" Height="48" Grid.RowSpan="2" CornerRadius="50" Margin="2"/>
                 <TextBlock x:Name="InfoTitleTextBlock" TextWrapping="Wrap" Text="Title" Grid.Column="1" VerticalAlignment="Center" FontSize="16" Foreground="{DynamicResource HightLightFontColorBrush}" Margin="12,0" HorizontalAlignment="Left" Background="#7FFFFFFF"/>
-                <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="12,0" Orientation="Horizontal" HorizontalAlignment="Left" Background="#7FFFFFFF">
+                <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="12,0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel.Effect>
+                        <DropShadowEffect ShadowDepth="0" BlurRadius="8"/>
+                    </StackPanel.Effect>
                     <TextBlock TextWrapping="Wrap" Text="作者：" VerticalAlignment="Center" FontSize="14"/>
                     <TextBlock x:Name="InfoUploaderTextBlock" TextWrapping="Wrap" Text="Title" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource HightLightFontColorBrush}"/>
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" FontSize="14" Margin="16,0,0,0"><Run Text="作品"/><Run Text="ID"/><Run Text="："/></TextBlock>
-                    <TextBlock x:Name="InfoIDTextBlock" TextWrapping="Wrap" Text="ID" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource HightLightFontColorBrush}"/>
+                    <TextBlock x:Name="InfoIdTextBlock" TextWrapping="Wrap" Text="ID" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource HightLightFontColorBrush}"/>
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" FontSize="14" Margin="16,0,0,0"><Run Text="评分"/><Run Text="："/></TextBlock>
                     <TextBlock x:Name="InfoScoreTextBlock" TextWrapping="Wrap" Text="Score" VerticalAlignment="Center" FontSize="14" Foreground="{DynamicResource HightLightFontColorBrush}"/>
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" FontSize="14" Margin="16,0,0,0"><Run Text="分辨率"/><Run Text="："/></TextBlock>

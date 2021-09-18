@@ -36,6 +36,20 @@
         </VisualStateManager.VisualStateGroups>
         <StackPanel>
             <GroupBox
+                Template="{DynamicResource MoeGroupBoxControlTemplate}">
+                <GroupBox.Header>
+                    <TextBlock Text="自定义站点设置" Foreground="Black"/>
+                </GroupBox.Header>
+                <Grid Margin="4,4,4,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="OpenCustomSiteDirButton" Content="打开自定义站点文件夹" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox
                 Template="{DynamicResource MoeGroupBoxControlTemplate}" Margin="0,2">
                 <GroupBox.Header>
                     <TextBlock Text="{DynamicResource TextSettingsProxyGroup}" Foreground="Black"/>

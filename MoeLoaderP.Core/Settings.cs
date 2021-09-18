@@ -208,12 +208,7 @@ namespace MoeLoaderP.Core
         /// 每一个站点分别的设置（所有站点集合）
         /// </summary>
         public MoeSitesSettings AllSitesSettings { get; set; } =new MoeSitesSettings();
-
-        /// <summary>
-        /// 自定义站点设置集合
-        /// </summary>
-        public CustomSitesSettings CustomSiteSettingList { get; set; } = new CustomSitesSettings();
-
+        
         private bool _isCustomSiteMode;
         
 
@@ -265,7 +260,7 @@ namespace MoeLoaderP.Core
 
     public class MoeSitesSettings : Dictionary<string, IndividualSiteSettings>
     {
-        public IndividualSiteSettings GetSiteSettings(MoeSite site)
+        public IndividualSiteSettings GetSettings(MoeSite site)
         {
             if (!ContainsKey(site.ShortName))
             {
@@ -294,24 +289,18 @@ namespace MoeLoaderP.Core
             var b =Items.TryAdd(key, value);
             Ex.Log($"Add Key:{key} Value:{value} Result{b}");
         }
-        
-        private CookieCollection _loginCookies;
 
+        private CookieCollection _loginCookies;
 
         public CookieContainer GetCookieContainer()
         {
-            if (LoginCookies?.Count > 0)
+            if (!(LoginCookies?.Count > 0)) return null;
+            var cc = new CookieContainer();
+            foreach (Cookie cookie in LoginCookies)
             {
-                var cc = new CookieContainer();
-                foreach (Cookie cookie in LoginCookies)
-                {
-                    cc.Add(cookie);
-                }
-
-                return cc;
+                cc.Add(cookie);
             }
-
-            return null;
+            return cc;
         }
 
         public CookieCollection LoginCookies
@@ -322,9 +311,6 @@ namespace MoeLoaderP.Core
 
         public DateTime? LoginExpiresTime { get; set; }
     }
-
-    
-
     
     /// <summary>
     /// 实现绑定所需的属性值变更通知接口

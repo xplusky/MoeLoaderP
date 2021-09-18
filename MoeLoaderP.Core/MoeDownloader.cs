@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace MoeLoaderP.Core
 {
-    public class DownloadItems : ObservableCollection<MoeItem> { }
     /// <summary>
     /// 下载管理器
     /// </summary>
     public class MoeDownloader
     {
-        public DownloadItems DownloadItems { get; set; } = new DownloadItems();
+        public MoeItems DownloadItems { get; set; } = new MoeItems();
 
         public bool IsDownloading => DownloadItems.Any(t 
             => t.DlStatus == DownloadStatus.Downloading || t.DlStatus == DownloadStatus.WaitForDownload);
@@ -55,7 +53,7 @@ namespace MoeLoaderP.Core
         }
 
 
-        public void Stop(DownloadItems items)
+        public void Stop(MoeItems items)
         {
             foreach (var item in items)
             {
@@ -68,7 +66,7 @@ namespace MoeLoaderP.Core
             }
         }
         
-        public void Delete(DownloadItems items)
+        public void Delete(MoeItems items)
         {
             foreach (var item in items)
             {
@@ -92,7 +90,7 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public void Retry(DownloadItems items)
+        public void Retry(MoeItems items)
         {
             for (var i = 0; i < items.Count; i++)
             {

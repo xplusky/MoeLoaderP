@@ -7,7 +7,7 @@
         Title="桂叶落雪动态桌面" Height="768" Width="1024" WindowStyle="None" 
         Background="{x:Null}" WindowStartupLocation="CenterScreen" 
         SnapsToDevicePixels="True" AllowsTransparency="True"
-    x:Class="MoeLoaderP.Wpf.Egg.EggWindow"
+    x:Class="MoeLoaderP.Wpf.EggWindow"
         WindowState="Maximized" Topmost="True" ShowInTaskbar="False">
     <Window.Resources>
         <Storyboard x:Key="SbMiddiumSnow" RepeatBehavior="Forever">
@@ -198,8 +198,8 @@
             <Grid x:Name="GridSnowDown">
                 <Canvas x:Name="GridMiddium" Opacity="0.265">
                     <Canvas x:Name="GridMiddium1" Height="768" Width="1366">
-                        <Image x:Name="ImgMiddium1" Height="183" Canvas.Left="627.851" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="51.064" Width="210"/>
-                        <Image x:Name="ImgMiddium2" Height="172.149" Canvas.Left="194.829" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="46.979" Width="172.149" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium1" Height="183" Canvas.Left="627.851" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="51.064" Width="210"/>
+                        <Image x:Name="ImgMiddium2" Height="172.149" Canvas.Left="194.829" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="46.979" Width="172.149" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -209,8 +209,8 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium3" Height="241.681" Canvas.Left="976.213" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="203.341" Width="241.681"/>
-                        <Image x:Name="ImgMiddium4" Height="204" Canvas.Left="376.617" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="418.212" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium3" Height="241.681" Canvas.Left="976.213" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="203.341" Width="241.681"/>
+                        <Image x:Name="ImgMiddium4" Height="204" Canvas.Left="376.617" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="418.212" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -220,9 +220,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium5" Height="204" Canvas.Left="-35.978" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="204"/>
-                        <Image x:Name="ImgMiddium6" Height="204" Canvas.Left="8" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="353.361" Width="204"/>
-                        <Image x:Name="ImgMiddium7" Height="183" Canvas.Left="454.617" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="180.319" Width="210" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium5" Height="204" Canvas.Left="-35.978" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="204"/>
+                        <Image x:Name="ImgMiddium6" Height="204" Canvas.Left="8" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="353.361" Width="204"/>
+                        <Image x:Name="ImgMiddium7" Height="183" Canvas.Left="454.617" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="180.319" Width="210" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -232,7 +232,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium8" Height="218.599" Canvas.Left="209.957" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="205.167" Width="250.851" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium8" Height="218.599" Canvas.Left="209.957" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="205.167" Width="250.851" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -242,7 +242,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium9" Height="183" Canvas.Left="597.213" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="356.935" Width="210" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium9" Height="183" Canvas.Left="597.213" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="356.935" Width="210" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -252,9 +252,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium10" Height="183" Canvas.Left="905.639" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="8" Width="210"/>
-                        <Image x:Name="ImgMiddium11" Height="204" Canvas.Left="1232.447" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="564" Width="204"/>
-                        <Image x:Name="ImgMiddium12" Height="204" Canvas.Left="825.979" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="439.149" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium10" Height="183" Canvas.Left="905.639" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="8" Width="210"/>
+                        <Image x:Name="ImgMiddium11" Height="204" Canvas.Left="1232.447" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="564" Width="204"/>
+                        <Image x:Name="ImgMiddium12" Height="204" Canvas.Left="825.979" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="439.149" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -264,7 +264,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium13" Height="204" Canvas.Left="240.021" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="583.085" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium13" Height="204" Canvas.Left="240.021" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="583.085" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -274,7 +274,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium14" Height="241.681" Canvas.Left="751.532" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="197.872" Width="241.681" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium14" Height="241.681" Canvas.Left="751.532" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="197.872" Width="241.681" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -284,8 +284,8 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium15" Height="241.681" Canvas.Left="1168.213" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="241.681"/>
-                        <Image x:Name="ImgMiddium16" Height="204" Canvas.Left="1216.107" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="296.17" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium15" Height="241.681" Canvas.Left="1168.213" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="241.681"/>
+                        <Image x:Name="ImgMiddium16" Height="204" Canvas.Left="1216.107" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="296.17" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -295,7 +295,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium17" Height="204" Canvas.Left="8" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="556" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium17" Height="204" Canvas.Left="8" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="556" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -305,7 +305,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium18" Height="149.645" Canvas.Left="174.522" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="430.537" Width="171.725" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium18" Height="149.645" Canvas.Left="174.522" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="430.537" Width="171.725" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -315,7 +315,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium19" Height="183" Canvas.Left="466.49" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="593.872" Width="210" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium19" Height="183" Canvas.Left="466.49" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="593.872" Width="210" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -325,7 +325,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium20" Height="241.681" Canvas.Left="382.17" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="-29.681" Width="241.681" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium20" Height="241.681" Canvas.Left="382.17" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="-29.681" Width="241.681" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -335,7 +335,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium21" Height="193.712" Canvas.Left="701.278" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="601.757" Width="222.293" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium21" Height="193.712" Canvas.Left="701.278" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="601.757" Width="222.293" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -345,7 +345,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium22" Height="193.712" Canvas.Left="991.321" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="554.779" Width="222.293" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddium22" Height="193.712" Canvas.Left="991.321" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="554.779" Width="222.293" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -355,11 +355,11 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddium23" Height="140.681" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="216" Width="140.681" Canvas.Left="71.319"/>
+                        <Image x:Name="ImgMiddium23" Height="140.681" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="216" Width="140.681" Canvas.Left="71.319"/>
                     </Canvas>
                     <Canvas x:Name="GridMiddium2" Height="768" Width="1366" d:IsHidden="True">
-                        <Image x:Name="ImgMiddiumX1" Height="183" Canvas.Left="627.851" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="51.064" Width="210"/>
-                        <Image x:Name="ImgMiddiumX2" Height="172.149" Canvas.Left="194.829" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="46.979" Width="172.149" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX1" Height="183" Canvas.Left="627.851" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="51.064" Width="210"/>
+                        <Image x:Name="ImgMiddiumX2" Height="172.149" Canvas.Left="194.829" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="46.979" Width="172.149" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -369,8 +369,8 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX3" Height="241.681" Canvas.Left="976.213" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="203.341" Width="241.681"/>
-                        <Image x:Name="ImgMiddiumX4" Height="204" Canvas.Left="376.617" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="418.212" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX3" Height="241.681" Canvas.Left="976.213" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="203.341" Width="241.681"/>
+                        <Image x:Name="ImgMiddiumX4" Height="204" Canvas.Left="376.617" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="418.212" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -380,9 +380,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX5" Height="204" Canvas.Left="-35.978" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="204"/>
-                        <Image x:Name="ImgMiddiumX6" Height="204" Canvas.Left="8" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="353.361" Width="204"/>
-                        <Image x:Name="ImgMiddiumX7" Height="183" Canvas.Left="454.617" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="180.319" Width="210" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX5" Height="204" Canvas.Left="-35.978" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="204"/>
+                        <Image x:Name="ImgMiddiumX6" Height="204" Canvas.Left="8" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="353.361" Width="204"/>
+                        <Image x:Name="ImgMiddiumX7" Height="183" Canvas.Left="454.617" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="180.319" Width="210" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -392,7 +392,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX8" Height="218.599" Canvas.Left="209.957" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="205.167" Width="250.851" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX8" Height="218.599" Canvas.Left="209.957" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="205.167" Width="250.851" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -402,7 +402,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX9" Height="183" Canvas.Left="597.213" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="356.935" Width="210" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX9" Height="183" Canvas.Left="597.213" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="356.935" Width="210" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -412,9 +412,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX10" Height="183" Canvas.Left="905.639" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="8" Width="210"/>
-                        <Image x:Name="ImgMiddiumX11" Height="204" Canvas.Left="1232.447" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="564" Width="204"/>
-                        <Image x:Name="ImgMiddiumX12" Height="204" Canvas.Left="825.979" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="439.149" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX10" Height="183" Canvas.Left="905.639" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="8" Width="210"/>
+                        <Image x:Name="ImgMiddiumX11" Height="204" Canvas.Left="1232.447" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="564" Width="204"/>
+                        <Image x:Name="ImgMiddiumX12" Height="204" Canvas.Left="825.979" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="439.149" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -424,7 +424,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX13" Height="204" Canvas.Left="240.021" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="583.085" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX13" Height="204" Canvas.Left="240.021" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="583.085" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -434,7 +434,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX14" Height="241.681" Canvas.Left="751.532" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="197.872" Width="241.681" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX14" Height="241.681" Canvas.Left="751.532" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="197.872" Width="241.681" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -444,8 +444,8 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX15" Height="241.681" Canvas.Left="1168.213" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="241.681"/>
-                        <Image x:Name="ImgMiddiumX16" Height="204" Canvas.Left="1216.107" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="296.17" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX15" Height="241.681" Canvas.Left="1168.213" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="8" Width="241.681"/>
+                        <Image x:Name="ImgMiddiumX16" Height="204" Canvas.Left="1216.107" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="296.17" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -455,7 +455,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX17" Height="204" Canvas.Left="8" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="556" Width="204" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX17" Height="204" Canvas.Left="8" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="556" Width="204" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -465,7 +465,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX18" Height="149.645" Canvas.Left="174.522" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="430.537" Width="171.725" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX18" Height="149.645" Canvas.Left="174.522" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="430.537" Width="171.725" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -475,7 +475,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX19" Height="183" Canvas.Left="466.49" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="593.872" Width="210" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX19" Height="183" Canvas.Left="466.49" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="593.872" Width="210" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -485,7 +485,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX20" Height="241.681" Canvas.Left="382.17" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="-29.681" Width="241.681" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX20" Height="241.681" Canvas.Left="382.17" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="-29.681" Width="241.681" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -495,7 +495,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX21" Height="193.712" Canvas.Left="701.278" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="601.757" Width="222.293" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX21" Height="193.712" Canvas.Left="701.278" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="601.757" Width="222.293" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -505,7 +505,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX22" Height="193.712" Canvas.Left="991.321" Source="/Egg/medium1.png" Stretch="Fill" Canvas.Top="554.779" Width="222.293" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgMiddiumX22" Height="193.712" Canvas.Left="991.321" Source="/Assets/Egg/medium1.png" Stretch="Fill" Canvas.Top="554.779" Width="222.293" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -515,22 +515,22 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgMiddiumX23" Height="140.681" Source="/Egg/medium2.png" Stretch="Fill" Canvas.Top="216" Width="140.681" Canvas.Left="71.319"/>
+                        <Image x:Name="ImgMiddiumX23" Height="140.681" Source="/Assets/Egg/medium2.png" Stretch="Fill" Canvas.Top="216" Width="140.681" Canvas.Left="71.319"/>
                     </Canvas>
                 </Canvas>
                 <Canvas x:Name="GridSmall" Opacity="0.79">
                     <Canvas x:Name="GridSmall1" Height="768" Width="1366">
-                        <Image x:Name="ImgSmall1" Height="196" Canvas.Left="627" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="164" Width="262"/>
-                        <Image x:Name="ImgSmall2" Height="204" Canvas.Left="95" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="144" Width="262"/>
-                        <Image x:Name="ImgSmall3" Height="204" Canvas.Left="189" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
-                        <Image x:Name="ImgSmall4" Height="204" Canvas.Left="889" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmall5" Height="196" Canvas.Left="845" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
-                        <Image x:Name="ImgSmall6" Height="196" Canvas.Left="341" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="232" Width="262"/>
-                        <Image x:Name="ImgSmall7" Height="196" Canvas.Left="1193" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="284" Width="262"/>
-                        <Image x:Name="ImgSmall8" Height="196" Canvas.Left="927" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="168" Width="262"/>
-                        <Image x:Name="ImgSmall9" Height="204" Canvas.Left="455" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="398" Width="262"/>
-                        <Image x:Name="ImgSmall10" Height="204" Canvas.Left="541" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
-                        <Image x:Name="ImgSmall11" Height="204" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="554" Width="262" RenderTransformOrigin="0.5,0.5" Canvas.Left="62">
+                        <Image x:Name="ImgSmall1" Height="196" Canvas.Left="627" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="164" Width="262"/>
+                        <Image x:Name="ImgSmall2" Height="204" Canvas.Left="95" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="144" Width="262"/>
+                        <Image x:Name="ImgSmall3" Height="204" Canvas.Left="189" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
+                        <Image x:Name="ImgSmall4" Height="204" Canvas.Left="889" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmall5" Height="196" Canvas.Left="845" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
+                        <Image x:Name="ImgSmall6" Height="196" Canvas.Left="341" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="232" Width="262"/>
+                        <Image x:Name="ImgSmall7" Height="196" Canvas.Left="1193" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="284" Width="262"/>
+                        <Image x:Name="ImgSmall8" Height="196" Canvas.Left="927" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="168" Width="262"/>
+                        <Image x:Name="ImgSmall9" Height="204" Canvas.Left="455" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="398" Width="262"/>
+                        <Image x:Name="ImgSmall10" Height="204" Canvas.Left="541" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
+                        <Image x:Name="ImgSmall11" Height="204" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="554" Width="262" RenderTransformOrigin="0.5,0.5" Canvas.Left="62">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -540,9 +540,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmall12" Height="204" Canvas.Left="397" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="28" Width="262"/>
-                        <Image x:Name="ImgSmall13" Height="204" Canvas.Left="689" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="364" Width="262"/>
-                        <Image x:Name="ImgSmall14" Height="204" Canvas.Left="274" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="556" Width="262" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgSmall12" Height="204" Canvas.Left="397" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="28" Width="262"/>
+                        <Image x:Name="ImgSmall13" Height="204" Canvas.Left="689" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="364" Width="262"/>
+                        <Image x:Name="ImgSmall14" Height="204" Canvas.Left="274" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="556" Width="262" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -552,10 +552,10 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmall15" Height="204" Canvas.Left="-27" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="276" Width="262"/>
-                        <Image x:Name="ImgSmall16" Height="204" Canvas.Left="-77" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmall17" Height="204" Canvas.Left="189" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmall18" Height="204" Canvas.Left="1109" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="38" Width="262" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgSmall15" Height="204" Canvas.Left="-27" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="276" Width="262"/>
+                        <Image x:Name="ImgSmall16" Height="204" Canvas.Left="-77" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmall17" Height="204" Canvas.Left="189" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmall18" Height="204" Canvas.Left="1109" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="38" Width="262" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -565,7 +565,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmall19" Height="204" Canvas.Left="1077" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="562" Width="262" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgSmall19" Height="204" Canvas.Left="1077" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="562" Width="262" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -575,9 +575,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmall20" Height="196" Canvas.Left="927" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
-                        <Image x:Name="ImgSmall21" Height="204" Canvas.Left="627" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmall22" Height="136.006" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="499.696" Width="174.675" RenderTransformOrigin="0.5,0.5" Canvas.Left="-47.401">
+                        <Image x:Name="ImgSmall20" Height="196" Canvas.Left="927" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
+                        <Image x:Name="ImgSmall21" Height="204" Canvas.Left="627" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmall22" Height="136.006" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="499.696" Width="174.675" RenderTransformOrigin="0.5,0.5" Canvas.Left="-47.401">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -589,17 +589,17 @@
                         </Image>
                     </Canvas>
                     <Canvas x:Name="GridSmall2" Height="768" Width="1366">
-                        <Image x:Name="ImgSmallX1" Height="196" Canvas.Left="627" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="164" Width="262"/>
-                        <Image x:Name="ImgSmallX2" Height="204" Canvas.Left="95" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="144" Width="262"/>
-                        <Image x:Name="ImgSmallX3" Height="204" Canvas.Left="189" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
-                        <Image x:Name="ImgSmallX4" Height="204" Canvas.Left="889" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmallX5" Height="196" Canvas.Left="845" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
-                        <Image x:Name="ImgSmallX6" Height="196" Canvas.Left="341" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="232" Width="262"/>
-                        <Image x:Name="ImgSmallX7" Height="196" Canvas.Left="1193" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="284" Width="262"/>
-                        <Image x:Name="ImgSmallX8" Height="196" Canvas.Left="927" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="168" Width="262"/>
-                        <Image x:Name="ImgSmallX9" Height="204" Canvas.Left="455" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="398" Width="262"/>
-                        <Image x:Name="ImgSmallX10" Height="204" Canvas.Left="541" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
-                        <Image x:Name="ImgSmallX11" Height="204" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="554" Width="262" RenderTransformOrigin="0.5,0.5" Canvas.Left="62">
+                        <Image x:Name="ImgSmallX1" Height="196" Canvas.Left="627" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="164" Width="262"/>
+                        <Image x:Name="ImgSmallX2" Height="204" Canvas.Left="95" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="144" Width="262"/>
+                        <Image x:Name="ImgSmallX3" Height="204" Canvas.Left="189" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
+                        <Image x:Name="ImgSmallX4" Height="204" Canvas.Left="889" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmallX5" Height="196" Canvas.Left="845" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
+                        <Image x:Name="ImgSmallX6" Height="196" Canvas.Left="341" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="232" Width="262"/>
+                        <Image x:Name="ImgSmallX7" Height="196" Canvas.Left="1193" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="284" Width="262"/>
+                        <Image x:Name="ImgSmallX8" Height="196" Canvas.Left="927" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="168" Width="262"/>
+                        <Image x:Name="ImgSmallX9" Height="204" Canvas.Left="455" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="398" Width="262"/>
+                        <Image x:Name="ImgSmallX10" Height="204" Canvas.Left="541" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="572" Width="262"/>
+                        <Image x:Name="ImgSmallX11" Height="204" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="554" Width="262" RenderTransformOrigin="0.5,0.5" Canvas.Left="62">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -609,9 +609,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmallX12" Height="204" Canvas.Left="397" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="28" Width="262"/>
-                        <Image x:Name="ImgSmallX13" Height="204" Canvas.Left="689" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="364" Width="262"/>
-                        <Image x:Name="ImgSmallX14" Height="204" Canvas.Left="274" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="556" Width="262" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgSmallX12" Height="204" Canvas.Left="397" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="28" Width="262"/>
+                        <Image x:Name="ImgSmallX13" Height="204" Canvas.Left="689" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="364" Width="262"/>
+                        <Image x:Name="ImgSmallX14" Height="204" Canvas.Left="274" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="556" Width="262" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -621,10 +621,10 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmallX15" Height="204" Canvas.Left="-27" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="276" Width="262"/>
-                        <Image x:Name="ImgSmallX16" Height="204" Canvas.Left="-77" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmallX17" Height="204" Canvas.Left="189" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmallX18" Height="204" Canvas.Left="1109" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="38" Width="262" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgSmallX15" Height="204" Canvas.Left="-27" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="276" Width="262"/>
+                        <Image x:Name="ImgSmallX16" Height="204" Canvas.Left="-77" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmallX17" Height="204" Canvas.Left="189" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmallX18" Height="204" Canvas.Left="1109" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="38" Width="262" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -634,7 +634,7 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmallX19" Height="204" Canvas.Left="1077" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="562" Width="262" RenderTransformOrigin="0.5,0.5">
+                        <Image x:Name="ImgSmallX19" Height="204" Canvas.Left="1077" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="562" Width="262" RenderTransformOrigin="0.5,0.5">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -644,9 +644,9 @@
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
-                        <Image x:Name="ImgSmallX20" Height="196" Canvas.Left="927" Source="/Egg/small1.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
-                        <Image x:Name="ImgSmallX21" Height="204" Canvas.Left="627" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
-                        <Image x:Name="ImgSmallX22" Height="136.006" Source="/Egg/small2.png" Stretch="Fill" Canvas.Top="499.696" Width="174.675" RenderTransformOrigin="0.5,0.5" Canvas.Left="-47.401">
+                        <Image x:Name="ImgSmallX20" Height="196" Canvas.Left="927" Source="/Assets/Egg/small1.png" Stretch="Fill" Canvas.Top="372" Width="262"/>
+                        <Image x:Name="ImgSmallX21" Height="204" Canvas.Left="627" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="-20" Width="262"/>
+                        <Image x:Name="ImgSmallX22" Height="136.006" Source="/Assets/Egg/small2.png" Stretch="Fill" Canvas.Top="499.696" Width="174.675" RenderTransformOrigin="0.5,0.5" Canvas.Left="-47.401">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>

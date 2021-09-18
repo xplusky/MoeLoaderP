@@ -15,11 +15,10 @@ namespace MoeLoaderP.Core.Sites
 
         public YuriimgSite()
         {
-            SupportState.IsSupportAutoHint = false;
-            SupportState.IsSupportRating = true;
+            Config.IsSupportRating = true;
 
-            DownloadTypes.Add("预览图", 3);
-            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
         }
 
         /// <summary>

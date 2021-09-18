@@ -25,9 +25,9 @@ namespace MoeLoaderP.Core.Sites
 
         public AnimePicsSite()
         {
-            SupportState.IsSupportScore = true;
-            SupportState.IsSupportRating = false;
-            DownloadTypes.Add("原图", 4);
+            Config.IsSupportScore = true;
+            Config.IsSupportRating = false;
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
         }
 
         public async Task LoginAsync(CancellationToken token)

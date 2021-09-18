@@ -1,27 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using MoeLoaderP.Core.Sites;
 
-namespace MoeLoaderP.Core
+namespace MoeLoaderP.Core.Sites
 {
-    public class CustomSitesSettings : ObservableCollection<IndividualCustomSiteSettings> { }
-
-    public class IndividualCustomSiteSettings
+    public class CustomSiteConfig
     {
         public string ShortName { get; set; }
         public string DisplayName { get; set; }
         public string HomeUrl { get; set; }
         public string SiteIconUrl { get; set; }
         public CustomCategories Categories { get; set; } = new CustomCategories();
-        public MoeSiteSupportState SupportState { get; set; } = new MoeSiteSupportState();
+        public MoeSiteConfig Config { get; set; } = new MoeSiteConfig()
+        {
+            IsCustomSite = true
+        };
         public CustomPagePara PagePara { get; set; } = new CustomPagePara();
+        public string SearchApi { get; set; }
     }
+    public class CustomSiteConfigList : ObservableCollection<CustomSiteConfig> { }
 
     public class CustomCategory : Category
     {
         public string FirstPageApi { get; set; }
         public string FollowUpPageApi { get; set; }
         public CustomPagePara OverridePagePara { get; set; }
+        public string OverrideSearchApi { get; set; }
     }
 
     public class CustomCategories : List<CustomCategory>
@@ -92,12 +95,12 @@ namespace MoeLoaderP.Core
         {
             Path = path;
             Mode = mode;
-            Attribute = attribute;
-            Pre = pre;
-            IsMultiValues = mul;
-            RegexPattern = regex;
-            Replace = replace;
-            ReplaceTo = replaceTo;
+            if (attribute != null) Attribute = attribute;
+            if (pre != null) Pre = pre;
+            if (mul) IsMultiValues = true;
+            if (regex != null) RegexPattern = regex;
+            if (replace != null) Replace = replace;
+            if (replaceTo != null) ReplaceTo = replaceTo;
         }
     }
 

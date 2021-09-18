@@ -8,6 +8,8 @@
         x:Class="MoeLoaderP.Wpf.LoginWindow"
         mc:Ignorable="d"
         Title="账号登陆窗口" Height="900" Width="1280" 
+        fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}"
+
     WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>

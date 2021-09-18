@@ -9,7 +9,6 @@ namespace MoeLoaderP.Wpf
 {
     public static class UiFunc
     {
-
         public static string LangText(this FrameworkElement el, string key)
         {
             var text = el.TryFindResource(key) as string;
@@ -38,7 +37,7 @@ namespace MoeLoaderP.Wpf
                     break;
             }
 
-            var el = ((UIElement)target);
+            var el = (UIElement)target;
             if (el.RenderTransform == null)
             {
                 var group = new TransformGroup {Children = {[3] = new TranslateTransform()}};

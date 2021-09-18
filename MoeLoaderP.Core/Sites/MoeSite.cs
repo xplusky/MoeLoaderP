@@ -29,12 +29,12 @@ namespace MoeLoaderP.Core.Sites
 
         public virtual Uri Icon => new Uri($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative);
 
-        public Categories SubCategories { get; set; } = new Categories();
+        public Categories Lv2Cat { get; set; }
 
         /// <summary>
-        /// 站点支持的功能情况
+        /// 站点功能配置
         /// </summary>
-        public MoeSiteSupportState SupportState { get; set; } = new MoeSiteSupportState();
+        public MoeSiteConfig Config { get; set; } = new MoeSiteConfig();
 
         public NetOperator Net { get; set; }
 
@@ -55,7 +55,7 @@ namespace MoeLoaderP.Core.Sites
 
         public Settings Settings { get; set; }
 
-        public IndividualSiteSettings SiteSettings => Settings.AllSitesSettings.GetSiteSettings(this);
+        public IndividualSiteSettings SiteSettings => Settings.AllSitesSettings.GetSettings(this);
 
         public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
 
@@ -86,20 +86,15 @@ namespace MoeLoaderP.Core.Sites
     }
 
 
-    public class MoeSiteSupportState
+    public class MoeSiteConfig
     {
-        /// <summary>
-        /// 是否支持用户登录，支持的话会显示登录按钮
-        /// </summary>
-        public bool IsSupportAccount { get; set; } = false;
-
         /// <summary>
         /// 是否支持评分，若为false则不可按分数过滤图片
         /// </summary>
         public bool IsSupportScore { get; set; } = true;
 
         /// <summary>
-        /// 是否支持分级
+        /// 是否支持图片年龄分级
         /// </summary>
         public bool IsSupportRating { get; set; } = true;
 
@@ -107,23 +102,27 @@ namespace MoeLoaderP.Core.Sites
         /// 是否支持分辨率，若为false则不可按分辨率过滤图片
         /// </summary>
         public bool IsSupportResolution { get; set; } = true;
-
+        
         /// <summary>
-        /// 是否支持搜索框自动提示，若为false则输入关键词时无自动提示
-        /// </summary>
-        public bool IsSupportAutoHint { get; set; } = true;
-
-        /// <summary>
-        /// 是否支持关键字搜索
+        /// 是否支持关键字搜索. 不支持则不显示搜索框
         /// </summary>
         public bool IsSupportKeyword { get; set; } = true;
-        public bool IsSupportSearchByImageLastId { get; set; } = false;
-        public bool IsSupportSelectPixivRankNew { get; set; } = false;
-        public bool IsSupportSearchByAuthorId { get; set; } = false;
-        public bool IsSupportThumbButton { get; set; } = false;
-        public bool IsSupportStarButton { get; set; } = false;
-        public bool IsSupportMultiKeywords { get; set; } = false;
-        public bool IsSupportDatePicker { get; set; } = false;
+
+        /// <summary>
+        /// 是否支持按图片id搜索,支持的话搜索参数里面可以设置
+        /// </summary>
+        public bool IsSupportSearchByImageLastId { get; set; }
+
+        /// <summary>
+        /// 是否支持用户登录，支持的话会显示登录按钮
+        /// </summary>
+        public bool IsSupportAccount { get; set; }
+        public bool IsSupportThumbButton { get; set; }
+        public bool IsSupportStarButton { get; set; }
+        public bool IsSupportMultiKeywords { get; set; } 
+        public bool IsSupportDatePicker { get; set; } 
+        public bool IsR18Site { get; set; } = false;
+        public bool IsCustomSite { get; set; }
     }
 
     
@@ -181,14 +180,14 @@ namespace MoeLoaderP.Core.Sites
     public class Category
     {
         public string Name { get; set; }
-        public Categories SubCategories { get; set; } = new Categories();
-        public MoeSiteSupportState OverrideSupportState { get; set; }
+        public Categories SubCategories { get; set; } 
+        public MoeSiteConfig OverrideConfig { get; set; }
 
         public Category() { }
-        public Category(string name, Categories menu = null)
+        public Category(string name, Categories cats = null)
         {
             Name = name;
-            if (menu != null) SubCategories = menu;
+            if (cats != null) SubCategories = cats;
         }
     }
 
@@ -202,15 +201,7 @@ namespace MoeLoaderP.Core.Sites
                 SubCategories = subMenu
             });
         }
-
-        public void Add(string name)
-        {
-            Add(new Category
-            {
-                Name = name
-            });
-        }
-
+        
         public Categories(params Category[] items)
         {
             foreach (var item in items)

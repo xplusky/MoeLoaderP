@@ -25,11 +25,11 @@ namespace MoeLoaderP.Core.Sites
 
         public SankakuChanSite()
         {
-            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             LoginPageUrl = "https://beta.sankakucomplex.com/home";
-            SupportState.IsSupportAccount = false;
-            SupportState.IsSupportStarButton = true;
-            SupportState.IsSupportAccount = true;
+            Config.IsSupportAccount = false;
+            Config.IsSupportStarButton = true;
+            Config.IsSupportAccount = true;
         }
         private string AccessToken => SiteSettings.GetSetting("accessToken");
 
@@ -106,7 +106,8 @@ namespace MoeLoaderP.Core.Sites
             
             var json = await net.GetJsonAsync($"{Api}/posts/keyset", token, pairs);
             if (json == null) return null;
-            para.NextPageMark = $"{json.meta.next}";
+            //if($"{json.suce}")
+            para.NextPageMark = $"{json.meta?.next}";
             foreach (var jitem in Ex.GetList(json.data))
             {
                 var img = new MoeItem(this, para)

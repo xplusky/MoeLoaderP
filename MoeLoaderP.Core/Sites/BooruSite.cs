@@ -19,9 +19,10 @@ namespace MoeLoaderP.Core.Sites
 
         protected BooruSite()
         {
-            DownloadTypes.Add("原图", 4);
-            DownloadTypes.Add("预览图", 2);
-            if (SiteType == SiteTypeEnum.Xml) DownloadTypes.Add("Jpeg图", 3);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            if (SiteType == SiteTypeEnum.Xml) DownloadTypes.Add("Jpeg图", DownloadTypeEnum.Large);
+            DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
+            
         }
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
@@ -66,12 +67,12 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            switch (SiteType)
+            return SiteType switch
             {
-                case SiteTypeEnum.Xml: return await GetRealPageImagesAsyncFromXml(para, token);
-                case SiteTypeEnum.Json: return await GetRealPageImagesAsyncFromJson(para, token);
-                default: return null;
-            }
+                SiteTypeEnum.Xml => await GetRealPageImagesAsyncFromXml(para, token),
+                SiteTypeEnum.Json => await GetRealPageImagesAsyncFromJson(para, token),
+                _ => null
+            };
         }
 
         public async Task<MoeItems> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)

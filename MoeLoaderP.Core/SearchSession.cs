@@ -27,7 +27,7 @@ namespace MoeLoaderP.Core
             CurrentSearchPara = para;
         }
 
-        public int AllImageCount => LoadedVisualPages.Sum(page => page.ImageItems.Count);
+        //public int AllImageCount => LoadedVisualPages.Sum(page => page.ImageItems.Count);
 
         public async Task<Task> TrySearchNextPageAsync()
         {
@@ -173,7 +173,7 @@ namespace MoeLoaderP.Core
             {
                 var del = false;
                 var item = items[i];
-                var state = item.Site.SupportState;
+                var state = item.Site.Config;
                 if (state.IsSupportRating) // 过滤r18评级图片
                 {
                     if ((!Settings.IsXMode || !para.IsShowExplicit) && item.IsExplicit) del = true;
@@ -231,16 +231,16 @@ namespace MoeLoaderP.Core
             var para = CurrentSearchPara;
             var site = CurrentSearchPara.Site;
             var sb = $"当前搜索：{site.DisplayName}";
-            if (site.SubCategories.Count > 0 && para.SubMenuIndex > -1)
+            if (site.Lv2Cat?.Count > 0 && para.Lv2MenuIndex > -1)
             {
-                var lv2 = site.SubCategories?[para.SubMenuIndex];
+                var lv2 = site.Lv2Cat?[para.Lv2MenuIndex];
                 sb += $"→{lv2.Name}";
 
-                if (lv2.SubCategories.Count > 0 && para.Lv3MenuIndex > -1)
+                if (lv2.SubCategories?.Count > 0 && para.Lv3MenuIndex > -1)
                 {
                     var lv3 = lv2.SubCategories?[para.Lv3MenuIndex];
                     sb += $"→{lv3.Name}";
-                    if (lv3.SubCategories.Count > 0 && para.Lv4MenuIndex > -1)
+                    if (lv3.SubCategories?.Count > 0 && para.Lv4MenuIndex > -1)
                     {
                         var lv4 = lv3.SubCategories?[para.Lv4MenuIndex];
                         sb += $"→{lv4.Name}";
@@ -272,7 +272,7 @@ namespace MoeLoaderP.Core
     public class SearchPara
     {
         public MoeSite Site { get; set; }
-        public SearchSession CurrentSearch { get; set; }
+        //public SearchSession CurrentSearch { get; set; }
         public string Keyword { get; set; }
         public int PageIndex { get; set; }
         public string NextPageMark { get; set; }
@@ -294,11 +294,11 @@ namespace MoeLoaderP.Core
 
         public DateTime? Date { get; set; }
 
-        public int SubMenuIndex { get; set; }
+        public int Lv2MenuIndex { get; set; }
         public int Lv3MenuIndex { get; set; }
         public int Lv4MenuIndex { get; set; }
 
-        public MoeSiteSupportState SupportState { get; set; }
+        public MoeSiteConfig SupportState { get; set; }
 
         public SearchPara Clone() => (SearchPara)MemberwiseClone();
     }

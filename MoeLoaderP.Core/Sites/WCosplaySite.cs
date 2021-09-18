@@ -14,8 +14,7 @@ namespace MoeLoaderP.Core.Sites
 
         public WCosplaySite()
         {
-            SupportState.IsSupportAutoHint = false;
-            DownloadTypes.Add("大图", 3);
+            DownloadTypes.Add("大图", DownloadTypeEnum.Large);
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)

@@ -20,17 +20,20 @@ namespace MoeLoaderP.Core.Sites
 
         public BilibiliSite()
         {
-            var lv3 = new Categories("最新", "最热");
-            SubCategories.Add("画友", lv3);
-            SubCategories.Add("摄影(COS)", lv3);
-            SubCategories.Add("摄影(私服)", lv3);
+            var lv3Cat = new Categories("最新", "最热");
+            Lv2Cat = new Categories()
+            {
+                new Category("画友", lv3Cat),
+                new Category("摄影(COS)", lv3Cat),
+                new Category("摄影(私服)", lv3Cat)
+            };
 
-            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
 
-            SupportState.IsSupportRating = false;
-            SupportState.IsSupportAccount = true;
-            SupportState.IsSupportThumbButton = true;
-            SupportState.IsSupportStarButton = true;
+            Config.IsSupportRating = false;
+            Config.IsSupportAccount = true;
+            Config.IsSupportThumbButton = true;
+            Config.IsSupportStarButton = true;
             LoginPageUrl = "https://passport.bilibili.com/login";
 
         }
@@ -87,7 +90,7 @@ namespace MoeLoaderP.Core.Sites
             var type = para.Lv3MenuIndex == 0 ? "new" : "hot";
             var count = para.Count > 20 ? 20 : para.Count;
             var api2 = "";
-            switch (para.SubMenuIndex)
+            switch (para.Lv2MenuIndex)
             {
                 case 0:
                     api2 = $"{api}/Doc/list";
@@ -100,7 +103,7 @@ namespace MoeLoaderP.Core.Sites
             var net = new NetOperator(Settings);
             var json = await net.GetJsonAsync(api2, token, new Pairs
             {
-                {"category", para.SubMenuIndex == 0 ? "all" : (para.SubMenuIndex == 1 ? "cos" : "sifu")},
+                {"category", para.Lv2MenuIndex == 0 ? "all" : (para.Lv2MenuIndex == 1 ? "cos" : "sifu")},
                 {"type", type},
                 {"page_num", $"{para.PageIndex - 1}"},
                 {"page_size", $"{count}"}
@@ -109,7 +112,7 @@ namespace MoeLoaderP.Core.Sites
 
             foreach (var item in Ex.GetList(json?.data?.items))
             {
-                var cat = para.SubMenuIndex == 0 ? "/d" : "/p";
+                var cat = para.Lv2MenuIndex == 0 ? "/d" : "/p";
                 var img = new MoeItem(this, para)
                 {
                     Uploader = $"{item.user?.name}",
@@ -151,7 +154,7 @@ namespace MoeLoaderP.Core.Sites
         {
             const string api = "https://api.bilibili.com/x/web-interface/search/type";
             var newOrHotOrder = para.Lv3MenuIndex == 0? "pubdate" : "stow";
-            var drawOrPhotoCatId = para.SubMenuIndex == 0 ? "1" : "2";
+            var drawOrPhotoCatId = para.Lv2MenuIndex == 0 ? "1" : "2";
             var pairs = new Pairs
             {
                 {"search_type", "photo"},

@@ -3,16 +3,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:Wpf="clr-namespace:MoeLoaderP.Wpf"
+    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
     x:Name="ItemControl"
-    x:Class="MoeLoaderP.Wpf.ControlParts.ImageControl"
+    x:Class="MoeLoaderP.Wpf.ControlParts.MoeItemControl"
     Width="{Binding Settings.ImageItemControlSize}"
     Height="{Binding Settings.ImageItemControlSize}" 
     mc:Ignorable="d" 
     d:DesignWidth="153.452" d:DesignHeight="156.449"
     RenderTransformOrigin="0.5,0.5">
     <UserControl.Resources>
-        <Wpf:UlongToVisibilityConverter x:Key="UlongToVisibilityConverter"/>
+        <wpf:UlongToVisibilityConverter x:Key="UlongToVisibilityConverter"/>
 
         <Storyboard x:Key="LoadingStartSb">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LoadingAnimeGrid">
@@ -252,14 +252,14 @@
                 </Grid>
                 <StackPanel x:Name="LeftBottomStackPanel" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Bottom" Margin="4,0,0,4">
                     <Border x:Name="ResolutionBorder" CornerRadius="5" Padding="1"
-                        Visibility="{Binding ImageItem.ResolutionText, Converter={StaticResource StringToVisibilityConverter},Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        Visibility="{Binding MoeItem.ResolutionText, Converter={StaticResource StringToVisibilityConverter},Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <Border.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="#A5000000" Offset="0"/>
                                 <GradientStop Color="#A8404040" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock x:Name="ResolutionTextBlock" Text="{Binding ImageItem.ResolutionText}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ResolutionTextBlock" Text="{Binding MoeItem.ResolutionText}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
                 <StackPanel x:Name="RightBottomInfosStackPanel" Margin="4" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5">
@@ -271,7 +271,7 @@
                             <TranslateTransform Y="0"/>
                         </TransformGroup>
                     </StackPanel.RenderTransform>
-                    <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding ImageItem.FileType, Converter={StaticResource StringToVisibilityConverter}, FallbackValue=Collapsed}" VerticalAlignment="Bottom" CornerRadius="5"   Padding="1" >
+                    <Border x:Name="FileTypeBorder" HorizontalAlignment="Right" Visibility="{Binding MoeItem.FileType, Converter={StaticResource StringToVisibilityConverter}, FallbackValue=Collapsed}" VerticalAlignment="Bottom" CornerRadius="5"   Padding="1" >
                         <Border.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="#A5000000" Offset="0"/>
@@ -279,12 +279,12 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         <TextBlock x:Name="FileTypeTextBlock" 
-                                   Text="{Binding ImageItem.FileType}" 
+                                   Text="{Binding MoeItem.FileType}" 
                                    Margin="2" Foreground="White" FontSize="9" 
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <Border x:Name="FileSizeBorder" HorizontalAlignment="Right" 
-                            Visibility="{Binding ImageItem.DownloadUrlInfo.FileSize, Converter={StaticResource UlongToVisibilityConverter}, FallbackValue=Collapsed}" 
+                            Visibility="{Binding MoeItem.DownloadUrlInfo.FileSize, Converter={StaticResource UlongToVisibilityConverter}, FallbackValue=Collapsed}" 
                             VerticalAlignment="Bottom" CornerRadius="5"   Padding="1" Margin="0,4,0,0" >
                         <Border.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -292,7 +292,7 @@
                                 <GradientStop Color="#A8404040" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock x:Name="FileSizeTextBlock" Text="{Binding ImageItem.DownloadUrlInfo.FormattedFileSize}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="FileSizeTextBlock" Text="{Binding MoeItem.DownloadUrlInfo.FormattedFileSize}" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
                 <StackPanel x:Name="LeftTopInfosStackPanel" Margin="4,4,0,0" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
@@ -305,38 +305,38 @@
                         </TransformGroup>
                     </StackPanel.RenderTransform>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,0,4">
-                        <Border x:Name="ScoreBorder" Visibility="{Binding ImageItem.Score, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" Margin="0,0,4,0" >
+                        <Border x:Name="ScoreBorder" Visibility="{Binding MoeItem.Score, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" Margin="0,0,4,0" >
                             <Border.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#A5000000" Offset="0"/>
                                     <GradientStop Color="#A8404040" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <TextBlock x:Name="ScoreTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF005; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text="{Binding ImageItem.Score}" /></TextBlock>
+                            <TextBlock x:Name="ScoreTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF005; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text="{Binding MoeItem.Score}" /></TextBlock>
                         </Border>
-                        <Border x:Name="ImagesCountBorder" HorizontalAlignment="Left" Visibility="{Binding ImageItem.ChildrenItemsCount, Converter={StaticResource ImagesCountVisibilityConvertor}, Mode=OneWay}" VerticalAlignment="Top" CornerRadius="5" Margin="0,0,4,0" Padding="1" >
+                        <Border x:Name="ImagesCountBorder" HorizontalAlignment="Left" Visibility="{Binding MoeItem.ChildrenItemsCount, Converter={StaticResource ImagesCountVisibilityConvertor}, Mode=OneWay}" VerticalAlignment="Top" CornerRadius="5" Margin="0,0,4,0" Padding="1" >
                             <Border.Background>
                                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                     <GradientStop Color="#A5000000" Offset="0"/>
                                     <GradientStop Color="#A8404040" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <TextBlock x:Name="ImagesCountTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF302; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text="{Binding ImageItem.ChildrenItemsCount, Mode=OneWay}" /></TextBlock>
+                            <TextBlock x:Name="ImagesCountTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF302; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text="{Binding MoeItem.ChildrenItemsCount, Mode=OneWay}" /></TextBlock>
                         </Border>
                     </StackPanel>
-                    <Border  x:Name="TipBorder" Visibility="{Binding ImageItem.Tip, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" >
+                    <Border  x:Name="TipBorder" Visibility="{Binding MoeItem.Tip, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" >
                         <Border.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="#A5000000" Offset="0"/>
                                 <GradientStop Color="#A8404040" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <TextBlock x:Name="TipTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="{Binding ImageItem.Tip}" FontSize="12" Foreground="{Binding ImageItem.TipHighLight, Converter={StaticResource BoolToHighLightBrush}}"/></TextBlock>
+                        <TextBlock x:Name="TipTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="{Binding MoeItem.Tip}" FontSize="12" Foreground="{Binding MoeItem.TipHighLight, Converter={StaticResource BoolToHighLightBrush}}"/></TextBlock>
                     </Border>
                 </StackPanel>
-                <Grid x:Name="RankGrid" Margin="0,-40,-40,0" Visibility="{Binding ImageItem.Rank, Converter={StaticResource IntToVisibilityConverter}}" Width="80" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Grid x:Name="RankGrid" Margin="0,-40,-40,0" Visibility="{Binding MoeItem.Rank, Converter={StaticResource IntToVisibilityConverter}}" Width="80" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top">
                     <Ellipse HorizontalAlignment="Right" Height="80" VerticalAlignment="Top" Width="80" Fill="#660078D7"/>
-                    <TextBlock x:Name="RankTextBlock" TextWrapping="Wrap" Text="{Binding ImageItem.Rank}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="-29,36,0,0"/>
+                    <TextBlock x:Name="RankTextBlock" TextWrapping="Wrap" Text="{Binding MoeItem.Rank}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="-29,36,0,0"/>
                 </Grid>
                 <Grid x:Name="TitleGrid" Height="28" VerticalAlignment="Top" Margin="0,-30,0,0" RenderTransformOrigin="0.5,0.5">
                     <Grid.RenderTransform>
@@ -353,8 +353,8 @@
                             <GradientStop Color="#33000000" Offset="1"/>
                         </LinearGradientBrush>
                     </Grid.Background>
-                    <TextBlock x:Name="TitleTextBlock" TextWrapping="Wrap" Text="{Binding ImageItem.Title}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
-                    <TextBlock x:Name="IdTextBlock" TextWrapping="Wrap" Text="{Binding ImageItem.Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" 
+                    <TextBlock x:Name="TitleTextBlock" TextWrapping="Wrap" Text="{Binding MoeItem.Title}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+                    <TextBlock x:Name="IdTextBlock" TextWrapping="Wrap" Text="{Binding MoeItem.Id}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" 
                                Visibility="{Binding Text, ConverterParameter=reverse, Converter={StaticResource StringToVisibilityConverter}, ElementName=TitleTextBlock}"/>
                 </Grid>
             </Grid>
@@ -368,25 +368,25 @@
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF002;"/></TextBlock>
                 </Button>
                 <Button x:Name="DetailPageLinkButton" 
-                        ToolTip="{Binding ImageItem.DetailUrl}"
+                        ToolTip="{Binding MoeItem.DetailUrl}"
                         Template="{DynamicResource MoeImageOperateButtonControlTemplate}" 
                         Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF35D;"/></TextBlock>
                 </Button>
-                <Button x:Name="DownloadButton" Visibility="{Binding ImageItem.DownloadUrlInfo, Converter={StaticResource ObjectToVisibilityConverter}}" Template="{DynamicResource MoeImageOperateButtonControlTemplate}" Width="28" Height="28" Margin="1">
+                <Button x:Name="DownloadButton" Visibility="{Binding MoeItem.DownloadUrlInfo, Converter={StaticResource ObjectToVisibilityConverter}}" Template="{DynamicResource MoeImageOperateButtonControlTemplate}" Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF019;"/></TextBlock>
                 </Button>
             </StackPanel>
         </Border>
         <Border x:Name="LeftOperationBorder" VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="6" Margin="3" Opacity="0">
-            <StackPanel Visibility="{Binding ImageItem.Site.SupportState.IsSupportAccount, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Visibility="{Binding MoeItem.Site.Config.IsSupportAccount, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Button x:Name="ThumbButton" Template="{DynamicResource MoeImageOperateButtonControlTemplate}" 
-                        Visibility="{Binding ImageItem.Site.SupportState.IsSupportStarButton, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Visibility="{Binding MoeItem.Site.Config.IsSupportStarButton, Converter={StaticResource BoolToVisibilityConverter}}"
                         Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF164;"/></TextBlock>
                 </Button>
                 <Button x:Name="StarButton" Template="{DynamicResource MoeImageOperateButtonControlTemplate}"
-                        Visibility="{Binding ImageItem.Site.SupportState.IsSupportStarButton, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Visibility="{Binding MoeItem.Site.Config.IsSupportStarButton, Converter={StaticResource BoolToVisibilityConverter}}"
                         Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF005;"/></TextBlock>
                 </Button>

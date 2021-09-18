@@ -9,7 +9,6 @@ using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
 using MoeLoaderP.Wpf.ControlParts;
-using MoeLoaderP.Wpf.Egg;
 
 namespace MoeLoaderP.Wpf
 {
@@ -34,7 +33,7 @@ namespace MoeLoaderP.Wpf
             DataContext = Settings;
             Closing += OnClosing;
             PreviewKeyDown += OnPreviewKeyDown;
-            MouseLeftButtonDown += (_, _) => DragMove();
+            MouseLeftButtonDown += delegate { DragMove(); };
             Ex.ShowMessageAction += ShowMessage;
 
             // logo / menu : setting ,downloader, about
@@ -43,7 +42,6 @@ namespace MoeLoaderP.Wpf
             MoeDownloaderControl.Init(Settings);
             MoeSettingsControl.Init(Settings);
             AboutControl.Init();
-            ChangeModeButton.Click += ChangeModeButtonOnClick;
             LogoImageButton.MouseRightButtonDown += LogoImageButtonOnMouseRightButtonDown;
 
             // explorer
@@ -58,31 +56,32 @@ namespace MoeLoaderP.Wpf
             SearchControl.Init(SiteManager, Settings);
             SearchControl.SearchButton.Click += SearchButtonOnClick;
             SearchControl.AccountButton.Click += AccountButtonOnClick;
-            SearchControl.KeywordTextBox.KeyDown += (sender, args) =>
-            {
-                if (args.Key == Key.Enter)
-                {
-                    SearchButtonOnClick(sender, args);
-                    SearchControl.KeywordPopup.IsOpen = false;
-                }
-                
-            };
+            SearchControl.KeywordTextBox.KeyDown += OnKeywordTextBoxOnKeyDown;
 
             // helper : collect ,log
             MoeExplorer.OutputSelectedImagesUrlsButton.Click += OutputSelectedImagesUrlsButtonOnClick;
-            CollectCopyAllButton.Click += (_, _) => CollectTextBox.Text.CopyToClipboard(); 
-            CollectClearButton.Click += (_, _) => CollectTextBox.Text = string.Empty;
+            CollectCopyAllButton.Click += delegate { CollectTextBox.Text.CopyToClipboard(); }; 
+            CollectClearButton.Click += delegate { CollectTextBox.Text = string.Empty; };
             Ex.LogAction += Log;
             LogListBox.MouseRightButtonUp += LogListBoxOnMouseRightButtonUp;
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
             // egg
             LogoImageButton.Click += LogoImageButtonOnClick;
             ChangeBgImage();
-            
-            // 
+
+            // test
             var cus = new CustomSiteFactory();
             cus.GenTestSites();
-            cus.OutputJson(Path.Combine(App.AppDataDir,"CustomSites"));
+            cus.OutputJson(App.CustomSiteDir);
+        }
+
+        private void OnKeywordTextBoxOnKeyDown(object sender, KeyEventArgs args)
+        {
+            if (args.Key == Key.Enter)
+            {
+                SearchButtonOnClick(sender, args);
+                SearchControl.KeywordPopup.IsOpen = false;
+            }
         }
 
         private void LogoImageButtonOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -98,8 +97,8 @@ namespace MoeLoaderP.Wpf
             if (PreviewWindowInstance == null)
             {
                 PreviewWindowInstance = new PreviewWindow();
+                PreviewWindowInstance.Closed += delegate { PreviewWindowInstance = null; }; 
                 PreviewWindowInstance.Owner = this;
-                PreviewWindowInstance.Closed += (_, _) => PreviewWindowInstance = null;
                 PreviewWindowInstance.Width = Width * 0.85d;
                 PreviewWindowInstance.Height = Height * 0.85d;
                 PreviewWindowInstance.Show();
@@ -112,20 +111,14 @@ namespace MoeLoaderP.Wpf
 
         }
 
-        private void ChangeModeButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            LayoutRoot.GoElementState(Settings.IsCustomSiteMode ? nameof(DefaultSitesState) : nameof(CustomSitesState));
-            Settings.IsCustomSiteMode = !Settings.IsCustomSiteMode;
-        }
-
         private void OutputSelectedImagesUrlsButtonOnClick(object sender, RoutedEventArgs e)
         {
             foreach (var ctrl in MoeExplorer.SelectedImageControls)
             {
-                var url = ctrl.ImageItem.DownloadUrlInfo;
-                if (ctrl.ImageItem.ChildrenItems.Count > 0)
+                var url = ctrl.MoeItem.DownloadUrlInfo;
+                if (ctrl.MoeItem.ChildrenItems.Count > 0)
                 {
-                    foreach (var item in ctrl.ImageItem.ChildrenItems)
+                    foreach (var item in ctrl.MoeItem.ChildrenItems)
                     {
                         CollectTextBox.Text += item.DownloadUrlInfo?.Url + Environment.NewLine;
                     }
@@ -136,7 +129,7 @@ namespace MoeLoaderP.Wpf
                 }
             }
 
-            foreach(ImageControl ct in MoeExplorer.ImageItemsWrapPanel.Children) ct.ImageCheckBox.IsChecked = false;
+            foreach(MoeItemControl ct in MoeExplorer.ImageItemsWrapPanel.Children) ct.ImageCheckBox.IsChecked = false;
 
             Ex.ShowMessage("已添加至收集箱");
         }
@@ -144,9 +137,7 @@ namespace MoeLoaderP.Wpf
         private async void AccountButtonOnClick(object sender, RoutedEventArgs e)
         {
             var wnd = new LoginWindow();
-            
             await wnd.Init(Settings, SearchControl.CurrentSelectedSite);
-
             try
             {
                 wnd.Owner = this;
@@ -162,11 +153,8 @@ namespace MoeLoaderP.Wpf
         private void LogListBoxOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
 
-            if(LogListBox.SelectedIndex == -1)return;
-            if (LogListBox.SelectedItem is TextBlock tb)
-            {
-                tb.Text.CopyToClipboard();
-            }
+            if (LogListBox.SelectedIndex == -1) return;
+            if (LogListBox.SelectedItem is TextBlock tb) tb.Text.CopyToClipboard();
         }
 
         private int LogoClickCount { get; set; }
@@ -174,48 +162,78 @@ namespace MoeLoaderP.Wpf
         private void LogoImageButtonOnClick(object sender, RoutedEventArgs e)
         {
             LogoClickCount++;
-            var c = LogoClickCount;
-            if (c == 10) ShowMessage("你好！");
-            if (c == 15) ShowMessage("你好像很无聊！");
-            if (c == 20) ShowMessage("你这样真的好吗？？！");
-            if (c == 30) ShowMessage("再点！再点就把你喝掉~~");
-            if (c == 40) ShowMessage("你好像真的好无聊 啊ᕦ(･ㅂ･)ᕤ");
-            if (c == 50) ShowMessage("你想和我说话吗(・ω<) ﾃﾍﾍﾟﾛ");
-            if (c == 60) ShowMessage("我不想和你说(╬￣皿￣)");
-            if (c == 70) ShowMessage("再点就要爆炸了！！＜(▰˘◡˘▰)");
-            if (c == 80) ShowMessage("你不信吗？？？？(*｀Ω´*)v");
-            if (c is > 90 and < 100) ShowMessage($"{100 - c}");
-            if (c >= 100)
+            switch (LogoClickCount)
             {
-                var dir = new DirectoryInfo($"{App.ExeDir}\\Egg\\Res");
-                var files = dir.GetFiles();
-                var rnd = new Random();
-                var rndfile = files[rnd.Next(0, files.Length - 1)];
+                case 10:
+                    ShowMessage("你好！");
+                    break;
+                case 15:
+                    ShowMessage("你好像很无聊！");
+                    break;
+                case 20:
+                    ShowMessage("你这样真的好吗？？！");
+                    break;
+                case 30:
+                    ShowMessage("再点！再点就把你喝掉~~");
+                    break;
+                case 40:
+                    ShowMessage("你好像真的好无聊 啊ᕦ(･ㅂ･)ᕤ");
+                    break;
+                case 50:
+                    ShowMessage("你想和我说话吗(・ω<) ﾃﾍﾍﾟﾛ");
+                    break;
+                case 60:
+                    ShowMessage("我不想和你说(╬￣皿￣)");
+                    break;
+                case 70:
+                    ShowMessage("再点就要爆炸了！！＜(▰˘◡˘▰)");
+                    break;
+                case 80:
+                    ShowMessage("你不信吗？？？？(*｀Ω´*)v");
+                    break;
+                case > 90 and < 120 when LogoClickCount % 3==0:
+                    ShowMessage($"{(121 - LogoClickCount) / 3}!!");
+                    break;
+                case 130:
+                    ShowMessage("嘻嘻~我和你说说话");
+                    break;
+                case 140:
+                    ShowMessage("其实后面还有哦！！");
+                    break;
+                case 150:
+                    ShowMessage("其实，我对你…………");
+                    break;
+                case 160:
+                    ShowMessage("非常讨厌！！！(ノ｀Д)ノ");
+                    break;
+                case 170:
+                    ShowMessage("不过看你真的很无聊！我就给你点惊喜吧！");
+                    break;
+                case 180:
+                    ShowMessage("看招！！！！！！");
+                    break;
+                case 190:
+                    ShowMessage("嘿！！！！开始啦！！！看看我的无敌雪景！！");
+                    new EggWindow().Show();
+                    break;
+                default:
+                    break;
+            }
+
+            if (LogoClickCount > 120)
+            {
+                var files = $@"{App.ExeDir}\Assets\Egg".GetDirFiles();
+                var rndfile = files[new Random().Next(0, files.Length - 1)];
                 Player.Source = new Uri(rndfile.FullName, UriKind.Absolute);
                 Player.Stop();
                 Player.Play();
-            }
-            if (c == 100) ShowMessage("嘻嘻~我和你说说话");
-            if (c == 110) ShowMessage("其实后面还有哦！！");
-            if (c == 120) ShowMessage("其实，我对你…………");
-            if (c == 130) ShowMessage("非常讨厌！！！(ノ｀Д)ノ");
-            if (c == 140) ShowMessage("不过看你真的很无聊！我就给你点惊喜吧！");
-            if (c == 150) ShowMessage("看招！！！！！！");
-            if (c == 160) ShowMessage("嘿！！！！开始啦！！！");
-            if (c == 161)
-            {
-                var wnd = new EggWindow();
-                wnd.Show();
-                wnd.MousePierce();
             }
         }
 
         public void ChangeBgImage()
         {
-            var dir = new DirectoryInfo($"{App.ExeDir}\\Assets\\Bg");
-            var files = dir.GetFiles();
-            var rnd = new Random();
-            var rndfile = files[rnd.Next(0, files.Length)];
+            var files = $"{App.ExeDir}\\Assets\\Bg".GetDirFiles();
+            var rndfile = files[new Random().Next(0, files.Length)];
             BgImage.Source = new BitmapImage(new Uri(rndfile.FullName, UriKind.Absolute));
             BgGridViewBox.Width = 670;
             BgGridViewBox.Height = 530;
@@ -280,14 +298,14 @@ namespace MoeLoaderP.Wpf
             var count = 0;
             foreach (var ctrl in MoeExplorer.SelectedImageControls)
             {
-                var img = ctrl.ImageItem;
+                var img = ctrl.MoeItem;
                 if (img.DownloadUrlInfo?.Url == null) continue;
                 MoeDownloaderControl.Downloader.AddDownload(img, ctrl.PreviewImage.Source);
                 count++;
             }
             if (DownloaderMenuCheckBox.IsChecked == false && count>0) DownloaderMenuCheckBox.IsChecked = true;
             else Ex.ShowMessage("没有图片可以下载T_T");
-            foreach (ImageControl ct in MoeExplorer.ImageItemsWrapPanel.Children)
+            foreach (MoeItemControl ct in MoeExplorer.ImageItemsWrapPanel.Children)
             {
                 ct.ImageCheckBox.IsChecked = false;
             }
@@ -361,7 +379,7 @@ namespace MoeLoaderP.Wpf
             StatusTextBlock.Text = "";
             var para = SearchControl.GetSearchPara();
             CurrentSearch = new SearchSession(Settings, para);
-            para.CurrentSearch = CurrentSearch;
+            //para.CurrentSearch = CurrentSearch;
             SiteTextBlock.Text = CurrentSearch.GetCurrentSearchStateText();
             Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
             MoeExplorer.ResetVisual();

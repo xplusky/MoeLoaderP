@@ -200,7 +200,7 @@
                             <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
                         <ThicknessAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="AccountButton">
-                            <EasingThicknessKeyFrame KeyTime="0" Value="2,0,0,0"/>
+                            <EasingThicknessKeyFrame KeyTime="0" Value="0,0,0,0"/>
                         </ThicknessAnimationUsingKeyFrames>
                         <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="AccountButton">
                             <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
@@ -231,7 +231,35 @@
                     </Storyboard>
                 </VisualState>
             </VisualStateGroup>
+            <VisualStateGroup x:Name="CustomAddButtonVSG">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="00:00:00.5000000">
+                        <VisualTransition.GeneratedEasingFunction>
+                            <CircleEase EasingMode="EaseOut"/>
+                        </VisualTransition.GeneratedEasingFunction>
+                    </VisualTransition>
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="ShowCustomAddButtonState"/>
+                <VisualState x:Name="HideCustomAddButtonState">
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CustomAddButton" Storyboard.TargetProperty="(FrameworkElement.Width)">
+                            <EasingDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>
+                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="CustomAddButton" Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                            <EasingThicknessKeyFrame KeyTime="00:00:00" Value="0,0,0,0"/>
+                        </ThicknessAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+        <Button
+            x:Name="CustomAddButton"
+            IsDefault="True" Template="{DynamicResource MoeButtonControlTemplate}" SnapsToDevicePixels="True" Width="34" ToolTip="管理自定义站点" Opacity="1" Focusable="False" Margin="2,0,2,0">
+            <Grid Height="24" Width="24">
+                <TextBlock Text="&#xf067;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" />
+            </Grid>
+        </Button>
+
         <Button
                 x:Name="AccountButton"
                 IsDefault="True"
@@ -245,7 +273,7 @@
                 </TextBlock>
                 <TextBlock x:Name="AccountCheckedIconTextBlock" Text="&#xF00C;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Right" 
                            VerticalAlignment="Bottom" Foreground="#FF00B41F" FontSize="14" FontWeight="Bold" Margin="0,0,-1,-2" 
-                           DataContext ="{Binding CurrentSelectedSite , ElementName=SearchControlRoot}"
+                           DataContext ="{Binding CurrentSelectedSite, ElementName=SearchControlRoot}"
                            Visibility="{Binding SiteSettings.LoginCookies, Converter={StaticResource ObjectToVisibilityConverter}}" />
             </Grid>
         </Button>
@@ -301,7 +329,7 @@
                 <Popup x:Name="KeywordPopup" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade" Placement="Bottom">
                     <Grid x:Name="DropDown" SnapsToDevicePixels="True">
                         <Border x:Name="DropDownBorder" BorderBrush="{DynamicResource SolidBorderBrush}" BorderThickness="1" Background="{DynamicResource WindowBackgroundBrush}" CornerRadius="4"/>
-                        <ListBox x:Name="KeywordListBox" MinWidth="{Binding Width , ElementName= KeywordGrid}"  Margin="4,6" SnapsToDevicePixels="True"  Focusable="False" Template="{DynamicResource MoeSearchKeywordListBoxControlTemplate}" ItemContainerStyle="{DynamicResource SearchKeywordListBoxItemStyle}">
+                        <ListBox x:Name="KeywordListBox" MinWidth="{Binding Width, ElementName=KeywordGrid}"  Margin="4,6" SnapsToDevicePixels="True"  Focusable="False" Template="{DynamicResource MoeSearchKeywordListBoxControlTemplate}" ItemContainerStyle="{DynamicResource SearchKeywordListBoxItemStyle}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="sites:AutoHintItem">
                                     <Grid d:DesignWidth="175.333" d:DesignHeight="32.667">
@@ -313,7 +341,7 @@
                         </ListBox>
                     </Grid>
                 </Popup>
-                <TextBlock x:Name="OverflowTextBlock" TextWrapping="NoWrap" Text="{DynamicResource TextSearchControlKeywordTip}" VerticalAlignment="Center" Opacity="0.5" Visibility="{Binding Text, ConverterParameter=reverse, Converter={StaticResource StringToVisibilityConverter},ElementName = KeywordTextBox}" IsHitTestVisible="False" Margin="8,0"/>
+                <TextBlock x:Name="OverflowTextBlock" TextWrapping="NoWrap" Text="{DynamicResource TextSearchControlKeywordTip}" VerticalAlignment="Center" Opacity="0.5" Visibility="{Binding Text, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=reverse, ElementName=KeywordTextBox}" IsHitTestVisible="False" Margin="8,0"/>
             </Grid>
             <TextBlock x:Name="SpinTextBlock" TextWrapping="Wrap" Text="&#xF1CE;" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="18" RenderTransformOrigin="0.5,0.5" Margin="0,0,7,0" Visibility="Collapsed" IsHitTestVisible="False">
                 <TextBlock.RenderTransform>

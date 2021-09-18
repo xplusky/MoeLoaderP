@@ -25,24 +25,26 @@ namespace MoeLoaderP.Core.Sites
         public string GetSort(SearchPara para)
         {
             var sorts = new[] {"wallpapers", "scans", "mobile", "indy-art"};
-            return sorts[para.SubMenuIndex];
+            return sorts[para.Lv2MenuIndex];
         }
 
         public string GetOrder(SearchPara para)
         {
-            var orders = new [] {"id", "favorites"};
+            var orders = new[] { "id", "favorites" };
             return orders[para.Lv3MenuIndex];
         }
 
         public MiniTokyoSite()
         {
             var lv3 = new Categories("最新", "最热");
-            SubCategories.Add("壁纸", lv3);
-            SubCategories.Add("扫描图", lv3);
-            SubCategories.Add("手机壁纸", lv3);
-            SubCategories.Add("Indy Art", lv3);
-
-            DownloadTypes.Add("原图", 4);
+            Lv2Cat = new Categories()
+            {
+                new Category("壁纸", lv3),
+                new Category("扫描图", lv3),
+                new Category("手机壁纸", lv3),
+                new Category("Indy Art", lv3)
+            };
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
         }
 
         public async Task<bool> IsLogin(CancellationToken token)
@@ -107,7 +109,7 @@ namespace MoeLoaderP.Core.Sites
                 var reg = new Regex(@"(?:^|\?|&)tid=(\d*)(?:&|$)");
                 var tid = reg.Match(url ?? "").Groups[0].Value;
                 var indexs = new [] {1, 3, 1, 2};
-                query = $"{HomeBrowseUrl}/gallery{tid}index={indexs[para.SubMenuIndex]}&order={GetOrder(para)}&display=thumbnails";
+                query = $"{HomeBrowseUrl}/gallery{tid}index={indexs[para.Lv2MenuIndex]}&order={GetOrder(para)}&display=thumbnails";
 
             }
 

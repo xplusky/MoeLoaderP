@@ -16,7 +16,8 @@
     WindowStartupLocation="CenterScreen"
     fw:AcrylicWindow.Enabled="True"
     fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
-    fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}">
+    fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}"
+    >
     <Window.Resources>
         <Storyboard x:Key="BeginSearchSb">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="SearchControl">
@@ -268,9 +269,6 @@
                         <Image x:Name="LogoImage2" Source="/Assets/banner2.png" Visibility="Collapsed"/>
                     </Grid>
 
-                </Button>
-                <Button x:Name="ChangeModeButton" Template="{DynamicResource MoeButtonControlTemplate}" Width="40" Height="40" FontFamily="{DynamicResource FontAwesomeSolid}" VerticalAlignment="Bottom" Margin="0,0,0,4" Visibility="Collapsed">
-                    <TextBlock TextWrapping="Wrap" Text="&#xF362;" FontSize="24" FontWeight="Bold"/>
                 </Button>
             </StackPanel>
         </Grid>

@@ -14,7 +14,7 @@ namespace MoeLoaderP.Wpf
         public static string DisplayName => "MoeLoader +1s";
         public static string Name => "Leaful.MoeLoader";
         public static Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-        public static DateTime CompileTime => File.GetLastWriteTime(ExeDir);
+        public static DateTime CompileTime => File.GetLastWriteTime(ExeFullPath);
         public static string SettingJsonFilePath => Path.Combine(AppDataDir, "Settings.json");
 
         public static string AppDataDir
@@ -27,12 +27,24 @@ namespace MoeLoaderP.Wpf
             }
         }
 
-        public static string ExeDir => Directory.GetParent(Process.GetCurrentProcess().MainModule?.FileName).FullName;
+        public static string ExeDir
+        {
+            get
+            {
+                var mainModuleFileName = Process.GetCurrentProcess().MainModule?.FileName;
+                if (mainModuleFileName != null) return Directory.GetParent(mainModuleFileName)?.FullName;
+                return null;
+            }
+        }
+
+        public static string ExeFullPath => Process.GetCurrentProcess().MainModule?.FileName;
 
         public static string SysAppDataDir => Environment.GetEnvironmentVariable("APPDATA");
 
         public static string MoePicFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), DisplayName);
         public static string SaeUrl => "http://sae.leaful.com";
+
+        public static string CustomSiteDir => Path.Combine(AppDataDir, "CustomSites");
 
         public App()
         {
@@ -49,33 +61,42 @@ namespace MoeLoaderP.Wpf
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            base.OnStartup(e);
+            Settings settings;
             try
             {
-                base.OnStartup(e);
-                var settings = Settings.Load(SettingJsonFilePath);
-                if (settings.ImageSavePath.IsEmpty()) settings.ImageSavePath = MoePicFolder;
-                var mainWin = new MainWindow();
-                mainWin.Init(settings);
-                mainWin.Show();
-                StatStartupTimesAsync();
+                settings = Settings.Load(SettingJsonFilePath);
+                if (settings.ImageSavePath.IsEmpty())
+                {
+                    settings.ImageSavePath = MoePicFolder;
+                }
             }
             catch (Exception ex)
             {
+                //if (Debugger.IsAttached) throw;
                 Ex.Log(ex);
-                var result = MessageBox.Show("启动失败，是否尝试删除配置文件？", "错误", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                var result = MessageBox.Show("启动失败，是否尝试清除设置？", "错误", MessageBoxButton.YesNo, MessageBoxImage.Error);
                 if (result == MessageBoxResult.Yes)
                 {
-                    File.Delete(SettingJsonFilePath);
-                    Current.Shutdown();
+                    settings = new Settings
+                    {
+                        ImageSavePath = MoePicFolder
+                    };
                 }
                 else
                 {
-                    throw;
+                    settings = null;
+                    Current.Shutdown();
                 }
             }
+
+            var mainWin = new MainWindow();
+            mainWin.Init(settings);
+            mainWin.Show();
+            StatStartupTimesAsync();
         }
 
-        public async void StatStartupTimesAsync()
+        public static async void StatStartupTimesAsync()
         {
             try
             {

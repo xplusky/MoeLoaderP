@@ -8,8 +8,8 @@ namespace MoeLoaderP.Wpf
         public MessageWindow()
         {
             InitializeComponent();
-            OkButton.Click += (_, _) => Close(); 
-            MouseLeftButtonDown += (_, _) => DragMove();
+            OkButton.Click += delegate { Close(); }; 
+            MouseLeftButtonDown += delegate { DragMove(); };
         }
         
         public static bool? Show(Exception ex,string mes = null)

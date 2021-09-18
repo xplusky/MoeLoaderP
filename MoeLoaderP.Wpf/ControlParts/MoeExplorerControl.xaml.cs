@@ -18,14 +18,14 @@ namespace MoeLoaderP.Wpf.ControlParts
     /// </summary>
     public partial class MoeExplorerControl
     {
-        public List<ImageControl> ImageLoadingPool { get; set; } = new();
-        public List<ImageControl> ImageWaitForLoadingPool { get; set; } = new();
+        public List<MoeItemControl> ImageLoadingPool { get; set; } = new();
+        public List<MoeItemControl> ImageWaitForLoadingPool { get; set; } = new();
 
         public Settings Settings { get; set; }
         public event Action<MoeItem, ImageSource> ImageItemDownloadButtonClicked;
         public event Action<MoeItem, ImageSource> MoeItemPreviewButtonClicked; 
-        public ImageControl MouseOnImageControl { get; set; }
-        public ObservableCollection<ImageControl> SelectedImageControls { get; set; } = new();
+        public MoeItemControl MouseOnImageControl { get; set; }
+        public ObservableCollection<MoeItemControl> SelectedImageControls { get; set; } = new();
 
         public MoeExplorerControl()
         {
@@ -104,7 +104,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             var yt = Canvas.GetTop(ChooseBox);
             var yb = Canvas.GetTop(ChooseBox) + ChooseBox.Height;
             var ctrlDown = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.LeftAlt);
-            foreach (ImageControl child in ImageItemsWrapPanel.Children)
+            foreach (MoeItemControl child in ImageItemsWrapPanel.Children)
             {
                 var isIn = false;
                 var pointLeftTop = child.TranslatePoint(new Point(), ImageItemsWrapPanel);
@@ -184,7 +184,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void ContextSelectReverseButtonOnClick(object sender, RoutedEventArgs e)
         {
-            foreach (ImageControl ctrl in ImageItemsWrapPanel.Children)
+            foreach (MoeItemControl ctrl in ImageItemsWrapPanel.Children)
             {
                 ctrl.ImageCheckBox.IsChecked = !ctrl.ImageCheckBox.IsChecked;
             }
@@ -193,7 +193,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void ContextSelectNoneButtonOnClick(object sender, RoutedEventArgs e)
         {
-            foreach (ImageControl ctrl in ImageItemsWrapPanel.Children)
+            foreach (MoeItemControl ctrl in ImageItemsWrapPanel.Children)
             {
                 ctrl.ImageCheckBox.IsChecked = false;
             }
@@ -202,7 +202,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void ContextSelectAllButtonOnClick(object sender, RoutedEventArgs e)
         {
-            foreach (ImageControl ctrl in ImageItemsWrapPanel.Children)
+            foreach (MoeItemControl ctrl in ImageItemsWrapPanel.Children)
             {
                 ctrl.ImageCheckBox.IsChecked = true;
             }
@@ -234,16 +234,16 @@ namespace MoeLoaderP.Wpf.ControlParts
             var site = para.Site;
             SpPanel.Children.Clear();
 
-            // load choose 首次登场图片
-            if (site.SupportState.IsSupportSelectPixivRankNew && para.SubMenuIndex == 2)
+            // pixiv load choose 首次登场图片
+            if (site.ShortName == "pixiv" && para.Lv2MenuIndex == 2)
             {
 
                 var b = GetSpButton("全选首次登场图片");
                 b.Click += (_, _) =>
                 {
-                    foreach (ImageControl img in ImageItemsWrapPanel.Children)
+                    foreach (MoeItemControl img in ImageItemsWrapPanel.Children)
                     {
-                        img.ImageCheckBox.IsChecked = img.ImageItem.Tip == "首次登场";
+                        img.ImageCheckBox.IsChecked = img.MoeItem.Tip == "首次登场";
                     }
 
                     ContextMenuPopup.IsOpen = false;
@@ -252,7 +252,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
 
             // load search by author id
-            if (site.SupportState.IsSupportSearchByAuthorId)
+            if (site.ShortName == "pixiv")
             {
                 var b = GetSpButton($"搜索该作者{moeItem.Uploader}的所有作品");
                 b.Click += (_, _) =>
@@ -277,7 +277,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             if (!item.Title.IsEmpty()) GenImageInfoVisual("Title:", item.Title);
             if (!item.DateString.IsEmpty()) GenImageInfoVisual("Date:", item.DateString);
-            if (MouseOnImageControl.ImageItem.Tags.Count > 0)
+            if (MouseOnImageControl.MoeItem.Tags.Count > 0)
             {
                 GenImageInfoVisual("Tags:", item.Tags.ToArray());
             }
@@ -360,9 +360,9 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             foreach (var img in imgs)
             {
-                var itemCtrl = new ImageControl(Settings, img);
-                itemCtrl.DownloadButton.Click += (_, _) => { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.PreviewButton.Click += (_, _) => { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.ImageItem, itemCtrl.PreviewImage.Source); };
+                var itemCtrl = new MoeItemControl(Settings, img);
+                itemCtrl.DownloadButton.Click += (_, _) => { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.PreviewButton.Click += (_, _) => { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
                 itemCtrl.MouseEnter += (_, _) => MouseOnImageControl = itemCtrl;
                 itemCtrl.ImageCheckBox.Checked += (_, _) => SelectedImageControls.Add(itemCtrl);
                 itemCtrl.ImageCheckBox.Unchecked += (_, _) => SelectedImageControls.Remove(itemCtrl);
@@ -378,10 +378,10 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             ContextMenuPopup.IsOpen = true;
             //ContextMenuPopupGrid.EnlargeShowSb().Begin();
-            if (sender is ImageControl obj)
+            if (sender is MoeItemControl obj)
             {
-                LoadExtFunc(obj.ImageItem);
-                LoadImgInfo(obj.ImageItem);
+                LoadExtFunc(obj.MoeItem);
+                LoadImgInfo(obj.MoeItem);
                 e.Handled = true;
             }
             
@@ -434,7 +434,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
 
-        private void ItemOnImageLoaded(ImageControl obj)
+        private void ItemOnImageLoaded(MoeItemControl obj)
         {
             ImageLoadingPool.Remove(obj);
             if (ImageWaitForLoadingPool.Any())

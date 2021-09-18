@@ -24,9 +24,9 @@ namespace MoeLoaderP.Core.Sites
 
         public ZeroChanSite()
         {
-            SupportState.IsSupportRating = false;
-            DownloadTypes.Add("原图", 4);
-            DownloadTypes.Add("预览图", 2);
+            Config.IsSupportRating = false;
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
         }
 
         private bool IsLogon { get; set; }

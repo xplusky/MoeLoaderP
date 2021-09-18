@@ -30,7 +30,7 @@ namespace MoeLoaderP.Wpf
         {
             //Setting = setting;
             Site = site;
-            
+            DataContext = setting;
             try
             {
                 MainBroswer.CoreWebView2InitializationCompleted += MainBroswerOnCoreWebView2InitializationCompleted;

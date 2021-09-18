@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Interop;
 
-namespace MoeLoaderP.Wpf.Egg
+namespace MoeLoaderP.Wpf
 {
     /// <summary>
     /// EggWindow.xaml 的交互逻辑
@@ -11,29 +12,30 @@ namespace MoeLoaderP.Wpf.Egg
     {
 
         //鼠标穿透相关
-        const int WsExTransparent = 0x00000020;
-        const int WsExToolwindow = 0x00000080;
-        const int GwlExstyle = -20;
+        private const int WsExTransparent = 0x00000020;
+        private const int WsExToolwindow = 0x00000080;
+        private const int GwlExstyle = -20;
         [DllImport("user32.dll")]
-        static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+        private static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
         [DllImport("user32.dll")]
-        static extern int GetWindowLong(IntPtr hwnd, int index);
+        private static extern int GetWindowLong(IntPtr hwnd, int index);
 
         public EggWindow()
         {
-            SourceInitialized += OnSourceInitialized;
+            Loaded+= OnLoaded;
             InitializeComponent();
         }
 
-        private void OnSourceInitialized(object sender, EventArgs e)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
             MousePierce();
         }
+        
 
         public void MousePierce()
         {
             var hwnd = new WindowInteropHelper(this).Handle;
-            int extendedStyle = GetWindowLong(hwnd, GwlExstyle);
+            var extendedStyle = GetWindowLong(hwnd, GwlExstyle);
             SetWindowLong(hwnd, GwlExstyle, extendedStyle | WsExTransparent | WsExToolwindow);
         }
     }

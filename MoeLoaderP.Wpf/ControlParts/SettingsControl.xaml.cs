@@ -36,6 +36,13 @@ namespace MoeLoaderP.Wpf.ControlParts
             SortFolderNameFormatTextBox.GotFocus += SortFolderNameFormatTextBoxOnGotFocus;
             SortFolderNameFormatResetButton.Click += SortFolderNameFormatResetButtonOnClick;
 
+            OpenCustomSiteDirButton.Click += OpenCustomSiteDirButtonOnClick;
+
+        }
+
+        private void OpenCustomSiteDirButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            App.CustomSiteDir.GoDirectory();
         }
 
         private void SortFolderNameFormatTextBoxOnGotFocus(object sender, RoutedEventArgs e)

@@ -11,7 +11,7 @@ namespace MoeLoaderP.Wpf.ControlParts
     {
         public Settings Settings { get; set; }
         public MoeDownloader Downloader { get; set; }
-        public DispatcherTimer Timer { get; set; } = new DispatcherTimer();
+        public DispatcherTimer Timer { get; set; } = new();
         public DownloaderControl()
         {
             InitializeComponent();
@@ -42,12 +42,12 @@ namespace MoeLoaderP.Wpf.ControlParts
             Downloader.TimerOnTick(sender, e);
         }
         
-        public DownloadItems CastSelectToDwDownloadItems()
+        public MoeItems CastSelectToDownloadItems()
         {
             var selectItems = DownloadItemsListBox.SelectedItems;
             var lb = DownloadItemsListBox;
 
-            var di = new DownloadItems();
+            var di = new MoeItems();
             foreach (var selectItem in selectItems)
             {
                 var i = lb.Items.IndexOf(selectItem);
@@ -72,7 +72,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void RetryButtonOnClick(object sender, RoutedEventArgs e)
         {
-            Downloader.Retry(CastSelectToDwDownloadItems());
+            Downloader.Retry(CastSelectToDownloadItems());
             ContextMenuPopup.IsOpen = false;
         }
 
@@ -85,14 +85,14 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void StopButtonOnClick(object sender, RoutedEventArgs e)
         {
-            Downloader.Stop(CastSelectToDwDownloadItems());
+            Downloader.Stop(CastSelectToDownloadItems());
 
             ContextMenuPopup.IsOpen = false;
         }
 
         private void DeleteButtonOnClick(object sender, RoutedEventArgs e)
         {
-            Downloader.Delete(CastSelectToDwDownloadItems());
+            Downloader.Delete(CastSelectToDownloadItems());
             ContextMenuPopup.IsOpen = false;
         }
 
@@ -104,7 +104,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void OpenFolderButtonOnClick(object sender, RoutedEventArgs e)
         {
-            var item = CastSelectToDwDownloadItems().FirstOrDefault();
+            var item = CastSelectToDownloadItems().FirstOrDefault();
             if (item?.ChildrenItems.Count > 0)
             {
                 item.ChildrenItems[0].LocalFileFullPath.GoFile();

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,45 +11,58 @@ namespace MoeLoaderP.Core.Sites
     /// </summary>
     public class CustomSite : MoeSite
     {
-        public override string HomeUrl => Set.HomeUrl;
-        public override string DisplayName => Set.DisplayName;
-        public override string ShortName => Set.ShortName;
-        public override Uri Icon => Set.SiteIconUrl != null ? new Uri(Set.SiteIconUrl) : new Uri("/MoeLoaderP;component/Assets/SiteIcon/default.png", UriKind.RelativeOrAbsolute);
-        public IndividualCustomSiteSettings Set { get; set; }
+        public override string HomeUrl => IndiSet.HomeUrl;
+        public override string DisplayName => IndiSet.DisplayName;
+        public override string ShortName => IndiSet.ShortName;
+        public override Uri Icon => IndiSet.SiteIconUrl != null ? new Uri(IndiSet.SiteIconUrl) : new Uri("/MoeLoaderP;component/Assets/SiteIcon/default.png", UriKind.RelativeOrAbsolute);
+        public CustomSiteConfig IndiSet { get; set; }
 
-        public CustomSite(IndividualCustomSiteSettings set)
+        public CustomSite(CustomSiteConfig set)
         {
-            Set = set;
-            SupportState = set.SupportState;
+            IndiSet = set;
+            Config = set.Config;
+            Lv2Cat = new Categories();
             foreach (var cat in set.Categories)
             {
-                SubCategories.Add(new Category(cat.Name));
+                Lv2Cat.Add(new Category(cat.Name));
             }
-            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            if (set.Config != null)
+            {
+                Config = set.Config;
+            }
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             Net ??= new NetOperator(Settings, HomeUrl);
             var net = Net.CreateNewWithOldCookie();
-            var cat = Set.Categories[para.SubMenuIndex];
+            var cat = IndiSet.Categories[para.Lv2MenuIndex];
             var api = para.PageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
+            if (!para.Keyword.IsEmpty())
+            {
+                if (cat.OverrideSearchApi == null)
+                {
+                    api = IndiSet.SearchApi.Replace("{keyword}", para.Keyword.ToEncodedUrl());
+                }
+            }
             var rapi = api.Replace("{pagenum}", $"{para.PageIndex}").Replace("{pagenum-1}", $"{para.PageIndex-1}");
             var html = await net.GetHtmlAsync(rapi, token);
             if (html == null) return null;
-            var pa = cat.OverridePagePara ?? Set.PagePara;
+            var pa = cat.OverridePagePara ?? IndiSet.PagePara;
             var list = (HtmlNodeCollection)html.DocumentNode.GetValue(pa.ImagesList);
             var moes = new MoeItems();
+            if (!(list?.Count > 0)) return moes;
             foreach (var item in list)
             {
                 var moe = new MoeItem(this, para);
                 var url = item.GetValue(pa.ImageItemThumbnailUrl);
-                if(url == null)continue;
-                moe.Urls.Add( DownloadTypeEnum.Thumbnail , url);
+                if (url == null) continue;
+                moe.Urls.Add(DownloadTypeEnum.Thumbnail, url);
                 moe.Title = item.GetValue(pa.ImageItemTitle);
                 var detail = item.GetValue(pa.ImageItemDetailUrl);
                 moe.DetailUrl = detail;
-                moe.GetDetailTaskFunc += () => GetDetail(moe.DetailUrl,moe,pa,true, token);
+                moe.GetDetailTaskFunc += () => GetDetail(moe.DetailUrl, moe, pa, true, token);
                 moe.Net = Net.CreateNewWithOldCookie();
                 moe.Net.SetTimeOut(30);
                 if (pa.ImageItemDateTime != null)
@@ -63,7 +74,6 @@ namespace MoeLoaderP.Core.Sites
                 moe.OriginString = item.InnerHtml;
                 moes.Add(moe);
             }
-            
             return moes;
         }
 
@@ -98,7 +108,7 @@ namespace MoeLoaderP.Core.Sites
                 {
                     foreach (var img in imgs)
                     {
-                        var newm = GetChildrenItem(img, pa, father, isFirst);
+                        var newm = GetChildrenItem(img, pa, father);
                         newItems.Add(newm);
                     }
                 }
@@ -107,7 +117,7 @@ namespace MoeLoaderP.Core.Sites
             else
             {
                 var img = (HtmlNode)imgOrImgs;
-                var newm = GetChildrenItem(img, pa, father, isFirst);
+                var newm = GetChildrenItem(img, pa, father);
                 newItems.Add(newm);
             }
 
@@ -121,8 +131,7 @@ namespace MoeLoaderP.Core.Sites
                 var imageCount = $"{root.GetValue(pa.DetailImagesCount)}".ToInt();
                 if (imageCount != 0) father.ChildrenItemsCount = imageCount;
             }
-
-
+            
             if (nextpageIndex == currentIndex + 1)
             {
                 var nextUrl = root.GetValue(pa.DetailNextPageUrl);
@@ -132,15 +141,13 @@ namespace MoeLoaderP.Core.Sites
                     last.IsResolveAndDownloadNextItem = true;
                     last.GetNextItemsTaskFunc += async (t) => await GetNewItems(nextUrl, father, pa, false, t);
                 }
-
-
             }
 
             return newItems;
 
         }
 
-        public MoeItem GetChildrenItem(HtmlNode img,CustomPagePara pa,MoeItem father,bool isFirst)
+        public MoeItem GetChildrenItem(HtmlNode img,CustomPagePara pa,MoeItem father)
         {
             var newMoeitem = new MoeItem(this, father.Para);
             if (pa.DetailImageItemOriginUrl != null)
@@ -187,12 +194,8 @@ namespace MoeLoaderP.Core.Sites
             {
                 var prevUrl = html.DocumentNode.GetValue(pa.DetailLv2ImagePreviewUrl);
                 currentItem.Urls.Add(DownloadTypeEnum.Medium, $"{prevUrl}");
-                
             }
 
-            
         }
-        
-
     }
 }

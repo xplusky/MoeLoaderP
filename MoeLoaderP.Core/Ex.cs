@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using HtmlAgilityPack;
+using MoeLoaderP.Core.Sites;
 
 namespace MoeLoaderP.Core
 {
@@ -230,6 +230,21 @@ namespace MoeLoaderP.Core
             }
         }
 
+        public static FileInfo[] GetDirFiles(this string dirPath)
+        {
+            try
+            {
+                var dir = new DirectoryInfo(dirPath);
+                return dir.GetFiles();
+            }
+            catch (Exception e)
+            {
+                Log(e);
+                if(Debugger.IsAttached) throw;
+                return null;
+            }
+        }
+
         public static void Log(params object[] objs)
         {
             var str = $"{DateTime.Now:yyMMdd-HHmmss-ff}>>{objs.Aggregate((o, o1) => $"{o}\r\n{o1}")}";
@@ -256,57 +271,7 @@ namespace MoeLoaderP.Core
             Window,
             Page
         }
-
-        public static string Encode(this string str)
-        {
-            var key = Encoding.ASCII.GetBytes("leaf");
-            var iv = Encoding.ASCII.GetBytes("1234");
-            MemoryStream ms = null;
-            CryptoStream cs = null;
-            StreamWriter sw = null;
-
-            var des = new DESCryptoServiceProvider();
-            try
-            {
-                ms = new MemoryStream();
-                cs = new CryptoStream(ms, des.CreateEncryptor(key, iv), CryptoStreamMode.Write);
-                sw = new StreamWriter(cs);
-                sw.Write(str);
-                sw.Flush();
-                cs.FlushFinalBlock();
-                return Convert.ToBase64String(ms.GetBuffer(), 0, (int)ms.Length);
-            }
-            finally
-            {
-                sw?.Close();
-                cs?.Close();
-                ms?.Close();
-            }
-        }
-
-        public static string Decode(this string str)
-        {
-            var key = Encoding.ASCII.GetBytes("leaf");
-            var iv = Encoding.ASCII.GetBytes("1234");
-            MemoryStream ms = null;
-            CryptoStream cs = null;
-            StreamReader sr = null;
-
-            var des = new DESCryptoServiceProvider();
-            try
-            {
-                ms = new MemoryStream(Convert.FromBase64String(str));
-                cs = new CryptoStream(ms, des.CreateDecryptor(key, iv), CryptoStreamMode.Read);
-                sr = new StreamReader(cs);
-                return sr.ReadToEnd();
-            }
-            finally
-            {
-                sr?.Close();
-                cs?.Close();
-                ms?.Close();
-            }
-        }
+        
     }
 }
 

@@ -5,10 +5,12 @@ namespace MoeLoaderP.Core.Sites
 {
     public class CustomSiteFactory
     {
-        public CustomSitesSettings SiteSets = new CustomSitesSettings();
+        public CustomSiteConfigList SiteConfigList = new CustomSiteConfigList();
         public void GenTestSites()
         {
-            var caosi = new IndividualCustomSiteSettings
+            #region caosi
+
+            var caosi = new CustomSiteConfig
             {
                 HomeUrl = "https://www.caosi.com",
                 DisplayName = "草丝美女社",
@@ -62,11 +64,14 @@ namespace MoeLoaderP.Core.Sites
 
                 }
             };
+            caosi.Config.IsSupportKeyword = false;
+            SiteConfigList.Add(caosi);
 
-            SiteSets.Add(caosi);
+            #endregion
 
+            #region 546z
 
-            var site546zPara2 = new CustomPagePara
+            var site546ZPara2 = new CustomPagePara
             {
                 ImagesList = new CustomXpath("//*[@id='infinite_scroll']/div", CustomXpathMode.Node, mul:true),
                 ImageItemThumbnailUrl = new CustomXpath(".//img", CustomXpathMode.Attribute, "data-original"),
@@ -83,7 +88,7 @@ namespace MoeLoaderP.Core.Sites
                 DetailImagesCount = new CustomXpath(".//div[@class='pages']/ul/li[1]/a", CustomXpathMode.InnerText),
             };
             
-            var site546z = new IndividualCustomSiteSettings
+            var site546Z = new CustomSiteConfig
             {
                 HomeUrl = "http://www.546z.com",
                 DisplayName = "爱套图546Z",
@@ -95,21 +100,21 @@ namespace MoeLoaderP.Core.Sites
                         FirstPageApi = "http://www.546z.com/guonei/",
                         FollowUpPageApi = "http://www.546z.com/guonei/index_{pagenum}.html",
                         Name = "国内套图",
-                        OverridePagePara =site546zPara2,
+                        OverridePagePara =site546ZPara2,
                     },
                     new CustomCategory
                     {
                         FirstPageApi = "http://www.546z.com/rihan/",
                         FollowUpPageApi = "http://www.546z.com/rihan/index_{pagenum}.html",
                         Name = "日韩套图",
-                        OverridePagePara =site546zPara2,
+                        OverridePagePara =site546ZPara2,
                     },
                     new CustomCategory
                     {
                         FirstPageApi = "http://www.546z.com/gangtai/",
                         FollowUpPageApi = "http://www.546z.com/gangtai/index_{pagenum}.html",
                         Name = "港台套图",
-                        OverridePagePara =site546zPara2,
+                        OverridePagePara =site546ZPara2,
                     },
                     new CustomCategory
                     {
@@ -145,11 +150,14 @@ namespace MoeLoaderP.Core.Sites
                     DetailImagesCount = new CustomXpath(".//div[@class='pages']/ul/li[1]/a", CustomXpathMode.InnerText),
                 }
             };
-            SiteSets.Add(site546z);
+            SiteConfigList.Add(site546Z);
 
+            #endregion
+
+            #region sex5
 
             var sex5url = "https://www.sex5fmky.com";
-            var sex5 = new IndividualCustomSiteSettings
+            var sex5 = new CustomSiteConfig
             {
                 HomeUrl = sex5url,
                 DisplayName = "SEX5性屋娱乐",
@@ -180,10 +188,14 @@ namespace MoeLoaderP.Core.Sites
                 "shunvluanlun", "极品熟女",
 
                 "danaidongtu", "大奶动图");
-            SiteSets.Add(sex5);
+            SiteConfigList.Add(sex5);
+
+            #endregion
+
+            #region 天堂图片网ivsky
 
             var ivskyhome = "https://www.ivsky.com";
-            var ivsky = new IndividualCustomSiteSettings
+            var ivsky = new CustomSiteConfig
             {
                 HomeUrl = ivskyhome,
                 DisplayName = "天堂图片网",
@@ -214,20 +226,79 @@ namespace MoeLoaderP.Core.Sites
                     //DetailLv2ImageDetailUrl = new CustomXpath(".//div[@id='pic_btn']/a[2]", CustomXpathMode.Attribute,"href",ivskyhome),
                     DetailLv2ImageOriginUrl = new CustomXpath(".//img[@id='imgis']", CustomXpathMode.Attribute, "src","https:",
                         replace:"img-pre.ivsky.com/img/tupian/pre", replaceTo:"img-picdown.ivsky.com/img/tupian/pic"),
-                    DetailLv3ImageOriginUrl = new CustomXpath(".//img[@id='img']", CustomXpathMode.Attribute, "src","https:")
                 }
             };
 
-            sex5.Categories.AddRange("https://www.ivsky.com/tupian/{name}/", "https://www.ivsky.com/tupian/{name}/index_{pagenum}.html",
+            ivsky.Categories.AddRange("https://www.ivsky.com/tupian/{name}/", "https://www.ivsky.com/tupian/{name}/index_{pagenum}.html",
                 "ziranfengguang", "自然风光");
-            SiteSets.Add(ivsky);
+            SiteConfigList.Add(ivsky);
+
+            #endregion
+
+            #region 回车桌面
+
+            var enterdeskHome = "https://www.enterdesk.com";
+
+            CustomPagePara Createenterpara()
+            {
+                var p = new CustomPagePara()
+                {
+                    ImagesList = new CustomXpath(".//div[@class='egeli_pic_li']", CustomXpathMode.Node, mul: true),
+                    ImageItemThumbnailUrl = new CustomXpath(".//img", CustomXpathMode.Attribute, "src"),
+                    ImageItemTitle = new CustomXpath(".//img", CustomXpathMode.Attribute, "title"),
+                    ImageItemDetailUrl = new CustomXpath(".//a", CustomXpathMode.Attribute, "href"),
+                    DetailImagesList = new CustomXpath(".//div[@class='swiper-wrapper']/div", CustomXpathMode.Node, mul: true),
+                    DetailImageItemThumbnailUrl = new CustomXpath(".//img", CustomXpathMode.Attribute, "src"),
+                    DetailImageItemDetailUrl = new CustomXpath(".//a", CustomXpathMode.Attribute, "href", "https://www.enterdesk.com"),
+                    DetailLv2ImagePreviewUrl = new CustomXpath(".//img[@class='arc_main_pic_img']", CustomXpathMode.Attribute, "src"),
+                    //DetailLv2ImageDetailUrl = new CustomXpath(".//div[@id='pic_btn']/a[2]", CustomXpathMode.Attribute,"href",ivskyhome),
+                    DetailLv2ImageOriginUrl = new CustomXpath(".//img[@class='arc_main_pic_img']", CustomXpathMode.Attribute, "src", replace: "edpic", replaceTo: "edpic_source"),
+                };
+                return p;
+            }
+
+            var mmp = Createenterpara();
+            mmp.DetailImageItemDetailUrl.Pre = "https://mm.enterdesk.com";
+            var enterdesk = new CustomSiteConfig()
+            {
+                HomeUrl = enterdeskHome,
+                DisplayName = "回车桌面",
+                ShortName = "enterdesk",
+                SiteIconUrl = "https://www.enterdesk.com/favicon.ico",
+                SearchApi = "https://www.enterdesk.com/search/{pagenum}-0-6-0-0-0/{keyword}",
+                Categories = new CustomCategories
+                {
+                    new CustomCategory()
+                    {
+                        FirstPageApi = "https://mm.enterdesk.com/",
+                        FollowUpPageApi = "https://mm.enterdesk.com/{pagenum}.html",
+                        Name = "美女图片",
+                        OverridePagePara = mmp,
+                    },
+                    new CustomCategory()
+                    {
+                        FirstPageApi = "https://www.enterdesk.com/zhuomianbizhi/",
+                        FollowUpPageApi = "https://www.enterdesk.com/zhuomianbizhi/{pagenum}.html",
+                        Name = "壁纸"
+                    },
+                },
+                PagePara = Createenterpara(),
+            };
+            SiteConfigList.Add(enterdesk);
+
+            #endregion
         }
 
         public async void OutputJson(string dirpath)
         {
-            foreach (var set in SiteSets)
+            foreach (var set in SiteConfigList)
             {
-                var json = JsonConvert.SerializeObject(this);
+                var jsonSet = new JsonSerializerSettings
+                {
+                    DefaultValueHandling = DefaultValueHandling.Ignore,
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                var json = JsonConvert.SerializeObject(this, jsonSet);
                 if (!Directory.Exists(dirpath)) Directory.CreateDirectory(dirpath);
                 var path = Path.Combine(dirpath, $"{set.DisplayName}.json");
                 await File.WriteAllTextAsync(path, json);

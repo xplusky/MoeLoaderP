@@ -18,12 +18,9 @@ namespace MoeLoaderP.Core.Sites
 
         public EshuuSite()
         {
-            SupportState.IsSupportScore = false;
-            SubCategories.Add("标签");
-            SubCategories.Add("来源");
-            SubCategories.Add("画师");
-            SubCategories.Add("角色");
-            DownloadTypes.Add("原图", 4);
+            Config.IsSupportScore = false;
+            Lv2Cat = new Categories("标签", "来源", "画师", "角色");
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -34,7 +31,7 @@ namespace MoeLoaderP.Core.Sites
             if (!para.Keyword.IsEmpty())
             {
                 url = $"{HomeUrl}/search/process/";
-                var i = para.SubMenuIndex;
+                var i = para.Lv2MenuIndex;
                 //var kw = $"{$"\"{para.Keyword.Delete("\"")}\"".ToEncodedUrl()}";
                 var kw = $"\"{para.Keyword}\"";
                 //e-shuushuu需要将关键词转换为tag id，然后进行搜索
@@ -121,12 +118,12 @@ namespace MoeLoaderP.Core.Sites
             //type 1 tag 2 source 3 artist | chara no type
             var items = new AutoHintItems();
             //chara without hint
-            if (para.SubMenuIndex == 3) return items;
+            if (para.Lv2MenuIndex == 3) return items;
             var pairs = new Pairs
             {
                 {"mode","tag_search" },
                 {"tags",para.Keyword },
-                {"type",$"{para.SubMenuIndex + 1}" }
+                {"type",$"{para.Lv2MenuIndex + 1}" }
             };
             var url = $"{HomeUrl}/httpreq.php{pairs.ToPairsString()}";
             var net = Net.CreateNewWithOldCookie();

@@ -1,7 +1,6 @@
 ﻿using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -68,7 +67,14 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv1ComboBox.SelectedIndex = 0;
 
             AccountButton.MouseRightButtonUp += AccountButtonOnMouseRightButtonUp;
+            CustomAddButton.Click += CustomAddButtonOnClick;
         }
+
+        private void CustomAddButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            App.CustomSiteDir.GoDirectory();
+        }
+
         private void AccountButtonOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             CurrentSelectedSite.SiteSettings.LoginCookies = null;
@@ -82,51 +88,52 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void VisualUpdate()
         {
-            AdaptSupportState(CurrentSelectedSite.SupportState);
-            var lv2 = CurrentSelectedSite.SubCategories;
-            if (MoeSitesLv2ComboBox.SelectedIndex != -1 && lv2.Any())
+            AdaptSupportState(CurrentSelectedSite.Config);
+            var lv2 = CurrentSelectedSite.Lv2Cat;
+            if (MoeSitesLv2ComboBox.SelectedIndex != -1 && lv2?.Any() == true)
             {
                 var lv2ItemCat = CurrentSelectedSite
-                    .SubCategories[MoeSitesLv2ComboBox.SelectedIndex];
-                AdaptSupportState(lv2ItemCat.OverrideSupportState);
+                    .Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex];
+                AdaptSupportState(lv2ItemCat.OverrideConfig);
                 var lv3 = lv2[MoeSitesLv2ComboBox.SelectedIndex].SubCategories;
-                if (MoeSitesLv3ComboBox.SelectedIndex != -1 && lv3.Any())
+                if (MoeSitesLv3ComboBox.SelectedIndex != -1 && lv3?.Any() ==true)
                 {
                     var lv3ItemCat = CurrentSelectedSite
-                        .SubCategories[MoeSitesLv2ComboBox.SelectedIndex]
+                        .Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex]
                         .SubCategories[MoeSitesLv3ComboBox.SelectedIndex];
-                    AdaptSupportState(lv3ItemCat.OverrideSupportState);
+                    AdaptSupportState(lv3ItemCat.OverrideConfig);
                     var lv4 = lv3[MoeSitesLv3ComboBox.SelectedIndex].SubCategories;
-                    if (MoeSitesLv4ComboBox.SelectedIndex != -1 && lv4.Any())
+                    if (MoeSitesLv4ComboBox.SelectedIndex != -1 && lv4?.Any() ==true)
                     {
                         var lv4ItemCat = CurrentSelectedSite
-                            .SubCategories[MoeSitesLv2ComboBox.SelectedIndex]
+                            .Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex]
                             .SubCategories[MoeSitesLv3ComboBox.SelectedIndex]
                             .SubCategories[MoeSitesLv4ComboBox.SelectedIndex];
-                        AdaptSupportState(lv4ItemCat.OverrideSupportState);
+                        AdaptSupportState(lv4ItemCat.OverrideConfig);
                     }
                 }
             }
         }
 
-        public MoeSiteSupportState CurrentSupportState { get; set; }
+        public MoeSiteConfig CurrentSupportState { get; set; }
 
-        public void AdaptSupportState(MoeSiteSupportState state)
+        public void AdaptSupportState(MoeSiteConfig state)
         {
             if(state == null) return;
             CurrentSupportState = state;
             this.GoState(state.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
             this.GoState(state.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
             this.GoState(state.IsSupportKeyword ?  nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
+            this.GoState(state.IsCustomSite ?　nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
         }
 
         public void FilterBoxVisualUpdate()
         {
-            FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.SupportState.IsSupportResolution;
-            FilterExlicitGroup.IsEnabled = CurrentSelectedSite.SupportState.IsSupportRating;
+            FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.Config.IsSupportResolution;
+            FilterExlicitGroup.IsEnabled = CurrentSelectedSite.Config.IsSupportRating;
             DownloadTypeComboBox.ItemsSource = CurrentSelectedSite.DownloadTypes;
             DownloadTypeComboBox.SelectedIndex = 0;
-            FilterStartIdGrid.Visibility = CurrentSelectedSite.SupportState.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
+            FilterStartIdGrid.Visibility = CurrentSelectedSite.Config.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
             FilterStartIdBox.MaxCount = 0;
             FilterStartPageBox.NumCount = 1;
         }
@@ -142,8 +149,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             if (lv1Si == -1) return;
             CurrentSelectedSite = SiteManager.Sites[lv1Si];
             InitSearch();
-            var lv2 = CurrentSelectedSite.SubCategories;
-            if (lv2.Any())
+            var lv2 = CurrentSelectedSite.Lv2Cat;
+            if (lv2?.Any() == true)
             {
                 MoeSitesLv2ComboBox.ItemsSource = lv2;
                 if (MoeSitesLv2ComboBox.SelectedIndex == 0) MoeSitesLv2ComboBoxOnSelectionChanged(sender, e);
@@ -164,8 +171,8 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             var lv2Si = MoeSitesLv2ComboBox.SelectedIndex;
             if (lv2Si == -1) return;
-            var lv3 = CurrentSelectedSite.SubCategories[lv2Si].SubCategories;
-            if (lv3.Any())
+            var lv3 = CurrentSelectedSite.Lv2Cat[lv2Si].SubCategories;
+            if (lv3?.Any() == true)
             {
                 MoeSitesLv3ComboBox.ItemsSource = lv3;
                 if (MoeSitesLv3ComboBox.SelectedIndex == 0) MoeSitesLv3ComboBoxOnSelectionChanged(sender, e);
@@ -184,8 +191,8 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             var lv3Si = MoeSitesLv3ComboBox.SelectedIndex;
             if (lv3Si == -1) return;
-            var lv4 = CurrentSelectedSite.SubCategories[MoeSitesLv2ComboBox.SelectedIndex].SubCategories[lv3Si].SubCategories;
-            if (lv4.Any())
+            var lv4 = CurrentSelectedSite.Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex].SubCategories[lv3Si].SubCategories;
+            if (lv4?.Any() == true)
             {
                 MoeSitesLv4ComboBox.ItemsSource = lv4;
                 if (MoeSitesLv4ComboBox.SelectedIndex == 0) MoeSitesLv4ComboBoxOnSelectionChanged(sender, e);
@@ -313,7 +320,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 DownloadType = CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
                 Date = MoeDatePicker.SelectedDate,
                 NextPageMark = $"{FilterStartIdBox.NumCount}" == "0"? null: $"{FilterStartIdBox.NumCount}",
-                SubMenuIndex = MoeSitesLv2ComboBox.SelectedIndex,
+                Lv2MenuIndex = MoeSitesLv2ComboBox.SelectedIndex,
                 Lv3MenuIndex = MoeSitesLv3ComboBox.SelectedIndex,
                 Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex,
                 SupportState = CurrentSupportState

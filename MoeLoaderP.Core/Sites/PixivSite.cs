@@ -38,31 +38,28 @@ namespace MoeLoaderP.Core.Sites
 
         public PixivSite()
         {
-            var mangaIlluMenu = new Categories("插画+动图", "漫画");
-            SubCategories.Add("最新/搜索", mangaIlluMenu); // 0
-            SubCategories.Add("作者ID", mangaIlluMenu); // 1
-
-            var rankLv4Menu = new Categories( "综合", "插画", "漫画", "动图");
-
-            var rankSubCat = IsR18 ? new Categories(rankLv4Menu, "今日", "本周", "最受男性欢迎", "最受女性欢迎")
-                : new Categories(rankLv4Menu, "今日", "本周", "本月", "新人", "原创", "最受男性欢迎", "最受女性欢迎");
-
-            var rankingMiten = new Category("排行", rankSubCat)   
+            var mangaIlluLv3Cat = new Categories("插画+动图", "漫画");
+            var rankLv4Cat = new Categories( "综合", "插画", "漫画", "动图");
+            var rankLv3Cat = IsR18 ? new Categories(rankLv4Cat, "今日", "本周", "最受男性欢迎", "最受女性欢迎")
+                : new Categories(rankLv4Cat, "今日", "本周", "本月", "新人", "原创", "最受男性欢迎", "最受女性欢迎");
+            
+            Lv2Cat = new Categories()
             {
-                OverrideSupportState = new MoeSiteSupportState { IsSupportDatePicker = true, IsSupportKeyword = false }
+                new Category("最新/搜索",mangaIlluLv3Cat),//0
+                new Category("作者ID搜索",mangaIlluLv3Cat),//1
+                new Category("排行",rankLv3Cat)//2
+                {
+                    OverrideConfig = new MoeSiteConfig { IsSupportDatePicker = true, IsSupportKeyword = false }
+                }
             };
-            SubCategories.Add(rankingMiten); // 2
 
-            SupportState.IsSupportAccount = true;
+            Config.IsSupportAccount = true;
 
-            DownloadTypes.Add("原图", 4);
-            DownloadTypes.Add("中图", 3);
-            //DownloadTypes.Add("小图", 2);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            DownloadTypes.Add("大图", DownloadTypeEnum.Large);
 
-            SupportState.IsSupportRating = false;
-            SupportState.IsSupportSearchByImageLastId = true;
-            SupportState.IsSupportSelectPixivRankNew = true;
-            SupportState.IsSupportSearchByAuthorId = true;
+            Config.IsSupportRating = false;
+            Config.IsSupportSearchByImageLastId = true;
             LoginPageUrl = "https://accounts.pixiv.net/login";
         }
 
@@ -71,12 +68,10 @@ namespace MoeLoaderP.Core.Sites
             var b = false;
             foreach (Cookie cookie in ccol)
             {
-                if (cookie.Name.Equals("device_token", StringComparison.OrdinalIgnoreCase))
-                {
-                    SiteSettings.LoginExpiresTime = cookie.Expires;
-                    b = true;
-                    break;
-                }
+                if (!cookie.Name.Equals("device_token", StringComparison.OrdinalIgnoreCase)) continue;
+                SiteSettings.LoginExpiresTime = cookie.Expires;
+                b = true;
+                break;
             }
             return b;
         }
@@ -84,7 +79,7 @@ namespace MoeLoaderP.Core.Sites
         public bool CheckIsLogin()
         {
             var et = SiteSettings.LoginExpiresTime;
-            if (et != null && et > DateTime.Now)
+            if (et != null && et < DateTime.Now)
             {
                 Ex.ShowMessage("登录密钥过期，需要重新登录Pixiv站点", null, Ex.MessagePos.Window);
                 return false;
@@ -118,7 +113,7 @@ namespace MoeLoaderP.Core.Sites
             net.SetTimeOut(40);
 
             var imgs = new MoeItems();
-            switch ((SearchTypeEnum)para.SubMenuIndex)
+            switch ((SearchTypeEnum)para.Lv2MenuIndex)
             {
                 case SearchTypeEnum.TagOrNew:
                     await SearchByNewOrTag(net,imgs, para, token);
@@ -136,7 +131,6 @@ namespace MoeLoaderP.Core.Sites
             return imgs;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0017:简化对象初始化", Justification = "<挂起>")]
         public async Task SearchByNewOrTag(NetOperator net,MoeItems imgs, SearchPara para, CancellationToken token)
         {
             string referer, api; Pairs pairs;
@@ -227,10 +221,10 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task SearchByAuthor(NetOperator net, MoeItems imgs, string uid, SearchPara para, CancellationToken token)
         {
-            var isIorM = para.Lv3MenuIndex == 0;
-            var mi = isIorM ? "illustrations" : "manga";
-            var mi2 = isIorM ? "illusts" : "manga";
-            var mi3 = isIorM ? "插画" : "漫画";
+            var isIllust = para.Lv3MenuIndex == 0;
+            var mi = isIllust ? "illustrations" : "manga";
+            var mi2 = isIllust ? "illusts" : "manga";
+            var mi3 = isIllust ? "插画" : "漫画";
             net.SetReferer($"{HomeUrl}/users/{uid}/{mi}");
             var allJson = await net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/all", token);
             if ($"{allJson?.error}".ToLower() == "true")
@@ -239,7 +233,7 @@ namespace MoeLoaderP.Core.Sites
                 return;
             }
             var picIds = new List<string>();
-            var arts = isIorM ? allJson?.body?.illusts : allJson?.body?.manga;
+            var arts = isIllust ? allJson?.body?.illusts : allJson?.body?.manga;
             foreach (var ill in Ex.GetList(arts)) picIds.Add((ill as JProperty)?.Name);
             var picCurrentPage = picIds.OrderByDescending(i => i.ToInt()).Skip((para.PageIndex - 1) * para.Count).Take(para.Count).ToList();
             if (!picCurrentPage.Any()) return;
@@ -265,10 +259,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Height = $"{illus.height}".ToInt();
                 img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
                 img.ChildrenItemsCount = $"{illus.pageCount}".ToInt();
-                foreach (var tag in Ex.GetList(illus.tags))
-                {
-                    img.Tags.Add($"{tag}");
-                }
+                foreach (var tag in Ex.GetList(illus.tags)) img.Tags.Add($"{tag}");
                 img.Date = GetDateFromUrl($"{illus.url}");
                 if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
                 else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
@@ -459,7 +450,7 @@ namespace MoeLoaderP.Core.Sites
             net.SetReferer(HomeUrl);
 
             var items = new AutoHintItems();
-            if (para.SubMenuIndex != 0 && para.SubMenuIndex != 5) return items;
+            if (para.Lv2MenuIndex != 0 && para.Lv2MenuIndex != 5) return items;
             var url = $"{HomeUrl}/rpc/cps.php?keyword={para.Keyword}";
             var jList = await net.GetJsonAsync(url, token);
             foreach (var obj in Ex.GetList(jList?.candidates)) items.Add($"{obj.tag_name}");

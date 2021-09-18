@@ -10,6 +10,13 @@ namespace MoeLoaderP.Core.Sites
         public string SafeHomeUrl => "https://konachan.net";
         public override string DisplayName => "Konachan";
         public override string ShortName => "konachan";
+        
+        public KonachanSite()
+        {
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
+
+        }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
@@ -21,13 +28,13 @@ namespace MoeLoaderP.Core.Sites
                     {"tags",para.Keyword.ToEncodedUrl() }
                 };
 
-            var query= $"{homeUrl}/post.json{pairs.ToPairsString()}";
+            var query = $"{homeUrl}/post.json{pairs.ToPairsString()}";
             var net = new NetOperator(Settings);
             var json = await net.GetJsonAsync(query, token);
             var imageItems = new MoeItems();
             foreach (var item in Ex.GetList(json))
             {
-                
+
                 var img = new MoeItem(this, para);
                 img.Width = $"{item.width}".ToInt();
                 img.Height = $"{item.height}".ToInt();
@@ -46,20 +53,13 @@ namespace MoeLoaderP.Core.Sites
                 if (img.Date == null) img.DateString = $"{item.created_at}";
                 img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{item.preview_url}");
                 img.Urls.Add(DownloadTypeEnum.Medium, $"{item.sample_url}");
-                img.Urls.Add(DownloadTypeEnum.Origin, $"{item.file_url}", img.DetailUrl,filesize:$"{item.file_size}".ToUlong());
+                img.Urls.Add(DownloadTypeEnum.Origin, $"{item.file_url}", img.DetailUrl, filesize: $"{item.file_size}".ToUlong());
                 img.Source = $"{item.source}";
                 img.OriginString = $"{item}";
                 imageItems.Add(img);
             }
 
             return imageItems;
-        }
-
-        public KonachanSite()
-        {
-            DownloadTypes.Add("原图", 4);
-            DownloadTypes.Add("预览图", 1);
-
         }
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)

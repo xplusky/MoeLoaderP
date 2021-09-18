@@ -41,7 +41,7 @@ namespace MoeLoaderP.Wpf
         {
             CurrentMoeItem = moeitem;
             Settings = moeitem.Site.Settings;
-            
+            DataContext = Settings;
             var info = CurrentMoeItem.Urls.GetPreview();
             if(info == null )return;
             DisplayItemInfo();
@@ -56,7 +56,7 @@ namespace MoeLoaderP.Wpf
         {
             var i = CurrentMoeItem;
             InfoTitleTextBlock.Text = i.Title;
-            InfoIDTextBlock.Text = $"{i.Id}";
+            InfoIdTextBlock.Text = $"{i.Id}";
             InfoUploaderTextBlock.Text = i.Uploader;
             InfoScoreTextBlock.Text = $"{i.Score}";
             InfoResolutionTextBlock.Text = $"{i.Width}x{i.Height}";

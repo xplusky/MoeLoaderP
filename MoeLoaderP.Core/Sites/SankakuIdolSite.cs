@@ -23,7 +23,7 @@ namespace MoeLoaderP.Core.Sites
 
         public SankakuIdolSite()
         {
-            DownloadTypes.Add("原图", 4);
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
         }
 
         public async Task LoginAsync(CancellationToken token)

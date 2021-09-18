@@ -16,9 +16,8 @@ namespace MoeLoaderP.Core.Sites
 
         public KawaiinyanSite()
         {
-            SupportState.IsSupportRating = false;
-            SupportState.IsSupportAutoHint = false;
-            DownloadTypes.Add("原图", 4);
+            Config.IsSupportRating = false;
+            DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
         }
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
