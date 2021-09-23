@@ -247,6 +247,7 @@ namespace MoeLoaderP.Wpf
         {
             var files = App.BackgroundImagesDir.GetDirFiles()
                 .Where(info => info.Extension.Equals(".png", StringComparison.OrdinalIgnoreCase)).ToArray();
+            if(files.Length == 0) return;
             var rndfile = files[new Random().Next(0, files.Length)];
             BgImage.Source = new BitmapImage(new Uri(rndfile.FullName, UriKind.Absolute));
             BgGridViewBox.Width = 670;
