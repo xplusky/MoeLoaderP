@@ -6,7 +6,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-CustomSiteFactory.cs
 _gsdata_/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
