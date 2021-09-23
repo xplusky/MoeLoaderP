@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// yuriimg.com Last change 20200428
+    /// yuriimg.com
     /// </summary>
     public class YuriimgSite : MoeSite
     {
@@ -15,10 +15,15 @@ namespace MoeLoaderP.Core.Sites
 
         public YuriimgSite()
         {
-            Config.IsSupportRating = true;
-
             DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         /// <summary>

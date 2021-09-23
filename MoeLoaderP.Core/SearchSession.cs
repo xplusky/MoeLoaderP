@@ -158,7 +158,21 @@ namespace MoeLoaderP.Core
             newVPage.ImageItems = images;
             LoadedVisualPages.Add(newVPage);
             if (images.Message != null) Ex.ShowMessage(images.Message);
-            if (images.Ex != null) Ex.ShowMessage(images.Ex.Message, images.Ex.ToString(), Ex.MessagePos.Window);
+            if (images.Exs?.Count > 0)
+            {
+                if(images.Exs.Count==1) Ex.ShowMessage(images.Exs[0].Message, images.Exs[0].ToString(), Ex.MessagePos.Window);
+                if (images.Exs.Count > 1)
+                {
+                    var sb = new StringBuilder();
+                    foreach (var ex in images.Exs)
+                    {
+                        sb.AppendLine(ex.ToString());
+                    }
+                    Ex.ShowMessage("发生多个错误", sb.ToString(), Ex.MessagePos.Window);
+                    
+                }
+                
+            }
             Ex.ShowMessage("搜索完毕", null, Ex.MessagePos.Searching);
         }
 

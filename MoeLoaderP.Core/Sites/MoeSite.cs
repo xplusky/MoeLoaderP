@@ -91,22 +91,22 @@ namespace MoeLoaderP.Core.Sites
         /// <summary>
         /// 是否支持评分，若为false则不可按分数过滤图片
         /// </summary>
-        public bool IsSupportScore { get; set; } = true;
+        public bool IsSupportScore { get; set; }
 
         /// <summary>
         /// 是否支持图片年龄分级
         /// </summary>
-        public bool IsSupportRating { get; set; } = true;
+        public bool IsSupportRating { get; set; }
 
         /// <summary>
         /// 是否支持分辨率，若为false则不可按分辨率过滤图片
         /// </summary>
-        public bool IsSupportResolution { get; set; } = true;
+        public bool IsSupportResolution { get; set; }
         
         /// <summary>
         /// 是否支持关键字搜索. 不支持则不显示搜索框
         /// </summary>
-        public bool IsSupportKeyword { get; set; } = true;
+        public bool IsSupportKeyword { get; set; } 
 
         /// <summary>
         /// 是否支持按图片id搜索,支持的话搜索参数里面可以设置

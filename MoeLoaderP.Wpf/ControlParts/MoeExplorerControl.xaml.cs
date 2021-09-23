@@ -361,16 +361,17 @@ namespace MoeLoaderP.Wpf.ControlParts
             foreach (var img in imgs)
             {
                 var itemCtrl = new MoeItemControl(Settings, img);
-                itemCtrl.DownloadButton.Click += (_, _) => { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.PreviewButton.Click += (_, _) => { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.MouseEnter += (_, _) => MouseOnImageControl = itemCtrl;
-                itemCtrl.ImageCheckBox.Checked += (_, _) => SelectedImageControls.Add(itemCtrl);
-                itemCtrl.ImageCheckBox.Unchecked += (_, _) => SelectedImageControls.Remove(itemCtrl);
+                itemCtrl.DownloadButton.Click += delegate { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.PreviewButton.Click += delegate { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.MouseEnter += delegate { MouseOnImageControl = itemCtrl; };
+                itemCtrl.ImageCheckBox.Checked += delegate { SelectedImageControls.Add(itemCtrl); };
+                itemCtrl.ImageCheckBox.Unchecked += delegate { SelectedImageControls.Remove(itemCtrl); };
+                itemCtrl.MouseRightButtonUp += ItemCtrlOnMouseRightButtonUp;
+
                 ImageItemsWrapPanel.Children.Add(itemCtrl);
                 itemCtrl.Sb("ShowSb").Begin();
                 if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount) ImageLoadingPool.Add(itemCtrl);
                 else ImageWaitForLoadingPool.Add(itemCtrl);
-                itemCtrl.MouseRightButtonUp += ItemCtrlOnMouseRightButtonUp;
             }
         }
 
@@ -384,7 +385,6 @@ namespace MoeLoaderP.Wpf.ControlParts
                 LoadImgInfo(obj.MoeItem);
                 e.Handled = true;
             }
-            
         }
 
 
@@ -408,7 +408,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         public void SearchStopVisual()
         {
             var showSb = this.Sb("ShowSb");
-            showSb.Completed += (_, _) => this.Sb("SearchingSb").Stop();
+            showSb.Completed += delegate { this.Sb("SearchingSb").Stop(); };
             showSb.Begin();
             this.GoState(nameof(HideSearchingMessageState));
         }
@@ -448,4 +448,5 @@ namespace MoeLoaderP.Wpf.ControlParts
         }
 
     }
+    
 }

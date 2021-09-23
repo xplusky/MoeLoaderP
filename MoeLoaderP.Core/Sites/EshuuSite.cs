@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// e-shuushuu.net Fixed 2021.5.13 
+    /// e-shuushuu.net
     /// </summary>
     public class EshuuSite : MoeSite
     {
@@ -18,9 +18,15 @@ namespace MoeLoaderP.Core.Sites
 
         public EshuuSite()
         {
-            Config.IsSupportScore = false;
             Lv2Cat = new Categories("标签", "来源", "画师", "角色");
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)

@@ -1,5 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using MoeLoaderP.Core.Sites;
+using Newtonsoft.Json;
 
 namespace MoeLoaderP.Core
 {
@@ -15,19 +20,9 @@ namespace MoeLoaderP.Core
         {
             Settings = settings;
             Sites = new MoeSites(settings);
-            settings.PropertyChanged += SettingsOnPropertyChanged;
             SetDefaultSiteList();
         }
-
-        private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Settings.IsCustomSiteMode))
-            {
-                Sites.Clear();
-                if (Settings.IsCustomSiteMode) SetCustomSiteList();
-                else SetDefaultSiteList();
-            }
-        }
+        
 
         public void SetDefaultSiteList()
         {
@@ -63,6 +58,25 @@ namespace MoeLoaderP.Core
             foreach (var set in testSites.SiteConfigList)
             {
                 Sites.Add(new CustomSite(set));
+            }
+        }
+
+        public async void SetCustomSitesFormJson(string dir)
+        {
+            var files = dir.GetDirFiles().Where(i => i.Extension.Equals(".json", StringComparison.OrdinalIgnoreCase)).ToArray();
+            foreach (var file in files)
+            {
+                var json = await File.ReadAllTextAsync(file.FullName);
+                var set = JsonConvert.DeserializeObject<CustomSiteConfig>(json);
+                if (set == null) continue;
+                if (set.Config.IsR18Site)
+                {
+                    if(Settings.IsXMode) Sites.Add(new CustomSite(set));
+                }
+                else
+                {
+                    Sites.Add(new CustomSite(set));
+                }
             }
         }
     }

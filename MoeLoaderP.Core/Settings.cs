@@ -88,11 +88,11 @@ namespace MoeLoaderP.Core
             set => SetField(ref _historyKeywords, value, nameof(HistoryKeywords));
         }
 
-        private bool _isClearImgsWhenSerachNextPage = true;
-        public bool IsClearImgsWhenSerachNextPage
+        private bool _isClearImagesWhenSearchNextPage = true;
+        public bool IsClearImagesWhenSearchNextPage
         {
-            get => _isClearImgsWhenSerachNextPage;
-            set => SetField(ref _isClearImgsWhenSerachNextPage, value, nameof(IsClearImgsWhenSerachNextPage));
+            get => _isClearImagesWhenSearchNextPage;
+            set => SetField(ref _isClearImagesWhenSearchNextPage, value, nameof(IsClearImagesWhenSearchNextPage));
         }
 
         #endregion
@@ -120,7 +120,7 @@ namespace MoeLoaderP.Core
             set => SetField(ref _imageSavePath, value, nameof(ImageSavePath));
         }
 
-        public const string SaveFileNameFormatDefaultValue = "%site %id";
+        public const string SaveFileNameFormatDefaultValue = "%site %id %title";
         private string _saveFileNameFormat= SaveFileNameFormatDefaultValue;
         public string SaveFileNameFormat
         {
@@ -128,7 +128,7 @@ namespace MoeLoaderP.Core
             set => SetField(ref _saveFileNameFormat, value, nameof(SaveFileNameFormat));
         }
 
-        public const string SortFolderNameFormatDefaultValue = "%site";
+        public const string SortFolderNameFormatDefaultValue = "%site\\%title";
         private string _sortFolderNameFormat = SortFolderNameFormatDefaultValue;
         public string SortFolderNameFormat
         {
@@ -141,6 +141,13 @@ namespace MoeLoaderP.Core
         {
             get => _isAutoRenameWhenSame;
             set => SetField(ref _isAutoRenameWhenSame, value, nameof(IsAutoRenameWhenSame));
+        }
+
+        private int _nameFormatTagCount = 0;
+        public int NameFormatTagCount
+        {
+            get => _nameFormatTagCount;
+            set => SetField(ref _nameFormatTagCount, value, nameof(NameFormatTagCount));
         }
 
         #endregion

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// anime-pictures.net fixed 20200316
+    /// anime-pictures.net
     /// </summary>
     public class AnimePicsSite : MoeSite
     {
@@ -25,9 +25,13 @@ namespace MoeLoaderP.Core.Sites
 
         public AnimePicsSite()
         {
-            Config.IsSupportScore = true;
-            Config.IsSupportRating = false;
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportScore = true
+            };
         }
 
         public async Task LoginAsync(CancellationToken token)

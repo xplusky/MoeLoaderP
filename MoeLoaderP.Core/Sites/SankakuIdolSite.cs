@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// idol.sankakucomplex.com fixed 20200316
+    /// idol.sankakucomplex.com
     /// </summary>
     public class SankakuIdolSite : MoeSite
     {
@@ -24,6 +24,13 @@ namespace MoeLoaderP.Core.Sites
         public SankakuIdolSite()
         {
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         public async Task LoginAsync(CancellationToken token)

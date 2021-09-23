@@ -215,6 +215,8 @@ namespace MoeLoaderP.Core
 
         #region 下载相关
 
+        public int? VisualPageIndex { get; set; }
+
         /// <summary>
         /// 子项目专用 ---- 父级对象
         /// </summary>
@@ -508,14 +510,11 @@ namespace MoeLoaderP.Core
                 }
             }
 
-
             // 完成
             Progress = 100d;
             StatusText = "下载完成";
             Ex.Log($"{durl.Url} download ok");
             DlStatus = DownloadStatus.Success;
-
-            
         }
 
 
@@ -558,6 +557,7 @@ namespace MoeLoaderP.Core
         {
             var sb = new StringBuilder(format);
             sb.Replace("%site", img.Site.ShortName);
+            sb.Replace("%sitedispname", img.Site.DisplayName);
             sb.Replace("%id", $"{img.Id}");
             sb.Replace("%keyword", img.Para.Keyword.IsEmpty() ? "no-keyword" : img.Para.Keyword);
             var tags = string.Empty;
@@ -608,21 +608,10 @@ namespace MoeLoaderP.Core
     
     public class MoeItems : ObservableCollection<MoeItem>
     {
-        public Exception Ex { get; set; }
+        public List<Exception> Exs { get; set; } = new List<Exception>();
         public string Message { get; set; }
         //public enum ResponseMode { Ok, Fail, OkAndOver }
         //public ResponseMode Response { get; set; }
-
-        public bool Has(MoeItem item)
-        {
-            if (item.Id == 0) return false;
-            foreach (var moeItem in this)
-            {
-                if (moeItem.Id == item.Id) return true;
-            }
-
-            return false;
-        }
     }
 
 }

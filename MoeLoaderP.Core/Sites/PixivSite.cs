@@ -14,11 +14,11 @@ using ImageMagick;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// pixiv.net fixed 20200424
+    /// pixiv.net
     /// </summary>
     public class PixivSite : MoeSite
     {
-        public override string HomeUrl =>  "https://www.pixiv.net";//"https://img.cheerfun.dev:233";
+        public override string HomeUrl => "https://www.pixiv.net";//"https://img.cheerfun.dev:233";
 
         public override string DisplayName => "Pixiv";
 
@@ -42,24 +42,34 @@ namespace MoeLoaderP.Core.Sites
             var rankLv4Cat = new Categories( "综合", "插画", "漫画", "动图");
             var rankLv3Cat = IsR18 ? new Categories(rankLv4Cat, "今日", "本周", "最受男性欢迎", "最受女性欢迎")
                 : new Categories(rankLv4Cat, "今日", "本周", "本月", "新人", "原创", "最受男性欢迎", "最受女性欢迎");
-            
-            Lv2Cat = new Categories()
+            Config = new MoeSiteConfig
             {
-                new Category("最新/搜索",mangaIlluLv3Cat),//0
-                new Category("作者ID搜索",mangaIlluLv3Cat),//1
-                new Category("排行",rankLv3Cat)//2
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true,
+                IsSupportAccount = true
+            };
+            Lv2Cat = new Categories
+            {
+                new Category("最新/搜索", mangaIlluLv3Cat), //0
+                new Category("作者ID搜索", mangaIlluLv3Cat), //1
+                new Category("排行", rankLv3Cat) //2
                 {
-                    OverrideConfig = new MoeSiteConfig { IsSupportDatePicker = true, IsSupportKeyword = false }
+                    OverrideConfig = new MoeSiteConfig
+                    {
+                        IsSupportDatePicker = true,
+                        IsSupportResolution = true,
+                        IsSupportAccount = true,
+                        IsSupportScore = true,
+                        IsSupportSearchByImageLastId = true
+                    }
                 }
             };
-
-            Config.IsSupportAccount = true;
-
+            
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             DownloadTypes.Add("大图", DownloadTypeEnum.Large);
-
-            Config.IsSupportRating = false;
-            Config.IsSupportSearchByImageLastId = true;
+            
             LoginPageUrl = "https://accounts.pixiv.net/login";
         }
 
@@ -89,11 +99,8 @@ namespace MoeLoaderP.Core.Sites
             {
                 return true;
             }
-            else
-            {
-                Ex.ShowMessage("需要重新登录Pixiv站点才能开始搜索", null, Ex.MessagePos.Window);
-            }
 
+            Ex.ShowMessage("需要重新登录Pixiv站点才能开始搜索", null, Ex.MessagePos.Window);
             return false;
         }
 

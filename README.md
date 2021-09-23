@@ -14,27 +14,27 @@
 MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，作者已销声匿迹失多年，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
 
 
-### 支持站点：
+### 站点支持情况：
   
-- **Pixiv.net**
-- Bilibili.com
-- **Konachan.com**
-- Yander.re
-- Behoimi.org
-- Safebooru.org
-- **danbooru.Donmai.us**
-- **Gelbooru.com**
-- SankakuComplex.com
-- Kawainyan.com
-- MiniTokyo.net
-- E-shuushuu.net
-- Zerochan.net 
-- WorldCosplay.net
-- Yuriimg.com
-- Kawaiinyan.com
-- lolibooru.moe
-- atfbooru.ninja
-- and more.
+- **Pixiv.net**  支持最新图片、Tag搜索、作者Id搜索、排行搜索（支持日期）、支持下载动图转为GIF格式、支持登录
+- Bilibili.com 支持画友最新、最热搜索
+- **Konachan.com** 支持关键字搜索、图片Tag、日期、作者、图源显示
+- Yander.re 支持关键字搜索、图片Tag、日期、作者、图源显示
+- Behoimi.org 支持关键字搜索、图片Tag、日期、作者、图源显示
+- Safebooru.org 支持关键字搜索、图片Tag、日期、作者、图源显示
+- **danbooru.Donmai.us** 支持关键字搜索、图片Tag、日期、作者、图源显示
+- **Gelbooru.com** 支持关键字搜索、图片Tag、日期、作者、图源显示
+- SankakuComplex.com 支持关键字搜索、图片Tag、日期、作者、图源显示、支持Chan及Idol，支持Chan登录
+- Kawainyan.com 支持搜索、最新图片
+- MiniTokyo.net 支持分类搜索、最新图片
+- E-shuushuu.net 支持最新图片，目前无法用关键字搜索
+- Zerochan.net 支持搜索、最新图片
+- WorldCosplay.net 支持搜索、最新图片
+- Yuriimg.com 支持搜索、最新图片
+- Kawaiinyan.com 支持搜索、最新图片
+- lolibooru.moe 支持关键字搜索、图片Tag、日期、作者、图源显示
+- atfbooru.ninja 支持关键字搜索、图片Tag、日期、作者、图源显示
+- 自定义站点....
 
 ### 预览图
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/SNAG-2020-4-26-8.26.49.jpg)
@@ -43,26 +43,43 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeload
 ## MoeLoader-P 特点
 
 ### 代码优化
-代码完全重构，将原来的自定义站点的项目 MoeSite 、SitePack 整合到原项目中，使用新的语法与类库，降低代码耦合度，更符合语法规范，使用 Task 代替 Thred ， HttpClient 代替 WebClient 等，尽量减少不必要的静态类的使用。booru 等类型站点引擎已重构
+代码完全重构，将原来的自定义站点的项目 MoeSite 、SitePack 整合到原项目中，使用新的语法与类库，降低代码耦合度，更符合语法规范，使用 Task 代替 Thred ， HttpClient 代替 WebClient 等，尽量减少不必要的静态类、接口的使用。booru 等类型站点引擎已重构
 
 ### 界面优化
-界面重构，使用了更多美化元素，使用了 Storyboard 、Effect 、VisualStateManager 、Fontawesome 、FluentWpf 等组件对软件进行美化，支持 Win10 亚克力效果，图片自动对齐，大小可调整。
+界面重构，使用了更多美化元素，使用了 Storyboard 、Effect 、VisualStateManager 、Fontawesome 、FluentWpf 等组件对软件进行美化，支持 Win10、Win11 亚克力效果，图片自动对齐，大小可调整。
 
 ### 功能增加
 增加了页码导航、标签识别、预览图缩放等功能，对搜索参数、过滤条件（分辨率、格式、评级等）进行了整合优化。优化右键菜单，支持标签大爆炸，搜索作者等功能，显示日期，点击后直接上搜索栏；下载支持多页子项目、动态显示进度。
 
-### 站点增加
+### 站点增加及改进
 增加了B站bilibili画友、摄影站点，改进Pixiv站点，支持搜索作者，支持登录P站，优化排行显示。
+
+### 支持自定义站点
+10.0版本新增自定义站点支持（右键点击LOGO进入自定义模式），只需要编辑Json文件，加上亿点点耐心，就可以拥有自己的图片站点。如果嫌麻烦，可以通过某种渠道获得现成Json。
 
 ### 持续更新
 欢迎提供建议，软件持续更新，其他功能陆续添加中，Pull Request welcome。
 
 ### 其他问题
-e-shuushuu、ani-pics 无法用关键字搜索（能力有限，需要大神）。软件神秘代码： ( hit F8 ten times )
+软件神秘代码： ( hit F8 ten times )
 
+### 交流群
+QQ群： 验证：MoeLoaderP
 -----
 
 ## 更新记录
+
+### 待定 10.0.1-(正在修改代码中，敬请期待)
+- 更新至.Net5框架（可能需要下载.net5 runtime才能运行软件，以后考虑升级到.Net6后通过MAUI来实现手机端）
+- 登录功能切换至WebView2（首次使用需下载），不再使用CefSharp
+- 新增自定义站点功能（右键LOGO进入），通过JSON文件就可以自定义自己站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）
+- 完善登录功能，支持Pixiv、SankakuComplex登录搜索
+- 新增站点全名、作者ID等名称命名格式
+- 设置完善、支持亚克力效果开关选项。
+- 更新FluentWPF，支持暗黑模式（根据系统颜色设置）
+- 修复多个站点，可以继续搜索图片了
+- 优化打开文件位置功能，可以默认选中图片了
+- 优化下载列表，可以平滑滚动
 
 ### 2021-4-12 9.5.1
 - 修复文件名规则框

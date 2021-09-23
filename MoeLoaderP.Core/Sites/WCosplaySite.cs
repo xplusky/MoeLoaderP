@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// worldcosplay.net fixed 20180925
+    /// worldcosplay.net
     /// </summary>
     public class WCosplaySite : MoeSite
     {
@@ -15,6 +15,13 @@ namespace MoeLoaderP.Core.Sites
         public WCosplaySite()
         {
             DownloadTypes.Add("大图", DownloadTypeEnum.Large);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)

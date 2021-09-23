@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 
 namespace MoeLoaderP.Wpf
@@ -141,6 +143,21 @@ namespace MoeLoaderP.Wpf
                 Ex.Log(ex.Message);
                 Ex.ShowMessage("复制失败");
             }
+        }
+
+        public static BitmapImage SaveLoadBitmapImage(Stream ms)
+        {
+            var bitimg = new BitmapImage
+            {
+                CacheOption = BitmapCacheOption.OnLoad,
+                CreateOptions = BitmapCreateOptions.IgnoreColorProfile
+            };
+            bitimg.BeginInit();
+            bitimg.StreamSource = ms;
+            bitimg.EndInit();
+            bitimg.Freeze();
+            //ms.Dispose();
+            return bitimg;
         }
     }
 }

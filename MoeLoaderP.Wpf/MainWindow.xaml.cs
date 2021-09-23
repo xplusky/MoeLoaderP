@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,7 +17,6 @@ namespace MoeLoaderP.Wpf
         private Settings Settings { get; set; }
         private SiteManager SiteManager { get; set; }
         private SearchSession CurrentSearch { get; set; }
-
         public PreviewWindow PreviewWindowInstance { get; set; }
         
         public MainWindow()
@@ -67,12 +66,27 @@ namespace MoeLoaderP.Wpf
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
             // egg
             LogoImageButton.Click += LogoImageButtonOnClick;
-            ChangeBgImage();
 
-            // test
+            // settings
+            MoeSettingsControl.BgImageChangeButton.Click += delegate { ChangeBgImage(); };
+            ChangeBgImage();
+            
+            // gen custom test
             var cus = new CustomSiteFactory();
             cus.GenTestSites();
             cus.OutputJson(App.CustomSiteDir);
+
+            Settings.PropertyChanged += SettingsOnPropertyChanged;
+        }
+
+        private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Settings.IsCustomSiteMode))
+            {
+                SiteManager.Sites.Clear();
+                if (Settings.IsCustomSiteMode) SiteManager.SetCustomSitesFormJson(App.CustomSiteDir);
+                else SiteManager.SetDefaultSiteList();
+            }
         }
 
         private void OnKeywordTextBoxOnKeyDown(object sender, KeyEventArgs args)
@@ -107,7 +121,8 @@ namespace MoeLoaderP.Wpf
             {
                 PreviewWindowInstance.Activate();
             }
-            PreviewWindowInstance.Init(item,imgSource);
+
+            PreviewWindowInstance.Init(item, imgSource);
 
         }
 
@@ -123,13 +138,11 @@ namespace MoeLoaderP.Wpf
                         CollectTextBox.Text += item.DownloadUrlInfo?.Url + Environment.NewLine;
                     }
                 }
-                else
-                {
-                    CollectTextBox.Text += url?.Url + Environment.NewLine;
-                }
+                else CollectTextBox.Text += url?.Url + Environment.NewLine;
             }
 
-            foreach(MoeItemControl ct in MoeExplorer.ImageItemsWrapPanel.Children) ct.ImageCheckBox.IsChecked = false;
+            foreach(MoeItemControl ct in MoeExplorer.ImageItemsWrapPanel.Children) 
+                ct.ImageCheckBox.IsChecked = false;
 
             Ex.ShowMessage("已添加至收集箱");
         }
@@ -232,7 +245,8 @@ namespace MoeLoaderP.Wpf
 
         public void ChangeBgImage()
         {
-            var files = $"{App.ExeDir}\\Assets\\Bg".GetDirFiles();
+            var files = App.BackgroundImagesDir.GetDirFiles()
+                .Where(info => info.Extension.Equals(".png", StringComparison.OrdinalIgnoreCase)).ToArray();
             var rndfile = files[new Random().Next(0, files.Length)];
             BgImage.Source = new BitmapImage(new Uri(rndfile.FullName, UriKind.Absolute));
             BgGridViewBox.Width = 670;
@@ -268,7 +282,7 @@ namespace MoeLoaderP.Wpf
             if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
         }
 
-        private void ShowMessage(string mes, string detailMes =null,Ex.MessagePos pos = Ex.MessagePos.Popup)
+        private void ShowMessage(string mes, string detailMes = null, Ex.MessagePos pos = Ex.MessagePos.Popup)
         {
             switch (pos)
             {
@@ -281,7 +295,7 @@ namespace MoeLoaderP.Wpf
                     this.Sb("InfoBarEmphasisSb").Begin();
                     break;
                 case Ex.MessagePos.Window:
-                    MessageWindow.Show(mes, detailMes, this);
+                    MessageWindow.ShowDialog(mes, detailMes, this);
                     break;
             }
         }
@@ -294,7 +308,6 @@ namespace MoeLoaderP.Wpf
 
         private void DownloadSelectedImagesButtonOnClick(object sender, RoutedEventArgs e)
         {
-            
             var count = 0;
             foreach (var ctrl in MoeExplorer.SelectedImageControls)
             {
@@ -315,7 +328,7 @@ namespace MoeLoaderP.Wpf
             {
                 lb.ScrollIntoView(lb.Items[^1]);
             }
-                
+
         }
 
         private void ImageSizeSliderOnMouseWheel(object sender, MouseWheelEventArgs e)
@@ -379,7 +392,6 @@ namespace MoeLoaderP.Wpf
             StatusTextBlock.Text = "";
             var para = SearchControl.GetSearchPara();
             CurrentSearch = new SearchSession(Settings, para);
-            //para.CurrentSearch = CurrentSearch;
             SiteTextBlock.Text = CurrentSearch.GetCurrentSearchStateText();
             Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
             MoeExplorer.ResetVisual();
@@ -405,7 +417,7 @@ namespace MoeLoaderP.Wpf
             else
             {
                 ChangeSearchVisual(false);
-                if (Settings.IsClearImgsWhenSerachNextPage) MoeExplorer.ResetVisual();
+                if (Settings.IsClearImagesWhenSearchNextPage) MoeExplorer.ResetVisual();
                 MoeExplorer.AddPage(CurrentSearch);
             }
         }
@@ -414,7 +426,8 @@ namespace MoeLoaderP.Wpf
         {
             Settings.Save(App.SettingJsonFilePath);
             if (!MoeDownloaderControl.Downloader.IsDownloading) return;
-            var result = MessageBox.Show(this, "正在下载图片，确定要关闭吗？", App.DisplayName, MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            var result = MessageBox.Show(this, "正在下载图片，确定要关闭吗？", 
+                App.DisplayName, MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.Cancel) e.Cancel = true;
         }
 

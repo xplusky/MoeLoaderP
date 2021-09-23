@@ -7,7 +7,7 @@ using System.Xml;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// Booru 引擎图片站点基类 Fixed 20180922
+    /// Booru 引擎图片站点基类
     /// </summary>
     public abstract class BooruSite : MoeSite
     {
@@ -22,7 +22,13 @@ namespace MoeLoaderP.Core.Sites
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             if (SiteType == SiteTypeEnum.Xml) DownloadTypes.Add("Jpeg图", DownloadTypeEnum.Large);
             DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
-            
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)

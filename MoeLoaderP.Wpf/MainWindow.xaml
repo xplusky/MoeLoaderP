@@ -140,9 +140,7 @@
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Window.Resources>
-    <Window.Title>
-        <Binding Converter="{StaticResource BoolToAcrylicAccentStateConvertor}" Path="Settings.BoolToAcrylicAccentStateConvertor"/>
-    </Window.Title>
+    <Window.Title>MoeLoader P</Window.Title>
     <Window.Triggers>
         <EventTrigger RoutedEvent="ButtonBase.Click" SourceName="LogoImageButton">
             <BeginStoryboard x:Name="LogoAnimateSbBeginStoryboard" Storyboard="{StaticResource LogoAnimateSb}"/>
@@ -295,7 +293,7 @@
             <Grid x:Name="DownloaderGrid" Grid.Column="1" Width="0">
                 <controlParts:DownloaderControl x:Name="MoeDownloaderControl" Width="220" AllowDrop="True" />
             </Grid>
-            <controlParts:SearchControl Grid.Column="0" x:Name="SearchControl" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+            <controlParts:SearchControl Grid.Column="0" x:Name="SearchControl" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" Height="34">
                 <controlParts:SearchControl.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>

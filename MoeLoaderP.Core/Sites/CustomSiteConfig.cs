@@ -81,6 +81,7 @@ namespace MoeLoaderP.Core.Sites
     public class CustomXpath
     {
         public string Path { get; set; }
+        public string PathR2 { get; set; }
         public CustomXpathMode Mode { get; set; }
         public string Attribute { get; set; }
         public string Pre { get; set; }
@@ -89,9 +90,8 @@ namespace MoeLoaderP.Core.Sites
         public string Replace { get; set; }
         public string ReplaceTo { get; set; }
 
-
         public CustomXpath(string path, CustomXpathMode mode, string attribute = null, string pre = null,
-            bool mul = false,string regex = null,string replace=null,string replaceTo=null)
+            bool mul = false, string regex = null, string replace = null, string replaceTo = null, string pathR2 = null)
         {
             Path = path;
             Mode = mode;
@@ -101,6 +101,7 @@ namespace MoeLoaderP.Core.Sites
             if (regex != null) RegexPattern = regex;
             if (replace != null) Replace = replace;
             if (replaceTo != null) ReplaceTo = replaceTo;
+            if (pathR2 != null) PathR2 = pathR2;
         }
     }
 

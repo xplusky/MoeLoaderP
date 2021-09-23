@@ -24,9 +24,15 @@ namespace MoeLoaderP.Core.Sites
 
         public ZeroChanSite()
         {
-            Config.IsSupportRating = false;
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         private bool IsLogon { get; set; }
@@ -112,6 +118,7 @@ namespace MoeLoaderP.Core.Sites
 
                 var resAndFileSize = imgHref?.Attributes["title"]?.Value;
                 if (!resAndFileSize.IsEmpty())
+                {
                     foreach (var s in resAndFileSize.Split(' '))
                     {
                         if (!s.Contains("x")) continue;
@@ -120,7 +127,7 @@ namespace MoeLoaderP.Core.Sites
                         img.Width = res[0].ToInt();
                         img.Height = res[1].ToInt();
                     }
-
+                }
                 var title = imgHref?.Attributes["alt"]?.Value;
 
                 //convert relative url to absolute
@@ -129,7 +136,7 @@ namespace MoeLoaderP.Core.Sites
 
                 img.Description = title;
                 img.Title = title;
-                img.Id = strId.Substring(1).ToInt();
+                img.Id = strId[1..].ToInt();
 
                 img.Urls.Add( DownloadTypeEnum.Thumbnail, previewUrl, HomeUrl);
                 img.Urls.Add(DownloadTypeEnum.Medium, sampleUrl, HomeUrl);

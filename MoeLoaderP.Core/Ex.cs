@@ -20,25 +20,22 @@ namespace MoeLoaderP.Core
         public static dynamic GetValue(this HtmlNode rootNode, CustomXpath xpath)
         {
             if (xpath == null) return null;
+            if (rootNode == null) return null;
             var isMulti = xpath.IsMultiValues;
             if (isMulti)
             {
                 var nodes = rootNode.SelectNodes(xpath.Path);
+                if (nodes == null && xpath.PathR2 != null) nodes = rootNode.SelectNodes(xpath.PathR2);
                 if (nodes == null) return null;
+
                 var list = new List<string>();
                 switch (xpath.Mode)
                 {
                     case CustomXpathMode.Attribute:
-                        foreach (HtmlNode hnode in nodes)
-                        {
-                            list.Add(hnode.Attributes[xpath.Attribute]?.Value);
-                        }
+                        list.AddRange(nodes.Select(hnode => hnode.Attributes[xpath.Attribute]?.Value));
                         break;
                     case CustomXpathMode.InnerText:
-                        foreach (HtmlNode hnode in nodes)
-                        {
-                            list.Add(hnode.InnerText);
-                        }
+                        list.AddRange(nodes.Select(hnode => hnode.InnerText));
                         break;
                     case CustomXpathMode.Node:
                         return nodes;
@@ -57,6 +54,7 @@ namespace MoeLoaderP.Core
             else
             {
                 var node = rootNode.SelectSingleNode(xpath.Path);
+                if (node == null && xpath.PathR2 != null) node = rootNode.SelectSingleNode(xpath.PathR2);
                 if (node == null) return null;
                 var str = string.Empty;
                 switch (xpath.Mode)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MoeLoaderP.Core
@@ -21,7 +22,6 @@ namespace MoeLoaderP.Core
 
         public void TimerOnTick(object sender, EventArgs e)
         {
-
             var downingCount = 0;
             foreach (var item in DownloadItems)
             {
@@ -106,6 +106,26 @@ namespace MoeLoaderP.Core
                     item.DlStatus = DownloadStatus.WaitForDownload;
                 }
             }
+        }
+
+        public static Pairs GenRenamePairs()
+        {
+            var pairs = new Pairs();
+            pairs.Add("站点缩略名", "%site");
+            pairs.Add("站点显示名", "%sitedispname");
+            pairs.Add("搜索关键字", "%keyword");
+            pairs.Add("作品ID", "%id");
+            pairs.Add("作者", "%uploader");
+            pairs.Add("作者ID", "%uploader_id");
+            pairs.Add("标题", "%title");
+            pairs.Add("标签", "%tag");
+            pairs.Add("日期", "%date");
+            pairs.Add("原始文件名", "%origin");
+            pairs.Add("作品名", "%copyright");
+            pairs.Add("角色名", "%character");
+            pairs.Add("画师名", "%artist");
+
+            return pairs;
         }
     }
 

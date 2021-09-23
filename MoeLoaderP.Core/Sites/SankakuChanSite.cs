@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// chan.sankakucomplex.com fixed 20200316
+    /// chan.sankakucomplex.com
     /// </summary>
     public class SankakuChanSite : MoeSite
     {
@@ -27,9 +27,15 @@ namespace MoeLoaderP.Core.Sites
         {
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             LoginPageUrl = "https://beta.sankakucomplex.com/home";
-            Config.IsSupportAccount = false;
-            Config.IsSupportStarButton = true;
-            Config.IsSupportAccount = true;
+
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true,
+                IsSupportAccount = true
+            };
         }
         private string AccessToken => SiteSettings.GetSetting("accessToken");
 

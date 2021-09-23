@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
-using XamlAnimatedGif;
+using draw= System.Drawing;
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
@@ -41,8 +37,9 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void ImageCheckBoxOnClick(object sender, RoutedEventArgs e)
         {
+            var wnd = Application.Current.MainWindow;
             if(!Keyboard.IsKeyDown(Key.LeftAlt))return;
-            MessageWindow.Debug("原始内容",MoeItem.OriginString);
+            MessageWindow.ShowDialog("原始内容",MoeItem.OriginString,wnd,true);
         }
 
         private async void RefreshButtonOnClick(object sender, RoutedEventArgs e)
@@ -99,65 +96,44 @@ namespace MoeLoaderP.Wpf.ControlParts
             {
 
                 var url = MoeItem.ThumbnailUrlInfo.Url;
-                var ext = Path.GetExtension(url);
-                
-                if (ext.Equals(".gif", StringComparison.OrdinalIgnoreCase) && OperatingSystem.IsWindowsVersionAtLeast(7))
+                //var ext = Path.GetExtension(url);
+                //if (ext.Equals(".gif", StringComparison.OrdinalIgnoreCase) && OperatingSystem.IsWindowsVersionAtLeast(7))
+                //{
+                //    AnimationBehavior.SetSourceUri(PreviewImage, new Uri(url));
+                //    ImageBgBorder.Background = Brushes.WhiteSmoke;
+                //}
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+                var response = await net.Client.GetAsync(url, cts.Token);
+                await using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
+                var source = await Task.Run(() =>
                 {
-                    AnimationBehavior.SetSourceUri(PreviewImage, new Uri(url));
-                }
-                else
-                {
-                    var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-                    var response = await net.Client.GetAsync(url, cts.Token);
-                    await using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
-                    var source = await Task.Run(() =>
+                    try
+                    {
+                        return UiFunc.SaveLoadBitmapImage(stream);
+                    }
+                    catch (IOException)
                     {
                         try
                         {
-                            var bitimg = new BitmapImage
-                            {
-                                CacheOption = BitmapCacheOption.OnLoad,
-                                CreateOptions = BitmapCreateOptions.IgnoreColorProfile
-                            };
-                            bitimg.BeginInit();
-                            bitimg.StreamSource = stream;
-                            bitimg.EndInit();
-                            bitimg.Freeze();
-                            return bitimg;
-                        }
-                        catch (IOException)
-                        {
-                            try
-                            {
-                                var bitmap = new Bitmap(stream);
-                                var ms = new MemoryStream();
-                                bitmap.Save(ms, ImageFormat.Png);
-                                var bitimg = new BitmapImage();
-                                bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                                bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                                bitimg.BeginInit();
-                                bitimg.StreamSource = ms;
-                                bitimg.EndInit();
-                                bitimg.Freeze();
-                                return bitimg;
-                            }
-                            catch (Exception e)
-                            {
-                                loadEx = e;
-                                return null;
-                            }
+                            var bitmap = new draw.Bitmap(stream);
+                            var ms = new MemoryStream();
+                            bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
+                            return UiFunc.SaveLoadBitmapImage(ms);
                         }
                         catch (Exception ex)
                         {
                             loadEx = ex;
                             return null;
                         }
-                    }, cts.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        loadEx = ex;
+                        return null;
+                    }
+                }, cts.Token);
 
-                    if (source != null) PreviewImage.Source = source;
-                }
-
-                
+                if (source != null) PreviewImage.Source = source;
             }
 
             catch (Exception ex)

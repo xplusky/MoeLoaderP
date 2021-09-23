@@ -8,35 +8,28 @@ namespace MoeLoaderP.Wpf
         public MessageWindow()
         {
             InitializeComponent();
-            OkButton.Click += delegate { Close(); }; 
+            OkButton.Click += delegate { Close(); };
             MouseLeftButtonDown += delegate { DragMove(); };
         }
-        
-        public static bool? Show(Exception ex,string mes = null)
+
+        public static bool? ShowDialog(Exception ex, string mes = null, Window owner = null)
         {
             var wnd = new MessageWindow
             {
-                MessageTextBlock = {Text = ex.Message}, 
-                MessageTextBox = {Text = ex.ToString()}
+                MessageTextBlock = { Text = ex.Message },
+                MessageTextBox = { Text = ex.ToString() },
+                Owner = owner
             };
             return wnd.ShowDialog();
         }
 
-        public static bool? Show(string messgage,string detail=null,Window owner=null)
+        public static bool? ShowDialog(string messgage, string detail = null, Window owner = null, bool isExpanded = false)
         {
             var wnd = new MessageWindow();
             wnd.MessageTextBlock.Text = messgage;
             if (detail != null) wnd.MessageTextBox.Text = detail;
+            if (isExpanded) wnd.MessageTextBoxExpander.IsExpanded = true;
             wnd.Owner = owner;
-            return wnd.ShowDialog();
-        }
-
-        public static bool? Debug(string messgage, string detail = null)
-        {
-            var wnd = new MessageWindow();
-            wnd.MessageTextBlock.Text = messgage;
-            if (detail != null) wnd.MessageTextBox.Text = detail;
-            wnd.MessageTextBoxExpander.IsExpanded = true;
             return wnd.ShowDialog();
         }
 

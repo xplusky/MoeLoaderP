@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// kawaiinyan.com Fixed 20180922
+    /// kawaiinyan.com 
     /// </summary>
     public class KawaiinyanSite : MoeSite
     {
@@ -16,8 +16,13 @@ namespace MoeLoaderP.Core.Sites
 
         public KawaiinyanSite()
         {
-            Config.IsSupportRating = false;
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {

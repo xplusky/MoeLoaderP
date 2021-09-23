@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>
-    /// www.minitokyo.net fixed 20210311
+    /// www.minitokyo.net
     /// </summary>
     public class MiniTokyoSite : MoeSite
     {
@@ -45,6 +45,12 @@ namespace MoeLoaderP.Core.Sites
                 new Category("Indy Art", lv3)
             };
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         public async Task<bool> IsLogin(CancellationToken token)

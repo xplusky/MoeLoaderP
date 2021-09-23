@@ -11,25 +11,25 @@ namespace MoeLoaderP.Core.Sites
     /// </summary>
     public class CustomSite : MoeSite
     {
-        public override string HomeUrl => IndiSet.HomeUrl;
-        public override string DisplayName => IndiSet.DisplayName;
-        public override string ShortName => IndiSet.ShortName;
-        public override Uri Icon => IndiSet.SiteIconUrl != null ? new Uri(IndiSet.SiteIconUrl) : new Uri("/MoeLoaderP;component/Assets/SiteIcon/default.png", UriKind.RelativeOrAbsolute);
-        public CustomSiteConfig IndiSet { get; set; }
+        public override string HomeUrl => CustomConfig.HomeUrl;
+        public override string DisplayName => CustomConfig.DisplayName;
+        public override string ShortName => CustomConfig.ShortName;
+        public override Uri Icon => CustomConfig.SiteIconUrl != null ? new Uri(CustomConfig.SiteIconUrl) : new Uri("/MoeLoaderP;component/Assets/SiteIcon/default.png", UriKind.RelativeOrAbsolute);
+        public CustomSiteConfig CustomConfig { get; set; }
 
-        public CustomSite(CustomSiteConfig set)
+        public CustomSite(CustomSiteConfig config)
         {
-            IndiSet = set;
-            Config = set.Config;
+            CustomConfig = config;
+            Config = config.Config;
             Lv2Cat = new Categories();
-            foreach (var cat in set.Categories)
+            foreach (var cat in config.Categories)
             {
                 Lv2Cat.Add(new Category(cat.Name));
             }
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
-            if (set.Config != null)
+            if (config.Config != null)
             {
-                Config = set.Config;
+                Config = config.Config;
             }
         }
 
@@ -37,19 +37,19 @@ namespace MoeLoaderP.Core.Sites
         {
             Net ??= new NetOperator(Settings, HomeUrl);
             var net = Net.CreateNewWithOldCookie();
-            var cat = IndiSet.Categories[para.Lv2MenuIndex];
+            var cat = CustomConfig.Categories[para.Lv2MenuIndex];
             var api = para.PageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
             if (!para.Keyword.IsEmpty())
             {
                 if (cat.OverrideSearchApi == null)
                 {
-                    api = IndiSet.SearchApi.Replace("{keyword}", para.Keyword.ToEncodedUrl());
+                    api = CustomConfig.SearchApi.Replace("{keyword}", para.Keyword.ToEncodedUrl());
                 }
             }
             var rapi = api.Replace("{pagenum}", $"{para.PageIndex}").Replace("{pagenum-1}", $"{para.PageIndex-1}");
             var html = await net.GetHtmlAsync(rapi, token);
             if (html == null) return null;
-            var pa = cat.OverridePagePara ?? IndiSet.PagePara;
+            var pa = cat.OverridePagePara ?? CustomConfig.PagePara;
             var list = (HtmlNodeCollection)html.DocumentNode.GetValue(pa.ImagesList);
             var moes = new MoeItems();
             if (!(list?.Count > 0)) return moes;
@@ -79,7 +79,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task GetDetail(string url,MoeItem father,CustomPagePara pa, bool isFirst,CancellationToken token)
         {
-            var items = await GetNewItems( url,  father,  pa,  isFirst,  token);
+            var items = await GetNewItems(url, father, pa, isFirst, token);
 
             foreach (var moeItem in items)
             {
@@ -125,7 +125,7 @@ namespace MoeLoaderP.Core.Sites
             var currentPageIndex = root.GetValue(pa.DetailCurrentPageIndex);
             var currentIndex = $"{currentPageIndex}".ToInt();
             var nextpageIndex = $"{root.GetValue(pa.DetailNextPageIndex)}".ToInt();
-            var maxPageIndex = $"{root.GetValue(pa.DetailMaxPageIndex)}".ToInt();
+            //var maxPageIndex = $"{root.GetValue(pa.DetailMaxPageIndex)}".ToInt();
             if (isFirst)
             {
                 var imageCount = $"{root.GetValue(pa.DetailImagesCount)}".ToInt();

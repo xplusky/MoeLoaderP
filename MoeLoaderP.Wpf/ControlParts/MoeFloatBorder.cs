@@ -12,7 +12,6 @@ namespace MoeLoaderP.Wpf.ControlParts
     {
         public MoeFloatBorder()
         {
-            
             BorderBrush = FindResource("MoeButtonStrokeBrush") as SolidColorBrush;
             Background = FindResource("MoeImageBorderBrush") as LinearGradientBrush;
             Margin = new Thickness(10);

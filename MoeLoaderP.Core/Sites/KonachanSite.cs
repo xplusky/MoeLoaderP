@@ -14,8 +14,14 @@ namespace MoeLoaderP.Core.Sites
         public KonachanSite()
         {
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
-            DownloadTypes.Add("预览图", DownloadTypeEnum.Medium);
-
+            DownloadTypes.Add("预览图", DownloadTypeEnum.Medium); 
+            Config = new MoeSiteConfig
+            {
+                IsSupportKeyword = true,
+                IsSupportRating = true,
+                IsSupportResolution = true,
+                IsSupportScore = true
+            };
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
@@ -78,9 +84,11 @@ namespace MoeLoaderP.Core.Sites
 
             foreach (var item in Ex.GetList(json))
             {
-                var hintItem = new AutoHintItem();
-                hintItem.Count = $"{item.count}";
-                hintItem.Word = $"{item.name}";
+                var hintItem = new AutoHintItem
+                {
+                    Count = $"{item.count}",
+                    Word = $"{item.name}"
+                };
                 items.Add(hintItem);
             }
 

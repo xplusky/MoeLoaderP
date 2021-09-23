@@ -93,6 +93,7 @@ namespace MoeLoaderP.Core.Sites
                 HomeUrl = "http://www.546z.com",
                 DisplayName = "爱套图546Z",
                 ShortName = "546z",
+                
                 Categories = new CustomCategories
                 {
                     new CustomCategory
@@ -156,14 +157,18 @@ namespace MoeLoaderP.Core.Sites
 
             #region sex5
 
-            var sex5url = "https://www.sex5fmky.com";
+            var sex5url = "https://www.sex5ntvk.com";
             var sex5 = new CustomSiteConfig
             {
                 HomeUrl = sex5url,
                 DisplayName = "SEX5性屋娱乐",
                 ShortName = "sex5",
                 SiteIconUrl = $"{sex5url}/favicon.ico",
-                
+                Config =
+                {
+                    IsR18Site = true,
+                    IsSupportKeyword = false,
+                },
                 PagePara =
                 {
                     ImagesList = new CustomXpath(".//div[@id='tpl-img-content']/li", CustomXpathMode.Node ,mul:true),
@@ -178,16 +183,11 @@ namespace MoeLoaderP.Core.Sites
             };
 
             sex5.Categories.AddRange($"{sex5url}/art/{{name}}/", $"{sex5url}/art/{{name}}/index_{{pagenum}}.html",
-                "yazhoutupian", "亚洲色图",
-                "oumeitupian", "欧美色图",
-                "meituisiwa", "丝袜美腿",
-                "toupaizipai", "自拍街拍",
-                "qingchunweimei","清纯诱惑",
-                "lingleitupian", "另类图片",
-                "katongtietu", "卡通次元",
-                "shunvluanlun", "极品熟女",
-
-                "danaidongtu", "大奶动图");
+                "yazhoutupian", "亚洲色图", "oumeitupian", "欧美色图", "meituisiwa", "丝袜美腿",
+                "toupaizipai", "自拍街拍", "qingchunweimei", "清纯诱惑", "lingleitupian", "另类图片",
+                "katongtietu", "卡通次元", "shunvluanlun", "极品熟女", "danaidongtu", "大奶动图", "baoyudongtu", "鲍鱼动图",
+                "nvxiadongtu", "上下动图", "meitundongtu", "美臀动图", "nvqishiGIF", "女骑士动图", "hourudongtu", "后入动图",
+                "koujiaodongtu", "口交动图", "shejingdongtu", "射精动图");
             SiteConfigList.Add(sex5);
 
             #endregion
@@ -201,6 +201,10 @@ namespace MoeLoaderP.Core.Sites
                 DisplayName = "天堂图片网",
                 ShortName = "ivsky",
                 SiteIconUrl = "https://www.ivsky.com/favicon.ico",
+                Config =
+                {
+                    IsSupportKeyword = true,
+                },
                 Categories = new CustomCategories
                 {
                     new CustomCategory()
@@ -239,7 +243,7 @@ namespace MoeLoaderP.Core.Sites
 
             var enterdeskHome = "https://www.enterdesk.com";
 
-            CustomPagePara Createenterpara()
+            static CustomPagePara Createenterpara()
             {
                 var p = new CustomPagePara()
                 {
@@ -247,12 +251,16 @@ namespace MoeLoaderP.Core.Sites
                     ImageItemThumbnailUrl = new CustomXpath(".//img", CustomXpathMode.Attribute, "src"),
                     ImageItemTitle = new CustomXpath(".//img", CustomXpathMode.Attribute, "title"),
                     ImageItemDetailUrl = new CustomXpath(".//a", CustomXpathMode.Attribute, "href"),
-                    DetailImagesList = new CustomXpath(".//div[@class='swiper-wrapper']/div", CustomXpathMode.Node, mul: true),
+                    DetailImagesList = new CustomXpath(".//div[@class='swiper-wrapper']/div", CustomXpathMode.Node, mul: true,
+                        pathR2: ".//img[@class='arc_main_pic_img']"),
                     DetailImageItemThumbnailUrl = new CustomXpath(".//img", CustomXpathMode.Attribute, "src"),
+                    DetailImageItemOriginUrl = new CustomXpath(".//img[@class='arc_main_pic_img']", CustomXpathMode.Attribute, "src",
+                        replace: "edpic", replaceTo: "edpic_source"),
                     DetailImageItemDetailUrl = new CustomXpath(".//a", CustomXpathMode.Attribute, "href", "https://www.enterdesk.com"),
                     DetailLv2ImagePreviewUrl = new CustomXpath(".//img[@class='arc_main_pic_img']", CustomXpathMode.Attribute, "src"),
                     //DetailLv2ImageDetailUrl = new CustomXpath(".//div[@id='pic_btn']/a[2]", CustomXpathMode.Attribute,"href",ivskyhome),
-                    DetailLv2ImageOriginUrl = new CustomXpath(".//img[@class='arc_main_pic_img']", CustomXpathMode.Attribute, "src", replace: "edpic", replaceTo: "edpic_source"),
+                    DetailLv2ImageOriginUrl = new CustomXpath(".//img[@class='arc_main_pic_img']", CustomXpathMode.Attribute, "src",
+                        replace: "edpic", replaceTo: "edpic_source"),
                 };
                 return p;
             }
@@ -298,11 +306,13 @@ namespace MoeLoaderP.Core.Sites
                     DefaultValueHandling = DefaultValueHandling.Ignore,
                     NullValueHandling = NullValueHandling.Ignore
                 };
-                var json = JsonConvert.SerializeObject(this, jsonSet);
+                var json = JsonConvert.SerializeObject(set, jsonSet);
                 if (!Directory.Exists(dirpath)) Directory.CreateDirectory(dirpath);
                 var path = Path.Combine(dirpath, $"{set.DisplayName}.json");
                 await File.WriteAllTextAsync(path, json);
             }
         }
+
+        
     }
 }

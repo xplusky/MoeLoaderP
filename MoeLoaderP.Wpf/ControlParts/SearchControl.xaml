@@ -4,13 +4,12 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sites="clr-namespace:MoeLoaderP.Core.Sites;assembly=MoeLoaderP.Core"
-    xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
     xmlns:controlParts="clr-namespace:MoeLoaderP.Wpf.ControlParts"
     x:Name="SearchControlRoot"
     x:Class="MoeLoaderP.Wpf.ControlParts.SearchControl"
     MinHeight="32"
-    d:DesignHeight="208.098"
-    d:DesignWidth="899.948"
+    d:DesignHeight="539.208"
+    d:DesignWidth="1424.106"
     mc:Ignorable="d">
     <UserControl.Resources>
 
@@ -56,7 +55,7 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <StackPanel Orientation="Horizontal" Height="34">
+    <StackPanel x:Name="RootStackPanel" Orientation="Horizontal">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="SearchVSG">
                 <VisualStateGroup.Transitions>
@@ -355,7 +354,7 @@
             </TextBlock>
         </Grid>
         <Border x:Name="DatePikerBorder" BorderBrush="{DynamicResource MoeButtonStrokeBrush}" BorderThickness="1" CornerRadius="5" Margin="2,0" Width="128" Opacity="1" Background="{DynamicResource MoeTextBoxBackgroundBrush}">
-            <DatePicker x:Name="MoeDatePicker" VerticalAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF191919"/>
+            <DatePicker x:Name="MoeDatePicker" VerticalAlignment="Center" BorderBrush="{x:Null}" Background="{x:Null}"/>
         </Border>
         <Button
             x:Name="SearchButton"
@@ -385,8 +384,11 @@
                     <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilter}" FontSize="14" Margin="4,0,0,0"/>
                 </StackPanel>
             </CheckBox>
-            <Popup x:Name="SearchParaPopup" IsOpen="{Binding IsChecked, ElementName=SearchParaCheckBox}" Placement="Left" VerticalOffset="25" HorizontalOffset="82" Focusable="True" StaysOpen="False" AllowsTransparency="True">
-                <Grid x:Name="SearchParaPopupGrid" Width="243.407" RenderTransformOrigin="0.5,0.5">
+            <Popup d:IsOpen="True" x:Name="SearchParaPopup" 
+                   IsOpen="{Binding IsChecked, ElementName=SearchParaCheckBox}" 
+                   Placement="Left" VerticalOffset="25" HorizontalOffset="82" 
+                   Focusable="True" StaysOpen="False" AllowsTransparency="True">
+                <Grid x:Name="SearchParaPopupGrid" Width="256" RenderTransformOrigin="0.5,0.5">
                     <Grid.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -396,8 +398,24 @@
                         </TransformGroup>
                     </Grid.RenderTransform>
                     <controlParts:MoeFloatBorder>
-                        <StackPanel >
-                            <Grid x:Name="FilterStartPageGrid" Height="26">
+                        <StackPanel x:Name="SearchParaStackPanel" >
+                            <Grid x:Name="MirrorSiteGrid">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="MirrorSiteComboBox" Grid.Column="1" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Height="26" Margin="0,0,2,0" SelectedIndex="0">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBlock TextWrapping="NoWrap" Text="{Binding Name}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock TextWrapping="Wrap" Text="镜像站点" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
+                            </Grid>
+                            <Grid x:Name="FilterStartPageGrid" Height="26" Margin="0,4,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
@@ -436,7 +454,7 @@
                                     <controlParts:VariableCountControl x:Name="FilterMinHeightBox" NumCount="768" MinCount="1" MaxCount="10000" Grid.Column="1" Margin="2" Height="26" IsEnabled="{Binding IsChecked, ElementName=FilterResolutionCheckBox}"  />
                                 </Grid>
                             </StackPanel>
-                            <Grid Margin="0,2">
+                            <Grid x:Name="OrientationGrid" Margin="0,2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>

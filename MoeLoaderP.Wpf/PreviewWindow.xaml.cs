@@ -34,7 +34,7 @@ namespace MoeLoaderP.Wpf
             MouseWheel += OnMouseWheel;
             LargeImageThumb.DragDelta += LargeImageThumbOnDragDelta;
             LargeImage.ClearValue(MarginProperty);
-            MouseLeftButtonDown += (_, _) => DragMove();
+            MouseLeftButtonDown += delegate { DragMove(); };
         }
 
         public async void Init(MoeItem moeitem,ImageSource imgSource)
@@ -161,7 +161,7 @@ namespace MoeLoaderP.Wpf
         public void SetImage(BitmapImage img)
         {
             var sb = LargeImage.FadeHideSb();
-            sb.Completed += (_, _) =>
+            sb.Completed += delegate
             {
                 LargeImage.Source = img;
                 LargeImage.EnlargeShowSb().Begin();
@@ -175,8 +175,10 @@ namespace MoeLoaderP.Wpf
         public async Task<Exception> LoadImageAsync()
         {
             // client
-            var net = CurrentMoeItem.Net ?? new NetOperator(Settings);
-            //net.SetTimeOut(30);
+            var b = CurrentMoeItem.Net != null;
+            var net = b ? CurrentMoeItem.Net.CreateNewWithOldCookie() : new NetOperator(Settings);
+
+            net.SetTimeOut(30);
             net.SetReferer(CurrentMoeItem.ThumbnailUrlInfo.Referer);
             net.ProgressMessageHandler.HttpReceiveProgress += ProgressMessageHandlerOnHttpReceiveProgress;
             Exception loadEx = null;
@@ -190,15 +192,7 @@ namespace MoeLoaderP.Wpf
                 {
                     try
                     {
-                        var bitimg = new BitmapImage();
-                        bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                        bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                        bitimg.BeginInit();
-                        bitimg.StreamSource = stream;
-                        bitimg.EndInit();
-                        bitimg.Freeze();
-                            
-                        return bitimg;
+                        return UiFunc.SaveLoadBitmapImage(stream);
                     }
                     catch (IOException)
                     {
@@ -207,15 +201,8 @@ namespace MoeLoaderP.Wpf
                             var bitmap = new Bitmap(stream);
                             var ms = new MemoryStream();
                             bitmap.Save(ms, ImageFormat.Png);
-                            var bitimg = new BitmapImage();
-                            bitimg.CacheOption = BitmapCacheOption.OnLoad;
-                            bitimg.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                            bitimg.BeginInit();
-                            bitimg.StreamSource = ms;
-                            bitimg.EndInit();
-                            bitimg.Freeze();
-                            //ms.Dispose();
-                            return bitimg;
+                            
+                            return UiFunc.SaveLoadBitmapImage(ms);
                         }
                         catch (Exception e)
                         {

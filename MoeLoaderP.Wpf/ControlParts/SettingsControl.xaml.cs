@@ -12,54 +12,63 @@ namespace MoeLoaderP.Wpf.ControlParts
     {
         private Settings Settings { get; set; }
         private string _tempCustomProxyText;
-        private WrapPanel NameFormatTempPanel { get; set; }
         public SettingsControl()
         {
             InitializeComponent();
-            //DataContext = Settings;
-            NameFormatTempPanel = NameFormatButtonsPanel;
-            foreach (Button button in NameFormatButtonsPanel.Children)
-            {
-                button.Click += FileNameFormatButtonOnClick;
-            }
 
             SaveFolderBrowseButton.Click += SaveFolderBrowseButtonOnClick;
             ClearHistoryButton.Click += ClearHistoryButtonOnClick;
 
-            CustomProxyTextBox.GotFocus += (sender, args) => _tempCustomProxyText = CustomProxyTextBox.Text;
+            CustomProxyTextBox.GotFocus += delegate { _tempCustomProxyText = CustomProxyTextBox.Text; };
             CustomProxyTextBox.LostFocus += CustomProxyTextBlockOnLostFocus;
 
-            ProxyModeComboBox.SelectionChanged += (sender, args) => CustomProxyTextBox.IsEnabled = ProxyModeComboBox.SelectedIndex == 1; 
+            ProxyModeComboBox.SelectionChanged += delegate { CustomProxyTextBox.IsEnabled = ProxyModeComboBox.SelectedIndex == 1; }; 
             FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
-            FileNameFormatResetButton.Click += FileNameFormatResetButtonOnClick;
+            FileNameFormatTextBox.GotKeyboardFocus += delegate { SetRenameButtons(FileNameFormatButtonsPanel, FileNameFormatTextBox); };
+            FileNameFormatTextBox.LostKeyboardFocus += delegate { RemoveRenameButtons(); };
+            FileNameFormatResetButton.Click += delegate { Settings.SaveFileNameFormat = Settings.SaveFileNameFormatDefaultValue; };
             SortFolderNameFormatTextBox.LostFocus += SortFolderNameFormatTextBoxOnLostFocus;
-            SortFolderNameFormatTextBox.GotFocus += SortFolderNameFormatTextBoxOnGotFocus;
-            SortFolderNameFormatResetButton.Click += SortFolderNameFormatResetButtonOnClick;
+            SortFolderNameFormatTextBox.GotKeyboardFocus += delegate { SetRenameButtons(SubDirNameFormatButtonsPanel, SortFolderNameFormatTextBox); };
+            SortFolderNameFormatTextBox.LostKeyboardFocus += delegate { RemoveRenameButtons(); };
+            SortFolderNameFormatResetButton.Click += delegate { Settings.SortFolderNameFormat = Settings.SortFolderNameFormatDefaultValue; };
 
-            OpenCustomSiteDirButton.Click += OpenCustomSiteDirButtonOnClick;
-
+            OpenCustomSiteDirButton.Click += delegate { App.CustomSiteDir.GoDirectory(); };
+            BgImageOpenDirButton.Click += delegate { App.BackgroundImagesDir.GoDirectory(); };
         }
+        
+        
 
-        private void OpenCustomSiteDirButtonOnClick(object sender, RoutedEventArgs e)
+        public void RemoveRenameButtons()
         {
-            App.CustomSiteDir.GoDirectory();
+            SubDirNameFormatButtonsPanel.Children.Clear();
+            FileNameFormatButtonsPanel.Children.Clear();
         }
 
-        private void SortFolderNameFormatTextBoxOnGotFocus(object sender, RoutedEventArgs e)
+        public void SetRenameButtons(WrapPanel panel,TextBox last)
         {
-            //FileNameFormatSpan.Children.Add(NameFormatButtonsPanel);
+            LastGotFocusTextBox = last;
+            var pairs = MoeDownloader.GenRenamePairs();
+            foreach (var (key, value) in pairs)
+            {
+                var button = new Button
+                {
+                    Template = FindResource("MoeButtonControlTemplate") as ControlTemplate,
+                    Height = 24,
+                    ToolTip = value,
+                    Margin = new Thickness(2),
+                    Content = new TextBlock
+                    {
+                        Text = key,
+                        Margin = new Thickness(4, 0, 4, 0)
+                    },
+                    Focusable = false
+                };
+                button.Click += delegate { FileNameFormatButtonOnClick(value); };
+                panel.Children.Add(button);
+            }
         }
-
-        private void FileNameFormatResetButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            Settings.SaveFileNameFormat = Settings.SaveFileNameFormatDefaultValue;
-        }
-
-        private void SortFolderNameFormatResetButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            Settings.SortFolderNameFormat = Settings.SortFolderNameFormatDefaultValue;
-        }
-
+        
+        
         private void SortFolderNameFormatTextBoxOnLostFocus(object sender, RoutedEventArgs e)
         {
             var isBad = false;
@@ -73,7 +82,6 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             Settings.SortFolderNameFormat = output;
             if (isBad) Ex.ShowMessage("路径名包含非法字符，已自动去除");
-            LastLostTextBox = SortFolderNameFormatTextBox;
         }
 
         public void Init(Settings settings)
@@ -95,7 +103,6 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
             Settings.SaveFileNameFormat = output;
             if (isBad) Ex.ShowMessage("文件名包含非法字符，已自动去除");
-            LastLostTextBox = FileNameFormatTextBox;
         }
 
         private void CustomProxyTextBlockOnLostFocus(object sender, RoutedEventArgs e)
@@ -135,21 +142,22 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
         
-        private TextBox LastLostTextBox { get; set; }
+        private TextBox LastGotFocusTextBox { get; set; }
+
         /// <summary>
         /// 插入格式到规则文本框
         /// </summary>
-        private void FileNameFormatButtonOnClick(object sender, RoutedEventArgs e)
+        private void FileNameFormatButtonOnClick(string value)
         {
-            var tb = LastLostTextBox;
-            if (tb == null)return;
-            var btn = (Button)sender;
-            var format = btn.ToolTip.ToString();
+            var tb = LastGotFocusTextBox;
+            if (tb == null) return;
             var selectStart = tb.SelectionStart;
-            tb.Text = tb.Text.Insert(selectStart, format);
-            tb.SelectionStart = selectStart + format.Length;
-            tb.Focus();
+            if (value != null)
+            {
+                tb.Text = tb.Text.Insert(selectStart, value);
+                tb.SelectionStart = selectStart + value.Length;
+            }
+            
         }
-
     }
 }
