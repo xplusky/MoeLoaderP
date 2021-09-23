@@ -8,25 +8,6 @@
     mc:Ignorable="d" 
     d:DesignHeight="1000" d:DesignWidth="380.882" Width="310" Height="560" >
     <ScrollViewer Template="{DynamicResource MoeScrollViewerControlTemplate}">
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="NameFormatVSG">
-                <VisualStateGroup.Transitions>
-                    <VisualTransition GeneratedDuration="0:0:0.3">
-                        <VisualTransition.GeneratedEasingFunction>
-                            <BackEase EasingMode="EaseInOut"/>
-                        </VisualTransition.GeneratedEasingFunction>
-                    </VisualTransition>
-                </VisualStateGroup.Transitions>
-                <VisualState x:Name="Normal">
-                    <Storyboard>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="FileNameFormatButtonsPanel">
-                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
-                <VisualState x:Name="Show"/>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
         <StackPanel>
             <GroupBox
                 Template="{DynamicResource MoeGroupBoxControlTemplate}">
@@ -159,7 +140,7 @@
                             Height="26"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
-                            Content="&#xf07c;" Template="{DynamicResource MoeButtonControlTemplate}" 
+                            Content="&#xF07C;" Template="{DynamicResource MoeButtonControlTemplate}" 
                             FontFamily="{DynamicResource FontAwesomeSolid}" Grid.Column="1" Margin="4,0,0,0" />
                     </Grid>
                     <TextBlock
@@ -233,13 +214,13 @@
                                   IsChecked="{Binding IsShowBgImage}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                         <Button x:Name="BgImageChangeButton"
                             Width="24" Height="24"
-                            Content="&#xf2f1;" 
+                            Content="&#xF2F1;" 
                             Template="{DynamicResource MoeButtonControlTemplate}" 
                             FontFamily="{DynamicResource FontAwesomeSolid}" 
                             ToolTip="恢复默认" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <Button x:Name="BgImageOpenDirButton"
                             Width="24" Height="24"
-                            Content="&#xf07c;" Template="{DynamicResource MoeButtonControlTemplate}" 
+                            Content="&#xF07C;" Template="{DynamicResource MoeButtonControlTemplate}" 
                             FontFamily="{DynamicResource FontAwesomeSolid}"
                             ToolTip="恢复默认" VerticalAlignment="Center" Margin="0,0,4,0" />
                     </StackPanel>
