@@ -122,12 +122,7 @@ namespace MoeLoaderP.Core
 
         public UrlInfo ThumbnailUrlInfo => Urls.GetMin();
 
-        public UrlInfo DownloadUrlInfo
-        {
-            get => Urls.FirstOrDefault(urlInfo =>
-                (int)urlInfo.DownloadType > 1 && urlInfo.DownloadType == Para.DownloadType.Type);
-            set => Urls[^0] = value;
-        }
+        public UrlInfo DownloadUrlInfo => Urls.FirstOrDefault(urlInfo => urlInfo.DownloadType == Para.DownloadType.Type);
 
         public UrlInfos Urls { get; set; } = new UrlInfos();
         public TextFileInfo ExtraFile { get; set; }
@@ -214,6 +209,15 @@ namespace MoeLoaderP.Core
         #endregion
 
         #region 下载相关
+
+        public bool CanDownload
+        {
+            get
+            {
+                var c = Para.DownloadType.Type;
+                return ChildrenItems?.Count > 0 ? ChildrenItems[0].Urls.Contains(c) : Urls.Contains(c);
+            }
+        }
 
         public int? VisualPageIndex { get; set; }
 
@@ -302,8 +306,16 @@ namespace MoeLoaderP.Core
         public void InitDownload(dynamic bitimg, int subindex = 0, MoeItem fatheritem = null)
         {
             BitImg = bitimg;
+            if (ChildrenItems?.Count > 0)
+            {
+                LocalFileShortNameWithoutExt = "多张图片";
+                if (!Title.IsEmpty()) LocalFileShortNameWithoutExt += $"({Title})";
+                return;
+            }
+
             SubIndex = subindex;
             FatherItem = fatheritem;
+            if(DownloadUrlInfo==null )return;
             if (DownloadUrlInfo.ResolveUrlFunc == null)
             {
                 OriginFileName = Path.GetFileName(DownloadUrlInfo.Url);
@@ -312,8 +324,6 @@ namespace MoeLoaderP.Core
                 GenFileNameWithoutExt(father);
                 GenLocalFileFullPath(father);
             }
-            
-            
         }
 
         /// <summary>
@@ -534,7 +544,7 @@ namespace MoeLoaderP.Core
             var format = Set.SortFolderNameFormat;
             var sub = format.IsEmpty() ? $"{img.Site.ShortName}" : FormatText(format, img, true);
 
-            LocalFileFullPath = Path.Combine(Set.ImageSavePath, sub, $"{LocalFileShortNameWithoutExt}.{img.FileType?.ToLower()}");
+            LocalFileFullPath = Path.Combine(Set.ImageSavePath, sub, $"{LocalFileShortNameWithoutExt}.{FileType?.ToLower()}");
         }
 
         public void GenFileNameWithoutExt(MoeItem father = null)

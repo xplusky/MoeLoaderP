@@ -65,12 +65,12 @@ namespace MoeLoaderP.Core.Sites
 
             // pages source
             //http://mjv-art.org/pictures/view_posts/0?lang=en
-            var url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?lang=en";
+            var url = $"{HomeUrl}/pictures/view_posts/{para.StartPageIndex - 1}?lang=en";
 
             if (para.Keyword.Length > 0)
             {
                 //http://mjv-art.org/pictures/view_posts/0?search_tag=suzumiya%20haruhi&order_by=date&ldate=0&lang=en
-                url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
+                url = $"{HomeUrl}/pictures/view_posts/{para.StartPageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
             }
 
             var imgs = new MoeItems();

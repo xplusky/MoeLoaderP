@@ -20,20 +20,20 @@ namespace MoeLoaderP.Core.Sites
 
         public BilibiliSite()
         {
-            var lv3Cat = new Categories("最新", "最热");
+            var lv3Cats = new Categories("最新", "最热");
             Lv2Cat = new Categories()
             {
-                new Category("画友", lv3Cat),
-                new Category("摄影(COS)", lv3Cat),
-                new Category("摄影(私服)", lv3Cat)
+                new Category("画友", lv3Cats),
+                new Category("摄影(COS)", lv3Cats),
+                new Category("摄影(私服)", lv3Cats)
             };
 
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
 
+
             Config.IsSupportRating = false;
-            Config.IsSupportAccount = true;
-            Config.IsSupportThumbButton = true;
-            Config.IsSupportStarButton = true;
+            Config.IsSupportKeyword = true;
+            Config.IsSupportScore = true;
             LoginPageUrl = "https://passport.bilibili.com/login";
 
         }
@@ -48,23 +48,7 @@ namespace MoeLoaderP.Core.Sites
         //    if (!IsLogin()) return false;
         //    var r = await AccountNet.Client.PostAsync()
         //}
-
-        public bool Login()
-        {
-            AccountNet = new NetOperator(Settings, HomeUrl);
-            AccountNet.HttpClientHandler.AllowAutoRedirect = true;
-            AccountNet.HttpClientHandler.UseCookies = true;
-            if (SiteSettings.GetCookieContainer() == null)
-            {
-                Ex.ShowMessage("需要重新登录", null, Ex.MessagePos.Window);
-                AccountNet = null;
-                return false;
-            }
-            AccountNet.SetCookie(SiteSettings.GetCookieContainer());
-            AccountNet.SetTimeOut(40);
-            return true;
-        }
-
+        
         public bool IsLogin()
         {
             return SiteSettings.GetCookieContainer() != null;
@@ -105,7 +89,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 {"category", para.Lv2MenuIndex == 0 ? "all" : (para.Lv2MenuIndex == 1 ? "cos" : "sifu")},
                 {"type", type},
-                {"page_num", $"{para.PageIndex - 1}"},
+                {"page_num", $"{para.StartPageIndex - 1}"},
                 {"page_size", $"{count}"}
             });
 
@@ -147,7 +131,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             var c = $"{json?.data.total_count}".ToInt();
-            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.StartPageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task SearchByKeyword(SearchPara para, CancellationToken token, MoeItems imgs)
@@ -158,7 +142,7 @@ namespace MoeLoaderP.Core.Sites
             var pairs = new Pairs
             {
                 {"search_type", "photo"},
-                {"page",$"{para.PageIndex}" },
+                {"page",$"{para.StartPageIndex}" },
                 {"order",newOrHotOrder },
                 {"keyword",para.Keyword.ToEncodedUrl() },
                 {"category_id",drawOrPhotoCatId },
@@ -184,7 +168,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             var c = $"{json.data?.numResults}".ToInt();
-            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.StartPageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task GetSearchByKeywordDetailTask(MoeItem img,CancellationToken token,SearchPara para)

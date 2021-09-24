@@ -38,7 +38,7 @@ namespace MoeLoaderP.Core.Sites
             Net ??= new NetOperator(Settings, HomeUrl);
             var net = Net.CreateNewWithOldCookie();
             var cat = CustomConfig.Categories[para.Lv2MenuIndex];
-            var api = para.PageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
+            var api = para.StartPageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
             if (!para.Keyword.IsEmpty())
             {
                 if (cat.OverrideSearchApi == null)
@@ -46,7 +46,7 @@ namespace MoeLoaderP.Core.Sites
                     api = CustomConfig.SearchApi.Replace("{keyword}", para.Keyword.ToEncodedUrl());
                 }
             }
-            var rapi = api.Replace("{pagenum}", $"{para.PageIndex}").Replace("{pagenum-1}", $"{para.PageIndex-1}");
+            var rapi = api.Replace("{pagenum}", $"{para.StartPageIndex}").Replace("{pagenum-1}", $"{para.StartPageIndex-1}");
             var html = await net.GetHtmlAsync(rapi, token);
             if (html == null) return null;
             var pa = cat.OverridePagePara ?? CustomConfig.PagePara;

@@ -53,7 +53,7 @@ namespace MoeLoaderP.Core.Sites
                 {"tags", para.Keyword.ToEncodedUrl()},
                 {"size",size },
                 {"orient",orient },
-                {"page", $"{para.PageIndex}"}
+                {"page", $"{para.StartPageIndex}"}
             };
             var imageItems = new MoeItems();
             var json = await  Net.GetJsonAsync($"{HomeUrl}/index.json", token, pair);

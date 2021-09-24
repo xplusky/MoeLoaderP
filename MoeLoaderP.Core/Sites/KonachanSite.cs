@@ -29,7 +29,7 @@ namespace MoeLoaderP.Core.Sites
             var homeUrl = para.IsShowExplicit ? HomeUrl : SafeHomeUrl;
             var pairs = new Pairs
                 {
-                    {"page",$"{para.PageIndex}" },
+                    {"page",$"{para.StartPageIndex}" },
                     {"limit",$"{para.Count}" },
                     {"tags",para.Keyword.ToEncodedUrl() }
                 };

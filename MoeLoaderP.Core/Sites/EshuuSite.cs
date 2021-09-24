@@ -32,7 +32,7 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
             var imgs = new MoeItems();
-            var url = $"{HomeUrl}/?page={para.PageIndex}";
+            var url = $"{HomeUrl}/?page={para.StartPageIndex}";
             Net ??= new NetOperator(Settings);
             if (!para.Keyword.IsEmpty())
             {
@@ -61,7 +61,7 @@ namespace MoeLoaderP.Core.Sites
                 var loc303 = res.Headers.Location?.OriginalString;     //todo 无法实现，需要大神
 
                 //http://e-shuushuu.net/search/results/?tags=2
-                if (!loc303.IsEmpty()) url = $"{loc303}&page={para.PageIndex}";
+                if (!loc303.IsEmpty()) url = $"{loc303}&page={para.StartPageIndex}";
                 else return new MoeItems { Message = "没有搜索到关键词相关的图片" };
             }
 

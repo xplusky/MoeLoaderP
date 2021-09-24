@@ -312,7 +312,5 @@ namespace MoeLoaderP.Core.Sites
                 await File.WriteAllTextAsync(path, json);
             }
         }
-
-        
     }
 }

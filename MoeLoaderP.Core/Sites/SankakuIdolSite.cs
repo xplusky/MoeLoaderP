@@ -68,7 +68,7 @@ namespace MoeLoaderP.Core.Sites
         {
             if (!_isIdolLogin) await LoginAsync(token);
             if (!_isIdolLogin) return new MoeItems();
-            var query = $"{_idolQuery}page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            var query = $"{_idolQuery}page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
             var list = await Net.GetJsonAsync(query, token);
             if (list == null) return new MoeItems {Message = "获取Json失败"};
             var imgs = new MoeItems();

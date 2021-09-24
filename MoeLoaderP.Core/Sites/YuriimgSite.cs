@@ -108,7 +108,7 @@ namespace MoeLoaderP.Core.Sites
             const string api = "https://api.yuriimg.com/posts";
             var pairs = new Pairs
             {
-                {"page", $"{para.PageIndex}"},
+                {"page", $"{para.StartPageIndex}"},
                 {"tags",para.Keyword.ToEncodedUrl() }
             };
             var json = await Net.GetJsonAsync(api, token, pairs);

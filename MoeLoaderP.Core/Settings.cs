@@ -293,8 +293,16 @@ namespace MoeLoaderP.Core
 
         public void SetSetting(string key, string value)
         {
-            var b =Items.TryAdd(key, value);
-            Ex.Log($"Add Key:{key} Value:{value} Result{b}");
+            if (Items.ContainsKey(key))
+            {
+                Items[key] = value;
+            }
+            else
+            {
+                Items.TryAdd(key, value);
+            }
+            
+            Ex.Log($"Add Key:{key} Value:{value} ");
         }
 
         private CookieCollection _loginCookies;

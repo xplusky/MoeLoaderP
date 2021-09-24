@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
@@ -16,6 +17,8 @@ namespace MoeLoaderP.Wpf.ControlParts
             CountTextBox.LostFocus += CountTextBoxOnLostFocus;
             
         }
+
+        public event Action<VariableCountControl> NumChange;
         
         private void CountTextBoxOnLostFocus(object sender, RoutedEventArgs e)
         {
@@ -41,7 +44,11 @@ namespace MoeLoaderP.Wpf.ControlParts
         public int NumCount
         {
             get => (int)GetValue(NumCountProperty);
-            set => SetValue(NumCountProperty, value);
+            set
+            {
+                SetValue(NumCountProperty, value);
+                NumChange?.Invoke(this);
+            }
         }
 
         public static readonly DependencyProperty NumCountProperty = DependencyProperty.Register(nameof(NumCount), typeof(int), typeof(VariableCountControl), new PropertyMetadata(0));

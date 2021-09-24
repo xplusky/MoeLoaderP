@@ -179,40 +179,11 @@
     <Resource Include="Assets\SiteIcon\sankakucomplex-chan.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Assets\Bg\bg1.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MoeLoaderP.Core\MoeLoaderP.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Egg\medium1.png" />
     <Resource Include="Assets\Egg\medium2.png" />
-    <None Update="Assets\Bg\1898ed2 ha=center.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\konachan 260698.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\konachan 264004.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\konachan 302460 height=660.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\konachan 267478 ha=left.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\302113.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\konachan 302601.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Bg\konachan 268092.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Assets\Egg\关键性停止.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

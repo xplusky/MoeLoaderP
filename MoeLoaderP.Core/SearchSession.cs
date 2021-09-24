@@ -1,5 +1,4 @@
-﻿using MoeLoaderP.Core.Sites;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -65,10 +64,10 @@ namespace MoeLoaderP.Core
             if (LoadedVisualPages.Count == 0)
             {
                 tempPara = CurrentSearchPara.Clone(); // 浅复制一份参数
-                newVPage.LastRealPageIndex = tempPara.PageIndex;
+                newVPage.LastRealPageIndex = tempPara.StartPageIndex;
                 // 搜索起始页的所有图片（若网站查询参数有支持的条件过滤，则在搜索时就已自动在线过滤相关条件）
                 var sb = new StringBuilder();
-                sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
+                sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.StartPageIndex} 页图片");
                 sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Ex.ShowMessage(sb.ToString(), null, Ex.MessagePos.Searching);
                 var imagesOrg = await tempPara.Site.GetRealPageImagesAsync(tempPara, token);
@@ -96,7 +95,7 @@ namespace MoeLoaderP.Core
             else
             {
                 tempPara = CurrentSearchPara.Clone(); // 浅复制一份参数
-                tempPara.PageIndex = LoadedVisualPages.Last().LastRealPageIndex;
+                tempPara.StartPageIndex = LoadedVisualPages.Last().LastRealPageIndex;
 
                 // 若不是第一页则使用上一页搜索多出来的图片作为本页基数
                 images = new MoeItems();
@@ -119,12 +118,12 @@ namespace MoeLoaderP.Core
             while (images.Count < tempPara.Count) // 当images数量不够搜索参数数量时循环
             {
                 token.ThrowIfCancellationRequested(); // 整体Task的取消Token，取消时会抛出异常
-                tempPara.PageIndex++; // 设置新搜索参数为下一页（真）
+                tempPara.StartPageIndex++; // 设置新搜索参数为下一页（真）
                 //tempPara.LastImageId = images.LastOrDefault()?.Id ?? 0; // 设置新搜索参数为最后ID（真）
-                newVPage.LastRealPageIndex = tempPara.PageIndex;
+                newVPage.LastRealPageIndex = tempPara.StartPageIndex;
                 var sb = new StringBuilder();
-                sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.PageIndex} 页图片");
-                sb.AppendLine($"已获取第{tempPara.PageIndex - 1}页{images.Count}张图片，还需{tempPara.Count - images.Count}张");
+                sb.AppendLine($"正在搜索站点 {tempPara.Site.DisplayName} 第 {tempPara.StartPageIndex} 页图片");
+                sb.AppendLine($"已获取第{tempPara.StartPageIndex - 1}页{images.Count}张图片，还需{tempPara.Count - images.Count}张");
                 sb.Append($"(参数：kw：{(!tempPara.Keyword.IsEmpty() ? tempPara.Keyword : "N/A")},num:{tempPara.Count})");
                 Ex.ShowMessage(sb.ToString(), null, Ex.MessagePos.Searching);
                 var nextRealPageImageItems = await tempPara.Site.GetRealPageImagesAsync(tempPara, token); // 搜索下一页（真）的所有图片
@@ -132,7 +131,7 @@ namespace MoeLoaderP.Core
                 if (nextRealPageImageItems == null || nextRealPageImageItems.Count == 0) // 当下一页（真）的搜索到的未进行本地过滤图片数量为0时，表示已经搜索完了
                 {
                     newVPage.HasNextVisualPage = false; // 没有下一页
-                    newVPage.LastRealPageIndex = tempPara.PageIndex;
+                    newVPage.LastRealPageIndex = tempPara.StartPageIndex;
                     break;
                 }
                 else // 当下一页（真）未过滤图片数量不为0时
@@ -280,47 +279,5 @@ namespace MoeLoaderP.Core
 
     public class SearchedVisualPages : ObservableCollection<SearchedVisualPage> { }
 
-    /// <summary>
-    /// 搜索参数
-    /// </summary>
-    public class SearchPara
-    {
-        public MoeSite Site { get; set; }
-        //public SearchSession CurrentSearch { get; set; }
-        public string Keyword { get; set; }
-        public int PageIndex { get; set; }
-        public string NextPageMark { get; set; }
-        public int Count { get; set; }
-
-        public bool IsShowExplicit { get; set; }
-        public bool IsShowExplicitOnly { get; set; }
-
-        public bool IsFilterResolution { get; set; }
-        public int MinWidth { get; set; }
-        public int MinHeight { get; set; }
-
-        public bool IsFilterFileType { get; set; }
-        public string FilterFileTypeText { get; set; }
-        public bool IsFileTypeShowSpecificOnly { get; set; }
-
-        public ImageOrientation Orientation { get; set; } = ImageOrientation.None;
-        public DownloadType DownloadType { get; set; }
-
-        public DateTime? Date { get; set; }
-
-        public int Lv2MenuIndex { get; set; }
-        public int Lv3MenuIndex { get; set; }
-        public int Lv4MenuIndex { get; set; }
-
-        public MoeSiteConfig SupportState { get; set; }
-
-        public SearchPara Clone() => (SearchPara)MemberwiseClone();
-    }
-
-    public enum ImageOrientation
-    {
-        None = 0,
-        Landscape = 1,
-        Portrait = 2
-    }
+    
 }

@@ -71,6 +71,14 @@ namespace MoeLoaderP.Core.Sites
             DownloadTypes.Add("大图", DownloadTypeEnum.Large);
             
             LoginPageUrl = "https://accounts.pixiv.net/login";
+            Mirrors = new MirrorSiteConfigs()
+            {
+                new MirrorSiteConfig()
+                {
+                    Name = "pixiviz",
+                    HomeUrl = "https://pixiviz.pwp.app/"
+                },
+            };
         }
 
         public override bool VerifyCookieAndSave(CookieCollection ccol)
@@ -120,32 +128,112 @@ namespace MoeLoaderP.Core.Sites
             net.SetTimeOut(40);
 
             var imgs = new MoeItems();
-            switch ((SearchTypeEnum)para.Lv2MenuIndex)
+            
+            if (para.MirrorSite.IsDefault)
             {
-                case SearchTypeEnum.TagOrNew:
-                    await SearchByNewOrTag(net,imgs, para, token);
-                    break;
-                case SearchTypeEnum.Author: // 作者 member id  word = "4338012"; // test
-                    if (para.Keyword.ToInt() == 0) Ex.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）", null, Ex.MessagePos.Window);
-                    else await SearchByAuthor(net,imgs, para.Keyword.Trim(), para, token);
-                    break;
-                case SearchTypeEnum.Rank:
-                    await SearchByRank(net,imgs, para, token);
-                    break;
+                switch ((SearchTypeEnum)para.Lv2MenuIndex)
+                {
+                    case SearchTypeEnum.TagOrNew:
+                        await SearchByNewOrTag(net, imgs, para, token);
+                        break;
+                    case SearchTypeEnum.Author: // 作者 member id  word = "4338012"; // test
+                        if (para.Keyword.ToInt() == 0) Ex.ShowMessage("参数错误，必须在关键词中指定画师 id（纯数字）", null, Ex.MessagePos.Window);
+                        else await SearchByAuthor(net, imgs, para.Keyword.Trim(), para, token);
+                        break;
+                    case SearchTypeEnum.Rank:
+                        await SearchByRank(net, imgs, para, token);
+                        break;
+                }
+            }
+            else
+            {
+                await SearchViaMirrorSite(net, imgs, para, token);
             }
 
             token.ThrowIfCancellationRequested();
             return imgs;
         }
 
+        public async Task SearchViaMirrorSite(NetOperator net, MoeItems imgs, SearchPara para, CancellationToken token)
+        {
+            var referer = "https://pixiviz.pwp.app";
+            var homeurl = referer;
+            var replaceTo = "";
+            net.SetReferer(referer);
+            if (para.Keyword.IsEmpty())
+            {
+                throw new Exception("镜像站点必须填入关键字");
+            }
+            var api = $"https://pixiviz-api-us.pwp.link/v1/illust/search?word={para.Keyword.ToEncodedUrl()}&page={para.StartPageIndex}";
+            if (para.MirrorSite.Name == "pixiviz")
+            {
+                replaceTo = "https://pixiv-image-lv.pwp.link";
+            }
+            var json = await net.GetJsonAsync(api, token);
+            dynamic list = null;
+            if (para.MirrorSite.Name == "pixiviz")
+            {
+                list = json?.illusts;
+            }
+
+            foreach (var illus in Ex.GetList(list))
+            {
+                var img = new MoeItem(this, para);
+                img.Net = Net.CreateNewWithOldCookie();
+                img.Id = $"{illus.id}".ToInt();
+                var imgurl = $"{illus.image_urls.medium}".Replace("https://i.pximg.net", replaceTo);
+                var imgurlL = $"{illus.image_urls.large}".Replace("https://i.pximg.net", replaceTo);
+                img.Urls.Add(new UrlInfo(DownloadTypeEnum.Large, imgurl, referer));
+                img.Urls.Add(new UrlInfo(DownloadTypeEnum.Thumbnail, imgurlL, referer));
+                img.Title = $"{illus.title}";
+                img.Uploader = $"{illus.user.account}";
+                img.UploaderId = $"{illus.user.id}";
+                img.Width = $"{illus.width}".ToInt();
+                img.Height = $"{illus.height}".ToInt();
+                img.ChildrenItemsCount = $"{illus.page_count}".ToInt();
+                foreach (var tag in Ex.GetList(illus.tags)) img.Tags.Add($"{tag.name}");
+                img.Date = $"{illus.create_date}".ToDateTime();
+                img.OriginString = $"{illus}";
+                img.Score = $"{illus.total_bookmarks}".ToInt();
+                if (illus.meta_pages != null)
+                {
+                    foreach (var item in Ex.GetList(illus.meta_pages))
+                    {
+                        if (item.image_urls?.original != null)
+                        {
+                            var child = new MoeItem(this, para);
+                            var imgUrlO = $"{item.image_urls?.original}".Replace("https://i.pximg.net", replaceTo);
+                            child.Urls.Add(new UrlInfo(DownloadTypeEnum.Origin, imgUrlO, homeurl));
+                            img.ChildrenItems.Add(child);
+                        }
+
+                    }
+
+                }
+
+                if (illus.meta_single_page?.original_image_url != null)
+                {
+                    var imgurlO = $"{illus.meta_single_page?.original_image_url}".Replace("https://i.pximg.net", replaceTo);
+                    img.Urls.Add(new UrlInfo(DownloadTypeEnum.Origin, imgurlO, homeurl));
+                }
+
+                imgs.Add(img);
+            }
+        }
+
         public async Task SearchByNewOrTag(NetOperator net,MoeItems imgs, SearchPara para, CancellationToken token)
         {
             string referer, api; Pairs pairs;
             var isIllust = para.Lv3MenuIndex == 0;
+            var homeurl = HomeUrl;
+            //if (para.MirrorSite.Name == "pixiviz")
+            //{
+            //    homeurl = "https://pixiviz-api-us.pwp.link/v1";
+            //}
             if (para.Keyword.IsEmpty()) // new
             {
-                api = $"{HomeUrl}/ajax/illust/new";
-                referer = isIllust ? $"{HomeUrl}/new_illust.php" : $"{HomeUrl}/new_illust.php?type=manga";
+                api = $"{homeurl}/ajax/illust/new";
+                referer = isIllust ? $"{homeurl}/new_illust.php" : $"{homeurl}/new_illust.php?type=manga";
                 pairs = new Pairs
                 {
                     {"lastId", para.NextPageMark.IsEmpty() ? "" : $"{para.NextPageMark}"},
@@ -156,14 +244,14 @@ namespace MoeLoaderP.Core.Sites
             }
             else // tag
             {
-                api = $"{HomeUrl}/ajax/search/{(isIllust ? "illustrations" : "manga")}/{para.Keyword.ToEncodedUrl()}";
-                referer = $"{HomeUrl}tags/{para.Keyword.ToEncodedUrl()}/{(isIllust ? "illustrations" : "manga")}?mode={R18ModeQuery}&s_mode=s_tag";
+                api = $"{homeurl}/ajax/search/{(isIllust ? "illustrations" : "manga")}/{para.Keyword.ToEncodedUrl()}";
+                referer = $"{homeurl}tags/{para.Keyword.ToEncodedUrl()}/{(isIllust ? "illustrations" : "manga")}?mode={R18ModeQuery}&s_mode=s_tag";
                 pairs = new Pairs
                 {
                     {"word", para.Keyword.ToEncodedUrl()},
                     {"order", "date"},
                     {"mode", R18ModeQuery},
-                    {"p", $"{para.PageIndex}"},
+                    {"p", $"{para.StartPageIndex}"},
                     {"s_mode", "s_tag"},
                     {"type", isIllust ? "illust_and_ugoira" : "manga"}
                 };
@@ -180,13 +268,13 @@ namespace MoeLoaderP.Core.Sites
                 var img = new MoeItem(this, para);
                 img.Net = Net.CreateNewWithOldCookie();
                 img.Id = $"{illus.id}".ToInt();
-                img.Urls.Add(new UrlInfo(DownloadTypeEnum.Thumbnail, $"{illus.url}", $"{HomeUrl}/new_illust.php"));
+                img.Urls.Add(new UrlInfo(DownloadTypeEnum.Thumbnail, $"{illus.url}", $"{homeurl}/new_illust.php"));
                 img.Title = $"{illus.title}";
                 img.Uploader = $"{illus.userName}";
                 img.UploaderId = $"{illus.userId}";
                 img.Width = $"{illus.width}".ToInt();
                 img.Height = $"{illus.height}".ToInt();
-                img.DetailUrl = $"{HomeUrl}/artworks/{img.Id}";
+                img.DetailUrl = $"{homeurl}/artworks/{img.Id}";
                 img.ChildrenItemsCount = $"{illus.pageCount}".ToInt();
                 foreach (var tag in Ex.GetList(illus.tags)) img.Tags.Add($"{tag}");
                 img.Date = GetDateFromUrl($"{illus.url}");
@@ -205,7 +293,7 @@ namespace MoeLoaderP.Core.Sites
             if (!para.Keyword.IsEmpty() && json != null)
             {
                 var count = $"{json?.body?.illust?.total}".ToInt();
-                Ex.ShowMessage($"共搜索到{count}张图片，当前已加载至第{para.PageIndex}页，共{count / 60}页", null, Ex.MessagePos.InfoBar);
+                Ex.ShowMessage($"共搜索到{count}张图片，当前已加载至第{para.StartPageIndex}页，共{count / 60}页", null, Ex.MessagePos.InfoBar);
             }
         }
 
@@ -242,7 +330,7 @@ namespace MoeLoaderP.Core.Sites
             var picIds = new List<string>();
             var arts = isIllust ? allJson?.body?.illusts : allJson?.body?.manga;
             foreach (var ill in Ex.GetList(arts)) picIds.Add((ill as JProperty)?.Name);
-            var picCurrentPage = picIds.OrderByDescending(i => i.ToInt()).Skip((para.PageIndex - 1) * para.Count).Take(para.Count).ToList();
+            var picCurrentPage = picIds.OrderByDescending(i => i.ToInt()).Skip((para.StartPageIndex - 1) * para.Count).Take(para.Count).ToList();
             if (!picCurrentPage.Any()) return;
             var pairs = new Pairs();
             foreach (var pic in picCurrentPage) pairs.Add("ids[]".ToEncodedUrl(), pic);
@@ -274,7 +362,7 @@ namespace MoeLoaderP.Core.Sites
 
                 imgs.Add(img);
             }
-            Ex.ShowMessage($"该作者共有{mi3}{picIds.Count}张,当前第{para.Count * (para.PageIndex - 1) + 1}张", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"该作者共有{mi3}{picIds.Count}张,当前第{para.Count * (para.StartPageIndex - 1) + 1}张", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task SearchByRank(NetOperator net, MoeItems imgs, SearchPara para, CancellationToken token)
@@ -293,7 +381,7 @@ namespace MoeLoaderP.Core.Sites
                 {"mode", mode},
                 {"content", content},
                 {"date", para.Date == null ? "" : $"{para.Date:yyyyMMdd}"},
-                {"p", $"{para.PageIndex}"},
+                {"p", $"{para.StartPageIndex}"},
                 {"format", "json"}
             };
             var json = await net.GetJsonAsync(q, token, pair);
@@ -444,6 +532,10 @@ namespace MoeLoaderP.Core.Sites
         private NetOperator AutoHintNet { get; set; }
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
+            if (para.MirrorSite != null)
+            {
+                return null;
+            }
             var islogin = CheckIsLogin();
             if (!islogin) return null;
             if (AutoHintNet == null)

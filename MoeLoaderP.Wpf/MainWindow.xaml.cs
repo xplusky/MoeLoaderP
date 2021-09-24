@@ -391,7 +391,7 @@ namespace MoeLoaderP.Wpf
             }
             ChangeSearchVisual(true);
             StatusTextBlock.Text = "";
-            var para = SearchControl.GetSearchPara();
+            var para = SearchControl.GenSearchPara();
             CurrentSearch = new SearchSession(Settings, para);
             SiteTextBlock.Text = CurrentSearch.GetCurrentSearchStateText();
             Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);

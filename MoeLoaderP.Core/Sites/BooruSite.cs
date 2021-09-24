@@ -122,7 +122,7 @@ namespace MoeLoaderP.Core.Sites
 
             var count = xml.Root.Attribute("count")?.Value.ToInt();
             var offset = xml.Root.Attribute("offset")?.Value.ToInt();
-            Ex.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.PageIndex}页，共{count / para.Count}页", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.StartPageIndex}页，共{count / para.Count}页", null, Ex.MessagePos.InfoBar);
             return imageItems;
         }
 

@@ -407,11 +407,17 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <ComboBox x:Name="MirrorSiteComboBox" Grid.Column="1" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Height="26" Margin="0,0,2,0" SelectedIndex="0">
+                                <ComboBox x:Name="MirrorSiteComboBox" Grid.Column="1" 
+                                          Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
+                                          ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}"
+                                          Height="26" Margin="0,0,2,0" SelectedIndex="0">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <TextBlock TextWrapping="NoWrap" Text="{Binding Name}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                                <TextBlock TextWrapping="NoWrap" 
+                                                           Text="{Binding Name}" 
+                                                           Margin="4,0,0,0" 
+                                                           VerticalAlignment="Center"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
@@ -423,7 +429,9 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterStartPage}" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black"/>
+                                <TextBlock TextWrapping="Wrap" 
+                                           Text="{DynamicResource TextSearchControlFilterStartPage}" 
+                                           VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black"/>
                                 <controlParts:VariableCountControl x:Name="FilterStartPageBox" NumCount="1" MaxCount="99999" MinCount="1" Grid.Column="1"/>
                             </Grid>
                             <Grid x:Name="FilterStartIdGrid" Height="26" Margin="0,4,0,0" DataContext="CurrentSelectedSite" >

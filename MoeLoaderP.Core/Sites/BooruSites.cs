@@ -28,7 +28,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var pairs = new Pairs
             {
-                {"page", $"{para.PageIndex}"},
+                {"page", $"{para.StartPageIndex}"},
                 {"limit", $"{para.Count}"},
                 {"tags", para.Keyword.ToEncodedUrl()}
             };
@@ -50,7 +50,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/tag/index.xml?limit=8&order=count&name={para.Keyword}";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/post/index.xml?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/post/index.xml?page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/index.php?page=dapi&s=tag&q=index&order=name&limit=8&name={para.Keyword.ToEncodedUrl()}";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.StartPageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
         public override string UrlPre => "";
 
@@ -97,7 +97,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/autocomplete.json?search%5Bquery%5D={para.Keyword.ToEncodedUrl()}&search%5Btype%5D=tag_query&limit=10";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/posts.json?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/posts.json?page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
         public override SiteTypeEnum SiteType => SiteTypeEnum.Json;
 
@@ -134,7 +134,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/tag.xml?limit=8&order=count&name={para.Keyword}";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/post.xml?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/post.xml?page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
     }
 
@@ -151,7 +151,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/tags/autocomplete.json?search%5Bname_matches%5D={para.Keyword.ToEncodedUrl()}";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/posts.json?page={para.PageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/posts.json?page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
 
         public override SiteTypeEnum SiteType => SiteTypeEnum.Json;
     }
@@ -169,7 +169,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/autocomplete.php?q={para.Keyword}";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.StartPageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
     }
 
     

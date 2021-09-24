@@ -373,7 +373,7 @@
                         Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF35D;"/></TextBlock>
                 </Button>
-                <Button x:Name="DownloadButton" Visibility="{Binding MoeItem.DownloadUrlInfo, Converter={StaticResource ObjectToVisibilityConverter}}" Template="{DynamicResource MoeImageOperateButtonControlTemplate}" Width="28" Height="28" Margin="1">
+                <Button x:Name="DownloadButton" Visibility="{Binding MoeItem.CanDownload, Converter={StaticResource BoolToVisibilityConverter}}" Template="{DynamicResource MoeImageOperateButtonControlTemplate}" Width="28" Height="28" Margin="1">
                     <TextBlock FontFamily="{DynamicResource FontAwesomeSolid}" Foreground="White" ><Run Text="&#xF019;"/></TextBlock>
                 </Button>
             </StackPanel>

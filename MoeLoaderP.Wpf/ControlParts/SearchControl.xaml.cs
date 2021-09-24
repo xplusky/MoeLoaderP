@@ -47,33 +47,40 @@ namespace MoeLoaderP.Wpf.ControlParts
             Settings = settings;
             DataContext = Settings;
 
-            ShowExlicitOnlyCheckBox.Checked += (_, _) => FilterExlicitCheckBox.IsChecked = true;
-            FilterExlicitCheckBox.Unchecked += (_, _) => ShowExlicitOnlyCheckBox.IsChecked = false;
+            ShowExlicitOnlyCheckBox.Checked += delegate { FilterExlicitCheckBox.IsChecked = true; };
+            FilterExlicitCheckBox.Unchecked += delegate { ShowExlicitOnlyCheckBox.IsChecked = false; };
 
             KeywordTextBox.TextChanged += KeywordTextBoxOnTextChanged;
-            KeywordTextBox.GotFocus += (_, _) => KeywordPopup.IsOpen = true;
-            KeywordTextBox.LostFocus += (_, _) => KeywordPopup.IsOpen = false;
+            KeywordTextBox.GotFocus += delegate { KeywordPopup.IsOpen = true; };
+            KeywordTextBox.LostFocus += delegate { KeywordPopup.IsOpen = false; };
             KeywordListBox.ItemsSource = CurrentHintItems;
             KeywordListBox.SelectionChanged += KeywordComboBoxOnSelectionChanged;
 
             SiteManager.Sites.CollectionChanged += SitesOnCollectionChanged;
 
-            MoeSitesLv1ComboBox.SelectionChanged += MoeSitesLv1ComboBoxOnSelectionChanged;// 一级菜单选择改变
-            MoeSitesLv2ComboBox.SelectionChanged += MoeSitesLv2ComboBoxOnSelectionChanged;// 二级菜单选择改变
-            MoeSitesLv3ComboBox.SelectionChanged += MoeSitesLv3ComboBoxOnSelectionChanged;// 三级菜单选择改变
-            MoeSitesLv4ComboBox.SelectionChanged += MoeSitesLv4ComboBoxOnSelectionChanged;// 四级菜单选择改变
+            MoeSitesLv1ComboBox.SelectionChanged += (sender, args) => MoeSitesComboBoxOnSelectionChanged(sender, args, 1);// 一级菜单选择改变
+            MoeSitesLv2ComboBox.SelectionChanged += (sender, args) => MoeSitesComboBoxOnSelectionChanged(sender, args, 2); ;// 二级菜单选择改变
+            MoeSitesLv3ComboBox.SelectionChanged += (sender, args) => MoeSitesComboBoxOnSelectionChanged(sender, args, 3); ;// 三级菜单选择改变
+            MoeSitesLv4ComboBox.SelectionChanged += (sender, args) => MoeSitesComboBoxOnSelectionChanged(sender, args, 4); ;// 四级菜单选择改变
 
 
             MoeSitesLv1ComboBox.SelectedIndex = 0;
 
             AccountButton.MouseRightButtonUp += AccountButtonOnMouseRightButtonUp;
-            CustomAddButton.Click += CustomAddButtonOnClick;
-        }
+            CustomAddButton.Click += delegate{ App.CustomSiteDir.GoDirectory(); };
 
-        private void CustomAddButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            App.CustomSiteDir.GoDirectory();
+            FilterCountBox.NumChange += control =>
+            {
+                CurrentSelectedSite.SiteSettings.SetSetting("CountPerPage", control.NumCount.ToString());
+            };
+            MirrorSiteComboBox.SelectionChanged += (sender, args) =>
+            {
+                var i = MirrorSiteComboBox.SelectedIndex;
+                if(i<0)return;
+                CurrentSelectedSite.SiteSettings.SetSetting("MirrorSiteIndex", i.ToString());
+            };
         }
+        
 
         private void AccountButtonOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -85,126 +92,149 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             if (MoeSitesLv1ComboBox.SelectedIndex == -1) MoeSitesLv1ComboBox.SelectedIndex = 0;
         }
+        
+        public MoeSiteConfig CurrentConfig { get; set; }
 
-        private void VisualUpdate()
-        {
-            AdaptSupportState(CurrentSelectedSite.Config);
-            var lv2 = CurrentSelectedSite.Lv2Cat;
-            if (MoeSitesLv2ComboBox.SelectedIndex != -1 && lv2?.Any() == true)
-            {
-                var lv2ItemCat = CurrentSelectedSite
-                    .Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex];
-                AdaptSupportState(lv2ItemCat.OverrideConfig);
-                var lv3 = lv2[MoeSitesLv2ComboBox.SelectedIndex].SubCategories;
-                if (MoeSitesLv3ComboBox.SelectedIndex != -1 && lv3?.Any() ==true)
-                {
-                    var lv3ItemCat = CurrentSelectedSite
-                        .Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex]
-                        .SubCategories[MoeSitesLv3ComboBox.SelectedIndex];
-                    AdaptSupportState(lv3ItemCat.OverrideConfig);
-                    var lv4 = lv3[MoeSitesLv3ComboBox.SelectedIndex].SubCategories;
-                    if (MoeSitesLv4ComboBox.SelectedIndex != -1 && lv4?.Any() ==true)
-                    {
-                        var lv4ItemCat = CurrentSelectedSite
-                            .Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex]
-                            .SubCategories[MoeSitesLv3ComboBox.SelectedIndex]
-                            .SubCategories[MoeSitesLv4ComboBox.SelectedIndex];
-                        AdaptSupportState(lv4ItemCat.OverrideConfig);
-                    }
-                }
-            }
-        }
-
-        public MoeSiteConfig CurrentSupportState { get; set; }
-
-        public void AdaptSupportState(MoeSiteConfig state)
+        public void AdaptConfig(MoeSiteConfig state)
         {
             if(state == null) return;
-            CurrentSupportState = state;
+            CurrentConfig = state;
             this.GoState(state.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
             this.GoState(state.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
             this.GoState(state.IsSupportKeyword ?  nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
             this.GoState(state.IsCustomSite ?　nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
         }
-
-        public void FilterBoxVisualUpdate()
+        
+        public void ParaBoxVisualUpdate()
         {
-            FilterResolutionCheckBox.IsEnabled = CurrentSelectedSite.Config.IsSupportResolution;
-            FilterExlicitGroup.IsEnabled = CurrentSelectedSite.Config.IsSupportRating;
-            DownloadTypeComboBox.ItemsSource = CurrentSelectedSite.DownloadTypes;
+            var cs = CurrentSelectedSite;
+            FilterResolutionCheckBox.IsEnabled = cs.Config.IsSupportResolution;
+            FilterExlicitGroup.IsEnabled = cs.Config.IsSupportRating;
+            DownloadTypeComboBox.ItemsSource = cs.DownloadTypes;
             DownloadTypeComboBox.SelectedIndex = 0;
-            FilterStartIdGrid.Visibility = CurrentSelectedSite.Config.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
+            FilterStartIdGrid.Visibility = cs.Config.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
             FilterStartIdBox.MaxCount = 0;
             FilterStartPageBox.NumCount = 1;
+            var numPerPage =  cs.SiteSettings.GetSetting("CountPerPage").ToInt();
+            FilterCountBox.NumCount = numPerPage > 0 ? numPerPage : 60;
+            if (cs.Mirrors != null)
+            {
+                MirrorSiteGrid.Visibility = Visibility.Visible;
+                MirrorSiteComboBox.ItemsSource = cs.Mirrors;
+                var mirrorIndex = CurrentSelectedSite.SiteSettings.GetSetting("MirrorSiteIndex").ToInt();
+                MirrorSiteComboBox.SelectedIndex = mirrorIndex < 0 || mirrorIndex >= MirrorSiteComboBox.Items.Count ? 0 : mirrorIndex;
+            }
+            else
+            {
+                MirrorSiteGrid.Visibility = Visibility.Collapsed;
+                MirrorSiteComboBox.ItemsSource = null;
+            }
         }
 
         public void Refresh()
         {
-            MoeSitesLv1ComboBoxOnSelectionChanged(null, null);
+            MoeSitesComboBoxOnSelectionChanged(null, null,1);
+        }
+
+        private void MoeSitesComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e, int level)
+        {
+            if (level == 1)
+            {
+                var lv1Si = MoeSitesLv1ComboBox.SelectedIndex;
+                if (lv1Si == -1) return;
+                CurrentSelectedSite = SiteManager.Sites[lv1Si];
+                KeywordTextBox.Text = "";
+                CurrentHintItems.Clear();
+                InitHistoryItems();
+                MoeDatePicker.SelectedDate = null;
+                ParaBoxVisualUpdate();
+                var lv2cat = CurrentSelectedSite.Lv2Cat;
+                if (lv2cat?.Any() == true)
+                {
+                    MoeSitesLv2ComboBox.ItemsSource = lv2cat;
+                    if (MoeSitesLv2ComboBox.SelectedIndex == 0)
+                    {
+                        MoeSitesComboBoxOnSelectionChanged(sender, e, 2);
+                    }
+                    else MoeSitesLv2ComboBox.SelectedIndex = 0;
+
+                    MoeSitesLv2ComboBox.SelectedIndex = 0;
+                    this.GoState(nameof(ShowSubMenuState));
+                }
+                else
+                {
+                    this.GoState(nameof(HideSubMenuState));
+                    this.GoState(nameof(HideLv3MenuState));
+                    this.GoState(nameof(HideLv4MenuState));
+                }
+            }
+
+            if (level == 2)
+            {
+
+                var lv2Si = MoeSitesLv2ComboBox.SelectedIndex;
+                if (lv2Si == -1) return;
+                var lv3 = CurrentSelectedSite.Lv2Cat[lv2Si].SubCategories;
+                if (lv3?.Any() == true)
+                {
+                    MoeSitesLv3ComboBox.ItemsSource = lv3;
+                    if (MoeSitesLv3ComboBox.SelectedIndex == 0)
+                    {
+                        MoeSitesComboBoxOnSelectionChanged(sender, e, 3);
+                    }
+                    else MoeSitesLv3ComboBox.SelectedIndex = 0;
+
+                    this.GoState(nameof(ShowLv3MenuState));
+                }
+                else
+                {
+                    this.GoState(nameof(HideLv3MenuState));
+                    this.GoState(nameof(HideLv4MenuState));
+                }
+            }
+
+            if (level == 3)
+            {
+                var lv3Si = MoeSitesLv3ComboBox.SelectedIndex;
+                if (lv3Si == -1) return;
+                var lv4 = (MoeSitesLv2ComboBox.SelectedItem as Category)?.SubCategories[lv3Si].SubCategories;
+                if (lv4?.Any() == true)
+                {
+                    MoeSitesLv4ComboBox.ItemsSource = lv4;
+                    if (MoeSitesLv4ComboBox.SelectedIndex == 0)
+                    {
+                        MoeSitesComboBoxOnSelectionChanged(sender, e, 4);
+                    }
+                    else MoeSitesLv4ComboBox.SelectedIndex = 0;
+
+                    this.GoState(nameof(ShowLv4MenuState));
+                }
+                else this.GoState(nameof(HideLv4MenuState));
+            }
+
+            var cfg = CurrentSelectedSite.Config;
+            var lvv2 = CurrentSelectedSite.Lv2Cat;
+            if (MoeSitesLv2ComboBox.SelectedIndex != -1 && lvv2?.Any() == true)
+            {
+                var lv2ItemCat = MoeSitesLv2ComboBox.SelectedItem as Category;
+                if (lv2ItemCat.OverrideConfig != null) cfg = lv2ItemCat.OverrideConfig;
+                var lv3 = lvv2[MoeSitesLv2ComboBox.SelectedIndex].SubCategories;
+                if (MoeSitesLv3ComboBox.SelectedIndex != -1 && lv3?.Any() == true)
+                {
+                    var lv3ItemCat = MoeSitesLv3ComboBox.SelectedItem as Category;
+                    if (lv3ItemCat.OverrideConfig != null) cfg = lv3ItemCat.OverrideConfig;
+                    var lv4 = lv3[MoeSitesLv3ComboBox.SelectedIndex].SubCategories;
+                    if (MoeSitesLv4ComboBox.SelectedIndex != -1 && lv4?.Any() == true)
+                    {
+                        var lv4ItemCat = MoeSitesLv4ComboBox.SelectedItem as Category;
+                        if (lv4ItemCat.OverrideConfig != null) cfg = lv4ItemCat.OverrideConfig;
+                    }
+                }
+            }
+
+            AdaptConfig(cfg);
         }
         
-        private void MoeSitesLv1ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)// site change
-        {
-            var lv1Si = MoeSitesLv1ComboBox.SelectedIndex;
-            if (lv1Si == -1) return;
-            CurrentSelectedSite = SiteManager.Sites[lv1Si];
-            InitSearch();
-            var lv2 = CurrentSelectedSite.Lv2Cat;
-            if (lv2?.Any() == true)
-            {
-                MoeSitesLv2ComboBox.ItemsSource = lv2;
-                if (MoeSitesLv2ComboBox.SelectedIndex == 0) MoeSitesLv2ComboBoxOnSelectionChanged(sender, e);
-                else MoeSitesLv2ComboBox.SelectedIndex = 0;
-                MoeSitesLv2ComboBox.SelectedIndex = 0;
-                this.GoState(nameof(ShowSubMenuState));
-            }
-            else
-            {
-                this.GoState(nameof(HideSubMenuState));
-                this.GoState(nameof(HideLv3MenuState));
-                this.GoState(nameof(HideLv4MenuState));
-            }
-            VisualUpdate();
-            FilterBoxVisualUpdate();
-        }
-        private void MoeSitesLv2ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var lv2Si = MoeSitesLv2ComboBox.SelectedIndex;
-            if (lv2Si == -1) return;
-            var lv3 = CurrentSelectedSite.Lv2Cat[lv2Si].SubCategories;
-            if (lv3?.Any() == true)
-            {
-                MoeSitesLv3ComboBox.ItemsSource = lv3;
-                if (MoeSitesLv3ComboBox.SelectedIndex == 0) MoeSitesLv3ComboBoxOnSelectionChanged(sender, e);
-                else MoeSitesLv3ComboBox.SelectedIndex = 0;
-                this.GoState(nameof(ShowLv3MenuState));
-            }
-            else
-            {
-                this.GoState(nameof(HideLv3MenuState));
-                this.GoState(nameof(HideLv4MenuState));
-            }
-
-            VisualUpdate();
-        }
-        private void MoeSitesLv3ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var lv3Si = MoeSitesLv3ComboBox.SelectedIndex;
-            if (lv3Si == -1) return;
-            var lv4 = CurrentSelectedSite.Lv2Cat[MoeSitesLv2ComboBox.SelectedIndex].SubCategories[lv3Si].SubCategories;
-            if (lv4?.Any() == true)
-            {
-                MoeSitesLv4ComboBox.ItemsSource = lv4;
-                if (MoeSitesLv4ComboBox.SelectedIndex == 0) MoeSitesLv4ComboBoxOnSelectionChanged(sender, e);
-                else MoeSitesLv4ComboBox.SelectedIndex = 0;
-                this.GoState(nameof(ShowLv4MenuState));
-            }
-            else this.GoState(nameof(HideLv4MenuState));
-            VisualUpdate();
-        }
-        private void MoeSitesLv4ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e) { VisualUpdate(); }
-
-
         private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
         {
             if (CurrentHintTaskCts == null)
@@ -257,15 +287,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             KeywordTextBox.Text = item.Word;
             KeywordTextBox.Focus();
         }
-
-        public void InitSearch()
-        {
-            KeywordTextBox.Text = "";
-            CurrentHintItems.Clear();
-            AddHistoryItems();
-            MoeDatePicker.SelectedDate = null;
-
-        }
+        
 
         private CancellationTokenSource CurrentHintTaskCts { get; set; }
 
@@ -275,22 +297,22 @@ namespace MoeLoaderP.Wpf.ControlParts
         public async Task ShowKeywordComboBoxItemsAsync(string keyword, CancellationToken token)
         {
             CurrentHintItems.Clear();
-            AddHistoryItems();
+            InitHistoryItems();
             if (keyword.IsEmpty()) throw new TaskCanceledException();
             await Task.Delay(600, token);// 等待0.6再开始获取，避免每输入一个字都进行网络操作 
-            var task = CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
+            var task = CurrentSelectedSite.GetAutoHintItemsAsync(GenSearchPara(), token);
             if (task == null) throw new TaskCanceledException();
-            var list = await CurrentSelectedSite.GetAutoHintItemsAsync(GetSearchPara(), token);
+            var list = await CurrentSelectedSite.GetAutoHintItemsAsync(GenSearchPara(), token);
             if (list != null && list.Any())
             {
                 CurrentHintItems.Clear();
                 foreach (var item in list) CurrentHintItems.Add(item);
-                AddHistoryItems();
+                InitHistoryItems();
                 Ex.Log($"AutoHint 搜索完成 结果个数{list.Count}");
             }
         }
 
-        private void AddHistoryItems()
+        private void InitHistoryItems()
         {
             CurrentHintItems.Add(new AutoHintItem { IsEnable = false, Word = "---------历史---------" });
             if (Settings?.HistoryKeywords?.Count == 0 || Settings?.HistoryKeywords == null) return;
@@ -300,15 +322,15 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
 
-        public SearchPara GetSearchPara()
+        public SearchPara GenSearchPara()
         {
             var para = new SearchPara
             {
                 Site = CurrentSelectedSite,
                 Count = FilterCountBox.NumCount,
-                PageIndex = FilterStartPageBox.NumCount,
+                StartPageIndex = FilterStartPageBox.NumCount,
                 Keyword = KeywordTextBox.Text,
-                IsShowExplicit = FilterExlicitCheckBox.IsChecked == true,
+                IsShowExplicit = Settings.IsXMode && FilterExlicitCheckBox.IsChecked == true,
                 IsShowExplicitOnly = ShowExlicitOnlyCheckBox.IsChecked == true,
                 IsFilterResolution = FilterResolutionCheckBox.IsChecked == true,
                 MinWidth = FilterMinWidthBox.NumCount,
@@ -317,21 +339,20 @@ namespace MoeLoaderP.Wpf.ControlParts
                 IsFilterFileType = FilterFileTypeCheckBox.IsChecked == true,
                 FilterFileTypeText = FilterFileTypeTextBox.Text,
                 IsFileTypeShowSpecificOnly = FileTypeShowSpecificOnlyComboBox.SelectedIndex == 1,
-                DownloadType = CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
+                DownloadType = DownloadTypeComboBox.SelectionBoxItem as DownloadType,//CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
                 Date = MoeDatePicker.SelectedDate,
                 NextPageMark = $"{FilterStartIdBox.NumCount}" == "0"? null: $"{FilterStartIdBox.NumCount}",
                 Lv2MenuIndex = MoeSitesLv2ComboBox.SelectedIndex,
                 Lv3MenuIndex = MoeSitesLv3ComboBox.SelectedIndex,
                 Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex,
-                SupportState = CurrentSupportState
+                Config = CurrentConfig,
+                MirrorSite = MirrorSiteComboBox.SelectionBoxItem as MirrorSiteConfig
             };
-            if (!Settings.IsXMode) para.IsShowExplicit = false;
             return para;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //[NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

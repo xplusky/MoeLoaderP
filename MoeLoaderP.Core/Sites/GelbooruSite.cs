@@ -19,7 +19,7 @@ namespace MoeLoaderP.Core.Sites
             => $"{HomeUrl}/index.php?page=autocomplete2&term={para.Keyword}&type=tag_query&limit=10";
 
         public override string GetPageQuery(SearchPara para)
-            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            => $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.StartPageIndex - 1}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var ahis = new AutoHintItems();

@@ -1070,7 +1070,8 @@
                             </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </ControlTemplate.Resources>
-                    <Grid x:Name="Root" ToolTip="{Binding Text, ElementName=FileNameTextBlock}" Width="Auto" d:DesignWidth="162.333" d:DesignHeight="98.444" Margin="0,0,0,3" Background="#00000000" RenderTransformOrigin="0.5,0.5">
+                    <Grid x:Name="Root" ToolTip="{Binding Text, ElementName=FileNameTextBlock}" 
+                          Width="Auto" d:DesignWidth="162.333" d:DesignHeight="98.444" Margin="0,0,0,3" Background="#00000000" RenderTransformOrigin="0.5,0.5">
                         <Grid.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>

@@ -97,7 +97,7 @@ namespace MoeLoaderP.Core.Sites
                 // popular
                 // wall http://gallery.minitokyo.net/wallpapers?order=favorites&display=thumbnails&page=2
                 // scan http://gallery.minitokyo.net/scans?display=thumbnails&order=favorites&page=2
-                query = $"{HomeGalleryUrl}/{GetSort(para)}?order={GetOrder(para)}&display=thumbnails&page={para.PageIndex}";
+                query = $"{HomeGalleryUrl}/{GetSort(para)}?order={GetOrder(para)}&display=thumbnails&page={para.StartPageIndex}";
 
             }
             else

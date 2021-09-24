@@ -73,20 +73,9 @@ namespace MoeLoaderP.Core
 
     public class UrlInfos : ObservableCollection<UrlInfo>
     {
-        public UrlInfo GetMax()
+        public bool Contains(DownloadTypeEnum type)
         {
-            UrlInfo info = null;
-            foreach (var i in this)
-            {
-                if (info == null)
-                {
-                    info = i; continue;
-                }
-
-                if (i.DownloadType > info.DownloadType) info = i;
-            }
-
-            return info;
+            return this.Any(info => info.DownloadType == type);
         }
 
         public UrlInfo GetPreview()

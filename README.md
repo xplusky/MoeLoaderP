@@ -9,10 +9,15 @@
 
 > **http://leaful.com/moeloader-p**
 
+## 注意事项
+
+本软件支持的系统为Windows 7以上64位系统。
+需要系统安装.Net 5版本的框架。
+> **https://dotnet.microsoft.com/download/dotnet/5.0**
+
 ## 关于 MoeLoader-P 
 
 MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，作者已销声匿迹失多年，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
-
 
 ### 站点支持情况：
   
@@ -74,12 +79,16 @@ QQ群： 验证：MoeLoaderP
 - 登录功能切换至WebView2（首次使用需下载），不再使用CefSharp
 - 新增自定义站点功能（右键LOGO进入），通过JSON文件就可以自定义自己站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）
 - 完善登录功能，支持Pixiv、SankakuComplex登录搜索
+- 修复SankakuComplex登录，可以登录后搜索
 - 新增站点全名、作者ID等名称命名格式
 - 设置完善、支持亚克力效果开关选项。
 - 更新FluentWPF，支持暗黑模式（根据系统颜色设置）
 - 修复多个站点，可以继续搜索图片了
 - 优化打开文件位置功能，可以默认选中图片了
 - 优化下载列表，可以平滑滚动
+- pixiv增加镜像站点功能，可以免梯子搜索下载（在参数里面）
+- 搜索参数中的数量、镜像站点设置可以自动保存，下次搜索自动读取
+- 可以自定义背景图片了，通过设置可以快速换背景图片
 
 ### 2021-4-12 9.5.1
 - 修复文件名规则框

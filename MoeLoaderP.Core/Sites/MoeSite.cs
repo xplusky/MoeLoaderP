@@ -36,12 +36,15 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         public MoeSiteConfig Config { get; set; } = new MoeSiteConfig();
 
+        /// <summary>
+        /// 浏览和下载所用接口
+        /// </summary>
         public NetOperator Net { get; set; }
 
         /// <summary>
         /// 包含cookie的网络接口
         /// </summary>
-        public NetOperator AccountNet { get; set; }
+        //public NetOperator AccountNet { get; set; }
 
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
@@ -58,6 +61,8 @@ namespace MoeLoaderP.Core.Sites
         public IndividualSiteSettings SiteSettings => Settings.AllSitesSettings.GetSettings(this);
 
         public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
+
+        public MirrorSiteConfigs Mirrors { get; set; }
 
         #region 账户及在线功能相关
 
@@ -85,6 +90,26 @@ namespace MoeLoaderP.Core.Sites
         #endregion
     }
 
+    public class MirrorSiteConfig
+    {
+        public string Name { get; set; }
+        public bool IsDefault { get; set; }
+        public string HomeUrl { get; set; }
+        public string SearchApi { get; set; }
+    }
+
+    public class MirrorSiteConfigs : ObservableCollection<MirrorSiteConfig>
+    {
+        public MirrorSiteConfigs()
+        {
+            var msc = new MirrorSiteConfig()
+            {
+                Name = "(不使用镜像）",
+                IsDefault = true
+            };
+            Add(msc);
+        }
+    }
 
     public class MoeSiteConfig
     {
@@ -123,6 +148,7 @@ namespace MoeLoaderP.Core.Sites
         public bool IsSupportDatePicker { get; set; } 
         public bool IsR18Site { get; set; } = false;
         public bool IsCustomSite { get; set; }
+        public ImageOrders ImageOrders { get; set; }
     }
 
     

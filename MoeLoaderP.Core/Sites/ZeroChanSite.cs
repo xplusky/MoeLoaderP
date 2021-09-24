@@ -57,7 +57,7 @@ namespace MoeLoaderP.Core.Sites
 
             // get page source
             string pageString;
-            var url = $"{HomeUrl}{(para.Keyword.Length > 0 ? $"/search?q={para.Keyword}&" : "/?")}p={para.PageIndex}";
+            var url = $"{HomeUrl}{(para.Keyword.Length > 0 ? $"/search?q={para.Keyword}&" : "/?")}p={para.StartPageIndex}";
 
             if (!_beforeWord.Equals(para.Keyword, StringComparison.CurrentCultureIgnoreCase))
             {
@@ -76,7 +76,7 @@ namespace MoeLoaderP.Core.Sites
             }
             else
             {
-                url = para.Keyword.IsEmpty() ? url : $"{_beforeUrl}?p={para.PageIndex}";
+                url = para.Keyword.IsEmpty() ? url : $"{_beforeUrl}?p={para.StartPageIndex}";
                 var res = await Net.Client.GetAsync(url, token);
 
                 pageString = await res.Content.ReadAsStringAsync();

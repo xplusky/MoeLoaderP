@@ -32,7 +32,7 @@ namespace MoeLoaderP.Core.Sites
             var url = $"{HomeUrl}/api/photo/list";
             var pairs = new Pairs
             {
-                {"page", $"{para.PageIndex}"},
+                {"page", $"{para.StartPageIndex}"},
                 {"limit",$"{para.Count}" },
                 {"sort", "created_at"},
                 {"direction","descend" }
@@ -44,7 +44,7 @@ namespace MoeLoaderP.Core.Sites
                 url =  $"{HomeUrl}/api/photo/search";
                 pairs = new Pairs
                 {
-                    {"page", $"{para.PageIndex}"},
+                    {"page", $"{para.StartPageIndex}"},
                     {"rows",$"{para.Count}" },
                     {"q", para.Keyword.ToEncodedUrl()}
                 };
