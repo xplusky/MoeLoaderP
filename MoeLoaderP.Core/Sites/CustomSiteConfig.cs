@@ -9,12 +9,12 @@ namespace MoeLoaderP.Core.Sites
         public string DisplayName { get; set; }
         public string HomeUrl { get; set; }
         public string SiteIconUrl { get; set; }
-        public CustomCategories Categories { get; set; } = new CustomCategories();
-        public MoeSiteConfig Config { get; set; } = new MoeSiteConfig()
+        public CustomCategories Categories { get; set; } = new();
+        public MoeSiteConfig Config { get; set; } = new()
         {
             IsCustomSite = true
         };
-        public CustomPagePara PagePara { get; set; } = new CustomPagePara();
+        public CustomPagePara PagePara { get; set; } = new();
         public string SearchApi { get; set; }
     }
     public class CustomSiteConfigList : ObservableCollection<CustomSiteConfig> { }

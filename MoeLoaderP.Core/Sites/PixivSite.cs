@@ -52,9 +52,9 @@ namespace MoeLoaderP.Core.Sites
             };
             Lv2Cat = new Categories
             {
-                new Category("最新/搜索", mangaIlluLv3Cat), //0
-                new Category("作者ID搜索", mangaIlluLv3Cat), //1
-                new Category("排行", rankLv3Cat) //2
+                new("最新/搜索", mangaIlluLv3Cat), //0
+                new("作者ID搜索", mangaIlluLv3Cat), //1
+                new("排行", rankLv3Cat) //2
                 {
                     OverrideConfig = new MoeSiteConfig
                     {
@@ -73,7 +73,7 @@ namespace MoeLoaderP.Core.Sites
             LoginPageUrl = "https://accounts.pixiv.net/login";
             Mirrors = new MirrorSiteConfigs()
             {
-                new MirrorSiteConfig()
+                new()
                 {
                     Name = "pixiviz",
                     HomeUrl = "https://pixiviz.pwp.app/"

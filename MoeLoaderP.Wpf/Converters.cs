@@ -91,7 +91,8 @@ namespace MoeLoaderP.Wpf
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            var defMargin = new Thickness(6,8,6,8);
+            //var defMargin = new Thickness(6,8,6,8);
+            var defMargin = new Thickness(0);
             if ((values[0] is not double) || (values[1] is not double)) return defMargin;
             var outerWidth = (double) values[0];
             var itemWidth = (double) values[1];

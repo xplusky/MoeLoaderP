@@ -23,9 +23,9 @@ namespace MoeLoaderP.Core.Sites
             var lv3Cats = new Categories("最新", "最热");
             Lv2Cat = new Categories()
             {
-                new Category("画友", lv3Cats),
-                new Category("摄影(COS)", lv3Cats),
-                new Category("摄影(私服)", lv3Cats)
+                new("画友", lv3Cats),
+                new("摄影(COS)", lv3Cats),
+                new("摄影(私服)", lv3Cats)
             };
 
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
@@ -40,7 +40,7 @@ namespace MoeLoaderP.Core.Sites
         
         public override bool VerifyCookieAndSave(CookieCollection ccol)
         {
-            return ccol.Cast<Cookie>().Any(cookie => cookie.Name.Equals("DedeUserID", StringComparison.OrdinalIgnoreCase));
+            return ccol.Any(cookie => cookie.Name.Equals("DedeUserID", StringComparison.OrdinalIgnoreCase));
         }
 
         //public override async Task<bool> ThumbAsync(MoeItem item, CancellationToken token)

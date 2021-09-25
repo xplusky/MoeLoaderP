@@ -39,10 +39,10 @@ namespace MoeLoaderP.Core.Sites
             var lv3 = new Categories("最新", "最热");
             Lv2Cat = new Categories()
             {
-                new Category("壁纸", lv3),
-                new Category("扫描图", lv3),
-                new Category("手机壁纸", lv3),
-                new Category("Indy Art", lv3)
+                new("壁纸", lv3),
+                new("扫描图", lv3),
+                new("手机壁纸", lv3),
+                new("Indy Art", lv3)
             };
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             Config = new MoeSiteConfig

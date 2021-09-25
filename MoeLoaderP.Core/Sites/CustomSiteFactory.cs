@@ -5,7 +5,7 @@ namespace MoeLoaderP.Core.Sites
 {
     public class CustomSiteFactory
     {
-        public CustomSiteConfigList SiteConfigList = new CustomSiteConfigList();
+        public CustomSiteConfigList SiteConfigList = new();
         public void GenTestSites()
         {
             #region caosi
@@ -17,31 +17,31 @@ namespace MoeLoaderP.Core.Sites
                 ShortName = "caosi",
                 Categories = new CustomCategories
                 {
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.caosi.com/c/xinggan",
                         FollowUpPageApi = "https://www.caosi.com/c/xinggan/{pagenum}",
                         Name = "性感美女"
                     },
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.caosi.com/c/qingchun",
                         FollowUpPageApi = "https://www.caosi.com/c/qingchun/{pagenum}",
                         Name = "清纯美女"
                     },
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.caosi.com/c/changtui",
                         FollowUpPageApi = "https://www.caosi.com/c/changtui/{pagenum}",
                         Name = "长腿美女"
                     },
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.caosi.com/c/siwa",
                         FollowUpPageApi = "https://www.caosi.com/c/siwa/{pagenum}",
                         Name = "丝袜美女"
                     },
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.caosi.com/c/mingxing",
                         FollowUpPageApi = "https://www.caosi.com/c/mingxing/{pagenum}",
@@ -96,40 +96,40 @@ namespace MoeLoaderP.Core.Sites
                 
                 Categories = new CustomCategories
                 {
-                    new CustomCategory
+                    new()
                     {
                         FirstPageApi = "http://www.546z.com/guonei/",
                         FollowUpPageApi = "http://www.546z.com/guonei/index_{pagenum}.html",
                         Name = "国内套图",
                         OverridePagePara =site546ZPara2,
                     },
-                    new CustomCategory
+                    new()
                     {
                         FirstPageApi = "http://www.546z.com/rihan/",
                         FollowUpPageApi = "http://www.546z.com/rihan/index_{pagenum}.html",
                         Name = "日韩套图",
                         OverridePagePara =site546ZPara2,
                     },
-                    new CustomCategory
+                    new()
                     {
                         FirstPageApi = "http://www.546z.com/gangtai/",
                         FollowUpPageApi = "http://www.546z.com/gangtai/index_{pagenum}.html",
                         Name = "港台套图",
                         OverridePagePara =site546ZPara2,
                     },
-                    new CustomCategory
+                    new()
                     {
                         FirstPageApi = "http://www.546z.com/tag/rentiyishu.html",
                         FollowUpPageApi = "http://www.546z.com/tag/rentiyishu_{pagenum-1}.html",
                         Name = "人体艺术"
                     },
-                    new CustomCategory
+                    new()
                     {
                         FirstPageApi = "http://www.546z.com/tag/meiru.html",
                         FollowUpPageApi = "http://www.546z.com/tag/meiru_{pagenum-1}.html",
                         Name = "美乳"
                     },
-                    new CustomCategory
+                    new()
                     {
                         FirstPageApi = "http://www.546z.com/tag/tuinvlang.html",
                         FollowUpPageApi = "http://www.546z.com/tag/tuinvlang_{pagenum-1}.html",
@@ -207,7 +207,7 @@ namespace MoeLoaderP.Core.Sites
                 },
                 Categories = new CustomCategories
                 {
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.ivsky.com/tupian/",
                         FollowUpPageApi = "https://www.ivsky.com/tupian/index_{pagenum}.html",
@@ -276,14 +276,14 @@ namespace MoeLoaderP.Core.Sites
                 SearchApi = "https://www.enterdesk.com/search/{pagenum}-0-6-0-0-0/{keyword}",
                 Categories = new CustomCategories
                 {
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://mm.enterdesk.com/",
                         FollowUpPageApi = "https://mm.enterdesk.com/{pagenum}.html",
                         Name = "美女图片",
                         OverridePagePara = mmp,
                     },
-                    new CustomCategory()
+                    new()
                     {
                         FirstPageApi = "https://www.enterdesk.com/zhuomianbizhi/",
                         FollowUpPageApi = "https://www.enterdesk.com/zhuomianbizhi/{pagenum}.html",

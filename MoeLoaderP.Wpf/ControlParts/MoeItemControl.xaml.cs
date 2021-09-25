@@ -1,10 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using MoeLoaderP.Core;
+using MoeLoaderP.Core.Sites;
 using draw= System.Drawing;
 
 namespace MoeLoaderP.Wpf.ControlParts
@@ -32,6 +35,56 @@ namespace MoeLoaderP.Wpf.ControlParts
             DetailPageLinkButton.Click += delegate { MoeItem.DetailUrl.GoUrl(); };
             RefreshButton.Click += RefreshButtonOnClick;
             ImageCheckBox.Click += ImageCheckBoxOnClick;
+            StarButton.Click += StarButtonOnClick;
+            MoeItem.PropertyChanged += MoeItemOnPropertyChanged;
+            MoeItem.Site.PropertyChanged += SiteOnPropertyChanged;
+            InitVisual();
+        }
+
+        private void SiteOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MoeSite.IsUserLogin))
+            {
+                if (MoeItem.Site.IsUserLogin)
+                {
+                    StarButton.Visibility = MoeItem.Site.Config.IsSupportStarButton ? Visibility.Visible : Visibility.Collapsed;
+                    ThumbButton.Visibility = MoeItem.Site.Config.IsSupportThumbButton ? Visibility.Visible : Visibility.Collapsed;
+                }
+                else
+                {
+                    StarButton.Visibility = Visibility.Collapsed;
+                    ThumbButton.Visibility = Visibility.Collapsed;
+                }
+                
+            }
+        }
+
+        public void InitVisual()
+        {
+            MoeItemOnPropertyChanged(this, new PropertyChangedEventArgs(nameof(MoeItem.IsFav)));
+            SiteOnPropertyChanged(this, new PropertyChangedEventArgs(nameof(MoeSite.IsUserLogin)));
+        }
+
+        private void MoeItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MoeItem.IsFav))
+            {
+                FavTextBlock.Foreground = MoeItem.IsFav ? Brushes.DeepPink : Brushes.White;
+            }
+        }
+
+        private async void StarButtonOnClick(object sender, RoutedEventArgs e)
+        {
+            var b = await MoeItem.Site.StarAsync(MoeItem, default);
+            if (b)
+            {
+                FavTextBlock.Foreground = Brushes.DeepPink;
+                Ex.ShowMessage("收藏成功");
+            }
+            else
+            {
+                Ex.ShowMessage("收藏失败");
+            }
         }
 
 
@@ -79,6 +132,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             // Load end
             if(e == null) RefreshButton.Visibility = Visibility.Collapsed;
             ImageLoadEnd?.Invoke(this);
+            MoeItem.CanDownload = true;
         }
 
 

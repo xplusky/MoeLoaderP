@@ -15,10 +15,10 @@ namespace MoeLoaderP.Core
     {
         public Settings Settings { get; set; }
         public SearchPara CurrentSearchPara { get; set; }
-        public SearchedVisualPages LoadedVisualPages { get; set; } = new SearchedVisualPages();
+        public SearchedVisualPages LoadedVisualPages { get; set; } = new();
 
         public bool IsSearching => SearchingTasksCts.Count > 0;
-        public List<CancellationTokenSource> SearchingTasksCts { get; set; } = new List<CancellationTokenSource>();
+        public List<CancellationTokenSource> SearchingTasksCts { get; set; } = new();
 
         public SearchSession(Settings settings, SearchPara para)
         {
@@ -272,7 +272,7 @@ namespace MoeLoaderP.Core
     public class SearchedVisualPage
     {
         public MoeItems ImageItems { get; set; }
-        public MoeItems PreLoadNextPageItems { get; set; } = new MoeItems();
+        public MoeItems PreLoadNextPageItems { get; set; } = new();
         public int LastRealPageIndex { get; set; }
         public bool HasNextVisualPage { get; set; } = true;
     }

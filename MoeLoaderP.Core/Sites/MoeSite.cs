@@ -12,6 +12,8 @@ namespace MoeLoaderP.Core.Sites
     /// </summary>
     public abstract class MoeSite : BindingObject
     {
+        private bool _isUserLogin;
+
         /// <summary>
         /// 站点URL，用于打开该站点主页。eg. http://yande.re
         /// </summary>
@@ -27,25 +29,20 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         public abstract string ShortName { get; }
 
-        public virtual Uri Icon => new Uri($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative);
+        public virtual Uri Icon => new($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative);
 
         public Categories Lv2Cat { get; set; }
 
         /// <summary>
         /// 站点功能配置
         /// </summary>
-        public MoeSiteConfig Config { get; set; } = new MoeSiteConfig();
+        public MoeSiteConfig Config { get; set; } = new();
 
         /// <summary>
         /// 浏览和下载所用接口
         /// </summary>
         public NetOperator Net { get; set; }
-
-        /// <summary>
-        /// 包含cookie的网络接口
-        /// </summary>
-        //public NetOperator AccountNet { get; set; }
-
+        
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
         /// </summary>
@@ -60,9 +57,15 @@ namespace MoeLoaderP.Core.Sites
 
         public IndividualSiteSettings SiteSettings => Settings.AllSitesSettings.GetSettings(this);
 
-        public DownloadTypes DownloadTypes { get; set; } = new DownloadTypes();
+        public DownloadTypes DownloadTypes { get; set; } = new();
 
         public MirrorSiteConfigs Mirrors { get; set; }
+
+        public bool IsUserLogin
+        {
+            get => _isUserLogin;
+            set => SetField(ref _isUserLogin, value, nameof(IsUserLogin));
+        }
 
         #region 账户及在线功能相关
 
@@ -85,7 +88,13 @@ namespace MoeLoaderP.Core.Sites
         /// </summary>
         /// <param name="token"></param>
         /// <returns>是否成功</returns>
-        public virtual Task<bool> StarAsync(CancellationToken token) => null;
+        public virtual Task<bool> StarAsync(MoeItem item, CancellationToken token) => null;
+
+        public virtual void Logout()
+        {
+            SiteSettings.LoginCookies = null;
+            Ex.ShowMessage("已清除登录信息！");
+        }
 
         #endregion
     }

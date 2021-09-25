@@ -179,9 +179,6 @@
     <Resource Include="Assets\SiteIcon\sankakucomplex-chan.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MoeLoaderP.Core\MoeLoaderP.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\Egg\medium1.png" />
     <Resource Include="Assets\Egg\medium2.png" />
     <None Update="Assets\Egg\关键性停止.mp3">
@@ -251,5 +248,8 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MoeLoaderP.Core\MoeLoaderP.Core.csproj" />
   </ItemGroup>
 </Project>

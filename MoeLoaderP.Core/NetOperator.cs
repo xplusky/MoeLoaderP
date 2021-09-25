@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Handlers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -106,7 +107,7 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = new CancellationToken(), Pairs parapairs = null)
+        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = new(), Pairs parapairs = null)
         {
             var query = parapairs.ToPairsString();
             try
@@ -122,7 +123,7 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
-        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = new CancellationToken(), Pairs parapairs = null)
+        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = new(), Pairs parapairs = null)
         {
             var query = parapairs.ToPairsString();
             var doc = new HtmlDocument();
@@ -141,7 +142,7 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = new CancellationToken(), Pairs pairs = null)
+        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = new(), Pairs pairs = null)
         {
             var query = pairs.ToPairsString();
             var xml = new XmlDocument();
@@ -160,7 +161,7 @@ namespace MoeLoaderP.Core
             return xml;
         }
 
-        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = new CancellationToken(), Pairs pairs = null)
+        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = new(), Pairs pairs = null)
         {
             var query = pairs.ToPairsString();
             XDocument xml ;
@@ -177,6 +178,25 @@ namespace MoeLoaderP.Core
                 return null;
             }
             return xml;
+        }
+
+        public async Task<dynamic> PostAsync(string api, CancellationToken token = new(), Pairs pairs = null)
+        {
+            var query = pairs.ToPairsString();
+            var content = new StringContent($"{query}", Encoding.UTF8, "application/x-www-form-urlencoded");
+            try
+            {
+                var response = await Client.PostAsync(api, content, token);
+                var str = await response.Content.ReadAsStringAsync();
+                var json = JsonConvert.DeserializeObject<dynamic>(str);
+                return json;
+            }
+            catch (Exception e)
+            {
+                Ex.ShowMessage(e.Message);
+                Ex.Log(e);
+                return null;
+            }
         }
     }
 

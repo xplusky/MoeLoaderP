@@ -14,7 +14,8 @@ namespace MoeLoaderP.Core.Sites
         public override string HomeUrl => CustomConfig.HomeUrl;
         public override string DisplayName => CustomConfig.DisplayName;
         public override string ShortName => CustomConfig.ShortName;
-        public override Uri Icon => CustomConfig.SiteIconUrl != null ? new Uri(CustomConfig.SiteIconUrl) : new Uri("/MoeLoaderP;component/Assets/SiteIcon/default.png", UriKind.RelativeOrAbsolute);
+        public override Uri Icon => CustomConfig.SiteIconUrl != null ? new Uri(CustomConfig.SiteIconUrl) 
+            : new Uri("/MoeLoaderP;component/Assets/SiteIcon/default.png", UriKind.RelativeOrAbsolute);
         public CustomSiteConfig CustomConfig { get; set; }
 
         public CustomSite(CustomSiteConfig config)

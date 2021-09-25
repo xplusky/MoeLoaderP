@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace MoeLoaderP.Core.Sites
 {
@@ -34,22 +35,62 @@ namespace MoeLoaderP.Core.Sites
                 IsSupportRating = true,
                 IsSupportResolution = true,
                 IsSupportScore = true,
-                IsSupportAccount = true
+                IsSupportAccount = true,
+                IsSupportStarButton = true,
+            };
+            Lv2Cat = new Categories()
+            {
+                new("最新/搜索"),
+                new("收藏")
+            };
+            Config.ImageOrders = new ImageOrders()
+            {
+                new() { Name = "最新", Order = ImageOrderBy.Date },
+                new() { Name = "最受欢迎", Order = ImageOrderBy.Popular }
             };
         }
         private string AccessToken => SiteSettings.GetSetting("accessToken");
+        public override void Logout()
+        {
+            SiteSettings.Items.Remove("accessToken");
+            base.Logout();
+        }
+
+        public override async Task<bool> StarAsync(MoeItem moe,CancellationToken token)
+        {
+            var net = CloneNet();
+            net.SetReferer(BetaApi);
+            var res = await net.PostAsync($"https://capi-v2.sankakucomplex.com/posts/{moe.Id}/favorite?lang=en", token);
+            var job = res as JObject;
+            var b = job?["success"]?.Value<bool?>();
+
+            if (b == true)
+            {
+                moe.IsFav = true;
+                var count = job["score"]?.Value<int>();
+                if (count != null) moe.FavCount = count.Value;
+                return true;
+            }
+            
+            return false;
+        }
 
         public void Login()
         {
             Net = new NetOperator(Settings, Api);
             var cc = SiteSettings.GetCookieContainer();
             if (cc != null) Net.SetCookie(cc);
+            IsUserLogin = AccessToken != null;
         }
 
         public NetOperator CloneNet()
         {
             var net = Net.CreateNewWithOldCookie();
-            net.Client.DefaultRequestHeaders.Add("authorization", $"Bearer {AccessToken}");
+            if (!AccessToken.IsEmpty())
+            {
+                net.Client.DefaultRequestHeaders.Add("authorization", $"Bearer {AccessToken}");
+            }
+            
             return net;
         }
 
@@ -131,6 +172,8 @@ namespace MoeLoaderP.Core.Sites
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();
                 img.Uploader = $"{jitem.author?.name}";
                 img.DetailUrl = $"{BetaApi}/post/show/{img.Id}";
+                img.IsFav = $"{jitem.is_favorited}".ToLower() == "true";
+                img.FavCount = $"{jitem.fav_count}".ToInt();
                 if ($"{jitem.redirect_to_signup}".ToLower() == "true")
                 {
                     img.Tip = "此图片需要登录查看";
@@ -141,6 +184,7 @@ namespace MoeLoaderP.Core.Sites
                 }
 
                 img.OriginString = $"{jitem}";
+                
                 imgs.Add(img);
             }
 

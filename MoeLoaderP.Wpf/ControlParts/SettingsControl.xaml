@@ -200,7 +200,9 @@
                         </Grid.ColumnDefinitions>
                         <controlParts:VariableCountControl x:Name="NameFormatTagCountBox" MaxCount="100"
                                                            NumCount="{Binding NameFormatTagCount, Mode=TwoWay}" Grid.Column="1" Width="80"/>
-                        <TextBlock Grid.Column="0" Foreground="Black" VerticalAlignment="Center"><Run Language="zh-cn" Text="标签命名数量限制（0为不限制）"/></TextBlock>
+                        <TextBlock Grid.Column="0" Foreground="Black" VerticalAlignment="Center">
+                            <Run Language="zh-cn" Text="标签命名数量限制（0为不限制）"/>
+                        </TextBlock>
                     </Grid>
                 </StackPanel>
             </GroupBox>

@@ -67,7 +67,7 @@ namespace MoeLoaderP.Core
             set => SetField(ref _imageItemControlSize, value, nameof(ImageItemControlSize));
         }
 
-        private List<string> _searchHistory = new List<string>();
+        private List<string> _searchHistory = new();
         public List<string> SearchHistory
         {
             get => _searchHistory;
@@ -80,7 +80,7 @@ namespace MoeLoaderP.Core
             get => _historyKeywordsMaxCount;
             set => SetField(ref _historyKeywordsMaxCount, value, nameof(HistoryKeywordsMaxCount));
         }
-        private AutoHintItems _historyKeywords = new AutoHintItems();
+        private AutoHintItems _historyKeywords = new();
         
         public AutoHintItems HistoryKeywords
         {
@@ -214,7 +214,7 @@ namespace MoeLoaderP.Core
         /// <summary>
         /// 每一个站点分别的设置（所有站点集合）
         /// </summary>
-        public MoeSitesSettings AllSitesSettings { get; set; } =new MoeSitesSettings();
+        public MoeSitesSettings AllSitesSettings { get; set; } =new();
         
         private bool _isCustomSiteMode;
         
@@ -279,7 +279,7 @@ namespace MoeLoaderP.Core
     }
     public class IndividualSiteSettings : BindingObject
     {
-        private Dictionary<string, string> _items = new Dictionary<string, string>();
+        private Dictionary<string, string> _items = new();
         public Dictionary<string, string> Items
         {
             get => _items;

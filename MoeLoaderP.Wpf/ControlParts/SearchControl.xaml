@@ -424,6 +424,28 @@
                                 </ComboBox>
                                 <TextBlock TextWrapping="Wrap" Text="镜像站点" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
                             </Grid>
+                            <Grid x:Name="OrderByGrid">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="OrderByComboBox" Grid.Column="1" 
+                                          Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
+                                          ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}"
+                                          Height="26" Margin="0,0,2,0" SelectedIndex="0">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBlock TextWrapping="NoWrap" 
+                                                           Text="{Binding Name}" 
+                                                           Margin="4,0,0,0" 
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock TextWrapping="Wrap" Text="搜索结果排序" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
+                            </Grid>
                             <Grid x:Name="FilterStartPageGrid" Height="26" Margin="0,4,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -507,6 +529,7 @@
                                 </ComboBox>
                                 <TextBlock TextWrapping="Wrap" Text="下载图片类型" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
                             </Grid>
+                            
                         </StackPanel>
                     </controlParts:MoeFloatBorder>
                 </Grid>

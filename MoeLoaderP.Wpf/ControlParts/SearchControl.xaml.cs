@@ -84,8 +84,8 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void AccountButtonOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            CurrentSelectedSite.SiteSettings.LoginCookies = null;
-            Ex.ShowMessage("已清除登录信息！");
+            CurrentSelectedSite.Logout();
+            
         }
 
         private void SitesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -95,14 +95,15 @@ namespace MoeLoaderP.Wpf.ControlParts
         
         public MoeSiteConfig CurrentConfig { get; set; }
 
-        public void AdaptConfig(MoeSiteConfig state)
+        public void AdaptConfig(MoeSiteConfig cfg)
         {
-            if(state == null) return;
-            CurrentConfig = state;
-            this.GoState(state.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
-            this.GoState(state.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
-            this.GoState(state.IsSupportKeyword ?  nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
-            this.GoState(state.IsCustomSite ?　nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
+            if(cfg == null) return;
+            CurrentConfig = cfg;
+            this.GoState(cfg.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
+            this.GoState(cfg.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
+            this.GoState(cfg.IsSupportKeyword ?  nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
+            this.GoState(cfg.IsCustomSite ?　nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
+            OrderByGrid.Visibility = cfg.ImageOrders != null ? Visibility.Visible : Visibility.Collapsed;
         }
         
         public void ParaBoxVisualUpdate()

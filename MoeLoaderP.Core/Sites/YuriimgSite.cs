@@ -52,7 +52,7 @@ namespace MoeLoaderP.Core.Sites
             return sb.ToString();
         }
 
-        public async Task GetDetailTask(MoeItem img, string id, CancellationToken token = new CancellationToken())
+        public async Task GetDetailTask(MoeItem img, string id, CancellationToken token = new())
         {
             var api = $"https://api.yuriimg.com/post/{id}";
             var json = await Net.GetJsonAsync(api, token);

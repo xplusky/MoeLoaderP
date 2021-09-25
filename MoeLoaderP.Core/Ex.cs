@@ -258,6 +258,7 @@ namespace MoeLoaderP.Core
         /// </summary>
         public static void ShowMessage(string message, string detailMes = null, MessagePos pos = MessagePos.Popup)
         {
+            Log(message, detailMes);
             ShowMessageAction?.Invoke(message, detailMes, pos);
         }
 

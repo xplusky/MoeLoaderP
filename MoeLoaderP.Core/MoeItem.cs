@@ -32,7 +32,7 @@ namespace MoeLoaderP.Core
         /// <summary>
         /// 图组项目集合
         /// </summary>
-        public MoeItems ChildrenItems { get; set; } = new MoeItems();
+        public MoeItems ChildrenItems { get; set; } = new();
         
         private Settings Set => Site.Settings;
 
@@ -50,6 +50,7 @@ namespace MoeLoaderP.Core
                 OnPropertyChanged(nameof(FileType));
                 OnPropertyChanged(nameof(DownloadUrlInfo));
             };
+
         }
 
         #region 参数属性--当前图片从网络获取到的本身参数及相关处理方法
@@ -93,6 +94,23 @@ namespace MoeLoaderP.Core
                 _score = value; OnPropertyChanged(nameof(Score));
             }
         }
+
+        public int FavCount
+        {
+            get => _favCount;
+            set
+            {
+                _favCount = value;
+                OnPropertyChanged(nameof(FavCount));
+            }
+        }
+
+        public bool IsFav
+        {
+            get => _isFav;
+            set { _isFav = value; OnPropertyChanged(nameof(FavCount)); }
+        }
+
         /// <summary>
         /// 排名
         /// </summary>
@@ -103,7 +121,7 @@ namespace MoeLoaderP.Core
         /// </summary>
         public string Source { get; set; }
         public string Description { get; set; }
-        public List<string> Tags { get; set; } = new List<string>();
+        public List<string> Tags { get; set; } = new();
         public bool IsExplicit { get; set; }
         public string DetailUrl { get; set; }
         public string OriginString { get; set; }
@@ -124,7 +142,7 @@ namespace MoeLoaderP.Core
 
         public UrlInfo DownloadUrlInfo => Urls.FirstOrDefault(urlInfo => urlInfo.DownloadType == Para.DownloadType.Type);
 
-        public UrlInfos Urls { get; set; } = new UrlInfos();
+        public UrlInfos Urls { get; set; } = new();
         public TextFileInfo ExtraFile { get; set; }
 
         public string FileType => DownloadUrlInfo?.GetFileExtFromUrl();
@@ -212,11 +230,8 @@ namespace MoeLoaderP.Core
 
         public bool CanDownload
         {
-            get
-            {
-                var c = Para.DownloadType.Type;
-                return ChildrenItems?.Count > 0 ? ChildrenItems[0].Urls.Contains(c) : Urls.Contains(c);
-            }
+            get => _canDownload;
+            set { _canDownload = value; OnPropertyChanged(nameof(CanDownload)); }
         }
 
         public int? VisualPageIndex { get; set; }
@@ -329,7 +344,7 @@ namespace MoeLoaderP.Core
         /// <summary>
         /// 当前下载指示器
         /// </summary>
-        public CancellationTokenSource CurrentDownloadTaskCts { get; set; } = new CancellationTokenSource();
+        public CancellationTokenSource CurrentDownloadTaskCts { get; set; } = new();
         
         /// <summary>
         /// 异步下载图片
@@ -529,6 +544,10 @@ namespace MoeLoaderP.Core
 
 
         private string _statusText;
+        private int _favCount;
+        private bool _isFav;
+        private bool _canDownload;
+
         /// <summary>
         /// 状态文字
         /// </summary>
@@ -574,7 +593,10 @@ namespace MoeLoaderP.Core
             var i = 0;
             foreach (var tag in img.Tags)
             {
-                if (i > 15) break;
+                if (Set.NameFormatTagCount != 0)
+                {
+                    if (i >= Set.NameFormatTagCount) break;
+                }
                 tags += $"{tag} ";
                 i++;
             }
@@ -618,7 +640,7 @@ namespace MoeLoaderP.Core
     
     public class MoeItems : ObservableCollection<MoeItem>
     {
-        public List<Exception> Exs { get; set; } = new List<Exception>();
+        public List<Exception> Exs { get; set; } = new();
         public string Message { get; set; }
         //public enum ResponseMode { Ok, Fail, OkAndOver }
         //public ResponseMode Response { get; set; }

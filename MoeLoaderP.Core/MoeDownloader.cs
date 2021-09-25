@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MoeLoaderP.Core
@@ -9,7 +8,7 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class MoeDownloader
     {
-        public MoeItems DownloadItems { get; set; } = new MoeItems();
+        public MoeItems DownloadItems { get; set; } = new();
 
         public bool IsDownloading => DownloadItems.Any(t 
             => t.DlStatus == DownloadStatus.Downloading || t.DlStatus == DownloadStatus.WaitForDownload);
