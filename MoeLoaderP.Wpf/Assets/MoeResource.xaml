@@ -275,7 +275,7 @@
         </Grid>
     </ControlTemplate>
     <ControlTemplate x:Key="MoeKeywordTextBoxControlTemplate2" TargetType="{x:Type TextBox}">
-        <Border x:Name="Border" Padding="6,2" CornerRadius="2" BorderThickness="1" VerticalAlignment="Stretch" Height="30" Width="175.667" Background="#00000000">
+        <Border x:Name="Border" Padding="0,2,4,2" CornerRadius="2" BorderThickness="1" VerticalAlignment="Stretch" Height="30" Width="175.667" Background="#00000000">
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualStateGroup.Transitions>
@@ -1534,5 +1534,71 @@
     </DataTemplate>
     <SolidColorBrush x:Key="MoeDefaultModeBlueBrush" Color="#B33585E4"/>
     <SolidColorBrush x:Key="MoeCustomSitePinkBrush" Color="#B3F35FD1"/>
-
+    <ControlTemplate x:Key="MoeMultiWordButtonTemplate" TargetType="{x:Type Button}">
+        <Grid x:Name="Grid" UseLayoutRounding="True" d:DesignUseLayoutRounding="True">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualStateGroup.Transitions>
+                        <VisualTransition GeneratedDuration="0:0:0.2"/>
+                    </VisualStateGroup.Transitions>
+                    <VisualState x:Name="Normal"/>
+                    <VisualState x:Name="MouseOver">
+                        <Storyboard>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BgBorder" Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <Storyboard>
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetName="BgBorder" Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FF6D6D6D"/>
+                            </ColorAnimationUsingKeyFrames>
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetName="BgBorder" Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FF393939"/>
+                            </ColorAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BgBorder" Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[0].(GradientStop.Offset)">
+                                <EasingDoubleKeyFrame KeyTime="0" Value="0.509"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Disabled"/>
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="FocusStates">
+                    <VisualStateGroup.Transitions>
+                        <VisualTransition GeneratedDuration="0:0:0.2"/>
+                    </VisualStateGroup.Transitions>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <Border x:Name="BgBorder" CornerRadius="4" Opacity="0.8">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#66EECD00" Offset="0.492"/>
+                        <GradientStop Color="#99F99F01"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="4" Color="{DynamicResource MoeShadowColor}" Opacity="0" ShadowDepth="0"/>
+                </Border.Effect>
+            </Border>
+            <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" UseLayoutRounding="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" d:DesignUseLayoutRounding="True"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True"/>
+            <Trigger Property="IsMouseOver" Value="True"/>
+            <Trigger Property="IsPressed" Value="True"/>
+            <Trigger Property="IsEnabled" Value="True"/>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource DisabledForegroundBrush}"/>
+                <Setter Property="Background" TargetName="BgBorder">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFE0E0E0" Offset="0.492"/>
+                            <GradientStop Color="#FFE9E9E9"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
 </ResourceDictionary>

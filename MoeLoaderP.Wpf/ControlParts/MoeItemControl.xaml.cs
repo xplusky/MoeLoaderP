@@ -41,7 +41,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             InitVisual();
         }
 
-        private void SiteOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void SiteOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MoeSite.IsUserLogin))
             {
@@ -65,7 +65,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             SiteOnPropertyChanged(this, new PropertyChangedEventArgs(nameof(MoeSite.IsUserLogin)));
         }
 
-        private void MoeItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void MoeItemOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MoeItem.IsFav))
             {
@@ -97,117 +97,116 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private async void RefreshButtonOnClick(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                await LoadImageAndDetailTask();
-            }
-            catch (Exception ex)
-            {
-                Ex.Log($"刷新错误：{ex.Message}");
-            }
+            await TryLoad();
         }
+        
 
-        public async Task LoadImageAndDetailTask()
+        public CancellationTokenSource DetailAndImgLoadCts { get; set; }
+        
+        public async Task TryLoad()
         {
+            DetailAndImgLoadCts?.Cancel();
+            DetailAndImgLoadCts = new CancellationTokenSource();
             var loadingsb = this.Sb("LoadingSb");
             loadingsb.Begin();
             this.Sb("LoadingStartSb").Begin();
+            Task<bool> imgTask = null;
+            Task<bool> detailTask = null;
+            imgTask = LoadDisplayImageAsync(DetailAndImgLoadCts.Token);
+            detailTask = LoadDetailTask(DetailAndImgLoadCts.Token);
 
-            // 同时进行图片加载和详情页分析
-            var imgTask = LoadImageAsync();
-            Task detailTask = null;
-            if (MoeItem.GetDetailTaskFunc != null)
+            bool imgB = false, detailB = false;
+            try
             {
-                detailTask = MoeItem.TryGetDetail();
+                imgB = await imgTask;
             }
+            catch {}
+            if (imgB) { this.Sb("LoadedImageSb").Begin(); }
+            else
+            {
+                this.Sb("LoadFailSb").Begin();
+                RefreshButton.Visibility = Visibility.Visible;
+            }
+            try
+            {
+                detailB = await detailTask;
+            }
+            catch {}
+            if (detailB) MoeItem.CanDownload = true;
+            else RefreshButton.Visibility = Visibility.Visible;
 
-            // 等待图片加载和详情页分析完成
-            var e = await imgTask;
-            if (detailTask != null) await detailTask;
-
+            if (imgB && detailB)
+            {
+                RefreshButton.Visibility = Visibility.Collapsed;
+            }
+            
             var loadedsb = this.Sb("LoadedAllSb");
             loadedsb.Completed += delegate { loadingsb.Stop(); };
             loadedsb.Begin();
-
-            // Load end
-            if(e == null) RefreshButton.Visibility = Visibility.Collapsed;
             ImageLoadEnd?.Invoke(this);
-            MoeItem.CanDownload = true;
         }
 
+        public async Task<bool> LoadDetailTask(CancellationToken token)
+        {
+            try
+            {
+                await MoeItem.TryGetDetail(token);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Ex.Log($"{MoeItem.ThumbnailUrlInfo.Url} LoadDetailTask fail : {e.Message}");
+                return false;
+            }
+        }
 
         /// <summary>
         /// 异步加载图片
         /// </summary>
-        public async Task<Exception> LoadImageAsync()
+        public async Task<bool> LoadDisplayImageAsync(CancellationToken token)
         {
             var b = MoeItem.Net == null;
             var net = b ? new NetOperator(Settings) : MoeItem.Net.CreateNewWithOldCookie();
-            net.SetTimeOut(15);
+            net.SetTimeOut(20);
             net.SetReferer(MoeItem.ThumbnailUrlInfo.Referer);
-            Exception loadEx = null;
-            try
+            var url = MoeItem.ThumbnailUrlInfo.Url;
+            var response = await net.Client.GetAsync(url, token);
+            await using var stream = await response.Content.ReadAsStreamAsync(token);
+            var source = await Task.Run(delegate
             {
-
-                var url = MoeItem.ThumbnailUrlInfo.Url;
-                //var ext = Path.GetExtension(url);
-                //if (ext.Equals(".gif", StringComparison.OrdinalIgnoreCase) && OperatingSystem.IsWindowsVersionAtLeast(7))
-                //{
-                //    AnimationBehavior.SetSourceUri(PreviewImage, new Uri(url));
-                //    ImageBgBorder.Background = Brushes.WhiteSmoke;
-                //}
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-                var response = await net.Client.GetAsync(url, cts.Token);
-                await using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
-                var source = await Task.Run(() =>
+                try
+                {
+                    return UiFunc.SaveLoadBitmapImage(stream);
+                }
+                catch (IOException)
                 {
                     try
                     {
-                        return UiFunc.SaveLoadBitmapImage(stream);
-                    }
-                    catch (IOException)
-                    {
-                        try
-                        {
-                            var bitmap = new draw.Bitmap(stream);
-                            var ms = new MemoryStream();
-                            bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
-                            return UiFunc.SaveLoadBitmapImage(ms);
-                        }
-                        catch (Exception ex)
-                        {
-                            loadEx = ex;
-                            return null;
-                        }
+                        var bitmap = new draw.Bitmap(stream);
+                        var ms = new MemoryStream();
+                        bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
+                        return UiFunc.SaveLoadBitmapImage(ms);
                     }
                     catch (Exception ex)
                     {
-                        loadEx = ex;
+                        Ex.Log($"{MoeItem.ThumbnailUrlInfo.Url} Image Bitmap Load Fail", ex.Message);
                         return null;
                     }
-                }, cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    Ex.Log($"{MoeItem.ThumbnailUrlInfo.Url} Image SaveLoadBitmapImage Load Fail",ex.Message);
+                    return null;
+                }
+            }, token);
 
-                if (source != null) PreviewImage.Source = source;
-            }
-
-            catch (Exception ex)
+            if (source != null)
             {
-                loadEx = ex;
+                PreviewImage.Source = source;
+                return true;
             }
 
-            if (loadEx == null)
-            {
-                
-                this.Sb("LoadedImageSb").Begin();
-            }
-            else
-            {
-                this.Sb("LoadFailSb").Begin();
-                Ex.Log(loadEx.Message,loadEx.StackTrace);
-                Ex.Log($"{MoeItem.ThumbnailUrlInfo.Url} 图片加载失败");
-            }
-
-            return loadEx;
+            return false;
         }
     }
 }

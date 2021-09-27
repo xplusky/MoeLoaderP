@@ -63,7 +63,7 @@ namespace MoeLoaderP.Core.Sites
                 moe.Title = item.GetValue(pa.ImageItemTitle);
                 var detail = item.GetValue(pa.ImageItemDetailUrl);
                 moe.DetailUrl = detail;
-                moe.GetDetailTaskFunc += () => GetDetail(moe.DetailUrl, moe, pa, true, token);
+                moe.GetDetailTaskFunc += (t) => GetDetail(moe.DetailUrl, moe, pa, true, t);
                 moe.Net = Net.CreateNewWithOldCookie();
                 moe.Net.SetTimeOut(30);
                 if (pa.ImageItemDateTime != null)

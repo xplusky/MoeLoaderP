@@ -125,7 +125,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Height = $"{post.height}".ToInt();
                 img.Urls.Add(DownloadTypeEnum.Thumbnail, $"https://i.yuriimg.com/{post.src}/yuriimg.com%20{post.id}%20contain.jpg");
                 img.DetailUrl = $"{HomeUrl}/show/{post.id}";
-                img.GetDetailTaskFunc = async () => await GetDetailTask(img, $"{post.id}", token);
+                img.GetDetailTaskFunc = async (t) => await GetDetailTask(img, $"{post.id}", t);
                 img.OriginString = $"{post}";
                 
                 imgs.Add(img);

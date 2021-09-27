@@ -41,11 +41,8 @@ namespace MoeLoaderP.Core
         {
             Site = site;
             Para = para;
-            ChildrenItems.CollectionChanged += (sender, args) =>
-            {
-                OnPropertyChanged(nameof(ChildrenItemsCount));
-            };
-            Urls.CollectionChanged += (sender, args) =>
+            ChildrenItems.CollectionChanged += delegate { OnPropertyChanged(nameof(ChildrenItemsCount)); };
+            Urls.CollectionChanged += delegate
             {
                 OnPropertyChanged(nameof(FileType));
                 OnPropertyChanged(nameof(DownloadUrlInfo));
@@ -207,12 +204,13 @@ namespace MoeLoaderP.Core
         /// <summary>
         /// 获取详细信息Task委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
-        public Func<Task> GetDetailTaskFunc { get; set; }
-        public async Task TryGetDetail()
+        public Func<CancellationToken,Task> GetDetailTaskFunc { get; set; }
+        public async Task TryGetDetail(CancellationToken token=default)
         {
+            if(GetDetailTaskFunc==null)return;
             try
             {
-                await GetDetailTaskFunc();
+                await GetDetailTaskFunc(token);
             }
             catch (Exception e)
             {
@@ -488,7 +486,7 @@ namespace MoeLoaderP.Core
             // 设置下载网络
             var net = Net == null ? new NetOperator(Set) : Net.CreateNewWithOldCookie();
             if (!durl.Referer.IsEmpty()) net.SetReferer(durl.Referer);
-            net.ProgressMessageHandler.HttpReceiveProgress += (sender, args) =>
+            net.ProgressMessageHandler.HttpReceiveProgress += (_, args) =>
             {
                 Progress = args.ProgressPercentage;
                 StatusText = $"正在下载：{Progress}%";
@@ -504,7 +502,7 @@ namespace MoeLoaderP.Core
             var data = await net.Client.GetAsync(durl.Url, token);
 
             // 写入文件
-            var stream = await data.Content.ReadAsStreamAsync();
+            var stream = await data.Content.ReadAsStreamAsync(token);
             var dir = Path.GetDirectoryName(LocalFileFullPath);
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
             var file = new FileInfo(LocalFileFullPath);

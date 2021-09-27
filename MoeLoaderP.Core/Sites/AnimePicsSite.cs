@@ -102,7 +102,7 @@ namespace MoeLoaderP.Core.Sites
                 if (!detail.IsEmpty())
                 {
                     img.DetailUrl = $"{HomeUrl}{detail}";
-                    img.GetDetailTaskFunc = async () => await GetDetailTask(img);
+                    img.GetDetailTaskFunc = async (t) => await GetDetailTask(img,t);
                 }
                 imgs.Add(img);
             }
@@ -110,14 +110,14 @@ namespace MoeLoaderP.Core.Sites
             return imgs;
         }
 
-        public async Task GetDetailTask(MoeItem img)
+        public async Task GetDetailTask(MoeItem img,CancellationToken token)
         {
             var detialurl = img.DetailUrl;
             var net = Net.CreateNewWithOldCookie();
             net.SetTimeOut(30);
             try
             {
-                var subdoc = await net.GetHtmlAsync(detialurl);
+                var subdoc = await net.GetHtmlAsync(detialurl, token);
                 var docnodes = subdoc.DocumentNode;
                 if (docnodes == null) return;
                 var downnode = docnodes.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");

@@ -263,7 +263,7 @@ d:DesignHeight="450" d:DesignWidth="800">
                     </TransformGroup>
                 </Grid.RenderTransform>
                 <controlParts:MoeFloatBorder>
-                    <StackPanel Width="220">
+                    <StackPanel x:Name="ContextMenuRootStackPanel" Width="220">
                         <Grid Height="32">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>

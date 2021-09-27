@@ -49,7 +49,7 @@
                         Text="127.0.0.1:1080"
                         TextWrapping="NoWrap" 
                         Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}"
-                        Grid.Column="1" Margin="4" Height="24" />
+                        Grid.Column="1" Margin="4" Height="24" ToolTip="格式为 ip:端口" />
                 </Grid>
             </GroupBox>
 
@@ -141,7 +141,7 @@
                             HorizontalAlignment="Right"
                             VerticalAlignment="Top"
                             Content="&#xF07C;" Template="{DynamicResource MoeButtonControlTemplate}" 
-                            FontFamily="{DynamicResource FontAwesomeSolid}" Grid.Column="1" Margin="4,0,0,0" />
+                            FontFamily="{DynamicResource FontAwesomeSolid}" Grid.Column="1" Margin="4,0,0,0" ToolTip="浏览" />
                     </Grid>
                     <TextBlock
                             HorizontalAlignment="Left"
@@ -218,13 +218,12 @@
                             Width="24" Height="24"
                             Content="&#xF2F1;" 
                             Template="{DynamicResource MoeButtonControlTemplate}" 
-                            FontFamily="{DynamicResource FontAwesomeSolid}" 
-                            ToolTip="恢复默认" VerticalAlignment="Center" Margin="0,0,4,0" />
+                            FontFamily="{DynamicResource FontAwesomeSolid}" VerticalAlignment="Center" Margin="0,0,4,0" ToolTip="随机变换" />
                         <Button x:Name="BgImageOpenDirButton"
                             Width="24" Height="24"
                             Content="&#xF07C;" Template="{DynamicResource MoeButtonControlTemplate}" 
                             FontFamily="{DynamicResource FontAwesomeSolid}"
-                            ToolTip="恢复默认" VerticalAlignment="Center" Margin="0,0,4,0" />
+                            ToolTip="打开背景图片文件夹" VerticalAlignment="Center" Margin="0,0,4,0" />
                     </StackPanel>
                     <CheckBox x:Name="IsEnableAcrylicStyleCheckBox" Content="显示亚克力毛玻璃效果" IsChecked="{Binding IsEnableAcrylicStyle}" Margin="0,4,0,0"/>
                 </StackPanel>

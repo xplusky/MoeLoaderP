@@ -249,7 +249,7 @@ namespace MoeLoaderP.Core
             Debug.WriteLine(str);
             LogAction?.Invoke(str);
         }
-        public static Action<string, string, MessagePos> ShowMessageAction;
+        public static event Action<string, string, MessagePos> ShowMessageAction;
 
         public static Action<string> LogAction;
 

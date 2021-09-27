@@ -53,8 +53,11 @@ namespace MoeLoaderP.Wpf.ControlParts
             KeywordTextBox.TextChanged += KeywordTextBoxOnTextChanged;
             KeywordTextBox.GotFocus += delegate { KeywordPopup.IsOpen = true; };
             KeywordTextBox.LostFocus += delegate { KeywordPopup.IsOpen = false; };
+            KeywordTextBox.PreviewKeyDown += KeywordTextBoxOnKeyDown;
+
             KeywordListBox.ItemsSource = CurrentHintItems;
             KeywordListBox.SelectionChanged += KeywordComboBoxOnSelectionChanged;
+
 
             SiteManager.Sites.CollectionChanged += SitesOnCollectionChanged;
 
@@ -67,7 +70,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeSitesLv1ComboBox.SelectedIndex = 0;
 
             AccountButton.MouseRightButtonUp += AccountButtonOnMouseRightButtonUp;
-            CustomAddButton.Click += delegate{ App.CustomSiteDir.GoDirectory(); };
+            CustomAddButton.Click += delegate { App.CustomSiteDir.GoDirectory(); };
 
             FilterCountBox.NumChange += control =>
             {
@@ -76,36 +79,81 @@ namespace MoeLoaderP.Wpf.ControlParts
             MirrorSiteComboBox.SelectionChanged += (sender, args) =>
             {
                 var i = MirrorSiteComboBox.SelectedIndex;
-                if(i<0)return;
+                if (i < 0) return;
                 CurrentSelectedSite.SiteSettings.SetSetting("MirrorSiteIndex", i.ToString());
             };
         }
-        
+
+        private void KeywordTextBoxOnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                if(KeywordTextBox.Text.IsEmpty()) return;
+                if (CurrentConfig.IsSupportMultiKeywords == false) return;
+                var button = GenMultiWordButton(KeywordTextBox.Text.Trim());
+                MultiWordsButtonsStackPanel.Children.Add(button);
+                button.Click += delegate(object o, RoutedEventArgs args)
+                {
+                    MultiWordsButtonsStackPanel.Children.Remove(button);
+                };
+                KeywordTextBox.Text = string.Empty;
+            }
+
+            if (e.Key == Key.Back)
+            {
+                if (KeywordTextBox.Text != string.Empty) return;
+                if(MultiWordsButtonsStackPanel.Children.Count == 0)return;
+                MultiWordsButtonsStackPanel.Children.RemoveAt(MultiWordsButtonsStackPanel.Children.Count-1);
+            }
+        }
+
+        public Button GenMultiWordButton(string str)
+        {
+            var button = new Button();
+            button.Template = FindResource("MoeMultiWordButtonTemplate") as ControlTemplate;
+            var text = new TextBlock();
+            text.Text = str;
+            text.Margin = new Thickness(2, 0, 2, 0);
+            button.Content = text;
+            button.Margin = new Thickness(2, 0, 0, 0);
+            return button;
+        }
+
 
         private void AccountButtonOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
             CurrentSelectedSite.Logout();
-            
         }
 
         private void SitesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (MoeSitesLv1ComboBox.SelectedIndex == -1) MoeSitesLv1ComboBox.SelectedIndex = 0;
         }
-        
+
         public MoeSiteConfig CurrentConfig { get; set; }
 
         public void AdaptConfig(MoeSiteConfig cfg)
         {
-            if(cfg == null) return;
+            if (cfg == null) return;
             CurrentConfig = cfg;
             this.GoState(cfg.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
             this.GoState(cfg.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
-            this.GoState(cfg.IsSupportKeyword ?  nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
-            this.GoState(cfg.IsCustomSite ?　nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
-            OrderByGrid.Visibility = cfg.ImageOrders != null ? Visibility.Visible : Visibility.Collapsed;
+            this.GoState(cfg.IsSupportKeyword ? nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
+            this.GoState(cfg.IsCustomSite ? nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
+            if (cfg.ImageOrders != null)
+            {
+                OrderByGrid.Visibility = Visibility.Visible;
+                OrderByComboBox.ItemsSource = cfg.ImageOrders;
+                OrderByComboBox.SelectedIndex = 0;
+            }
+            else
+            {
+                OrderByGrid.Visibility = Visibility.Collapsed;
+            }
+
+            FilterResolutionGroup.Visibility = cfg.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
         }
-        
+
         public void ParaBoxVisualUpdate()
         {
             var cs = CurrentSelectedSite;
@@ -116,7 +164,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             FilterStartIdGrid.Visibility = cs.Config.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
             FilterStartIdBox.MaxCount = 0;
             FilterStartPageBox.NumCount = 1;
-            var numPerPage =  cs.SiteSettings.GetSetting("CountPerPage").ToInt();
+            var numPerPage = cs.SiteSettings.GetSetting("CountPerPage").ToInt();
             FilterCountBox.NumCount = numPerPage > 0 ? numPerPage : 60;
             if (cs.Mirrors != null)
             {
@@ -134,7 +182,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public void Refresh()
         {
-            MoeSitesComboBoxOnSelectionChanged(null, null,1);
+            MoeSitesComboBoxOnSelectionChanged(null, null, 1);
         }
 
         private void MoeSitesComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e, int level)
@@ -235,7 +283,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
             AdaptConfig(cfg);
         }
-        
+
         private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
         {
             if (CurrentHintTaskCts == null)
@@ -251,7 +299,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                     this.Sb("SearchingSpinSb").Stop();
                 }
             }
-            
+
             CurrentHintTaskCts = new CancellationTokenSource();
 
             var tempCts = CurrentHintTaskCts;
@@ -275,7 +323,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                     this.Sb("SearchingSpinSb").Stop();
                 }
             }
-            
+
             CurrentHintTaskCts = null;
 
         }
@@ -288,7 +336,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             KeywordTextBox.Text = item.Word;
             KeywordTextBox.Focus();
         }
-        
+
 
         private CancellationTokenSource CurrentHintTaskCts { get; set; }
 
@@ -342,7 +390,7 @@ namespace MoeLoaderP.Wpf.ControlParts
                 IsFileTypeShowSpecificOnly = FileTypeShowSpecificOnlyComboBox.SelectedIndex == 1,
                 DownloadType = DownloadTypeComboBox.SelectionBoxItem as DownloadType,//CurrentSelectedSite.DownloadTypes[DownloadTypeComboBox.SelectedIndex],
                 Date = MoeDatePicker.SelectedDate,
-                NextPageMark = $"{FilterStartIdBox.NumCount}" == "0"? null: $"{FilterStartIdBox.NumCount}",
+                NextPageMark = $"{FilterStartIdBox.NumCount}" == "0" ? null : $"{FilterStartIdBox.NumCount}",
                 Lv2MenuIndex = MoeSitesLv2ComboBox.SelectedIndex,
                 Lv3MenuIndex = MoeSitesLv3ComboBox.SelectedIndex,
                 Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex,

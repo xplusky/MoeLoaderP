@@ -68,6 +68,113 @@ namespace MoeLoaderP.Wpf.ControlParts
             }
         }
 
+
+        private void SelectedImageControlsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            this.GoState(SelectedImageControls.Count == 0 ? nameof(NoSelectedItemState) : nameof(HasSelectedItemState));
+            ImageCountTextBlock.Text = $"已选择{SelectedImageControls.Count}张（组）图片";
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                ContextSelectAllButtonOnClick(null, null);
+            }
+        }
+
+        public void AddImages(MoeItems imgs)
+        {
+            foreach (var img in imgs)
+            {
+                var itemCtrl = new MoeItemControl(Settings, img);
+                itemCtrl.DownloadButton.Click += delegate { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.PreviewButton.Click += delegate { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
+                itemCtrl.MouseEnter += delegate { MouseOnImageControl = itemCtrl; };
+                itemCtrl.ImageCheckBox.Checked += delegate { SelectedImageControls.Add(itemCtrl); };
+                itemCtrl.ImageCheckBox.Unchecked += delegate { SelectedImageControls.Remove(itemCtrl); };
+                itemCtrl.MouseRightButtonUp += ItemCtrlOnMouseRightButtonUp;
+
+                ImageItemsWrapPanel.Children.Add(itemCtrl);
+                itemCtrl.Sb("ShowSb").Begin();
+                if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount) ImageLoadingPool.Add(itemCtrl);
+                else ImageWaitForLoadingPool.Add(itemCtrl);
+            }
+        }
+
+        private void ItemCtrlOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ContextMenuPopup.IsOpen = true;
+            //ContextMenuPopupGrid.EnlargeShowSb().Begin();
+            if (sender is MoeItemControl obj)
+            {
+                LoadExtFunc(obj.MoeItem);
+                LoadImgInfo(obj.MoeItem);
+                e.Handled = true;
+            }
+        }
+
+
+        public void ResetVisual()
+        {
+            ImageItemsWrapPanel.Children.Clear();
+            ImageLoadingPool.Clear();
+            ImageWaitForLoadingPool.Clear();
+            SelectedImageControls.Clear();
+            ImageItemsScrollViewer.ScrollToTop();
+        }
+
+        public void SearchStartedVisual()
+        {
+            this.Sb("SearchStartSb").Begin();
+            this.Sb("SearchingSb").Begin();
+
+            this.GoState(nameof(ShowSearchingMessageState));
+        }
+
+        public void SearchStopVisual()
+        {
+            var showSb = this.Sb("ShowSb");
+            showSb.Completed += delegate { this.Sb("SearchingSb").Stop(); };
+            showSb.Begin();
+            this.GoState(nameof(HideSearchingMessageState));
+        }
+
+        public void AddPage(SearchSession session)
+        {
+            var lastPage = session.LoadedVisualPages?.LastOrDefault();
+            if (lastPage == null) return;
+            AddImages(lastPage.ImageItems);
+            StartDownloadShowImages();
+
+            this.GoState(session.LoadedVisualPages.Last().HasNextVisualPage ? nameof(HasNextPageState) : nameof(NoNextPageState));
+            NewPageButtonNumTextBlock.Text = $"{session.LoadedVisualPages.Count + 1}";
+        }
+
+        public void StartDownloadShowImages()
+        {
+            for (var i = 0; i < ImageLoadingPool.Count; i++)
+            {
+                var item = ImageLoadingPool[i];
+                item.ImageLoadEnd += ItemOnImageLoaded;
+                _ = item.TryLoad();
+            }
+        }
+
+        private void ItemOnImageLoaded(MoeItemControl obj)
+        {
+            ImageLoadingPool.Remove(obj);
+            if (ImageWaitForLoadingPool.Any())
+            {
+                var item = ImageWaitForLoadingPool[0];
+                ImageWaitForLoadingPool.Remove(item);
+                ImageLoadingPool.Add(item);
+                item.ImageLoadEnd += ItemOnImageLoaded;
+                _ = item.TryLoad();
+            }
+        }
+
+
         #region 框选功能相关代码
 
         private readonly DispatcherTimer _padTimer;
@@ -234,6 +341,21 @@ namespace MoeLoaderP.Wpf.ControlParts
             var site = para.Site;
             SpPanel.Children.Clear();
 
+            var items = SelectedImageControls.Where(ctrl => ctrl.RefreshButton.Visibility == Visibility.Visible);
+            if (items?.Count() > 0)
+            {
+                var b = GetSpButton("刷新未加载的缩略图");
+                b.Click += (sender, args) =>
+                {
+                    ContextMenuPopup.IsOpen = false;
+                    foreach (var item in items)
+                    {
+                        _ = item.TryLoad();
+                    }
+                };
+                SpPanel.Children.Add(b);
+            }
+
             // pixiv load choose 首次登场图片
             if (site.ShortName == "pixiv" && para.Lv2MenuIndex == 2)
             {
@@ -241,12 +363,12 @@ namespace MoeLoaderP.Wpf.ControlParts
                 var b = GetSpButton("全选首次登场图片");
                 b.Click += (_, _) =>
                 {
+                    ContextMenuPopup.IsOpen = false;
                     foreach (MoeItemControl img in ImageItemsWrapPanel.Children)
                     {
                         img.ImageCheckBox.IsChecked = img.MoeItem.Tip == "首次登场";
                     }
 
-                    ContextMenuPopup.IsOpen = false;
                 };
                 SpPanel.Children.Add(b);
             }
@@ -262,6 +384,8 @@ namespace MoeLoaderP.Wpf.ControlParts
                 };
                 SpPanel.Children.Add(b);
             }
+
+
         }
 
         public Action<MoeSite, string> SearchByAuthorIdAction;
@@ -341,111 +465,6 @@ namespace MoeLoaderP.Wpf.ControlParts
         }
 
         #endregion
-
-        private void SelectedImageControlsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            this.GoState(SelectedImageControls.Count == 0 ? nameof(NoSelectedItemState) : nameof(HasSelectedItemState));
-            ImageCountTextBlock.Text = $"已选择{SelectedImageControls.Count}张（组）图片";
-        }
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftCtrl))
-            {
-                ContextSelectAllButtonOnClick(null, null);
-            }
-        }
-
-        public void AddImages(MoeItems imgs)
-        {
-            foreach (var img in imgs)
-            {
-                var itemCtrl = new MoeItemControl(Settings, img);
-                itemCtrl.DownloadButton.Click += delegate { ImageItemDownloadButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.PreviewButton.Click += delegate { MoeItemPreviewButtonClicked?.Invoke(itemCtrl.MoeItem, itemCtrl.PreviewImage.Source); };
-                itemCtrl.MouseEnter += delegate { MouseOnImageControl = itemCtrl; };
-                itemCtrl.ImageCheckBox.Checked += delegate { SelectedImageControls.Add(itemCtrl); };
-                itemCtrl.ImageCheckBox.Unchecked += delegate { SelectedImageControls.Remove(itemCtrl); };
-                itemCtrl.MouseRightButtonUp += ItemCtrlOnMouseRightButtonUp;
-
-                ImageItemsWrapPanel.Children.Add(itemCtrl);
-                itemCtrl.Sb("ShowSb").Begin();
-                if (ImageLoadingPool.Count < Settings.MaxOnLoadingImageCount) ImageLoadingPool.Add(itemCtrl);
-                else ImageWaitForLoadingPool.Add(itemCtrl);
-            }
-        }
-
-        private void ItemCtrlOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            ContextMenuPopup.IsOpen = true;
-            //ContextMenuPopupGrid.EnlargeShowSb().Begin();
-            if (sender is MoeItemControl obj)
-            {
-                LoadExtFunc(obj.MoeItem);
-                LoadImgInfo(obj.MoeItem);
-                e.Handled = true;
-            }
-        }
-
-
-        public void ResetVisual()
-        {
-            ImageItemsWrapPanel.Children.Clear();
-            ImageLoadingPool.Clear();
-            ImageWaitForLoadingPool.Clear();
-            SelectedImageControls.Clear();
-            ImageItemsScrollViewer.ScrollToTop();
-        }
-
-        public void SearchStartedVisual()
-        {
-            this.Sb("SearchStartSb").Begin();
-            this.Sb("SearchingSb").Begin();
-
-            this.GoState(nameof(ShowSearchingMessageState));
-        }
-
-        public void SearchStopVisual()
-        {
-            var showSb = this.Sb("ShowSb");
-            showSb.Completed += delegate { this.Sb("SearchingSb").Stop(); };
-            showSb.Begin();
-            this.GoState(nameof(HideSearchingMessageState));
-        }
-
-        public void AddPage(SearchSession session)
-        {
-            var lastPage = session.LoadedVisualPages?.LastOrDefault();
-            if (lastPage == null) return;
-            AddImages(lastPage.ImageItems);
-            StartDownloadShowImages();
-
-            this.GoState(session.LoadedVisualPages.Last().HasNextVisualPage ? nameof(HasNextPageState) : nameof(NoNextPageState));
-            NewPageButtonNumTextBlock.Text = $"{session.LoadedVisualPages.Count + 1}";
-        }
-
-        public void StartDownloadShowImages()
-        {
-            for (var i = 0; i < ImageLoadingPool.Count; i++)
-            {
-                var item = ImageLoadingPool[i];
-                item.ImageLoadEnd += ItemOnImageLoaded;
-                var unused = item.LoadImageAndDetailTask();
-            }
-        }
-
-        private void ItemOnImageLoaded(MoeItemControl obj)
-        {
-            ImageLoadingPool.Remove(obj);
-            if (ImageWaitForLoadingPool.Any())
-            {
-                var item = ImageWaitForLoadingPool[0];
-                ImageWaitForLoadingPool.Remove(item);
-                ImageLoadingPool.Add(item);
-                item.ImageLoadEnd += ItemOnImageLoaded;
-                var unused = item.LoadImageAndDetailTask();
-            }
-        }
 
     }
     

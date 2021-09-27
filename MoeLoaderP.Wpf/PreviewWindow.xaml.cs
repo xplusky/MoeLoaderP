@@ -37,6 +37,25 @@ namespace MoeLoaderP.Wpf
             MouseLeftButtonDown += delegate { DragMove(); };
         }
 
+        public static void Show(PreviewWindow thisWnd , Window wnd, MoeItem moeitem, ImageSource imgSource)
+        {
+            if (thisWnd == null)
+            {
+                thisWnd = new PreviewWindow();
+                thisWnd.Closed += delegate { thisWnd = null; };
+                thisWnd.Owner = wnd;
+                thisWnd.Width = wnd.Width * 0.85d;
+                thisWnd.Height = wnd.Height * 0.85d;
+                thisWnd.Show();
+            }
+            else
+            {
+                thisWnd.Activate();
+            }
+
+            thisWnd.Init(moeitem, imgSource);
+        }
+
         public async void Init(MoeItem moeitem,ImageSource imgSource)
         {
             CurrentMoeItem = moeitem;

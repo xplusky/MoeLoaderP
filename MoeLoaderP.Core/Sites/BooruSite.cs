@@ -115,7 +115,7 @@ namespace MoeLoaderP.Core.Sites
                 img.OriginString = $"{post}";
                 if (GetDetailTaskFunc != null)
                 {
-                    img.GetDetailTaskFunc = async () => await GetDetailTaskFunc(img, para,token);
+                    img.GetDetailTaskFunc = async (t) => await GetDetailTaskFunc(img, para,t);
                 }
                 imageItems.Add(img);
             }
@@ -163,7 +163,7 @@ namespace MoeLoaderP.Core.Sites
                     img.OriginString = $"{item}"; 
                     if (GetDetailTaskFunc != null)
                     {
-                        img.GetDetailTaskFunc = async () => await GetDetailTaskFunc(img, para,token);
+                        img.GetDetailTaskFunc = async (t) => await GetDetailTaskFunc(img, para,t);
                     }
                     imageItems.Add(img);
                 }

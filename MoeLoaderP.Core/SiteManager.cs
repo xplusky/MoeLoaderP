@@ -1,8 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using MoeLoaderP.Core.Sites;
 using Newtonsoft.Json;
 
@@ -50,17 +48,7 @@ namespace MoeLoaderP.Core
             if (x) Sites.Add(new AnimePicsSite());
             Sites.Add(new WCosplaySite());
         }
-
-        public void SetCustomSiteList()
-        {
-            var testSites = new CustomSiteFactory();
-            testSites.GenTestSites();
-            foreach (var set in testSites.SiteConfigList)
-            {
-                Sites.Add(new CustomSite(set));
-            }
-        }
-
+        
         public async void SetCustomSitesFormJson(string dir)
         {
             var files = dir.GetDirFiles().Where(i => i.Extension.Equals(".json", StringComparison.OrdinalIgnoreCase)).ToArray();
@@ -78,6 +66,27 @@ namespace MoeLoaderP.Core
                     Sites.Add(new CustomSite(set));
                 }
             }
+        }
+
+        private int ClickTimes { get; set; }
+        public bool R18Check()
+        {
+            if (!Settings.HaveEnteredXMode)
+            {
+                ClickTimes++;
+                if (ClickTimes <= 3) return false;
+                if (ClickTimes is > 3 and < 10)
+                {
+                    Ex.ShowMessage($"还剩 {10 - ClickTimes} 次粉碎！");
+                    return false;
+                }
+                if (ClickTimes >= 10) Settings.HaveEnteredXMode = true;
+            }
+            Ex.ShowMessage(Settings.IsXMode ? "已关闭 R18 模式" : "已开启 R18 模式");
+            Settings.IsXMode = !Settings.IsXMode;
+            Sites.Clear();
+            SetDefaultSiteList();
+            return true;
         }
     }
 }

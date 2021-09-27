@@ -107,13 +107,13 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = new(), Pairs parapairs = null)
+        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = default, Pairs parapairs = null)
         {
             var query = parapairs.ToPairsString();
             try
             {
                 var response = await Client.GetAsync($"{api}{query}", token);
-                var s = await response.Content.ReadAsStringAsync();
+                var s = await response.Content.ReadAsStringAsync(token);
                 return JsonConvert.DeserializeObject(s);
             }
             catch (Exception e)
@@ -123,14 +123,14 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
-        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = new(), Pairs parapairs = null)
+        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = default, Pairs parapairs = null)
         {
             var query = parapairs.ToPairsString();
             var doc = new HtmlDocument();
             try
             {
                 var response = await Client.GetAsync($"{api}{query}", token);
-                var s = await response.Content.ReadAsStringAsync();
+                var s = await response.Content.ReadAsStringAsync(token);
                 doc.LoadHtml(s);
                 return doc;
             }
@@ -142,14 +142,14 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = new(), Pairs pairs = null)
+        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = default, Pairs pairs = null)
         {
             var query = pairs.ToPairsString();
             var xml = new XmlDocument();
             try
             {
                 var response = await Client.GetAsync($"{api}{query}", token);
-                var s = await response.Content.ReadAsStringAsync();
+                var s = await response.Content.ReadAsStringAsync(token);
                 xml.LoadXml(s);
             }
             catch (Exception e)
@@ -161,14 +161,14 @@ namespace MoeLoaderP.Core
             return xml;
         }
 
-        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = new(), Pairs pairs = null)
+        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = default, Pairs pairs = null)
         {
             var query = pairs.ToPairsString();
             XDocument xml ;
             try
             {
                 var response = await Client.GetAsync($"{api}{query}", token);
-                var s = await response.Content.ReadAsStreamAsync();
+                var s = await response.Content.ReadAsStreamAsync(token);
                 xml = XDocument.Load(s);
             }
             catch (Exception e)
@@ -180,14 +180,14 @@ namespace MoeLoaderP.Core
             return xml;
         }
 
-        public async Task<dynamic> PostAsync(string api, CancellationToken token = new(), Pairs pairs = null)
+        public async Task<dynamic> PostAsync(string api, CancellationToken token = default, Pairs pairs = null)
         {
             var query = pairs.ToPairsString();
             var content = new StringContent($"{query}", Encoding.UTF8, "application/x-www-form-urlencoded");
             try
             {
                 var response = await Client.PostAsync(api, content, token);
-                var str = await response.Content.ReadAsStringAsync();
+                var str = await response.Content.ReadAsStringAsync(token);
                 var json = JsonConvert.DeserializeObject<dynamic>(str);
                 return json;
             }

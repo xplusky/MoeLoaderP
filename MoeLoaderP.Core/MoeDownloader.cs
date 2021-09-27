@@ -11,7 +11,7 @@ namespace MoeLoaderP.Core
         public MoeItems DownloadItems { get; set; } = new();
 
         public bool IsDownloading => DownloadItems.Any(t 
-            => t.DlStatus == DownloadStatus.Downloading || t.DlStatus == DownloadStatus.WaitForDownload);
+            => t.DlStatus is DownloadStatus.Downloading or DownloadStatus.WaitForDownload);
         public Settings Set { get; set; }
         
         public MoeDownloader(Settings set)
@@ -56,8 +56,7 @@ namespace MoeLoaderP.Core
         {
             foreach (var item in items)
             {
-                if (item.DlStatus == DownloadStatus.WaitForDownload 
-                    || item.DlStatus == DownloadStatus.Downloading)
+                if (item.DlStatus is DownloadStatus.WaitForDownload or DownloadStatus.Downloading)
                 {
                     item.CurrentDownloadTaskCts?.Cancel();
                     item.DlStatus = DownloadStatus.Stop;
@@ -80,8 +79,7 @@ namespace MoeLoaderP.Core
             for (var i = 0; i < DownloadItems.Count; i++)
             {
                 var item = DownloadItems[i];
-                if (item.DlStatus == DownloadStatus.Success 
-                    || item.DlStatus == DownloadStatus.Skip)
+                if (item.DlStatus is DownloadStatus.Success or DownloadStatus.Skip)
                 {
                     DownloadItems.Remove(item);
                     i--;

@@ -125,7 +125,7 @@ namespace MoeLoaderP.Core.Sites
                         img.ChildrenItems.Add(child);
                     }
                 }
-                img.GetDetailTaskFunc = async () => await GetSearchByNewOrHotDetailTask(img, token, para);
+                img.GetDetailTaskFunc = async (t) => await GetSearchByNewOrHotDetailTask(img, t, para);
                 img.OriginString = $"{item}";
                 imgs.Add(img);
             }
@@ -161,7 +161,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Rank = $"{item.rank_offset}".ToInt();
                 img.Title = $"{item.title}";
                 img.Uploader = $"{item.uname}";
-                img.GetDetailTaskFunc = async () => await GetSearchByKeywordDetailTask(img, token, para);
+                img.GetDetailTaskFunc = async (t) => await GetSearchByKeywordDetailTask(img, t, para);
                 img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                 img.OriginString = $"{item}";
                 imgs.Add(img);

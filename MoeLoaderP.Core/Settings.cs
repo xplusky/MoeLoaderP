@@ -143,7 +143,7 @@ namespace MoeLoaderP.Core
             set => SetField(ref _isAutoRenameWhenSame, value, nameof(IsAutoRenameWhenSame));
         }
 
-        private int _nameFormatTagCount = 0;
+        private int _nameFormatTagCount;
         public int NameFormatTagCount
         {
             get => _nameFormatTagCount;

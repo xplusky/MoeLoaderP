@@ -250,6 +250,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Helper\MoeLoaderP.Helper\MoeLoaderP.Helper.csproj" />
     <ProjectReference Include="..\MoeLoaderP.Core\MoeLoaderP.Core.csproj" />
   </ItemGroup>
 </Project>

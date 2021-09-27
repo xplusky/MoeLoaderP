@@ -37,11 +37,19 @@ namespace MoeLoaderP.Core.Sites
                 IsSupportScore = true,
                 IsSupportAccount = true,
                 IsSupportStarButton = true,
+                IsSupportMultiKeywords = true,
             };
             Lv2Cat = new Categories()
             {
                 new("最新/搜索"),
-                new("收藏")
+                new Category()
+                {
+                    Name = "收藏",
+                    OverrideConfig = new MoeSiteConfig()
+                    {
+                        IsSupportAccount = true,
+                    }
+                }
             };
             Config.ImageOrders = new ImageOrders()
             {
@@ -109,7 +117,7 @@ namespace MoeLoaderP.Core.Sites
             return false;
         }
 
-        public string CobimeMultiKeywords(params string[] kws)
+        public string ConbimeMultiKeywords(params string[] kws)
         {
             string s = "";
             foreach (var kw in kws)
@@ -126,6 +134,11 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
+            return await GetNewAndTagAsync(para, token);
+        }
+
+        public async Task<MoeItems> GetNewAndTagAsync(SearchPara para, CancellationToken token)
+        {
             var imgs = new MoeItems();
             if (Net == null) Login();
             var net = CloneNet();
@@ -134,7 +147,7 @@ namespace MoeLoaderP.Core.Sites
             string kw;
             if (para.IsShowExplicit == false)
             {
-                kw = CobimeMultiKeywords("rating:safe", para.Keyword.ToEncodedUrl());
+                kw = ConbimeMultiKeywords("rating:safe", para.Keyword.ToEncodedUrl());
             }
             else
             {
@@ -143,14 +156,35 @@ namespace MoeLoaderP.Core.Sites
 
             var pairs = new Pairs
             {
-                {"lang", "en"},
-                {"next", $"{para.NextPageMark}"},
-                {"limit", $"{para.Count}"},
-                {"hide_posts_in_books", "in-larger-tags"},
-                {"default_threshold", "1"},
-                {"tags",kw }
+                { "lang", "en" },
+                { "next", $"{para.NextPageMark}" },
+                { "limit", $"{para.Count}" },
+                { "hide_posts_in_books", "in-larger-tags" },
+                { "default_threshold", "1" },
+
             };
-            
+
+            if (para.Lv2MenuIndex == 1)
+            {
+                var meapi = "https://capi-v2.sankakucomplex.com/users/me?lang=en";
+                var menet = CloneNet();
+                var mejson = await menet.GetJsonAsync(meapi, token);
+                var username = mejson?.user?.name;
+                if (username != null)
+                {
+                    pairs.Add("tags", $"Fav:{username}");
+                }
+                else
+                {
+                    Ex.ShowMessage("无法获取Username");
+                    return null;
+                }
+            }
+            else
+            {
+                pairs.Add("tags", kw);
+            }
+
             var json = await net.GetJsonAsync($"{Api}/posts/keyset", token, pairs);
             if (json == null) return null;
             //if($"{json.suce}")
@@ -165,9 +199,9 @@ namespace MoeLoaderP.Core.Sites
                     Height = $"{jitem.height}".ToInt(),
                     Score = $"{jitem.total_score}".ToInt()
                 };
-                img.Urls.Add(1, $"{jitem.preview_url}",BetaApi);
+                img.Urls.Add(1, $"{jitem.preview_url}", BetaApi);
                 img.Urls.Add(2, $"{jitem.sample_url}", BetaApi);
-                img.Urls.Add(4, $"{jitem.file_url}",$"{BetaApi}/post/show/{img.Id}");
+                img.Urls.Add(4, $"{jitem.file_url}", $"{BetaApi}/post/show/{img.Id}");
                 img.IsExplicit = $"{jitem.rating}" != "s";
                 img.Date = $"{jitem.created_at?.s}".ToDateTime();
                 img.Uploader = $"{jitem.author?.name}";
@@ -178,34 +212,34 @@ namespace MoeLoaderP.Core.Sites
                 {
                     img.Tip = "此图片需要登录查看";
                 }
+
                 foreach (var tag in Ex.GetList(jitem.tags))
                 {
                     img.Tags.Add($"{tag.name_en}");
                 }
 
                 img.OriginString = $"{jitem}";
-                
+
                 imgs.Add(img);
             }
 
             return imgs;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0017:简化对象初始化", Justification = "<挂起>")]
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var ahitems = new AutoHintItems();
             const string api = "https://capi-v2.sankakucomplex.com";
-            if(Net == null) Login();
+            if (Net == null) Login();
             var net = CloneNet();
             var pairs = new Pairs
             {
-                {"lang", "en"},
-                {"tag", para.Keyword.ToEncodedUrl()},
-                {"target", "post"},
-                {"show_meta", "1"}
+                { "lang", "en" },
+                { "tag", para.Keyword.ToEncodedUrl() },
+                { "target", "post" },
+                { "show_meta", "1" }
             };
-            var json = await net.GetJsonAsync($"{api}/tags/autosuggestCreating",token, pairs);
+            var json = await net.GetJsonAsync($"{api}/tags/autosuggestCreating", token, pairs);
             foreach (var jitem in Ex.GetList(json))
             {
                 var ahitem = new AutoHintItem();

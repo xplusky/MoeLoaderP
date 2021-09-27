@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
+using MoeLoaderP.Helper;
 using MoeLoaderP.Wpf.ControlParts;
 
 namespace MoeLoaderP.Wpf
@@ -106,23 +107,9 @@ namespace MoeLoaderP.Wpf
             LogoImage2.Visibility = Settings.IsCustomSiteMode ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void MoeExplorerOnMoeItemPreviewButtonClicked(MoeItem item,ImageSource imgSource)
+        private void MoeExplorerOnMoeItemPreviewButtonClicked(MoeItem item, ImageSource imgSource)
         {
-            if (PreviewWindowInstance == null)
-            {
-                PreviewWindowInstance = new PreviewWindow();
-                PreviewWindowInstance.Closed += delegate { PreviewWindowInstance = null; }; 
-                PreviewWindowInstance.Owner = this;
-                PreviewWindowInstance.Width = Width * 0.85d;
-                PreviewWindowInstance.Height = Height * 0.85d;
-                PreviewWindowInstance.Show();
-            }
-            else
-            {
-                PreviewWindowInstance.Activate();
-            }
-
-            PreviewWindowInstance.Init(item, imgSource);
+            PreviewWindow.Show(PreviewWindowInstance,this,item,imgSource);
 
         }
 
@@ -228,8 +215,6 @@ namespace MoeLoaderP.Wpf
                 case 190:
                     ShowMessage("嘿！！！！开始啦！！！看看我的无敌雪景！！");
                     new EggWindow().Show();
-                    break;
-                default:
                     break;
             }
 
@@ -348,8 +333,7 @@ namespace MoeLoaderP.Wpf
             if (DownloaderMenuCheckBox.IsChecked != false) return;
             DownloaderMenuCheckBox.IsChecked = true;
         }
-
-        private int _f8KeyDownTimes;
+        
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
@@ -361,22 +345,7 @@ namespace MoeLoaderP.Wpf
                     ShowMessage("test");
                     break;
                 case Key.F8:
-                    if (!Settings.HaveEnteredXMode)
-                    {
-                        _f8KeyDownTimes++;
-                        if (_f8KeyDownTimes <= 3) break;
-                        if (_f8KeyDownTimes is > 3 and < 10)
-                        {
-                            ShowMessage($"还剩 {10 - _f8KeyDownTimes} 次粉碎！");
-                            break;
-                        }
-                        if (_f8KeyDownTimes >= 10) Settings.HaveEnteredXMode = true;
-                    }
-                    ShowMessage(Settings.IsXMode ? "已关闭 R18 模式" : "已开启 R18 模式");
-                    Settings.IsXMode = !Settings.IsXMode;
-                    SiteManager.Sites.Clear();
-                    SiteManager.SetDefaultSiteList();
-                    SearchControl.MoeSitesLv1ComboBox.SelectedIndex = 0;
+                    if (SiteManager.R18Check()) SearchControl.MoeSitesLv1ComboBox.SelectedIndex = 0;
                     break;
             }
         }

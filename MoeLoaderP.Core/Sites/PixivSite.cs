@@ -278,8 +278,8 @@ namespace MoeLoaderP.Core.Sites
                 img.ChildrenItemsCount = $"{illus.pageCount}".ToInt();
                 foreach (var tag in Ex.GetList(illus.tags)) img.Tags.Add($"{tag}");
                 img.Date = GetDateFromUrl($"{illus.url}");
-                if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
-                else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async (t) => await GetUgoiraDetailPageTask(img,t);
+                else img.GetDetailTaskFunc = async (t) => await GetDetailPageTask(img, para,t);
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
             }
@@ -356,8 +356,8 @@ namespace MoeLoaderP.Core.Sites
                 img.ChildrenItemsCount = $"{illus.pageCount}".ToInt();
                 foreach (var tag in Ex.GetList(illus.tags)) img.Tags.Add($"{tag}");
                 img.Date = GetDateFromUrl($"{illus.url}");
-                if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
-                else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                if ($"{illus.illustType}" == "2") img.GetDetailTaskFunc = async (t) => await GetUgoiraDetailPageTask(img,t);
+                else img.GetDetailTaskFunc = async (t) => await GetDetailPageTask(img, para,t);
                 img.OriginString = $"{item}";
 
                 imgs.Add(img);
@@ -411,8 +411,8 @@ namespace MoeLoaderP.Core.Sites
                 foreach (var tag in Ex.GetList(illus.tags)) img.Tags.Add($"{tag}");
 
                 img.Date = GetDateFromUrl($"{illus.url}");
-                if ($"{illus.illust_type}" == "2") img.GetDetailTaskFunc = async () => await GetUgoiraDetailPageTask(img);
-                else img.GetDetailTaskFunc = async () => await GetDetailPageTask(img, para);
+                if ($"{illus.illust_type}" == "2") img.GetDetailTaskFunc = async (t) => await GetUgoiraDetailPageTask(img,t);
+                else img.GetDetailTaskFunc = async (t) => await GetDetailPageTask(img, para,t);
 
                 img.OriginString = $"{illus}";
                 imgs.Add(img);
@@ -422,10 +422,10 @@ namespace MoeLoaderP.Core.Sites
             Ex.ShowMessage($"共{count}张，当前日期：{json?.date}", null, Ex.MessagePos.InfoBar);
         }
 
-        public async Task GetDetailPageTask( MoeItem img, SearchPara para)
+        public async Task GetDetailPageTask( MoeItem img, SearchPara para,CancellationToken token)
         {
             var net = Net.CreateNewWithOldCookie();
-            var json = await net.GetJsonAsync($"{HomeUrl}/ajax/illust/{img.Id}/pages");
+            var json = await net.GetJsonAsync($"{HomeUrl}/ajax/illust/{img.Id}/pages", token);
             var img1 = json?.body?[0];
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
@@ -448,13 +448,13 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public async Task GetUgoiraDetailPageTask(MoeItem img)
+        public async Task GetUgoiraDetailPageTask(MoeItem img,CancellationToken token)
         {
             if (img.Tip.IsEmpty()) img.Tip = "动图";
             var net = Net.CreateNewWithOldCookie();
             var api = $"{HomeUrl}/ajax/illust/{img.Id}/ugoira_meta";
-            var jsonRes = await net.Client.GetAsync(api);
-            var jsonStr = await jsonRes.Content.ReadAsStringAsync();
+            var jsonRes = await net.Client.GetAsync(api, token);
+            var jsonStr = await jsonRes.Content.ReadAsStringAsync(token);
             dynamic json = JsonConvert.DeserializeObject(jsonStr);
             var img1 = json?.body;
             var refer = $"{HomeUrl}/artworks/{img.Id}";
