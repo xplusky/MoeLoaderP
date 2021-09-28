@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using MoeLoaderP.Core.Sites;
 
@@ -12,6 +13,7 @@ namespace MoeLoaderP.Core
         public MoeSite Site { get; set; }
         //public SearchSession CurrentSearch { get; set; }
         public string Keyword { get; set; }
+        public List<string> MultiKeywords { get; set; }
         public int StartPageIndex { get; set; }
         public string NextPageMark { get; set; }
         public int Count { get; set; }
@@ -29,6 +31,7 @@ namespace MoeLoaderP.Core
 
         public ImageOrientation Orientation { get; set; } = ImageOrientation.None;
         public DownloadType DownloadType { get; set; }
+        public ImageOrder OrderBy { get; set; }
 
         public DateTime? Date { get; set; }
 
@@ -63,7 +66,18 @@ namespace MoeLoaderP.Core
     {
         public string Name { get; set; }
         public ImageOrderBy Order { get; set; }
+        public bool IsDefault { get; set; }
     }
 
-    public class ImageOrders: ObservableCollection<ImageOrder>{}
+    public class ImageOrders : ObservableCollection<ImageOrder>
+    {
+        public ImageOrders()
+        {
+            Add(new ImageOrder()
+            {
+                Name = "(默认)",
+                IsDefault = true
+            });
+        }
+    }
 }

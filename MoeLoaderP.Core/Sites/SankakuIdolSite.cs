@@ -13,12 +13,9 @@ namespace MoeLoaderP.Core.Sites
     public class SankakuIdolSite : MoeSite
     {
         public override string HomeUrl => "https://idol.sankakucomplex.com";
-
         public override string DisplayName => "SankakuComplex[Idol]";
-
         public override string ShortName => "sankakucomplex-idol";
-
-        private bool _isIdolLogin;
+        
         private string  _idolQuery;
 
         public SankakuIdolSite()
@@ -35,7 +32,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task LoginAsync(CancellationToken token)
         {
-            Net = new NetOperator(Settings, HomeUrl);
+            Net = new NetOperator(Settings);
             const string loginhost = "https://iapi.sankakucomplex.com";
             var accountIndex = new Random().Next(0, _user.Length);
             var tempuser = _user[accountIndex];
@@ -55,7 +52,7 @@ namespace MoeLoaderP.Core.Sites
             var respose = await client.PostAsync(new Uri($"{loginhost}/user/authenticate.json"), content, token);
             if (respose.IsSuccessStatusCode)
             {
-                _isIdolLogin = true;
+                IsUserLogin = true;
             }
             else
             {
@@ -66,8 +63,8 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            if (!_isIdolLogin) await LoginAsync(token);
-            if (!_isIdolLogin) return new MoeItems();
+            if (!IsUserLogin) await LoginAsync(token);
+            if (!IsUserLogin) return new MoeItems();
             var query = $"{_idolQuery}page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
             var list = await Net.GetJsonAsync(query, token);
             if (list == null) return new MoeItems {Message = "获取Json失败"};

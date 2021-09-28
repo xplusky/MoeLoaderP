@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,7 +9,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
-using MoeLoaderP.Helper;
 using MoeLoaderP.Wpf.ControlParts;
 
 namespace MoeLoaderP.Wpf
@@ -52,7 +52,7 @@ namespace MoeLoaderP.Wpf
             MoeExplorer.SearchByAuthorIdAction += SearchByAuthorIdAction;
             MoeExplorer.MoeItemPreviewButtonClicked += MoeExplorerOnMoeItemPreviewButtonClicked;
             
-            // search
+            // search ctrl
             SearchControl.Init(SiteManager, Settings);
             SearchControl.SearchButton.Click += SearchButtonOnClick;
             SearchControl.AccountButton.Click += AccountButtonOnClick;
@@ -72,10 +72,13 @@ namespace MoeLoaderP.Wpf
             MoeSettingsControl.BgImageChangeButton.Click += delegate { ChangeBgImage(); };
             ChangeBgImage();
             
-            // gen custom test
-            var cus = new CustomSiteFactory();
-            cus.GenTestSites();
-            cus.OutputJson(App.CustomSiteDir);
+            // gen custom test 请删除后运行
+            if (Debugger.IsAttached)
+            {
+                var cus = new Helper.CustomSiteFactory();
+                cus.GenTestSites();
+                cus.OutputJson(App.CustomSiteDir);
+            }
 
             Settings.PropertyChanged += SettingsOnPropertyChanged;
         }
@@ -259,13 +262,17 @@ namespace MoeLoaderP.Wpf
 
         private void Log(string obj)
         {
-            var tb = new TextBlock
+            Dispatcher.BeginInvoke((Action)delegate
             {
-                Text = obj
-            };
-            LogListBox.Items.Add(tb);
-            LogListBox.ScrollIntoView(tb);
-            if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
+                var tb = new TextBlock
+                {
+                    Text = obj
+                };
+                LogListBox.Items.Add(tb);
+                LogListBox.ScrollIntoView(tb);
+                if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
+            });
+
         }
 
         private void ShowMessage(string mes, string detailMes = null, Ex.MessagePos pos = Ex.MessagePos.Popup)
@@ -351,7 +358,7 @@ namespace MoeLoaderP.Wpf
         }
         private async void SearchButtonOnClick(object sender, RoutedEventArgs e)
         {
-            ChangeBgImage();
+            //ChangeBgImage();
             if (CurrentSearch?.IsSearching == true)
             {
                 CurrentSearch.StopSearch();
@@ -360,10 +367,29 @@ namespace MoeLoaderP.Wpf
             }
             ChangeSearchVisual(true);
             StatusTextBlock.Text = "";
+
+
             var para = SearchControl.GenSearchPara();
+            
+            if (!para.Keyword.IsEmpty())
+            {
+                var history = CurrentSearch.CurrentSearchPara.Site.SiteSettings.History;
+                var keys = CurrentSearch.CurrentSearchPara.MultiKeywords;
+                if (keys?.Count > 0)
+                {
+                    foreach (var key in keys)
+                    {
+                        history.Insert(0, new AutoHintItem { IsHistory = true, Word = key });
+                    }
+                }
+                
+                if (history.Count > Settings.HistoryKeywordsMaxCount) history.RemoveAt(Settings.HistoryKeywordsMaxCount - 1);
+                history.Insert(0, new AutoHintItem { IsHistory = true, Word = CurrentSearch.CurrentSearchPara.Keyword });
+            }
             CurrentSearch = new SearchSession(Settings, para);
             SiteTextBlock.Text = CurrentSearch.GetCurrentSearchStateText();
-            Settings.HistoryKeywords.AddHistory(CurrentSearch.CurrentSearchPara.Keyword, Settings);
+
+
             MoeExplorer.ResetVisual();
             var t = await CurrentSearch.TrySearchNextPageAsync();
             if (t.IsCanceled || t.Exception != null)

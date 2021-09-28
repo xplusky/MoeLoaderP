@@ -34,9 +34,11 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
+        public NetOperator ThumbnailListNet { get; set; }
+
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            Net ??= new NetOperator(Settings, HomeUrl);
+            Net ??= new NetOperator(Settings);
             var net = Net.CreateNewWithOldCookie();
             var cat = CustomConfig.Categories[para.Lv2MenuIndex];
             var api = para.StartPageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
@@ -59,13 +61,18 @@ namespace MoeLoaderP.Core.Sites
                 var moe = new MoeItem(this, para);
                 var url = item.GetValue(pa.ImageItemThumbnailUrl);
                 if (url == null) continue;
-                moe.Urls.Add(DownloadTypeEnum.Thumbnail, url);
+                var refer = pa.ImageItemThumbnailUrl.Referer;
+                moe.Urls.Add(DownloadTypeEnum.Thumbnail, url, refer);
                 moe.Title = item.GetValue(pa.ImageItemTitle);
                 var detail = item.GetValue(pa.ImageItemDetailUrl);
                 moe.DetailUrl = detail;
                 moe.GetDetailTaskFunc += (t) => GetDetail(moe.DetailUrl, moe, pa, true, t);
-                moe.Net = Net.CreateNewWithOldCookie();
-                moe.Net.SetTimeOut(30);
+                if (ThumbnailListNet == null)
+                {
+                    ThumbnailListNet = Net.CreateNewWithOldCookie();
+                    ThumbnailListNet.SetTimeOut(30);
+                }
+                moe.Net = ThumbnailListNet;
                 if (pa.ImageItemDateTime != null)
                 {
                     var date = item.GetValue(pa.ImageItemDateTime);
@@ -154,13 +161,13 @@ namespace MoeLoaderP.Core.Sites
             if (pa.DetailImageItemOriginUrl != null)
             {
                 var imgurl = img.GetValue(pa.DetailImageItemOriginUrl);
-                if (imgurl != null) newMoeitem.Urls.Add(DownloadTypeEnum.Origin, imgurl);
+                if (imgurl != null) newMoeitem.Urls.Add(DownloadTypeEnum.Origin, imgurl, referer: pa.DetailImageItemOriginUrl.Referer);
             }
 
             if (pa.DetailImageItemThumbnailUrl != null)
             {
                 var imgurl = img.GetValue(pa.DetailImageItemThumbnailUrl);
-                if (imgurl != null) newMoeitem.Urls.Add(DownloadTypeEnum.Thumbnail, imgurl);
+                if (imgurl != null) newMoeitem.Urls.Add(DownloadTypeEnum.Thumbnail, imgurl, referer: pa.DetailImageItemThumbnailUrl.Referer);
             }
 
             if (pa.DetailImageItemDetailUrl != null)

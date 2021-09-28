@@ -25,6 +25,9 @@ namespace MoeLoaderP.Wpf
                 case "opacity":
                     path = "(UIElement.Opacity)";
                     break;
+                case "width":
+                    path = "(FrameworkElement.Width)";
+                    break;
                 case "scale-x":
                     path = "(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)";
                     break;
@@ -36,6 +39,9 @@ namespace MoeLoaderP.Wpf
                     break;
                 case "y":
                     path = "(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)";
+                    break;
+                case "margin":
+                    path = "(FrameworkElement.Margin)";
                     break;
             }
 
@@ -53,6 +59,40 @@ namespace MoeLoaderP.Wpf
                 {
                     new EasingDoubleKeyFrame(fromValue, KeyTime.FromTimeSpan(TimeSpan.Zero)),
                     new EasingDoubleKeyFrame(toValue, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(timeSec)))
+                    {
+                        EasingFunction = new ExponentialEase {EasingMode = EasingMode.EaseOut}
+                    }
+                },
+            };
+            Storyboard.SetTargetProperty(animation, new PropertyPath(path));
+            Storyboard.SetTarget(animation, target);
+            sb.Children.Add(animation);
+        }
+
+        public static void AddEasyThicknessAnime(this Storyboard sb, DependencyObject target, Thickness fromValue, Thickness toValue, double timeSec, string property)
+        {
+            var path = "";
+            switch (property)
+            {
+                case "margin":
+                    path = "(FrameworkElement.Margin)";
+                    break;
+            }
+
+            var el = (UIElement)target;
+            if (el.RenderTransform == null)
+            {
+                var group = new TransformGroup { Children = { [3] = new TranslateTransform() } };
+                el.RenderTransform = group;
+            }
+
+
+            var animation = new ThicknessAnimationUsingKeyFrames()
+            {
+                KeyFrames =
+                {
+                    new EasingThicknessKeyFrame(fromValue, KeyTime.FromTimeSpan(TimeSpan.Zero)),
+                    new EasingThicknessKeyFrame(toValue, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(timeSec)))
                     {
                         EasingFunction = new ExponentialEase {EasingMode = EasingMode.EaseOut}
                     }
@@ -85,6 +125,22 @@ namespace MoeLoaderP.Wpf
         {
             var sb = new Storyboard();
             sb.AddEasyDoubleAnime(target, 1, 0, 0.3, "opacity");
+            return sb;
+        }
+
+        public static Storyboard HorizonEnlargeShowSb(this FrameworkElement target,double width)
+        {
+            var sb = new Storyboard();
+            sb.AddEasyDoubleAnime(target, 0, width, 0.3, "width");
+            sb.AddEasyThicknessAnime(target,  new Thickness(0), new Thickness(2, 0, 2, 0), 0.3, "margin");
+            return sb;
+        }
+        
+        public static Storyboard HorizonLessenShowSb(this FrameworkElement target)
+        {
+            var sb = new Storyboard();
+            sb.AddEasyDoubleAnime(target, target.ActualWidth, 0, 0.3, "width");
+            sb.AddEasyThicknessAnime(target, new Thickness(2,0,2,0), new Thickness(0), 0.3, "margin");
             return sb;
         }
 

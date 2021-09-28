@@ -37,7 +37,7 @@ namespace MoeLoaderP.Core.Sites
         public async Task LoginAsync(CancellationToken token)
         {
 
-            Net = new NetOperator(Settings, HomeUrl);
+            Net = new NetOperator(Settings);
             Net.SetTimeOut(20);
             var index = new Random().Next(0, _user.Length);
             var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -140,7 +140,7 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            AutoHintNet ??= new NetOperator(Settings, HomeUrl);
+            AutoHintNet ??= new NetOperator(Settings);
             AutoHintNet.SetReferer($"{HomeUrl}/?lang=zh_CN");
             //AutoHintNet.Client.DefaultRequestHeaders.Add("content-type", "multipart/form-data; boundary=----WebKitFormBoundaryzFqgWZTqudUG0vBb");
             var re = new AutoHintItems();
@@ -155,7 +155,7 @@ namespace MoeLoaderP.Core.Sites
 
             // todo 这里post数据获取失败，希望有大神能够解决
             if (!response.IsSuccessStatusCode) return new AutoHintItems();
-            var txt = await response.Content.ReadAsStringAsync();
+            var txt = await response.Content.ReadAsStringAsync(token);
             //JSON format response
 
             dynamic json = JsonConvert.DeserializeObject(txt);

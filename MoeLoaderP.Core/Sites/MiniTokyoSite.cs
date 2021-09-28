@@ -52,37 +52,34 @@ namespace MoeLoaderP.Core.Sites
                 IsSupportScore = true
             };
         }
-
-        public async Task<bool> IsLogin(CancellationToken token)
+        
+        public async Task Login(CancellationToken token)
         {
-            if (Net == null)
+            Net = new NetOperator(Settings);
+            Ex.ShowMessage("MiniTokyo 正在自动登录中……", null, Ex.MessagePos.Searching);
+            var accIndex = new Random().Next(0, _user.Length);
+            var content = new FormUrlEncodedContent(new Pairs
             {
-                Net = new NetOperator(Settings, HomeUrl);
-                Ex.ShowMessage("MiniTokyo 正在自动登录中……", null, Ex.MessagePos.Searching);
-                var accIndex = new Random().Next(0, _user.Length);
-                var content = new FormUrlEncodedContent(new Pairs
-                {
-                    {"username", _user[accIndex]},
-                    {"password", _pass[accIndex]}
-                });
-                var p = await Net.Client.PostAsync("http://my.minitokyo.net/login", content, token);
-                if (p.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    Net = null;
-                    return false;
-                }
+                {"username", _user[accIndex]},
+                {"password", _pass[accIndex]}
+            });
+            var p = await Net.Client.PostAsync("http://my.minitokyo.net/login", content, token);
+            if (p.IsSuccessStatusCode)
+            {
+                IsUserLogin = true;
             }
-
-            return true;
+            else
+            {
+                Net = null;
+                IsUserLogin = false;
+                Ex.ShowMessage("MiniTokyo 登录失败");
+            }
         }
 
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            if (await IsLogin(token) == false) return null;
+            if (!IsUserLogin) await Login(token);
+            if (!IsUserLogin) return null;
 
             var imgs = new MoeItems();
             string query;
@@ -103,12 +100,12 @@ namespace MoeLoaderP.Core.Sites
             else
             {
                 var q = $"{HomeUrl}/search?q={para.Keyword}";
-                var net = Net.CreateNewWithOldCookie();
+                var net = GetNet();
                 net.SetReferer(HomeUrl);
                 net.HttpClientHandler.AllowAutoRedirect = false;
                 var res = await net.Client.GetAsync(q, token);
-                var loc303 = res.Headers.Location.OriginalString;
-                var net2 = Net.CreateNewWithOldCookie();
+                var loc303 = res.Headers.Location?.OriginalString;
+                var net2 = GetNet();
                 var doc1 = await net2.GetHtmlAsync($"{HomeUrl}{loc303}", token);
                 var tabnodes = doc1.DocumentNode.SelectNodes("*//ul[@id='tabs']//a");
                 var url = tabnodes[1].Attributes["href"]?.Value;
@@ -159,14 +156,15 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            if (await IsLogin(token) == false) return null;
+            if (!IsUserLogin) await Login(token);
+            if (!IsUserLogin) return null;
 
             var items = new AutoHintItems();
             var url = $"{HomeUrl}/suggest?limit=8&q={para.Keyword}";
             var net = Net.CreateNewWithOldCookie();
             net.SetTimeOut(15);
             var txtres = await net.Client.GetAsync(url, token);
-            var txt = await txtres.Content.ReadAsStringAsync();
+            var txt = await txtres.Content.ReadAsStringAsync(token);
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)
             {

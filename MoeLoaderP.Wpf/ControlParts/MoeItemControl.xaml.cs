@@ -189,13 +189,13 @@ namespace MoeLoaderP.Wpf.ControlParts
                     }
                     catch (Exception ex)
                     {
-                        Ex.Log($"{MoeItem.ThumbnailUrlInfo.Url} Image Bitmap Load Fail", ex.Message);
+                        Ex.Log($"{url} Image Bitmap Load Fail", ex.Message);
                         return null;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Ex.Log($"{MoeItem.ThumbnailUrlInfo.Url} Image SaveLoadBitmapImage Load Fail",ex.Message);
+                    Ex.Log($"{url} Image SaveLoadBitmapImage Load Fail",ex.Message);
                     return null;
                 }
             }, token);

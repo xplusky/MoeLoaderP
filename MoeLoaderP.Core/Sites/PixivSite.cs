@@ -120,7 +120,7 @@ namespace MoeLoaderP.Core.Sites
             if (!islogin) return null;
             if (Net == null)
             {
-                Net = new NetOperator(Settings, HomeUrl);
+                Net = new NetOperator(Settings);
                 Net.SetCookie(SiteSettings.GetCookieContainer());
             }
 
@@ -540,7 +540,7 @@ namespace MoeLoaderP.Core.Sites
             if (!islogin) return null;
             if (AutoHintNet == null)
             {
-                AutoHintNet = new NetOperator(Settings, HomeUrl);
+                AutoHintNet = new NetOperator(Settings);
                 AutoHintNet.SetCookie(SiteSettings.GetCookieContainer());
             }
 

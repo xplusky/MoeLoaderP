@@ -1,6 +1,7 @@
 ﻿using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -101,9 +102,10 @@ namespace MoeLoaderP.Wpf.ControlParts
 
             if (e.Key == Key.Back)
             {
-                if (KeywordTextBox.Text != string.Empty) return;
-                if(MultiWordsButtonsStackPanel.Children.Count == 0)return;
-                MultiWordsButtonsStackPanel.Children.RemoveAt(MultiWordsButtonsStackPanel.Children.Count-1);
+                if (KeywordTextBox.SelectionStart > 0) return;
+                //if (KeywordTextBox.Text != string.Empty) return;
+                if (MultiWordsButtonsStackPanel.Children.Count == 0) return;
+                MultiWordsButtonsStackPanel.Children.RemoveAt(MultiWordsButtonsStackPanel.Children.Count - 1);
             }
         }
 
@@ -132,14 +134,45 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         public MoeSiteConfig CurrentConfig { get; set; }
 
+        private bool _lastKeywodGridStateIsDisplay = false;
         public void AdaptConfig(MoeSiteConfig cfg)
         {
             if (cfg == null) return;
             CurrentConfig = cfg;
+            // IsSupportAccount
             this.GoState(cfg.IsSupportAccount ? nameof(ShowAccountButtonState) : nameof(HideAccountButtonState));
+
+            // IsSupportDatePicker
             this.GoState(cfg.IsSupportDatePicker ? nameof(ShowDatePickerState) : nameof(HideDatePickerState));
+
+            // IsSupportKeyword
             this.GoState(cfg.IsSupportKeyword ? nameof(SurportKeywordState) : nameof(NotSurportKeywordState));
+            if (cfg.IsSupportKeyword)
+            {
+                if (_lastKeywodGridStateIsDisplay == false)
+                {
+                    var sb = KeywordGrid.HorizonEnlargeShowSb(164d);
+                    sb.Completed += delegate { sb.Stop(); };
+                    sb.Begin();
+                    _lastKeywodGridStateIsDisplay = true;
+                }
+            }
+            else
+            {
+                if (_lastKeywodGridStateIsDisplay)
+                {
+                    KeywordGrid.HorizonLessenShowSb().Begin();
+                    _lastKeywodGridStateIsDisplay = false;
+                }
+            }
+
+            // IsSupportMultiKeywords
+            MultiWordsButtonsStackPanel.Children.Clear();
+
+            // IsCustomSite
             this.GoState(cfg.IsCustomSite ? nameof(ShowCustomAddButtonState) : nameof(HideCustomAddButtonState));
+
+            // ImageOrders
             if (cfg.ImageOrders != null)
             {
                 OrderByGrid.Visibility = Visibility.Visible;
@@ -151,17 +184,21 @@ namespace MoeLoaderP.Wpf.ControlParts
                 OrderByGrid.Visibility = Visibility.Collapsed;
             }
 
+            // IsSupportResolution
             FilterResolutionGroup.Visibility = cfg.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
+
+            FilterResolutionCheckBox.IsEnabled = cfg.IsSupportResolution;
+            FilterExlicitGroup.IsEnabled = cfg.IsSupportRating;
+            FilterStartIdGrid.Visibility = cfg.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public void ParaBoxVisualUpdate()
         {
             var cs = CurrentSelectedSite;
-            FilterResolutionCheckBox.IsEnabled = cs.Config.IsSupportResolution;
-            FilterExlicitGroup.IsEnabled = cs.Config.IsSupportRating;
+            
             DownloadTypeComboBox.ItemsSource = cs.DownloadTypes;
             DownloadTypeComboBox.SelectedIndex = 0;
-            FilterStartIdGrid.Visibility = cs.Config.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
+            
             FilterStartIdBox.MaxCount = 0;
             FilterStartPageBox.NumCount = 1;
             var numPerPage = cs.SiteSettings.GetSetting("CountPerPage").ToInt();
@@ -189,9 +226,9 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             if (level == 1)
             {
-                var lv1Si = MoeSitesLv1ComboBox.SelectedIndex;
-                if (lv1Si == -1) return;
-                CurrentSelectedSite = SiteManager.Sites[lv1Si];
+                var currentSite = MoeSitesLv1ComboBox.SelectedItem as MoeSite;
+                if (currentSite == null) return;
+                CurrentSelectedSite = currentSite;
                 KeywordTextBox.Text = "";
                 CurrentHintItems.Clear();
                 InitHistoryItems();
@@ -286,14 +323,15 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private async void KeywordTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (CurrentHintTaskCts == null)
+            var curCts = CurrentHintTaskCts;
+            if (curCts == null)
             {
                 this.Sb("SearchingSpinSb").Begin();
             }
 
-            if (CurrentHintTaskCts != null)
+            if (curCts != null)
             {
-                CurrentHintTaskCts.Cancel();
+                curCts.Cancel();
                 if (KeywordTextBox.Text.Length == 0)
                 {
                     this.Sb("SearchingSpinSb").Stop();
@@ -302,15 +340,15 @@ namespace MoeLoaderP.Wpf.ControlParts
 
             CurrentHintTaskCts = new CancellationTokenSource();
 
-            var tempCts = CurrentHintTaskCts;
+            var newCts = CurrentHintTaskCts;
             try
             {
-                await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, tempCts.Token);
+                await ShowKeywordComboBoxItemsAsync(KeywordTextBox.Text, newCts.Token);
                 this.Sb("SearchingSpinSb").Stop();
             }
             catch (TaskCanceledException)
             {
-                if (tempCts.Equals(CurrentHintTaskCts))
+                if (newCts.Equals(CurrentHintTaskCts))
                 {
                     this.Sb("SearchingSpinSb").Stop();
                 }
@@ -318,7 +356,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             catch (Exception ex)
             {
                 Ex.Log(ex.Message);
-                if (tempCts.Equals(CurrentHintTaskCts))
+                if (newCts.Equals(CurrentHintTaskCts))
                 {
                     this.Sb("SearchingSpinSb").Stop();
                 }
@@ -331,10 +369,11 @@ namespace MoeLoaderP.Wpf.ControlParts
         private void KeywordComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (KeywordListBox.SelectedIndex < 0) return;
-            var item = CurrentHintItems[KeywordListBox.SelectedIndex];
-            if (!item.IsEnable) return;
+            var item = KeywordListBox.SelectedItem as AutoHintItem;
+            if (item == null || !item?.IsEnable == true) return;
             KeywordTextBox.Text = item.Word;
             KeywordTextBox.Focus();
+            KeywordTextBox.SelectionStart = KeywordTextBox.Text.Length;
         }
 
 
@@ -347,7 +386,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         {
             CurrentHintItems.Clear();
             InitHistoryItems();
-            if (keyword.IsEmpty()) throw new TaskCanceledException();
+            if (keyword.IsEmpty()) return;
             await Task.Delay(600, token);// 等待0.6再开始获取，避免每输入一个字都进行网络操作 
             var task = CurrentSelectedSite.GetAutoHintItemsAsync(GenSearchPara(), token);
             if (task == null) throw new TaskCanceledException();
@@ -364,21 +403,31 @@ namespace MoeLoaderP.Wpf.ControlParts
         private void InitHistoryItems()
         {
             CurrentHintItems.Add(new AutoHintItem { IsEnable = false, Word = "---------历史---------" });
-            if (Settings?.HistoryKeywords?.Count == 0 || Settings?.HistoryKeywords == null) return;
-            foreach (var item in Settings.HistoryKeywords)
+            if (CurrentSelectedSite.SiteSettings.History?.Count > 0)
             {
-                CurrentHintItems.Add(item);
+                foreach (var item in CurrentSelectedSite.SiteSettings.History)
+                {
+                    CurrentHintItems.Add(item);
+                }
             }
+            
         }
 
         public SearchPara GenSearchPara()
         {
+            var keys = new List<string>();
+            foreach (Button button in MultiWordsButtonsStackPanel.Children)
+            {
+                var text = (button.Content as TextBlock)?.Text;
+                keys.Add(text);
+            }
             var para = new SearchPara
             {
                 Site = CurrentSelectedSite,
                 Count = FilterCountBox.NumCount,
                 StartPageIndex = FilterStartPageBox.NumCount,
                 Keyword = KeywordTextBox.Text,
+                MultiKeywords = keys,
                 IsShowExplicit = Settings.IsXMode && FilterExlicitCheckBox.IsChecked == true,
                 IsShowExplicitOnly = ShowExlicitOnlyCheckBox.IsChecked == true,
                 IsFilterResolution = FilterResolutionCheckBox.IsChecked == true,
@@ -395,7 +444,8 @@ namespace MoeLoaderP.Wpf.ControlParts
                 Lv3MenuIndex = MoeSitesLv3ComboBox.SelectedIndex,
                 Lv4MenuIndex = MoeSitesLv4ComboBox.SelectedIndex,
                 Config = CurrentConfig,
-                MirrorSite = MirrorSiteComboBox.SelectionBoxItem as MirrorSiteConfig
+                MirrorSite = MirrorSiteComboBox.SelectionBoxItem as MirrorSiteConfig,
+                OrderBy = OrderByComboBox.SelectedItem as ImageOrder
             };
             return para;
         }

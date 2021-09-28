@@ -13,9 +13,6 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class UrlInfo
     {
-        /// <summary>
-        /// 优先级， size 越大，数字越大,优先下载大的,从1开始
-        /// </summary>
         public DownloadTypeEnum DownloadType { get; set; }
         public string Url { get; set; }
         public string Md5 { get; set; }
@@ -73,16 +70,6 @@ namespace MoeLoaderP.Core
 
     public class UrlInfos : ObservableCollection<UrlInfo>
     {
-        public bool Contains(DownloadTypeEnum type)
-        {
-            return this.Any(info => info.DownloadType == type);
-        }
-
-        public bool ContainsPreFunc()
-        {
-            return this.Any(info => info.ResolveUrlFunc != null);
-        }
-
         public UrlInfo GetPreview()
         {
             if (Count == 0) return null;

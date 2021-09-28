@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -85,7 +86,7 @@ namespace MoeLoaderP.Core.Sites
 
         public void Login()
         {
-            Net = new NetOperator(Settings, Api);
+            Net = new NetOperator(Settings);
             var cc = SiteSettings.GetCookieContainer();
             if (cc != null) Net.SetCookie(cc);
             IsUserLogin = AccessToken != null;
@@ -147,11 +148,11 @@ namespace MoeLoaderP.Core.Sites
             string kw;
             if (para.IsShowExplicit == false)
             {
-                kw = ConbimeMultiKeywords("rating:safe", para.Keyword.ToEncodedUrl());
+                kw = ConbimeMultiKeywords("rating:safe", para.Keyword.Trim().Replace(" ", "_"));
             }
             else
             {
-                kw = para.Keyword.ToEncodedUrl();
+                kw = para.Keyword.Trim().Replace(" ","_");
             }
 
             var pairs = new Pairs
@@ -182,7 +183,26 @@ namespace MoeLoaderP.Core.Sites
             }
             else
             {
-                pairs.Add("tags", kw);
+                string kw2;
+                if (para.MultiKeywords.Count > 0)
+                {
+                    var list = new List<string>();
+                    if (!kw.IsEmpty())
+                    {
+                        list.Add(kw);
+                    }
+                    
+                    foreach (var k in para.MultiKeywords)
+                    {
+                        list.Add(k.Replace(" ","_"));
+                    }
+                    kw2 = ConbimeMultiKeywords(list.ToArray());
+                }
+                else
+                {
+                    kw2 = kw;
+                }
+                pairs.Add("tags", kw2);
             }
 
             var json = await net.GetJsonAsync($"{Api}/posts/keyset", token, pairs);

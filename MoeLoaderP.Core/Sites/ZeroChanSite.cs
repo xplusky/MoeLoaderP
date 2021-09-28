@@ -1,7 +1,4 @@
-﻿using HtmlAgilityPack;
-using System;
-using System.Net.Http;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,11 +14,7 @@ namespace MoeLoaderP.Core.Sites
         public override string DisplayName => "Zerochan";
 
         public override string ShortName => "zerochan";
-
-        private readonly string[] _user = { "zerouser1" };
-        private readonly string[] _pass = { "zeropass" };
-        private string _beforeWord = "", _beforeUrl = "";
-
+        
         public ZeroChanSite()
         {
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
@@ -29,69 +22,52 @@ namespace MoeLoaderP.Core.Sites
             Config = new MoeSiteConfig
             {
                 IsSupportKeyword = true,
-                IsSupportRating = true,
                 IsSupportResolution = true,
-                IsSupportScore = true
+                IsSupportScore = true,
+                ImageOrders = new ImageOrders()
+                {
+                    new(){Name = "最新", Order = ImageOrderBy.Date},
+                    new(){Name = "最热", Order = ImageOrderBy.Popular}
+                }
             };
+
         }
-
-        private bool IsLogon { get; set; }
-
-        public async void Login(CancellationToken token)
-        {
-            Net = new NetOperator(Settings, HomeUrl);
-            var index = new Random().Next(0, _user.Length);
-            var loginurl = "https://www.zerochan.net/login";
-
-            var response = await Net.Client.PostAsync(loginurl,
-                new StringContent($"ref=%2F&login=Login&name={_user[index]}&password={_pass[index]}"), token);
-
-            if (response.IsSuccessStatusCode) IsLogon = true;
-        }
-
+        
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            // logon
-            if (!IsLogon) Login(token);
-            if (!IsLogon) return new MoeItems();
+            var net = GetNet();
 
-            // get page source
-            string pageString;
-            var url = $"{HomeUrl}{(para.Keyword.Length > 0 ? $"/search?q={para.Keyword}&" : "/?")}p={para.StartPageIndex}";
+            string url = $"{HomeUrl}/";
 
-            if (!_beforeWord.Equals(para.Keyword, StringComparison.CurrentCultureIgnoreCase))
+            if (!para.Keyword.IsEmpty())
             {
-                // 301
-                var respose = await Net.Client.GetAsync(url, token);
-                if (respose.IsSuccessStatusCode)
-                    _beforeUrl = respose.Headers.Location.AbsoluteUri;
-                else
+                url += para.Keyword.Trim().Replace(" ", "+");
+            }
+
+            var pairs = new Pairs();
+            if (para.OrderBy?.IsDefault == false)
+            {
+                switch (para.OrderBy?.Order)
                 {
-                    Ex.ShowMessage("搜索失败，请检查您输入的关键词");
-                    return new MoeItems();
+                    case null:
+                        break;
+                    case ImageOrderBy.Date:
+                        pairs.Add("s", "id");
+                        break;
+                    case ImageOrderBy.Popular:
+                        pairs.Add("s", "fav");
+                        break;
                 }
-
-                pageString = await respose.Content.ReadAsStringAsync();
-                _beforeWord = para.Keyword;
             }
-            else
-            {
-                url = para.Keyword.IsEmpty() ? url : $"{_beforeUrl}?p={para.StartPageIndex}";
-                var res = await Net.Client.GetAsync(url, token);
-
-                pageString = await res.Content.ReadAsStringAsync();
-            }
+            
+            pairs.Add("p",para.StartPageIndex.ToString());
+            
+            var doc = await net.GetHtmlAsync(url, token,pairs);
 
             // images
             var imgs = new MoeItems();
-            var doc = new HtmlDocument();
-            doc.LoadHtml(pageString);
-            HtmlNodeCollection nodes;
-            try
-            {
-                nodes = doc.DocumentNode.SelectSingleNode("//ul[@id='thumbs2']").SelectNodes(".//li");
-            }
-            catch { return new MoeItems { Message = "没有搜索到图片" }; }
+            var nodes = doc.DocumentNode.SelectSingleNode("//ul[@id='thumbs2']").SelectNodes(".//li");
+            if (nodes == null) return null;
 
             foreach (var imgNode in nodes)
             {
@@ -149,26 +125,30 @@ namespace MoeLoaderP.Core.Sites
             token.ThrowIfCancellationRequested();
             return imgs;
         }
-
+        
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            //http://www.zerochan.net/suggest?q=tony&limit=8
-            if (!IsLogon) Login(token);
-            var re = new AutoHintItems();
-            if (!IsLogon) return re;
-            var url = $"{HomeUrl}/suggest?limit=15&q={para.Keyword}";
-            Net.Client.DefaultRequestHeaders.Referrer = new Uri(HomeUrl);
-            var res = await Net.Client.GetAsync(url, token);
-            var txt = await res.Content.ReadAsStringAsync();
-            var lines = txt.Split('\n');
-            foreach (var h in lines)
+            var kw = para.Keyword.Replace(" ", "+");
+
+            var net = GetNet();
+            var api = $"{HomeUrl}/suggest?q={kw}&limit=10";
+            var str = await net.GetStringAsync(api, token);
+            if (str == null) return null;
+            var aitems = new AutoHintItems();
+            foreach (var s in str.Split("\n"))
             {
-                //Tony Taka|Mangaka|
-                var word = h.Contains("|") ? h.Substring(0, h.IndexOf('|')).Trim() : h;
-                if (!word.IsEmpty()) re.Add(new AutoHintItem { Word = word });
+                if(s.IsEmpty())continue;
+                var resultsp = s.Split("|");
+                if(resultsp.Length==0)continue;
+                
+                var aitem = new AutoHintItem()
+                {
+                    Word = resultsp[0]
+                };
+                aitems.Add(aitem);
             }
 
-            return re;
+            return aitems;
         }
 
     }

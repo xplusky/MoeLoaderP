@@ -66,26 +66,12 @@ namespace MoeLoaderP.Core
             get => _imageItemControlSize;
             set => SetField(ref _imageItemControlSize, value, nameof(ImageItemControlSize));
         }
-
-        private List<string> _searchHistory = new();
-        public List<string> SearchHistory
-        {
-            get => _searchHistory;
-            set => SetField(ref _searchHistory, value, nameof(SearchHistory));
-        }
-
+        
         private int _historyKeywordsMaxCount = 25;
         public int HistoryKeywordsMaxCount
         {
             get => _historyKeywordsMaxCount;
             set => SetField(ref _historyKeywordsMaxCount, value, nameof(HistoryKeywordsMaxCount));
-        }
-        private AutoHintItems _historyKeywords = new();
-        
-        public AutoHintItems HistoryKeywords
-        {
-            get => _historyKeywords;
-            set => SetField(ref _historyKeywords, value, nameof(HistoryKeywords));
         }
 
         private bool _isClearImagesWhenSearchNextPage = true;
@@ -325,6 +311,8 @@ namespace MoeLoaderP.Core
         }
 
         public DateTime? LoginExpiresTime { get; set; }
+
+        public AutoHintItems History { get; set; } = new ();
     }
     
     /// <summary>

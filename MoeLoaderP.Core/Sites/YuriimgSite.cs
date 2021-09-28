@@ -104,7 +104,7 @@ namespace MoeLoaderP.Core.Sites
         
         public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
         {
-            if (Net == null) Net = new NetOperator(Settings, HomeUrl);
+            if (Net == null) Net = new NetOperator(Settings);
             const string api = "https://api.yuriimg.com/posts";
             var pairs = new Pairs
             {

@@ -34,7 +34,7 @@ namespace MoeLoaderP.Core.Sites
         public Categories Lv2Cat { get; set; }
 
         /// <summary>
-        /// 站点功能配置
+        /// 功能配置
         /// </summary>
         public MoeSiteConfig Config { get; set; } = new();
 
@@ -42,7 +42,16 @@ namespace MoeLoaderP.Core.Sites
         /// 浏览和下载所用接口
         /// </summary>
         public NetOperator Net { get; set; }
-        
+
+        public virtual NetOperator GetNet(string referer = null,double timeout = 40)
+        {
+            Net ??= new NetOperator(Settings);
+            var net = Net.CreateNewWithOldCookie();
+            net.SetTimeOut(timeout);
+            net.SetReferer(referer);
+            return net;
+        }
+
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
         /// </summary>
@@ -61,33 +70,28 @@ namespace MoeLoaderP.Core.Sites
 
         public MirrorSiteConfigs Mirrors { get; set; }
 
+        #region 账户及在线功能相关
+
         public bool IsUserLogin
         {
             get => _isUserLogin;
             set => SetField(ref _isUserLogin, value, nameof(IsUserLogin));
         }
-
-        #region 账户及在线功能相关
-
         public virtual bool VerifyCookieAndSave(CookieCollection ccol) => false;
         public virtual string[] GetCookieUrls()
         {
             return new[] { HomeUrl };
         }
         public string LoginPageUrl { get; set; }
+
         /// <summary>
         /// 点赞
         /// </summary>
-        /// <param name="item"></param>
-        /// <param name="token"></param>
-        /// <returns>是否成功</returns>
         public virtual Task<bool> ThumbAsync(MoeItem item, CancellationToken token) => null;
 
         /// <summary>
         /// 标心或者喜欢
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns>是否成功</returns>
         public virtual Task<bool> StarAsync(MoeItem item, CancellationToken token) => null;
 
         public virtual void Logout()

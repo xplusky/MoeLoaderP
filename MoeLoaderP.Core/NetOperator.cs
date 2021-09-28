@@ -30,19 +30,19 @@ namespace MoeLoaderP.Core
             Client = new HttpClient(ProgressMessageHandler);
         }
 
-        public NetOperator(Settings settings, string cookieurl = null,double timeout = 40)
+        public NetOperator(Settings settings, double timeout = 40)
         {
             Settings = settings;
             HttpClientHandler = new HttpClientHandler { Proxy = Proxy };
-            if (cookieurl != null)
-            {
-                var cookie = new CookieContainer();
-                var cookies = cookie.GetCookies(new Uri(cookieurl));
-                HttpClientHandler.CookieContainer.Add(cookies);
-            }
+            //if (cookieurl != null)
+            //{
+            //    var cookie = new CookieContainer();
+            //    var cookies = cookie.GetCookies(new Uri(cookieurl));
+            //    HttpClientHandler.CookieContainer.Add(cookies);
+            //}
+            const string agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36";
             ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
             Client = new HttpClient(ProgressMessageHandler);
-            const string agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36";
             Client.DefaultRequestHeaders.UserAgent.ParseAdd(agent);
             Client.Timeout = TimeSpan.FromSeconds(timeout);
         }
@@ -103,6 +103,24 @@ namespace MoeLoaderP.Core
                         }
                     case Settings.ProxyModeEnum.Ie: return WebRequest.DefaultWebProxy;
                 }
+                return null;
+            }
+        }
+
+        public async Task<string> GetStringAsync(string api, CancellationToken token = default, Pairs parapairs = null)
+        {
+            var query = parapairs.ToPairsString();
+            try
+            {
+                var q = $"{api}{query}";
+                var response = await Client.GetAsync(q, token);
+                var s = await response.Content.ReadAsStringAsync(token);
+                return s;
+            }
+            catch (Exception e)
+            {
+                Ex.Log(e);
+                Ex.ShowMessage(e.Message);
                 return null;
             }
         }

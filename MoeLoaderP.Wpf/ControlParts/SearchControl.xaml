@@ -309,7 +309,7 @@
                             <VisualState x:Name="Disabled"/>
                         </VisualStateGroup>
                     </VisualStateManager.VisualStateGroups>
-                    <TextBox x:Name="KeywordTextBox" TextWrapping="NoWrap" Template="{DynamicResource MoeKeywordTextBoxControlTemplate2}" />
+                    <TextBox x:Name="KeywordTextBox" TextWrapping="NoWrap" Template="{DynamicResource MoeKeywordTextBoxControlTemplate2}" Width="160" />
                     <Popup x:Name="KeywordPopup" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade" Placement="Bottom">
                         <Grid x:Name="DropDown" SnapsToDevicePixels="True">
                             <Border x:Name="DropDownBorder" 

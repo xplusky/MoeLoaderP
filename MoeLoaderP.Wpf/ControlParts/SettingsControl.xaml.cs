@@ -124,8 +124,11 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void ClearHistoryButtonOnClick(object sender, RoutedEventArgs e)
         {
-            Settings.HistoryKeywords.Clear();
-            Ex.ShowMessage("已清除历史记录");
+            foreach (var setting in Settings.AllSitesSettings)
+            {
+                setting.Value.History.Clear();
+            }
+            Ex.ShowMessage("已清除所有历史记录");
         }
         
         private void SaveFolderBrowseButtonOnClick(object sender, RoutedEventArgs e)
