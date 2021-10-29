@@ -75,8 +75,7 @@ namespace MoeLoaderP.Core
             };
             return net;
         }
-
-
+        
         public IWebProxy Proxy
         {
             get
@@ -106,14 +105,23 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
+        
 
-        public async Task<string> GetStringAsync(string api, CancellationToken token = default, Pairs parapairs = null)
+        public async Task<HttpResponseMessage> GetAsync(string api, CancellationToken token = default,bool showSearchMessage = true)
+        {
+            if(showSearchMessage) Ex.ShowMessage($"正在获取 {api}", pos: Ex.MessagePos.Searching);
+            
+            return await Client.GetAsync(api, token);
+            
+        }
+
+        public async Task<string> GetStringAsync(string api, CancellationToken token = default, Pairs parapairs = null, bool showSearchMessage = true)
         {
             var query = parapairs.ToPairsString();
             try
             {
                 var q = $"{api}{query}";
-                var response = await Client.GetAsync(q, token);
+                var response = await GetAsync(q, token, showSearchMessage);
                 var s = await response.Content.ReadAsStringAsync(token);
                 return s;
             }
@@ -125,12 +133,13 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = default, Pairs parapairs = null)
+        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = default, Pairs parapairs = null, bool showSearchMessage = true)
         {
             var query = parapairs.ToPairsString();
             try
             {
-                var response = await Client.GetAsync($"{api}{query}", token);
+                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
+                
                 var s = await response.Content.ReadAsStringAsync(token);
                 return JsonConvert.DeserializeObject(s);
             }
@@ -141,13 +150,13 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
-        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = default, Pairs parapairs = null)
+        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = default, Pairs parapairs = null, bool showSearchMessage = true)
         {
             var query = parapairs.ToPairsString();
             var doc = new HtmlDocument();
             try
             {
-                var response = await Client.GetAsync($"{api}{query}", token);
+                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
                 var s = await response.Content.ReadAsStringAsync(token);
                 doc.LoadHtml(s);
                 return doc;
@@ -160,13 +169,13 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = default, Pairs pairs = null)
+        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = default, Pairs pairs = null, bool showSearchMessage = true)
         {
             var query = pairs.ToPairsString();
             var xml = new XmlDocument();
             try
             {
-                var response = await Client.GetAsync($"{api}{query}", token);
+                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
                 var s = await response.Content.ReadAsStringAsync(token);
                 xml.LoadXml(s);
             }
@@ -179,13 +188,13 @@ namespace MoeLoaderP.Core
             return xml;
         }
 
-        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = default, Pairs pairs = null)
+        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = default, Pairs pairs = null, bool showSearchMessage = true)
         {
             var query = pairs.ToPairsString();
             XDocument xml ;
             try
             {
-                var response = await Client.GetAsync($"{api}{query}", token);
+                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
                 var s = await response.Content.ReadAsStreamAsync(token);
                 xml = XDocument.Load(s);
             }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Http.Handlers;
 using System.Threading;
@@ -25,8 +23,6 @@ namespace MoeLoaderP.Wpf
         public BitmapImage PreviewBitmapImage { get; set; }
         private double ImageScale => (double)PreviewBitmapImage.PixelWidth / PreviewBitmapImage.PixelHeight;
         public CancellationTokenSource Cts { get; set; }
-        private double PicWidth { get; set; }
-        private double PicHeight { get; set; }
         
         public PreviewWindow()
         {
@@ -194,11 +190,8 @@ namespace MoeLoaderP.Wpf
         public async Task<Exception> LoadImageAsync()
         {
             // client
-            var b = CurrentMoeItem.Net != null;
-            var net = b ? CurrentMoeItem.Net.CreateNewWithOldCookie() : new NetOperator(Settings);
 
-            net.SetTimeOut(30);
-            net.SetReferer(CurrentMoeItem.ThumbnailUrlInfo.Referer);
+            var net = CurrentMoeItem.Site.GetNet(CurrentMoeItem.ThumbnailUrlInfo.Referer, 30d);
             net.ProgressMessageHandler.HttpReceiveProgress += ProgressMessageHandlerOnHttpReceiveProgress;
             Exception loadEx = null;
             try
@@ -206,35 +199,12 @@ namespace MoeLoaderP.Wpf
                 Cts?.Cancel();
                 Cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 var response = await net.Client.GetAsync(CurrentMoeItem.Urls.GetPreview().Url, Cts.Token);
-                await using var stream = await response.Content.ReadAsStreamAsync();
-                var source = await Task.Run(() =>
+                await using Stream stream = await response.Content.ReadAsStreamAsync();
+                BitmapImage Func()
                 {
-                    try
-                    {
-                        return UiFunc.SaveLoadBitmapImage(stream);
-                    }
-                    catch (IOException)
-                    {
-                        try
-                        {
-                            var bitmap = new Bitmap(stream);
-                            var ms = new MemoryStream();
-                            bitmap.Save(ms, ImageFormat.Png);
-                            
-                            return UiFunc.SaveLoadBitmapImage(ms);
-                        }
-                        catch (Exception e)
-                        {
-                            loadEx = e;
-                            return null;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        loadEx = ex;
-                        return null;
-                    }
-                }, Cts.Token);
+                    return UiFunc.GetBitmapImageFromStream(stream);
+                }
+                var source = await Task.Run(Func, Cts.Token);
 
                 if (source != null)
                 {
@@ -271,9 +241,5 @@ namespace MoeLoaderP.Wpf
 
         }
     }
-
-    public class PreviewWindowPagingItem : BindingObject
-    {
-        public string Index { get; set; }
-    }
+    
 }

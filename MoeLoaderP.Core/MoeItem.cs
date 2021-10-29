@@ -13,30 +13,10 @@ using MoeLoaderP.Core.Sites;
 namespace MoeLoaderP.Core
 {
     /// <summary>
-    /// 表示一张图片（可以包含一组子图片册）及其相关信息
+    ///     表示一张图片（可以包含一组子图片册）及其相关信息
     /// </summary>
     public class MoeItem : BindingObject
     {
-        /// <summary>
-        /// 所属站点
-        /// </summary>
-        public MoeSite Site { get; set; }
-        /// <summary>
-        /// 浏览、下载所用网络
-        /// </summary>
-        public NetOperator Net { get; set; }
-        /// <summary>
-        /// 搜索参数
-        /// </summary>
-        public SearchPara Para { get; set; }
-        /// <summary>
-        /// 图组项目集合
-        /// </summary>
-        public MoeItems ChildrenItems { get; set; } = new();
-        
-        private Settings Set => Site.Settings;
-
-
         public MoeItem(MoeSite site, SearchPara para)
         {
             Site = site;
@@ -47,15 +27,31 @@ namespace MoeLoaderP.Core
                 OnPropertyChanged(nameof(FileType));
                 OnPropertyChanged(nameof(DownloadUrlInfo));
             };
-
         }
 
+        /// <summary>
+        ///     所属站点
+        /// </summary>
+        public MoeSite Site { get; set; }
+
+        /// <summary>
+        ///     搜索参数
+        /// </summary>
+        public SearchPara Para { get; set; }
+
+        /// <summary>
+        ///     图组项目集合
+        /// </summary>
+        public MoeItems ChildrenItems { get; set; } = new();
+
+        private Settings Set => Site.Settings;
+
         #region 参数属性--当前图片从网络获取到的本身参数及相关处理方法
-        
+
         public int Id { get; set; }
 
         /// <summary>
-        /// Id字符串
+        ///     Id字符串
         /// </summary>
         public string Sid { get; set; }
 
@@ -70,25 +66,27 @@ namespace MoeLoaderP.Core
         public DateTime? Date { get; set; }
 
         /// <summary>
-        /// 上传用户
+        ///     上传用户
         /// </summary>
         public string Uploader { get; set; }
+
         /// <summary>
-        /// 上传用户ID
+        ///     上传用户ID
         /// </summary>
         public string UploaderId { get; set; }
 
         public string UploaderHeadUrl { get; set; }
 
         /// <summary>
-        /// 评分
+        ///     评分
         /// </summary>
         public double Score
         {
             get => _score;
             set
             {
-                _score = value; OnPropertyChanged(nameof(Score));
+                _score = value;
+                OnPropertyChanged(nameof(Score));
             }
         }
 
@@ -105,33 +103,41 @@ namespace MoeLoaderP.Core
         public bool IsFav
         {
             get => _isFav;
-            set { _isFav = value; OnPropertyChanged(nameof(FavCount)); }
+            set
+            {
+                _isFav = value;
+                OnPropertyChanged(nameof(FavCount));
+            }
         }
 
         /// <summary>
-        /// 排名
+        ///     排名
         /// </summary>
         public int Rank { get; set; }
-        
+
         /// <summary>
-        /// 图源
+        ///     图源
         /// </summary>
         public string Source { get; set; }
+
         public string Description { get; set; }
         public List<string> Tags { get; set; } = new();
         public bool IsExplicit { get; set; }
         public string DetailUrl { get; set; }
         public string OriginString { get; set; }
+
         /// <summary>
-        /// 作品名
+        ///     作品名
         /// </summary>
         public string Copyright { get; set; }
+
         /// <summary>
-        /// 角色名
+        ///     角色名
         /// </summary>
         public string Character { get; set; }
+
         /// <summary>
-        /// 画师名
+        ///     画师名
         /// </summary>
         public string Artist { get; set; }
 
@@ -145,6 +151,7 @@ namespace MoeLoaderP.Core
         public string FileType => DownloadUrlInfo?.GetFileExtFromUrl();
 
         private int _width;
+
         public int Width
         {
             get => _width;
@@ -156,6 +163,7 @@ namespace MoeLoaderP.Core
         }
 
         private int _height;
+
         public int Height
         {
             get => _height;
@@ -167,9 +175,9 @@ namespace MoeLoaderP.Core
         }
 
         /// <summary>
-        /// 分辨率文字
+        ///     分辨率文字
         /// </summary>
-        public string ResolutionText => (Width != 0 && Height != 0) ? $"{Width} × {Height}" : null;
+        public string ResolutionText => Width != 0 && Height != 0 ? $"{Width} × {Height}" : null;
 
         private int _imageCount;
         private string _dateString;
@@ -187,27 +195,31 @@ namespace MoeLoaderP.Core
         #region 辅助属性及方法
 
         /// <summary>
-        /// 是否显示注释
+        ///     是否显示注释
         /// </summary>
         public bool TipHighLight { get; set; }
+
         /// <summary>
-        /// 注释，显示在左上角
+        ///     注释，显示在左上角
         /// </summary>
         public string Tip
         {
             get => _tip;
             set
             {
-                _tip = value; OnPropertyChanged(nameof(Tip));
+                _tip = value;
+                OnPropertyChanged(nameof(Tip));
             }
         }
+
         /// <summary>
-        /// 获取详细信息Task委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
+        ///     获取详细信息Task委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
-        public Func<CancellationToken,Task> GetDetailTaskFunc { get; set; }
-        public async Task TryGetDetail(CancellationToken token=default)
+        public Func<CancellationToken, Task> GetDetailTaskFunc { get; set; }
+
+        public async Task TryGetDetail(CancellationToken token = default)
         {
-            if(GetDetailTaskFunc==null)return;
+            if (GetDetailTaskFunc == null) return;
             try
             {
                 await GetDetailTaskFunc(token);
@@ -215,7 +227,7 @@ namespace MoeLoaderP.Core
             catch (Exception e)
             {
                 var m = $"获取详情页失败!ID:{Id},PAGE:{DetailUrl}";
-                Ex.Log(m,e);
+                Ex.Log(m, e);
                 ErrorMessage = m;
             }
         }
@@ -229,36 +241,48 @@ namespace MoeLoaderP.Core
         public bool CanDownload
         {
             get => _canDownload;
-            set { _canDownload = value; OnPropertyChanged(nameof(CanDownload)); }
+            set
+            {
+                _canDownload = value;
+                OnPropertyChanged(nameof(CanDownload));
+            }
         }
 
-        public int? VisualPageIndex { get; set; }
 
         /// <summary>
-        /// 子项目专用 ---- 父级对象
+        ///     子项目专用 ---- 父级对象
         /// </summary>
         public MoeItem FatherItem { get; set; }
 
         /// <summary>
-        /// 子项目专用--子项目所在列表中的位置（从1开始）
+        ///     子项目专用--子项目所在列表中的位置（从1开始）
         /// </summary>
         public int SubIndex { get; set; }
 
         /// <summary>
-        /// bitmap image 用于显示下载图片图标
+        ///     bitmap image 用于绑定显示下载图片图标
         /// </summary>
         public dynamic BitImg { get; set; }
 
+        public async Task<Stream> TryLoadThumbnailStreamAsync(CancellationToken token)
+        {
+            var net = Site.GetNet(ThumbnailUrlInfo.Referer, 20d);
+            var url = ThumbnailUrlInfo.Url;
+            var response = await net.Client.GetAsync(url, token);
+            return await response.Content.ReadAsStreamAsync(token);
+        }
+
         public bool IsResolveAndDownloadNextItem { get; set; }
 
-        public Func<CancellationToken,Task<MoeItems>> GetNextItemsTaskFunc { get; set; }
+        public Func<CancellationToken, Task<MoeItems>> GetNextItemsTaskFunc { get; set; }
 
         /// <summary>
-        /// 网站上原始文件名
+        ///     网站上原始文件名
         /// </summary>
         public string OriginFileName { get; set; }
+
         /// <summary>
-        /// 网站上原始文件名（不含后缀）
+        ///     网站上原始文件名（不含后缀）
         /// </summary>
         public string OriginFileNameWithoutExtension { get; set; }
 
@@ -275,6 +299,7 @@ namespace MoeLoaderP.Core
         public event Action<MoeItem> DownloadStatusChanged;
 
         private string _size;
+
         public string Size
         {
             get => _size;
@@ -282,6 +307,7 @@ namespace MoeLoaderP.Core
         }
 
         private double _progress;
+
         public double Progress
         {
             get => _progress;
@@ -298,8 +324,9 @@ namespace MoeLoaderP.Core
         }
 
         private DownloadStatus _dlStatus = DownloadStatus.WaitForDownload;
+
         /// <summary>
-        /// 设置或获取下载状态
+        ///     设置或获取下载状态
         /// </summary>
         public DownloadStatus DlStatus
         {
@@ -328,7 +355,7 @@ namespace MoeLoaderP.Core
 
             SubIndex = subindex;
             FatherItem = fatheritem;
-            if(DownloadUrlInfo==null )return;
+            if (DownloadUrlInfo == null) return;
             if (DownloadUrlInfo.ResolveUrlFunc == null)
             {
                 OriginFileName = Path.GetFileName(DownloadUrlInfo.Url);
@@ -340,12 +367,12 @@ namespace MoeLoaderP.Core
         }
 
         /// <summary>
-        /// 当前下载指示器
+        ///     当前下载指示器
         /// </summary>
         public CancellationTokenSource CurrentDownloadTaskCts { get; set; } = new();
-        
+
         /// <summary>
-        /// 异步下载图片
+        ///     异步下载图片
         /// </summary>
         /// <returns></returns>
         public async Task DownloadFileAsync(CancellationToken token)
@@ -356,14 +383,15 @@ namespace MoeLoaderP.Core
                 var i = 0;
                 while (true)
                 {
-                    if(i>= ChildrenItemsCount || 
-                       (i>Set.DownloadFirstSeveralCount && Set.IsDownloadFirstSeveral)) break;
-                    
+                    if (i >= ChildrenItemsCount ||
+                        i > Set.DownloadFirstSeveralCount && Set.IsDownloadFirstSeveral) break;
+
                     if (token.IsCancellationRequested)
                     {
                         DlStatus = DownloadStatus.Cancel;
                         break;
                     }
+
                     Progress = i / (double)ChildrenItemsCount * 100d;
                     StatusText = $"正在下载 {i + 1} / {ChildrenItemsCount} 张";
                     if (i < Set.DownloadFirstSeveralCount || Set.IsDownloadFirstSeveral == false)
@@ -391,7 +419,7 @@ namespace MoeLoaderP.Core
                                 foreach (var newitem in newitems)
                                 {
                                     ChildrenItems.Add(newitem);
-                                    newitem.InitDownload(null,k,this);
+                                    newitem.InitDownload(null, k, this);
                                     k++;
                                 }
                             }
@@ -402,26 +430,23 @@ namespace MoeLoaderP.Core
                                 break;
                             }
                         }
+                            
                     }
+
                     i++;
                 }
 
                 var count = ChildrenItems.Count;
                 if (DlStatus == DownloadStatus.Cancel)
-                {
-                    StatusText = $"{count-1}张成功，失败{ChildrenItemsCount - count}张";
-                }
-                else if(DlStatus == DownloadStatus.Failed)
-                {
-                    StatusText = $"{count-1}张成功，失败{ChildrenItemsCount - count}张";
-                }
+                    StatusText = $"{count - 1}张成功，失败{ChildrenItemsCount - count}张";
+                else if (DlStatus == DownloadStatus.Failed)
+                    StatusText = $"{count - 1}张成功，失败{ChildrenItemsCount - count}张";
                 else
                 {
                     DlStatus = DownloadStatus.Success;
                     Progress = 100d;
                     StatusText = $"{count} 张下载完成";
                 }
-                
             }
             else // 为子项目
             {
@@ -457,7 +482,6 @@ namespace MoeLoaderP.Core
                     await durl.ResolveUrlFunc.Invoke(this, durl, token);
                     durl.ResolveUrlFunc = null;
                     InitDownload(BitImg, SubIndex, FatherItem);
-                    
                 }
                 catch (Exception e)
                 {
@@ -480,49 +504,42 @@ namespace MoeLoaderP.Core
                     StatusText = "已存在，跳过";
                     return;
                 }
-
             }
 
             // 设置下载网络
-            var net = Net == null ? new NetOperator(Set) : Net.CreateNewWithOldCookie();
-            if (!durl.Referer.IsEmpty()) net.SetReferer(durl.Referer);
+            var net = Site.GetNet(durl.Referer, 500d);
             net.ProgressMessageHandler.HttpReceiveProgress += (_, args) =>
             {
                 Progress = args.ProgressPercentage;
                 StatusText = $"正在下载：{Progress}%";
             };
-            net.SetTimeOut(500);
             if (File.Exists(LocalFileFullPath))
             {
                 DlStatus = DownloadStatus.Skip;
                 StatusText = "已存在，跳过";
                 return;
             }
+
             DlStatus = DownloadStatus.Downloading;
             var data = await net.Client.GetAsync(durl.Url, token);
 
             // 写入文件
-            var stream = await data.Content.ReadAsStreamAsync(token);
             var dir = Path.GetDirectoryName(LocalFileFullPath);
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir ?? throw new InvalidOperationException());
             var file = new FileInfo(LocalFileFullPath);
             await using (var fileStream = file.Create())
             {
-                await using (stream)
+                await using var stream = await data.Content.ReadAsStreamAsync(token);
+                var buffer = new byte[1024];
+                int length;
+                while ((length = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length), token)) != 0)
                 {
-                    var buffer = new byte[1024];
-                    int length;
-                    while ((length = await stream.ReadAsync(buffer, 0, buffer.Length, token)) != 0)
-                    {
-                        // 写入到文件
-                        await fileStream.WriteAsync(buffer, 0, length, token);
-                    }
+                    await fileStream.WriteAsync(buffer.AsMemory(0, length), token);
                 }
             }
 
             // 下载完成后期效果
             if (durl.AfterEffectsFunc != null)
-            {
                 try
                 {
                     await durl.AfterEffectsFunc.Invoke(this, token);
@@ -531,7 +548,6 @@ namespace MoeLoaderP.Core
                 {
                     Ex.Log(e);
                 }
-            }
 
             // 完成
             Progress = 100d;
@@ -547,7 +563,7 @@ namespace MoeLoaderP.Core
         private bool _canDownload;
 
         /// <summary>
-        /// 状态文字
+        ///     状态文字
         /// </summary>
         public string StatusText
         {
@@ -592,12 +608,12 @@ namespace MoeLoaderP.Core
             foreach (var tag in img.Tags)
             {
                 if (Set.NameFormatTagCount != 0)
-                {
-                    if (i >= Set.NameFormatTagCount) break;
-                }
+                    if (i >= Set.NameFormatTagCount)
+                        break;
                 tags += $"{tag} ";
                 i++;
             }
+
             sb.Replace("%tag", $"{tags}");
             sb.Replace("%title", img.Title ?? "no-title");
             sb.Replace("%uploader", img.Uploader ?? "no-uploader");
@@ -635,13 +651,14 @@ namespace MoeLoaderP.Core
 
         #endregion
     }
-    
+
     public class MoeItems : ObservableCollection<MoeItem>
     {
-        public List<Exception> Exs { get; set; } = new();
-        public string Message { get; set; }
         //public enum ResponseMode { Ok, Fail, OkAndOver }
         //public ResponseMode Response { get; set; }
+        public void AddRange(MoeItems items)
+        {
+            foreach (var moeItem in items) Add(moeItem);
+        }
     }
-
 }

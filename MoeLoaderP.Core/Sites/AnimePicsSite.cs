@@ -59,27 +59,27 @@ namespace MoeLoaderP.Core.Sites
 
         public NetOperator AutoHintNet { get; set; }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             if (!IsLogon) await LoginAsync(token);
 
             // pages source
             //http://mjv-art.org/pictures/view_posts/0?lang=en
-            var url = $"{HomeUrl}/pictures/view_posts/{para.StartPageIndex - 1}?lang=en";
+            var url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?lang=en";
 
             if (para.Keyword.Length > 0)
             {
                 //http://mjv-art.org/pictures/view_posts/0?search_tag=suzumiya%20haruhi&order_by=date&ldate=0&lang=en
-                url = $"{HomeUrl}/pictures/view_posts/{para.StartPageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
+                url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
             }
 
-            var imgs = new MoeItems();
+            var imgs = new SearchedPage();
 
             var doc = await Net.GetHtmlAsync(url, token);
             if (doc == null) return null;
             var pre = "https:";
             var listnode = doc.DocumentNode.SelectNodes("//*[@id='posts']/div[@class='posts_block']/span[@class='img_block_big']");
-            if (listnode == null) return new MoeItems{Message = "读取HTML失败"};
+            if (listnode == null) return new SearchedPage { Message = "读取HTML失败"};
             foreach (var node in listnode)
             {
                 var img = new MoeItem(this, para);

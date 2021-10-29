@@ -29,10 +29,10 @@ namespace MoeLoaderP.Core.Sites
             };
         }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
-            var imgs = new MoeItems();
-            var url = $"{HomeUrl}/?page={para.StartPageIndex}";
+            var imgs = new SearchedPage();
+            var url = $"{HomeUrl}/?page={para.PageIndex}";
             Net ??= new NetOperator(Settings);
             if (!para.Keyword.IsEmpty())
             {
@@ -61,13 +61,13 @@ namespace MoeLoaderP.Core.Sites
                 var loc303 = res.Headers.Location?.OriginalString;     //todo 无法实现，需要大神
 
                 //http://e-shuushuu.net/search/results/?tags=2
-                if (!loc303.IsEmpty()) url = $"{loc303}&page={para.StartPageIndex}";
-                else return new MoeItems { Message = "没有搜索到关键词相关的图片" };
+                if (!loc303.IsEmpty()) url = $"{loc303}&page={para.PageIndex}";
+                else return new SearchedPage { Message = "没有搜索到关键词相关的图片" };
             }
 
             // images
             var doc = await Net.GetHtmlAsync(url, token);
-            if (doc == null) return new MoeItems
+            if (doc == null) return new SearchedPage
             {
                 Message = "获取HTML失败"
             };

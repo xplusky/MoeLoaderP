@@ -47,7 +47,7 @@ namespace MoeLoaderP.Wpf
                     case Settings.ProxyModeEnum.Ie:
                         break;
                 }
-                var env = await CoreWebView2Environment.CreateAsync(null,null,option);
+                var env = await CoreWebView2Environment.CreateAsync(null,App.AppDataDir,option);
                 
                 AuthButton.Click += AuthButtonOnClick;
                 GoToLoginPageButton.Click += GoToLoginPageButtonOnClick;

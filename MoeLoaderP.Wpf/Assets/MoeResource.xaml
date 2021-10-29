@@ -11,6 +11,7 @@
     <wpf:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <wpf:ImagesCountVisibilityConvertor x:Key="ImagesCountVisibilityConvertor"/>
     <wpf:BoolToHighLightBrush x:Key="BoolToHighLightBrush"/>
+    
     <wpf:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
     <wpf:DoubleToVisibilityConverter x:Key="DoubleToVisibilityConverter"/>
     <wpf:OuterWidthToItemMarginConverter x:Key="OuterWidthToItemMarginConverter"/>
@@ -334,6 +335,9 @@
             <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
         </Border>
     </ControlTemplate>
+    <DataTemplate x:Key="MoePagingListBoxItemTemplate">
+        <Grid></Grid>
+    </DataTemplate>
     <ControlTemplate x:Key="MoeThumbControlTemplate" TargetType="{x:Type Thumb}">
         <Border x:Name="border" BorderBrush="{DynamicResource MoeButtonStrokeBrush}" BorderThickness="1" CornerRadius="4" Background="#FFF0F0F0">
             <VisualStateManager.VisualStateGroups>
@@ -1365,7 +1369,7 @@
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualStateGroup.Transitions>
-                        <VisualTransition GeneratedDuration="0:0:0.2"/>
+                        <VisualTransition GeneratedDuration="00:00:00.3000000"/>
                     </VisualStateGroup.Transitions>
                     <VisualState x:Name="Normal"/>
                     <VisualState x:Name="MouseOver">
@@ -1397,6 +1401,9 @@
                             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="CoverBorder">
                                 <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
                             </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CoverBorder" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <EasingDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </VisualState>
                 </VisualStateGroup>
@@ -1404,12 +1411,17 @@
             <Border x:Name="BgBorder" CornerRadius="50">
                 <Border.Background>
                     <RadialGradientBrush>
-                        <GradientStop Color="#FFE0E0E0" Offset="0.194"/>
-                        <GradientStop Color="#00626262" Offset="0.732"/>
+                        <GradientStop Color="White" Offset="0.162"/>
+                        <GradientStop Color="Transparent" Offset="0.882"/>
                     </RadialGradientBrush>
                 </Border.Background>
                 <Border.Effect>
                     <DropShadowEffect ShadowDepth="0" Color="{DynamicResource MoeShadowColor}" BlurRadius="4" Opacity="0"/>
+                </Border.Effect>
+            </Border>
+            <Border x:Name="CoverBorder" BorderBrush="{x:Null}" BorderThickness="1" CornerRadius="50" Background="#7F4CAEFF" Opacity="0">
+                <Border.Effect>
+                    <BlurEffect/>
                 </Border.Effect>
             </Border>
             <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" UseLayoutRounding="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" d:DesignUseLayoutRounding="True" RenderTransformOrigin="0.5,0.5">
@@ -1422,11 +1434,6 @@
                     </TransformGroup>
                 </ContentPresenter.RenderTransform>
             </ContentPresenter>
-            <Border x:Name="CoverBorder" BorderBrush="{x:Null}" BorderThickness="1" Opacity="0" CornerRadius="50" Margin="4" Background="#7F4CAEFF">
-                <Border.Effect>
-                    <BlurEffect/>
-                </Border.Effect>
-            </Border>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsKeyboardFocused" Value="True"/>
@@ -1446,7 +1453,7 @@
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
-    
+
     <ControlTemplate x:Key="MoeSearchKeywordListBoxControlTemplate" TargetType="{x:Type ListBox}">
         <Border x:Name="Bd" BorderThickness="{TemplateBinding BorderThickness}" Padding="1" SnapsToDevicePixels="True">
             <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}" Template="{DynamicResource MoeScrollViewerControlTemplate}">
@@ -1601,4 +1608,36 @@
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
+    <DataTemplate x:Key="MoePagingListBoxItemTemplate2">
+        <Grid/>
+    </DataTemplate>
+    <Style x:Key="MoeListBoxTemplate" TargetType="{x:Type ListBox}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SolidBorderBrush}"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBox}">
+                    <Grid>
+                        <Border x:Name="Border" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"/>
+                        <ScrollViewer x:Name="HostScrollViewer" Background="{TemplateBinding Background}" Focusable="false" Margin="1" Style="{DynamicResource SimpleScrollViewer}" Template="{DynamicResource MoeScrollViewerControlTemplate}">
+                            <StackPanel IsItemsHost="true" Margin="2"/>
+                        </ScrollViewer>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Background" TargetName="Border" Value="{DynamicResource DisabledBackgroundBrush}"/>
+                            <Setter Property="BorderBrush" TargetName="Border" Value="{DynamicResource DisabledBorderBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsGrouping" Value="true">
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

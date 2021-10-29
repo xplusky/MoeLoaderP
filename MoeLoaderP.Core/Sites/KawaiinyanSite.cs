@@ -24,7 +24,7 @@ namespace MoeLoaderP.Core.Sites
                 IsSupportScore = true
             };
         }
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             if (Net == null)
             {
@@ -53,9 +53,9 @@ namespace MoeLoaderP.Core.Sites
                 {"tags", para.Keyword.ToEncodedUrl()},
                 {"size",size },
                 {"orient",orient },
-                {"page", $"{para.StartPageIndex}"}
+                {"page", $"{para.PageIndex}"}
             };
-            var imageItems = new MoeItems();
+            var imageItems = new SearchedPage();
             var json = await  Net.GetJsonAsync($"{HomeUrl}/index.json", token, pair);
             if (json?.images == null) return imageItems;
             foreach (var image in json.images)

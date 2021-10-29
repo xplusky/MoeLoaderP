@@ -5,7 +5,7 @@
 > 多站点图片浏览、下载工具
 
 -----
-## 安装 & 使用
+## 安装 & 使用 & 反馈
 
 > **http://leaful.com/moeloader-p**
 
@@ -39,7 +39,7 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeload
 - Kawaiinyan.com 支持搜索、最新图片
 - lolibooru.moe 支持关键字搜索、图片Tag、日期、作者、图源显示
 - atfbooru.ninja 支持关键字搜索、图片Tag、日期、作者、图源显示
-- 自定义站点....
+- 自定义站点....（支持通过Json文件创建自定义站点。默认自带4~5个）
 
 ### 预览图
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/SNAG-2020-4-26-8.26.49.jpg)
@@ -61,6 +61,7 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeload
 
 ### 支持自定义站点
 10.0版本新增自定义站点支持（右键点击LOGO进入自定义模式），只需要编辑Json文件，加上亿点点耐心，就可以拥有自己的图片站点。如果嫌麻烦，可以通过某种渠道获得现成Json。
+> **https://github.com/xplusky/MoeLoaderP-CustomSite**
 
 ### 持续更新
 欢迎提供建议，软件持续更新，其他功能陆续添加中，Pull Request welcome。
@@ -69,18 +70,18 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeload
 软件神秘代码： ( hit F8 ten times )
 
 ### 交流群
-QQ群： 验证：MoeLoaderP
+QQ群：173707488 验证：MoeLoaderP
+
 -----
 
 ## 更新记录
 
-### 待定 10.0.1-(正在修改代码中，敬请期待)
+### 待定 10.0.1-(正在施工中，敬请期待)
 - 更新至.Net5框架（可能需要下载.net5 runtime才能运行软件，以后考虑升级到.Net6后通过MAUI来实现手机端）
 - 登录功能切换至WebView2（首次使用需下载），不再使用CefSharp
 - 新增自定义站点功能（右键LOGO进入），通过JSON文件就可以自定义自己站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）
 - 完善登录功能，支持Pixiv、SankakuComplex登录搜索
-- 修复SankakuComplex登录，可以登录后搜索
-- 新增站点全名、作者ID等名称命名格式
+- 新增站点全名、作者ID等名称命名格式(via 咸鱼)
 - 设置完善、支持亚克力效果开关选项。
 - 更新FluentWPF，支持暗黑模式（根据系统颜色设置）
 - 优化打开文件位置功能，可以默认选中图片了
@@ -88,11 +89,14 @@ QQ群： 验证：MoeLoaderP
 - pixiv增加镜像站点功能，可以免梯子搜索下载（在参数里面）
 - 搜索参数中的数量、镜像站点设置可以自动保存，下次搜索自动读取
 - 可以自定义背景图片了，通过设置可以快速换背景图片
+- 修复sankaku chan 登录，可以登录后搜索(via Mr3)
 - sankaku chan 支持在线收藏按钮了（会同步到在线账户中）
-- 支持收藏数量显示，已收藏显示为红色（目前支持sankaku）
+- sankaku chan 支持搜索搜藏图片了（via 周子）
+- 支持收藏数量显示，已收藏显示为红色（目前支持sankaku chan）
 - 修复zerochan，可以继续搜索图片了
-- 可以框选右键批量刷新图片了
+- 可以框选右键批量刷新图片了(via xx.p)
 - sankaku chan 支持多关键字搜索了，只要在录入关键字后打空格就可以添加进关键字中
+- 历史记录改为分别不同站点存储
 
 ### 2021-4-12 9.5.1
 - 修复文件名规则框

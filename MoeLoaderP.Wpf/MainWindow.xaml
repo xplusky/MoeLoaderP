@@ -16,7 +16,7 @@
     WindowStartupLocation="CenterScreen"
     fw:AcrylicWindow.Enabled="True"
     fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
-    fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}"
+    fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}" Background="#4CFFFFFF"
     >
     <Window.Resources>
         <Storyboard x:Key="BeginSearchSb">
@@ -146,7 +146,7 @@
             <BeginStoryboard x:Name="LogoAnimateSbBeginStoryboard" Storyboard="{StaticResource LogoAnimateSb}"/>
         </EventTrigger>
     </Window.Triggers>
-    <Grid x:Name="LayoutRoot"  Background="Transparent" fw:PointerTracker.Enabled="True">
+    <Grid x:Name="LayoutRoot" fw:PointerTracker.Enabled="True">
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="DownloadPanelVSG">
@@ -303,6 +303,7 @@
                     </TransformGroup>
                 </controlParts:SearchControl.RenderTransform>
             </controlParts:SearchControl>
+            <StackPanel x:Name="SearchMessageStackPanel" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
         </Grid>
 
         <Border x:Name="StatusBarBorder"
@@ -319,26 +320,9 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid Margin="0,0,3,0">
-                    <Popup x:Name="LogPopup" IsOpen="{Binding IsChecked, ElementName=LogCheckBox}" Placement="Top"  StaysOpen="False" AllowsTransparency="True" HorizontalOffset="-10" VerticalOffset="-4">
-                        <controlParts:MoeFloatBorder x:Name="LogBorder" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="479" Height="320" >
-                            <Grid>
-                                <ListBox x:Name="LogListBox" Style="{DynamicResource SimpleListBox}" BorderBrush="{x:Null}" Background="{x:Null}"/>
-                                <ResizeGrip x:Name="LogResizeGrip" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
-                                    <ResizeGrip.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform Angle="-90"/>
-                                            <TranslateTransform/>
-                                        </TransformGroup>
-                                    </ResizeGrip.RenderTransform>
-                                </ResizeGrip>
-                            </Grid>
-                        </controlParts:MoeFloatBorder>
-                    </Popup>
-                    <CheckBox x:Name="LogCheckBox" Template="{DynamicResource SearchParaCheckBoxControlTemplate}" Height="22" Width="44">
+                    <Button x:Name="LogButton" Template="{DynamicResource MoeButtonControlTemplate}" Height="22" Width="44">
                         <TextBlock TextWrapping="Wrap" Text="LOG" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </CheckBox>
+                    </Button>
                 </Grid>
                 <TextBlock
                         x:Name="StatusTextBlock"

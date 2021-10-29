@@ -13,7 +13,26 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class Settings : BindingObject
     {
+        // runtime
+        private SearchSession _currentSession;
+        [JsonIgnore]
+        public SearchSession CurrentSession
+        {
+            get => _currentSession;
+            set => SetField(ref _currentSession, value, nameof(CurrentSession));
+        }
+
+        [JsonIgnore]
+        public SiteManager SiteManager { get; set; }
+
         #region Window size / Display
+
+        private bool _isLowPerformanceMode;
+        public bool IsLowPerformanceMode
+        {
+            get => _isLowPerformanceMode;
+            set => SetField(ref _isLowPerformanceMode, value, nameof(IsLowPerformanceMode));
+        }
 
         private double _mainWindowWidth = 1060d;
         public double MainWindowWidth 
@@ -43,9 +62,23 @@ namespace MoeLoaderP.Core
             set => SetField(ref _isEnableAcrylicStyle, value, nameof(IsEnableAcrylicStyle));
         }
 
+        private bool _isShowEggWindowOnce ;
+        public bool IsShowEggWindowOnce
+        {
+            get => _isShowEggWindowOnce;
+            set => SetField(ref _isShowEggWindowOnce, value, nameof(IsShowEggWindowOnce));
+        }
+
         #endregion
 
         #region Searching Settings
+        private int _preLoadPagesCount;
+        public int PreLoadPagesCount
+        {
+            get => _preLoadPagesCount;
+            set => SetField(ref _preLoadPagesCount, value, nameof(PreLoadPagesCount));
+        }
+
         private int _maxOnLoadingImageCount = 8;
         public int MaxOnLoadingImageCount
         {
@@ -202,9 +235,8 @@ namespace MoeLoaderP.Core
         /// </summary>
         public MoeSitesSettings AllSitesSettings { get; set; } =new();
         
-        private bool _isCustomSiteMode;
-        
 
+        private bool _isCustomSiteMode;
         [JsonIgnore]
         public bool IsCustomSiteMode
         {

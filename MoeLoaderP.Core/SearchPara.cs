@@ -11,17 +11,17 @@ namespace MoeLoaderP.Core
     public class SearchPara
     {
         public MoeSite Site { get; set; }
-        //public SearchSession CurrentSearch { get; set; }
         public string Keyword { get; set; }
         public List<string> MultiKeywords { get; set; }
-        public int StartPageIndex { get; set; }
-        public string NextPageMark { get; set; }
-        public int Count { get; set; }
+        public int? PageIndex { get; set; }
+        public string PageIndexCursor { get; set; }
+        public int CountLimit { get; set; }
 
         public bool IsShowExplicit { get; set; }
         public bool IsShowExplicitOnly { get; set; }
 
         public bool IsFilterResolution { get; set; }
+
         public int MinWidth { get; set; }
         public int MinHeight { get; set; }
 
@@ -42,7 +42,10 @@ namespace MoeLoaderP.Core
         public MoeSiteConfig Config { get; set; }
         public MirrorSiteConfig MirrorSite { get; set; }
 
-        public SearchPara Clone() => (SearchPara)MemberwiseClone();
+        public SearchPara Clone()
+        {
+            return (SearchPara)MemberwiseClone();
+        }
     }
 
     public enum ImageOrientation

@@ -6,18 +6,20 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
-using draw= System.Drawing;
+
 
 namespace MoeLoaderP.Wpf.ControlParts
 {
     /// <summary>
     /// 缩略图面板中的图片用户控件
     /// </summary>
-    public partial class MoeItemControl
+    public partial class MoeItemControl : IDisposable
     {
         public MoeItem MoeItem { get; set; }
+
         public Settings Settings { get; set; }
 
         public event Action<MoeItemControl> ImageLoadEnd;
@@ -40,7 +42,7 @@ namespace MoeLoaderP.Wpf.ControlParts
             MoeItem.Site.PropertyChanged += SiteOnPropertyChanged;
             InitVisual();
         }
-
+        
         private void SiteOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MoeSite.IsUserLogin))
@@ -105,23 +107,40 @@ namespace MoeLoaderP.Wpf.ControlParts
         
         public async Task TryLoad()
         {
+            var low = Settings.IsLowPerformanceMode;
             DetailAndImgLoadCts?.Cancel();
             DetailAndImgLoadCts = new CancellationTokenSource();
             var loadingsb = this.Sb("LoadingSb");
             loadingsb.Begin();
             this.Sb("LoadingStartSb").Begin();
-            Task<bool> imgTask = null;
-            Task<bool> detailTask = null;
-            imgTask = LoadDisplayImageAsync(DetailAndImgLoadCts.Token);
-            detailTask = LoadDetailTask(DetailAndImgLoadCts.Token);
-
+            var imgTask = LoadDisplayImageAsync(DetailAndImgLoadCts.Token);
+            var detailTask = LoadDetailTask(DetailAndImgLoadCts.Token);
+            
             bool imgB = false, detailB = false;
+
             try
             {
                 imgB = await imgTask;
             }
-            catch {}
-            if (imgB) { this.Sb("LoadedImageSb").Begin(); }
+            catch
+            {
+                // ignored
+            }
+
+            if (imgB)
+            {
+                if (low)
+                {
+                    this.Sb("LoadedImageSb").Begin();
+                    this.Sb("LoadedImageSb").SkipToFill();
+                }
+                else
+                {
+                    this.Sb("LoadedImageSb").Begin();
+                }
+                
+            }
+            
             else
             {
                 this.Sb("LoadFailSb").Begin();
@@ -131,7 +150,11 @@ namespace MoeLoaderP.Wpf.ControlParts
             {
                 detailB = await detailTask;
             }
-            catch {}
+            catch
+            {
+                // ignored
+            }
+
             if (detailB) MoeItem.CanDownload = true;
             else RefreshButton.Visibility = Visibility.Visible;
 
@@ -165,48 +188,30 @@ namespace MoeLoaderP.Wpf.ControlParts
         /// </summary>
         public async Task<bool> LoadDisplayImageAsync(CancellationToken token)
         {
-            var b = MoeItem.Net == null;
-            var net = b ? new NetOperator(Settings) : MoeItem.Net.CreateNewWithOldCookie();
-            net.SetTimeOut(20);
-            net.SetReferer(MoeItem.ThumbnailUrlInfo.Referer);
+            await using var stream = await MoeItem.TryLoadThumbnailStreamAsync(token);
             var url = MoeItem.ThumbnailUrlInfo.Url;
-            var response = await net.Client.GetAsync(url, token);
-            await using var stream = await response.Content.ReadAsStreamAsync(token);
-            var source = await Task.Run(delegate
+            if (stream == null) return false;
+            BitmapImage GetBitmapFunc()
             {
-                try
-                {
-                    return UiFunc.SaveLoadBitmapImage(stream);
-                }
-                catch (IOException)
-                {
-                    try
-                    {
-                        var bitmap = new draw.Bitmap(stream);
-                        var ms = new MemoryStream();
-                        bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
-                        return UiFunc.SaveLoadBitmapImage(ms);
-                    }
-                    catch (Exception ex)
-                    {
-                        Ex.Log($"{url} Image Bitmap Load Fail", ex.Message);
-                        return null;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Ex.Log($"{url} Image SaveLoadBitmapImage Load Fail",ex.Message);
-                    return null;
-                }
-            }, token);
-
-            if (source != null)
-            {
-                PreviewImage.Source = source;
-                return true;
+                return UiFunc.GetBitmapImageFromStream(stream);
             }
 
-            return false;
+            var bitimg = await Task.Run(GetBitmapFunc, token);
+            if (bitimg == null) return false;
+            PreviewImage.Source = bitimg;
+            if (!Settings.IsLowPerformanceMode)
+            {
+                ImageBgBorder.Background = new ImageBrush(bitimg) { Stretch = Stretch.UniformToFill };
+            }
+
+            return true;
         }
+        
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
+        
     }
 }

@@ -7,7 +7,6 @@ namespace MoeLoaderP.Core.Sites
     public class KonachanSite : MoeSite
     {
         public override string HomeUrl => "https://konachan.com";
-        public string SafeHomeUrl => "https://konachan.net";
         public override string DisplayName => "Konachan";
         public override string ShortName => "konachan";
         
@@ -24,20 +23,21 @@ namespace MoeLoaderP.Core.Sites
             };
         }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
-            var homeUrl = para.IsShowExplicit ? HomeUrl : SafeHomeUrl;
+            //var homeUrl = para.IsShowExplicit ? HomeUrl : SafeHomeUrl;
+            var homeUrl = HomeUrl ;
             var pairs = new Pairs
                 {
-                    {"page",$"{para.StartPageIndex}" },
-                    {"limit",$"{para.Count}" },
+                    {"page",$"{para.PageIndex}" },
+                    {"limit",$"{para.CountLimit}" },
                     {"tags",para.Keyword.ToEncodedUrl() }
                 };
 
             var query = $"{homeUrl}/post.json{pairs.ToPairsString()}";
             var net = new NetOperator(Settings);
             var json = await net.GetJsonAsync(query, token);
-            var imageItems = new MoeItems();
+            var imageItems = new SearchedPage();
             foreach (var item in Ex.GetList(json))
             {
 
@@ -94,5 +94,12 @@ namespace MoeLoaderP.Core.Sites
 
             return items;
         }
+    }
+
+    public class KonachanNetSite : KonachanSite
+    {
+        public override string HomeUrl => "https://konachan.net";
+        public override string DisplayName => "Konachan-G";
+        public override string ShortName => "konachan";
     }
 }

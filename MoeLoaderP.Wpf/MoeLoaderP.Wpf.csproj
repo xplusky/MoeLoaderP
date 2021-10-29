@@ -66,6 +66,7 @@
   <ItemGroup>
     <None Remove="Assets\banner2.png" />
     <None Remove="Assets\SiteIcon\default.png" />
+    <None Remove="Assets\SiteIcon\deviantart.ico" />
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
@@ -99,6 +100,7 @@
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\3dBooru.ico" />
     <Resource Include="Assets\SiteIcon\default.png" />
+    <Resource Include="Assets\SiteIcon\deviantart.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\donmai.ico" />
@@ -150,12 +152,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentWPF">
-      <Version>0.10.0</Version>
+      <Version>0.10.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.961.33" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1020.30" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="5.0.2" />
-    <PackageReference Include="XamlAnimatedGif" Version="2.0.1" />
+    <PackageReference Include="XamlAnimatedGif" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\fa-solid-900.ttf" />

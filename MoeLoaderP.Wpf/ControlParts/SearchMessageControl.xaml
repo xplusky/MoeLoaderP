@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="MoeLoaderP.Wpf.ControlParts.SearchMessageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MoeLoaderP.Wpf.ControlParts"
+             mc:Ignorable="d" 
+             d:DesignHeight="144.728" d:DesignWidth="524.184" Foreground="Black">
+    <UserControl.Resources>
+        <Storyboard x:Key="ShowSb">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BgGrid" Storyboard.TargetProperty="(UIElement.Opacity)">
+                <EasingDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BgGrid" Storyboard.TargetProperty="(FrameworkElement.Height)">
+                <EasingDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:00.3000000" Value="18"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="HideSb">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BgGrid" Storyboard.TargetProperty="(FrameworkElement.Height)">
+                <EasingDoubleKeyFrame KeyTime="00:00:00" Value="18"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:00.5000000" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BgGrid" Storyboard.TargetProperty="(UIElement.Opacity)">
+                <EasingDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:00.5000000" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <Grid x:Name="BgGrid" Background="#4CFFFFFF" Height="18" HorizontalAlignment="Left">
+        <TextBlock x:Name="MessageTextBlock" Text="TextBlock" TextWrapping="NoWrap" VerticalAlignment="Center" Margin="4,2,4,2"/>
+
+    </Grid>
+</UserControl>

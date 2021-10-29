@@ -34,14 +34,12 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public NetOperator ThumbnailListNet { get; set; }
-
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             Net ??= new NetOperator(Settings);
             var net = Net.CreateNewWithOldCookie();
             var cat = CustomConfig.Categories[para.Lv2MenuIndex];
-            var api = para.StartPageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
+            var api = para.PageIndex <= 1 ? cat.FirstPageApi : cat.FollowUpPageApi;
             if (!para.Keyword.IsEmpty())
             {
                 if (cat.OverrideSearchApi == null)
@@ -49,12 +47,12 @@ namespace MoeLoaderP.Core.Sites
                     api = CustomConfig.SearchApi.Replace("{keyword}", para.Keyword.ToEncodedUrl());
                 }
             }
-            var rapi = api.Replace("{pagenum}", $"{para.StartPageIndex}").Replace("{pagenum-1}", $"{para.StartPageIndex-1}");
+            var rapi = api.Replace("{pagenum}", $"{para.PageIndex}").Replace("{pagenum-1}", $"{para.PageIndex-1}");
             var html = await net.GetHtmlAsync(rapi, token);
             if (html == null) return null;
             var pa = cat.OverridePagePara ?? CustomConfig.PagePara;
             var list = (HtmlNodeCollection)html.DocumentNode.GetValue(pa.ImagesList);
-            var moes = new MoeItems();
+            var moes = new SearchedPage();
             if (!(list?.Count > 0)) return moes;
             foreach (var item in list)
             {
@@ -67,12 +65,6 @@ namespace MoeLoaderP.Core.Sites
                 var detail = item.GetValue(pa.ImageItemDetailUrl);
                 moe.DetailUrl = detail;
                 moe.GetDetailTaskFunc += (t) => GetDetail(moe.DetailUrl, moe, pa, true, t);
-                if (ThumbnailListNet == null)
-                {
-                    ThumbnailListNet = Net.CreateNewWithOldCookie();
-                    ThumbnailListNet.SetTimeOut(30);
-                }
-                moe.Net = ThumbnailListNet;
                 if (pa.ImageItemDateTime != null)
                 {
                     var date = item.GetValue(pa.ImageItemDateTime);
@@ -105,7 +97,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var newItems = new MoeItems();
             var net = Net.CreateNewWithOldCookie();
-            var html = await net.GetHtmlAsync(url, token);
+            var html = await net.GetHtmlAsync(url, token, showSearchMessage:false);
             if (html == null) return newItems;
             var root = html.DocumentNode;
             var imgOrImgs = root.GetValue(pa.DetailImagesList);
@@ -191,7 +183,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var url = currentItem.DetailUrl;
             var net = Net.CreateNewWithOldCookie();
-            var html = await net.GetHtmlAsync(url, token);
+            var html = await net.GetHtmlAsync(url, token, showSearchMessage:false);
             if (pa.DetailLv2ImageOriginUrl != null)
             {
                 var originUrl = html.DocumentNode.GetValue(pa.DetailLv2ImageOriginUrl);

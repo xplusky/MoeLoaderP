@@ -43,7 +43,7 @@ namespace MoeLoaderP.Core.Sites
             Lv2Cat = new Categories()
             {
                 new("最新/搜索"),
-                new Category()
+                new()
                 {
                     Name = "收藏",
                     OverrideConfig = new MoeSiteConfig()
@@ -133,14 +133,14 @@ namespace MoeLoaderP.Core.Sites
         }
 
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             return await GetNewAndTagAsync(para, token);
         }
 
-        public async Task<MoeItems> GetNewAndTagAsync(SearchPara para, CancellationToken token)
+        public async Task<SearchedPage> GetNewAndTagAsync(SearchPara para, CancellationToken token)
         {
-            var imgs = new MoeItems();
+            var page = new SearchedPage();
             if (Net == null) Login();
             var net = CloneNet();
             net.SetReferer(BetaApi);
@@ -158,8 +158,8 @@ namespace MoeLoaderP.Core.Sites
             var pairs = new Pairs
             {
                 { "lang", "en" },
-                { "next", $"{para.NextPageMark}" },
-                { "limit", $"{para.Count}" },
+                { "next", $"{para.PageIndexCursor}" },
+                { "limit", $"{para.CountLimit}" },
                 { "hide_posts_in_books", "in-larger-tags" },
                 { "default_threshold", "1" },
 
@@ -208,12 +208,11 @@ namespace MoeLoaderP.Core.Sites
             var json = await net.GetJsonAsync($"{Api}/posts/keyset", token, pairs);
             if (json == null) return null;
             //if($"{json.suce}")
-            para.NextPageMark = $"{json.meta?.next}";
+            page.NextPageIndexCursor = $"{json.meta?.next}";
             foreach (var jitem in Ex.GetList(json.data))
             {
                 var img = new MoeItem(this, para)
                 {
-                    Net = CloneNet(),
                     Id = $"{jitem.id}".ToInt(),
                     Width = $"{jitem.width}".ToInt(),
                     Height = $"{jitem.height}".ToInt(),
@@ -240,10 +239,10 @@ namespace MoeLoaderP.Core.Sites
 
                 img.OriginString = $"{jitem}";
 
-                imgs.Add(img);
+                page.Add(img);
             }
 
-            return imgs;
+            return page;
         }
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
@@ -255,7 +254,7 @@ namespace MoeLoaderP.Core.Sites
             var pairs = new Pairs
             {
                 { "lang", "en" },
-                { "tag", para.Keyword.ToEncodedUrl() },
+                { "tag", para.Keyword.Trim().ToEncodedUrl() },
                 { "target", "post" },
                 { "show_meta", "1" }
             };

@@ -1,0 +1,36 @@
+﻿<Window x:Class="MoeLoaderP.Wpf.LogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MoeLoaderP.Wpf"
+        xmlns:fluentWpf="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+        mc:Ignorable="d"
+        Title="日志" Height="326" Width="484"
+        fluentWpf:AcrylicWindow.Enabled="True"
+        fluentWpf:AcrylicWindow.AcrylicWindowStyle="NoIcon"
+        fluentWpf:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}" 
+        Background="#4CFFFFFF"
+        >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="32"/>
+        </Grid.RowDefinitions>
+        <ListBox x:Name="LogListBox" 
+                 ScrollViewer.CanContentScroll="False"
+                 Style="{DynamicResource MoeListBoxTemplate}" 
+                 BorderBrush="{x:Null}" Background="#CCFFFFFF" 
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden" SelectionMode="Extended">
+            <ListBox.ItemTemplate>
+                <DataTemplate >
+                    <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="CopyButton" Content="复制" Template="{DynamicResource MoeButtonControlTemplate}" Margin="8,0,8,0" Width="96" Height="28" IsEnabled="False"/>
+            <Button x:Name="ClearButton" Content="清除" Template="{DynamicResource MoeButtonControlTemplate}" Margin="8,0,8,0" Width="96" Height="28"/>
+        </StackPanel>
+    </Grid>
+</Window>

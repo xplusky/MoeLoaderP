@@ -226,6 +226,7 @@
                             ToolTip="打开背景图片文件夹" VerticalAlignment="Center" Margin="0,0,4,0" />
                     </StackPanel>
                     <CheckBox x:Name="IsEnableAcrylicStyleCheckBox" Content="显示亚克力毛玻璃效果" IsChecked="{Binding IsEnableAcrylicStyle}" Margin="0,4,0,0"/>
+                    <CheckBox x:Name="IsEnableLowPerformanceMode" Content="低性能模式（去除动画等效果）" IsChecked="{Binding IsLowPerformanceMode}" Margin="0,4,0,0"/>
                 </StackPanel>
             </GroupBox>
 

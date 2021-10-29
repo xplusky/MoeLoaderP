@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -165,7 +166,11 @@ namespace MoeLoaderP.Core
             return id;
         }
 
-        public static string ToEncodedUrl(this string orgStr) => HttpUtility.UrlEncode(orgStr, Encoding.UTF8);
+        public static string ToEncodedUrl(this string orgStr)
+        {
+            var str = HttpUtility.UrlEncode(orgStr, Encoding.UTF8);
+            return str.Replace("+", "%20");
+        }
 
         public static string ToDecodedUrl(this string orgStr) => HttpUtility.UrlDecode(orgStr, Encoding.UTF8);
 
@@ -245,21 +250,40 @@ namespace MoeLoaderP.Core
 
         public static void Log(params object[] objs)
         {
-            var str = $"{DateTime.Now:yyMMdd-HHmmss-ff}>>{objs.Aggregate((o, o1) => $"{o}\r\n{o1}")}";
+            var result = "";
+            foreach (var obj in objs)
+            {
+                if($"{obj}".IsEmpty()) continue;
+                result += $"{obj}\r\n";
+            }
+
+            var str = $"{DateTime.Now:yyMMdd-HHmmss-ff}>>{result[..^2]}";
             Debug.WriteLine(str);
+            LogCollection.Add(str);
+            if (LogCollection.Count > 800) LogCollection.RemoveAt(0);
             LogAction?.Invoke(str);
         }
-        public static event Action<string, string, MessagePos> ShowMessageAction;
 
-        public static Action<string> LogAction;
+        public static ObservableCollection<string> LogCollection { get; set; } = new();
+
+        public static event Action<string, string, MessagePos, bool> ShowMessageAction;
+
+        public static Action<string> LogAction { get; set; }
 
         /// <summary>
         /// 显示信息
         /// </summary>
-        public static void ShowMessage(string message, string detailMes = null, MessagePos pos = MessagePos.Popup)
+        public static void ShowMessage(string message, string detailMes = null, MessagePos pos = MessagePos.Popup, bool isHighLight = false)
         {
-            Log(message, detailMes);
-            ShowMessageAction?.Invoke(message, detailMes, pos);
+            if (detailMes == null)
+            {
+                Log(message);
+            }
+            else
+            {
+                Log(message, detailMes);
+            }
+            ShowMessageAction?.Invoke(message, detailMes, pos, isHighLight);
         }
 
         public enum MessagePos

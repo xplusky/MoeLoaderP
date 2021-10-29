@@ -76,12 +76,12 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             if (!IsUserLogin) await Login(token);
             if (!IsUserLogin) return null;
 
-            var imgs = new MoeItems();
+            var imgs = new SearchedPage();
             string query;
             if (para.Keyword.IsEmpty()) // by new
             {
@@ -94,7 +94,7 @@ namespace MoeLoaderP.Core.Sites
                 // popular
                 // wall http://gallery.minitokyo.net/wallpapers?order=favorites&display=thumbnails&page=2
                 // scan http://gallery.minitokyo.net/scans?display=thumbnails&order=favorites&page=2
-                query = $"{HomeGalleryUrl}/{GetSort(para)}?order={GetOrder(para)}&display=thumbnails&page={para.StartPageIndex}";
+                query = $"{HomeGalleryUrl}/{GetSort(para)}?order={GetOrder(para)}&display=thumbnails&page={para.PageIndex}";
 
             }
             else

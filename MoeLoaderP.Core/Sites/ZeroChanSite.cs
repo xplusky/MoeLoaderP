@@ -33,7 +33,7 @@ namespace MoeLoaderP.Core.Sites
 
         }
         
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             var net = GetNet();
 
@@ -60,12 +60,12 @@ namespace MoeLoaderP.Core.Sites
                 }
             }
             
-            pairs.Add("p",para.StartPageIndex.ToString());
+            pairs.Add("p",para.PageIndex.ToString());
             
             var doc = await net.GetHtmlAsync(url, token,pairs);
 
             // images
-            var imgs = new MoeItems();
+            var imgs = new SearchedPage();
             var nodes = doc.DocumentNode.SelectSingleNode("//ul[@id='thumbs2']").SelectNodes(".//li");
             if (nodes == null) return null;
 

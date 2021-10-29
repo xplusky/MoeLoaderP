@@ -1,166 +1,101 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
-using MoeLoaderP.Core.Sites;
+using MoeLoaderP.Helper;
 using MoeLoaderP.Wpf.ControlParts;
 
 namespace MoeLoaderP.Wpf
 {
     public partial class MainWindow
     {
-        private Settings Settings { get; set; }
-        private SiteManager SiteManager { get; set; }
-        private SearchSession CurrentSearch { get; set; }
-        public PreviewWindow PreviewWindowInstance { get; set; }
-        
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        private Settings Settings { get; set; }
+
+        public EggWindow EggWindowInst { get; set; }
+        public LogWindow LogWindowInst { get; set; }
+
+        private int LogoClickCount { get; set; }
+
         public void Init(Settings settings)
         {
             Settings = settings;
-            SiteManager = new SiteManager(Settings);
-
             DataContext = Settings;
             Closing += OnClosing;
             PreviewKeyDown += OnPreviewKeyDown;
             MouseLeftButtonDown += delegate { DragMove(); };
             Ex.ShowMessageAction += ShowMessage;
 
-            // logo / menu : setting ,downloader, about
-            DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
-            DownloaderMenuCheckBox.Unchecked += DownloaderMenuCheckBoxCheckChanged;
-            MoeDownloaderControl.Init(Settings);
-            MoeSettingsControl.Init(Settings);
-            AboutControl.Init();
+            // logo
             LogoImageButton.MouseRightButtonDown += LogoImageButtonOnMouseRightButtonDown;
 
-            // explorer
-            MoeExplorer.Settings = Settings;
-            MoeExplorer.NextPageButton.Click += NextPageButtonOnClick;
-            MoeExplorer.ImageItemDownloadButtonClicked += MoeExplorerOnImageItemDownloadButtonClicked;
-            MoeExplorer.DownloadSelectedImagesButton.Click += DownloadSelectedImagesButtonOnClick;
-            MoeExplorer.SearchByAuthorIdAction += SearchByAuthorIdAction;
-            MoeExplorer.MoeItemPreviewButtonClicked += MoeExplorerOnMoeItemPreviewButtonClicked;
-            
-            // search ctrl
-            SearchControl.Init(SiteManager, Settings);
-            SearchControl.SearchButton.Click += SearchButtonOnClick;
-            SearchControl.AccountButton.Click += AccountButtonOnClick;
-            SearchControl.KeywordTextBox.KeyDown += OnKeywordTextBoxOnKeyDown;
+            // menu
+            DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
+            DownloaderMenuCheckBox.Unchecked += DownloaderMenuCheckBoxCheckChanged;
+
+
+            // user ctrl
+            AboutControl.Init();
+            SearchControl.Init(Settings);
+            MoeDownloaderControl.Init(Settings);
+            MoeSettingsControl.Init(Settings);
+            MoeExplorer.Init(Settings);
 
             // helper : collect ,log
-            MoeExplorer.OutputSelectedImagesUrlsButton.Click += OutputSelectedImagesUrlsButtonOnClick;
-            CollectCopyAllButton.Click += delegate { CollectTextBox.Text.CopyToClipboard(); }; 
+            CollectCopyAllButton.Click += delegate { CollectTextBox.Text.CopyToClipboard(); };
             CollectClearButton.Click += delegate { CollectTextBox.Text = string.Empty; };
-            Ex.LogAction += Log;
-            LogListBox.MouseRightButtonUp += LogListBoxOnMouseRightButtonUp;
+            LogButton.Click += delegate
+            {
+                if (LogWindowInst == null)
+                {
+                    LogWindowInst = new LogWindow();
+                    LogWindowInst.Init(settings);
+                    LogWindowInst.Show();
+                    LogWindowInst.Closed += delegate { LogWindowInst = null; };
+                }
+                else
+                {
+                    LogWindowInst.Activate();
+                }
+                
+            };
+
+            //LogListBox.MouseRightButtonUp += LogListBoxOnMouseRightButtonUp;
             ImageSizeSlider.MouseWheel += ImageSizeSliderOnMouseWheel;
             // egg
             LogoImageButton.Click += LogoImageButtonOnClick;
 
-            // settings
-            MoeSettingsControl.BgImageChangeButton.Click += delegate { ChangeBgImage(); };
-            ChangeBgImage();
-            
             // gen custom test 请删除后运行
             if (Debugger.IsAttached)
             {
-                var cus = new Helper.CustomSiteFactory();
+                var cus = new CustomSiteFactory();
                 cus.GenTestSites();
                 cus.OutputJson(App.CustomSiteDir);
-            }
-
-            Settings.PropertyChanged += SettingsOnPropertyChanged;
-        }
-
-        private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Settings.IsCustomSiteMode))
-            {
-                SiteManager.Sites.Clear();
-                if (Settings.IsCustomSiteMode) SiteManager.SetCustomSitesFormJson(App.CustomSiteDir);
-                else SiteManager.SetDefaultSiteList();
-            }
-        }
-
-        private void OnKeywordTextBoxOnKeyDown(object sender, KeyEventArgs args)
-        {
-            if (args.Key == Key.Enter)
-            {
-                SearchButtonOnClick(sender, args);
-                SearchControl.KeywordPopup.IsOpen = false;
             }
         }
 
         private void LogoImageButtonOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             Settings.IsCustomSiteMode = !Settings.IsCustomSiteMode;
-            LayoutRoot.GoElementState(Settings.IsCustomSiteMode ? nameof(CustomSitesState): nameof(DefaultSitesState));
+            LayoutRoot.GoElementState(Settings.IsCustomSiteMode ? nameof(CustomSitesState) : nameof(DefaultSitesState));
             LogoImage.Visibility = Settings.IsCustomSiteMode ? Visibility.Collapsed : Visibility.Visible;
             LogoImage2.Visibility = Settings.IsCustomSiteMode ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void MoeExplorerOnMoeItemPreviewButtonClicked(MoeItem item, ImageSource imgSource)
-        {
-            PreviewWindow.Show(PreviewWindowInstance,this,item,imgSource);
-
-        }
-
-        private void OutputSelectedImagesUrlsButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            foreach (var ctrl in MoeExplorer.SelectedImageControls)
-            {
-                var url = ctrl.MoeItem.DownloadUrlInfo;
-                if (ctrl.MoeItem.ChildrenItems.Count > 0)
-                {
-                    foreach (var item in ctrl.MoeItem.ChildrenItems)
-                    {
-                        CollectTextBox.Text += item.DownloadUrlInfo?.Url + Environment.NewLine;
-                    }
-                }
-                else CollectTextBox.Text += url?.Url + Environment.NewLine;
-            }
-
-            foreach(MoeItemControl ct in MoeExplorer.ImageItemsWrapPanel.Children) 
-                ct.ImageCheckBox.IsChecked = false;
-
-            Ex.ShowMessage("已添加至收集箱");
-        }
-        
-        private async void AccountButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            var wnd = new LoginWindow();
-            await wnd.Init(Settings, SearchControl.CurrentSelectedSite);
-            try
-            {
-                wnd.Owner = this;
-                wnd.ShowDialog();
-                SearchControl.Refresh();
-            }
-            catch (Exception ex)
-            {
-                Ex.Log(ex);
-            }
-        }
 
         private void LogListBoxOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-
-            if (LogListBox.SelectedIndex == -1) return;
-            if (LogListBox.SelectedItem is TextBlock tb) tb.Text.CopyToClipboard();
+            //if (LogListBox.SelectedIndex == -1) return;
+            //if (LogListBox.SelectedItem is TextBlock tb) tb.Text.CopyToClipboard();
         }
-
-        private int LogoClickCount { get; set; }
 
         private void LogoImageButtonOnClick(object sender, RoutedEventArgs e)
         {
@@ -194,7 +129,7 @@ namespace MoeLoaderP.Wpf
                 case 80:
                     ShowMessage("你不信吗？？？？(*｀Ω´*)v");
                     break;
-                case > 90 and < 120 when LogoClickCount % 3==0:
+                case > 90 and < 120 when LogoClickCount % 3 == 0:
                     ShowMessage($"{(121 - LogoClickCount) / 3}!!");
                     break;
                 case 130:
@@ -216,8 +151,9 @@ namespace MoeLoaderP.Wpf
                     ShowMessage("看招！！！！！！");
                     break;
                 case 190:
-                    ShowMessage("嘿！！！！开始啦！！！看看我的无敌雪景！！");
-                    new EggWindow().Show();
+                    ShowMessage("嘿！！！！开始啦！！！看看我的无敌雪景！！你以后可以按F6来开启和关闭雪景啦");
+                    Settings.IsShowEggWindowOnce = true;
+                    ShowEggWindow();
                     break;
             }
 
@@ -231,51 +167,29 @@ namespace MoeLoaderP.Wpf
             }
         }
 
-        public void ChangeBgImage()
+
+        public void ShowEggWindow()
         {
-            var files = App.BackgroundImagesDir.GetDirFiles()
-                .Where(info => info.Extension.Equals(".png", StringComparison.OrdinalIgnoreCase)).ToArray();
-            if(files.Length == 0) return;
-            var rndfile = files[new Random().Next(0, files.Length)];
-            BgImage.Source = new BitmapImage(new Uri(rndfile.FullName, UriKind.Absolute));
-            BgGridViewBox.Width = 670;
-            BgGridViewBox.Height = 530;
-            BgGridViewBox.HorizontalAlignment = HorizontalAlignment.Right;
-            try
+            if (EggWindowInst is null)
             {
-                var par = rndfile.Name.Remove(rndfile.Name.LastIndexOf(".", StringComparison.Ordinal));
-                BgGridViewBox.SetBgPos(par);
+                EggWindowInst = new EggWindow();
+                EggWindowInst.Show();
             }
-            catch (Exception e)
+            else
             {
-                Ex.Log(e);
+                EggWindowInst.Activate();
             }
         }
 
-        private void SearchByAuthorIdAction(MoeSite arg1, string arg2)
+        public void CloseEggWindow()
         {
-            SearchControl.CurrentSelectedSite = arg1;
-            SearchControl.MoeSitesLv2ComboBox.SelectedIndex = 1;
-            SearchControl.KeywordTextBox.Text = arg2;
-            SearchButtonOnClick(null, null);
+            EggWindowInst?.Close();
+            EggWindowInst = null;
         }
 
-        private void Log(string obj)
-        {
-            Dispatcher.BeginInvoke((Action)delegate
-            {
-                var tb = new TextBlock
-                {
-                    Text = obj
-                };
-                LogListBox.Items.Add(tb);
-                LogListBox.ScrollIntoView(tb);
-                if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
-            });
+        
 
-        }
-
-        private void ShowMessage(string mes, string detailMes = null, Ex.MessagePos pos = Ex.MessagePos.Popup)
+        private async void ShowMessage(string mes, string detailMes = null, Ex.MessagePos pos = Ex.MessagePos.Popup, bool ishighlight =false)
         {
             switch (pos)
             {
@@ -290,6 +204,14 @@ namespace MoeLoaderP.Wpf
                 case Ex.MessagePos.Window:
                     MessageWindow.ShowDialog(mes, detailMes, this);
                     break;
+                case Ex.MessagePos.Searching:
+                    var mesctrl = new SearchMessageControl();
+                    mesctrl.Set(mes,ishighlight);
+                    SearchMessageStackPanel.Children.Add(mesctrl);
+                    mesctrl.ShowOneTime(6);
+                    await Task.Delay(TimeSpan.FromSeconds(7));
+                    SearchMessageStackPanel.Children.Remove(mesctrl);
+                    break;
             }
         }
 
@@ -299,31 +221,6 @@ namespace MoeLoaderP.Wpf
             LayoutRoot.GoElementState(ischecked ? nameof(ShowDownloadPanelState) : nameof(HideDownloadPanelState));
         }
 
-        private void DownloadSelectedImagesButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            var count = 0;
-            foreach (var ctrl in MoeExplorer.SelectedImageControls)
-            {
-                var img = ctrl.MoeItem;
-                if (img.DownloadUrlInfo?.Url == null) continue;
-                MoeDownloaderControl.Downloader.AddDownload(img, ctrl.PreviewImage.Source);
-                count++;
-            }
-            if (DownloaderMenuCheckBox.IsChecked == false && count>0) DownloaderMenuCheckBox.IsChecked = true;
-            else Ex.ShowMessage("没有图片可以下载T_T");
-            foreach (MoeItemControl ct in MoeExplorer.ImageItemsWrapPanel.Children)
-            {
-                ct.ImageCheckBox.IsChecked = false;
-            }
-
-            var lb = MoeDownloaderControl.DownloadItemsListBox;
-            if (lb.Items.Count != 0)
-            {
-                lb.ScrollIntoView(lb.Items[^1]);
-            }
-
-        }
-
         private void ImageSizeSliderOnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var v = ImageSizeSlider.Value;
@@ -331,90 +228,25 @@ namespace MoeLoaderP.Wpf
             if (v > ImageSizeSlider.Minimum && v < ImageSizeSlider.Maximum) ImageSizeSlider.Value += e.Delta / 5d;
         }
 
-        private void MoeExplorerOnImageItemDownloadButtonClicked(MoeItem item, ImageSource imgSource)
-        {
-            MoeDownloaderControl.Downloader.AddDownload(item, imgSource);
-            var lb = MoeDownloaderControl.DownloadItemsListBox;
-            var ctrl = lb.Items[^1];
-            lb.ScrollIntoView(ctrl);
-            if (DownloaderMenuCheckBox.IsChecked != false) return;
-            DownloaderMenuCheckBox.IsChecked = true;
-        }
-        
+
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
-                case Key.Right:
-                    if (CurrentSearch?.LoadedVisualPages?.Count > 0) NextPageButtonOnClick(this, null);
-                    break;
                 case Key.F1: // 用于测试功能
                     ShowMessage("test");
                     break;
                 case Key.F8:
-                    if (SiteManager.R18Check()) SearchControl.MoeSitesLv1ComboBox.SelectedIndex = 0;
+                    if (Settings.SiteManager.R18Check()) SearchControl.MoeSitesLv1ComboBox.SelectedIndex = 0;
                     break;
-            }
-        }
-        private async void SearchButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            //ChangeBgImage();
-            if (CurrentSearch?.IsSearching == true)
-            {
-                CurrentSearch.StopSearch();
-                ChangeSearchVisual(false);
-                return;
-            }
-            ChangeSearchVisual(true);
-            StatusTextBlock.Text = "";
-
-
-            var para = SearchControl.GenSearchPara();
-            
-            if (!para.Keyword.IsEmpty())
-            {
-                var history = CurrentSearch.CurrentSearchPara.Site.SiteSettings.History;
-                var keys = CurrentSearch.CurrentSearchPara.MultiKeywords;
-                if (keys?.Count > 0)
-                {
-                    foreach (var key in keys)
+                case Key.F7:
+                    if (Settings.IsShowEggWindowOnce) // Settings.IsShowEggWindowOnce
                     {
-                        history.Insert(0, new AutoHintItem { IsHistory = true, Word = key });
+                        if (EggWindowInst is null) ShowEggWindow();
+                        else CloseEggWindow();
                     }
-                }
-                
-                if (history.Count > Settings.HistoryKeywordsMaxCount) history.RemoveAt(Settings.HistoryKeywordsMaxCount - 1);
-                history.Insert(0, new AutoHintItem { IsHistory = true, Word = CurrentSearch.CurrentSearchPara.Keyword });
-            }
-            CurrentSearch = new SearchSession(Settings, para);
-            SiteTextBlock.Text = CurrentSearch.GetCurrentSearchStateText();
 
-
-            MoeExplorer.ResetVisual();
-            var t = await CurrentSearch.TrySearchNextPageAsync();
-            if (t.IsCanceled || t.Exception != null)
-            {
-                if (!CurrentSearch.IsSearching) ChangeSearchVisual(false);
-            }
-            else
-            {
-                ChangeSearchVisual(false);
-                MoeExplorer.AddPage(CurrentSearch);
-            }
-        }
-        private async void NextPageButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            ChangeSearchVisual(true);
-            var t = await CurrentSearch.TrySearchNextPageAsync();
-            if (t.IsCanceled || t.Exception != null)
-            {
-                if (!CurrentSearch.IsSearching) ChangeSearchVisual(false);
-            }
-            else
-            {
-                ChangeSearchVisual(false);
-                if (Settings.IsClearImagesWhenSearchNextPage) MoeExplorer.ResetVisual();
-                MoeExplorer.AddPage(CurrentSearch);
+                    break;
             }
         }
 
@@ -422,25 +254,9 @@ namespace MoeLoaderP.Wpf
         {
             Settings.Save(App.SettingJsonFilePath);
             if (!MoeDownloaderControl.Downloader.IsDownloading) return;
-            var result = MessageBox.Show(this, "正在下载图片，确定要关闭吗？", 
+            var result = MessageBox.Show(this, "正在下载图片，确定要关闭吗？",
                 App.DisplayName, MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.Cancel) e.Cancel = true;
         }
-
-        public void ChangeSearchVisual(bool isSearching)
-        {
-            if (isSearching)
-            {
-                if (CurrentSearch == null) this.Sb("BeginSearchSb").Begin();
-                SearchControl.GoState(nameof(SearchControl.SearchingState));
-                MoeExplorer.SearchStartedVisual();
-            }
-            else
-            {
-                MoeExplorer.SearchStopVisual();
-                SearchControl.GoState(nameof(SearchControl.StopingState));
-            }
-        }
-
     }
 }

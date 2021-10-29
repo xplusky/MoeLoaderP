@@ -30,6 +30,7 @@ namespace MoeLoaderP.Core
             if (x) Sites.Add(new PixivR18Site());
             Sites.Add(new BilibiliSite());
             Sites.Add(new KonachanSite());
+            Sites.Add(new KonachanNetSite());
             Sites.Add(new YandeSite());
             Sites.Add(new SankakuChanSite());
             if (x) Sites.Add(new SankakuIdolSite());

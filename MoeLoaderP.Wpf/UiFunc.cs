@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
+using draw = System.Drawing;
 
 namespace MoeLoaderP.Wpf
 {
@@ -201,7 +202,30 @@ namespace MoeLoaderP.Wpf
             }
         }
 
-        public static BitmapImage SaveLoadBitmapImage(Stream ms)
+        public static BitmapImage GetBitmapImageFromStream(Stream stream)
+        {
+            try
+            {
+                return SafeLoadBitmapImage(stream);
+            }
+            catch (IOException)
+            {
+                try
+                {
+                    return PngLoadBitmapImage(stream);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static BitmapImage SafeLoadBitmapImage(Stream ms)
         {
             var bitimg = new BitmapImage
             {
@@ -214,6 +238,14 @@ namespace MoeLoaderP.Wpf
             bitimg.Freeze();
             //ms.Dispose();
             return bitimg;
+        }
+
+        public static BitmapImage PngLoadBitmapImage(Stream stream)
+        {
+            var bitmap = new draw.Bitmap(stream);
+            var ms = new MemoryStream();
+            bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
+            return SafeLoadBitmapImage(ms);
         }
     }
 }

@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="预览" Height="531.912" Width="867.089" 
         fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}"
-
+fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <ControlTemplate x:Key="PreviewPagingListBoxControlTemplate" TargetType="{x:Type ListBox}">

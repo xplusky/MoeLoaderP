@@ -54,9 +54,9 @@ namespace MoeLoaderP.Core.Sites
             return SiteSettings.GetCookieContainer() != null;
         }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
-            var imgs = new MoeItems();
+            var imgs = new SearchedPage();
             if (para.Keyword.IsEmpty())
             {
                 await SearchByNewOrHot(para, token, imgs);
@@ -72,7 +72,7 @@ namespace MoeLoaderP.Core.Sites
         {
             const string api = "https://api.vc.bilibili.com/link_draw/v2";
             var type = para.Lv3MenuIndex == 0 ? "new" : "hot";
-            var count = para.Count > 20 ? 20 : para.Count;
+            var count = para.CountLimit > 20 ? 20 : para.CountLimit;
             var api2 = "";
             switch (para.Lv2MenuIndex)
             {
@@ -89,7 +89,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 {"category", para.Lv2MenuIndex == 0 ? "all" : (para.Lv2MenuIndex == 1 ? "cos" : "sifu")},
                 {"type", type},
-                {"page_num", $"{para.StartPageIndex - 1}"},
+                {"page_num", $"{para.PageIndex - 1}"},
                 {"page_size", $"{count}"}
             });
 
@@ -131,7 +131,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             var c = $"{json?.data.total_count}".ToInt();
-            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.StartPageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.CountLimit}页", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task SearchByKeyword(SearchPara para, CancellationToken token, MoeItems imgs)
@@ -142,7 +142,7 @@ namespace MoeLoaderP.Core.Sites
             var pairs = new Pairs
             {
                 {"search_type", "photo"},
-                {"page",$"{para.StartPageIndex}" },
+                {"page",$"{para.PageIndex}" },
                 {"order",newOrHotOrder },
                 {"keyword",para.Keyword.ToEncodedUrl() },
                 {"category_id",drawOrPhotoCatId },
@@ -168,7 +168,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             var c = $"{json.data?.numResults}".ToInt();
-            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.StartPageIndex}页，共{c / para.Count}页", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.CountLimit}页", null, Ex.MessagePos.InfoBar);
         }
 
         public async Task GetSearchByKeywordDetailTask(MoeItem img,CancellationToken token,SearchPara para)
@@ -215,7 +215,7 @@ namespace MoeLoaderP.Core.Sites
         public async Task GetSearchByNewOrHotDetailTask(MoeItem img, CancellationToken token, SearchPara para)
         {
             var query = $"https://api.vc.bilibili.com/link_draw/v1/doc/detail?doc_id={img.Id}";
-            var json = await new NetOperator(Settings).GetJsonAsync(query, token);
+            var json = await new NetOperator(Settings).GetJsonAsync(query, token, showSearchMessage: false);
             var item = json.data?.item;
             if (item == null) return;
             foreach (var tag in Ex.GetList(item.tags))

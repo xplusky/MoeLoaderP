@@ -24,7 +24,7 @@ namespace MoeLoaderP.Core.Sites
             };
         }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             if (Net == null) Net = new NetOperator();
 
@@ -32,8 +32,8 @@ namespace MoeLoaderP.Core.Sites
             var url = $"{HomeUrl}/api/photo/list";
             var pairs = new Pairs
             {
-                {"page", $"{para.StartPageIndex}"},
-                {"limit",$"{para.Count}" },
+                {"page", $"{para.PageIndex}"},
+                {"limit",$"{para.CountLimit}" },
                 {"sort", "created_at"},
                 {"direction","descend" }
             };
@@ -44,15 +44,15 @@ namespace MoeLoaderP.Core.Sites
                 url =  $"{HomeUrl}/api/photo/search";
                 pairs = new Pairs
                 {
-                    {"page", $"{para.StartPageIndex}"},
-                    {"rows",$"{para.Count}" },
+                    {"page", $"{para.PageIndex}"},
+                    {"rows",$"{para.CountLimit}" },
                     {"q", para.Keyword.ToEncodedUrl()}
                 };
             }
             
             // images
 
-            var imgs = new MoeItems();
+            var imgs = new SearchedPage();
             var json = await Net.GetJsonAsync(url, token, pairs);
             if (json?.list == null) return imgs;
             foreach (var jitem in json.list)

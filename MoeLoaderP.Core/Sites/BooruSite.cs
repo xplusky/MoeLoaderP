@@ -71,7 +71,7 @@ namespace MoeLoaderP.Core.Sites
 
         public virtual Func<MoeItem,SearchPara, CancellationToken, Task> GetDetailTaskFunc { get; set; } 
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             return SiteType switch
             {
@@ -81,12 +81,12 @@ namespace MoeLoaderP.Core.Sites
             };
         }
 
-        public async Task<MoeItems> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)
+        public async Task<SearchedPage> GetRealPageImagesAsyncFromXml(SearchPara para, CancellationToken token)
         {
             var net = new NetOperator(Settings);
             var query = GetPageQuery(para);
             var xml =await net.GetXDocAsync(query, token);
-            var imageItems = new MoeItems();
+            var imageItems = new SearchedPage();
             if (xml.Root == null) return imageItems;
             foreach (var post in xml.Root.Elements())
             {
@@ -122,18 +122,18 @@ namespace MoeLoaderP.Core.Sites
 
             var count = xml.Root.Attribute("count")?.Value.ToInt();
             var offset = xml.Root.Attribute("offset")?.Value.ToInt();
-            Ex.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.StartPageIndex}页，共{count / para.Count}页", null, Ex.MessagePos.InfoBar);
+            Ex.ShowMessage($"共搜索到{count}张图片，当前第{offset+1}张，第{para.PageIndex}页，共{count / para.CountLimit}页", null, Ex.MessagePos.InfoBar);
             return imageItems;
         }
 
-        public async Task<MoeItems> GetRealPageImagesAsyncFromJson(SearchPara para, CancellationToken token)
+        public async Task<SearchedPage> GetRealPageImagesAsyncFromJson(SearchPara para, CancellationToken token)
         {
             var list = await new NetOperator(Settings).GetJsonAsync(GetPageQuery(para), token);
 
             return await Task.Run(() =>
             {
                 token.ThrowIfCancellationRequested();
-                var imageItems = new MoeItems();
+                var imageItems = new SearchedPage();
                 if (list == null) return imageItems;
                 foreach (var item in list)
                 {

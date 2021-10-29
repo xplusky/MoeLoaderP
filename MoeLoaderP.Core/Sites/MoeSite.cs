@@ -55,7 +55,8 @@ namespace MoeLoaderP.Core.Sites
         /// <summary>
         /// 异步获取图片列表，开发者需实现该功能
         /// </summary>
-        public abstract Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token);
+        public abstract Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token);
+        
 
         /// <summary>
         /// 获取关键词自动提示列表
@@ -115,7 +116,7 @@ namespace MoeLoaderP.Core.Sites
     {
         public MirrorSiteConfigs()
         {
-            var msc = new MirrorSiteConfig()
+            var msc = new MirrorSiteConfig
             {
                 Name = "(不使用镜像）",
                 IsDefault = true
@@ -162,6 +163,8 @@ namespace MoeLoaderP.Core.Sites
         public bool IsR18Site { get; set; } = false;
         public bool IsCustomSite { get; set; }
         public ImageOrders ImageOrders { get; set; }
+
+        public int? MaxCountLimitPerPage { get; set; }
     }
 
     
@@ -241,14 +244,6 @@ namespace MoeLoaderP.Core.Sites
             });
         }
         
-        public Categories(params Category[] items)
-        {
-            foreach (var item in items)
-            {
-                Add(item);
-            }
-        }
-
         public Categories(params string[] itemsNames)
         {
             foreach (var item in itemsNames)

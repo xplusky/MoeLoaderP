@@ -369,12 +369,12 @@
                         <TextBlock
                             x:Name="SearchButtonTextBlock"
                             VerticalAlignment="Center"
-                            Text="{DynamicResource TextSearchControlSearch}" 
+                            Text="获取" 
                             FontSize="14" />
                         <TextBlock
                             x:Name="SearchButtonStopTextBlock"
                             VerticalAlignment="Center"
-                            Text="获取" FontSize="14" Margin="0,0.11" Opacity="0" />
+                            Text="停止" FontSize="14" Margin="0,0.11" Opacity="0" />
                     </Grid>
                 </StackPanel>
             </Button>

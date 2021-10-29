@@ -61,14 +61,14 @@ namespace MoeLoaderP.Core.Sites
             _idolQuery = $"{loginhost}/post/index.json?login={tempuser}&password_hash={temppass}&appkey={tempappkey}&";
         }
 
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             if (!IsUserLogin) await LoginAsync(token);
-            if (!IsUserLogin) return new MoeItems();
-            var query = $"{_idolQuery}page={para.StartPageIndex}&limit={para.Count}&tags={para.Keyword.ToEncodedUrl()}";
+            if (!IsUserLogin) return new SearchedPage();
+            var query = $"{_idolQuery}page={para.PageIndex}&limit={para.CountLimit}&tags={para.Keyword.ToEncodedUrl()}";
             var list = await Net.GetJsonAsync(query, token);
-            if (list == null) return new MoeItems {Message = "获取Json失败"};
-            var imgs = new MoeItems();
+            if (list == null) return new SearchedPage { Message = "获取Json失败"};
+            var imgs = new SearchedPage();
             const string https = "https:";
             foreach (var item in list)
             {
@@ -85,7 +85,6 @@ namespace MoeLoaderP.Core.Sites
                     img.Tags.Add($"{tag.name}");
                 }
                 img.IsExplicit = $"{item.rating}" == "e";
-                img.Net = Net.CreateNewWithOldCookie();
                 img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{https}{item.preview_url}", img.DetailUrl);
                 img.Urls.Add(DownloadTypeEnum.Medium, $"{https}{item.sample_url}", img.DetailUrl);
                 img.Urls.Add(DownloadTypeEnum.Origin, $"{https}{item.file_url}", img.DetailUrl);

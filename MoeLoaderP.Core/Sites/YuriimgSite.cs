@@ -102,18 +102,18 @@ namespace MoeLoaderP.Core.Sites
         }
 
         
-        public override async Task<MoeItems> GetRealPageImagesAsync(SearchPara para, CancellationToken token)
+        public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             if (Net == null) Net = new NetOperator(Settings);
             const string api = "https://api.yuriimg.com/posts";
             var pairs = new Pairs
             {
-                {"page", $"{para.StartPageIndex}"},
+                {"page", $"{para.PageIndex}"},
                 {"tags",para.Keyword.ToEncodedUrl() }
             };
             var json = await Net.GetJsonAsync(api, token, pairs);
             if (json?.posts == null) return null;
-            var imgs = new MoeItems();
+            var imgs = new SearchedPage();
             foreach (var post in json.posts)
             {
                 var img = new MoeItem(this, para);
