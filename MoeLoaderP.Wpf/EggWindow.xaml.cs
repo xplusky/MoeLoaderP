@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using MoeLoaderP.Core;
 
 namespace MoeLoaderP.Wpf
 {
@@ -36,7 +37,8 @@ namespace MoeLoaderP.Wpf
         {
             var hwnd = new WindowInteropHelper(this).Handle;
             var extendedStyle = GetWindowLong(hwnd, GwlExstyle);
-            SetWindowLong(hwnd, GwlExstyle, extendedStyle | WsExTransparent | WsExToolwindow);
+            var result = SetWindowLong(hwnd, GwlExstyle, extendedStyle | WsExTransparent | WsExToolwindow);
+            Ex.Log(result);
         }
     }
 

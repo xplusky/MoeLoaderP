@@ -55,7 +55,7 @@ namespace MoeLoaderP.Core.Sites
         public async Task GetDetailTask(MoeItem img, string id, CancellationToken token = new())
         {
             var api = $"https://api.yuriimg.com/post/{id}";
-            var json = await Net.GetJsonAsync(api, token);
+            var json = await Net.GetJsonAsync(api, token: token);
             if (json == null) return;
             img.Score = $"{json.praise}".ToInt();
             img.Date = $"{json.format_date}".ToDateTime();
@@ -77,7 +77,7 @@ namespace MoeLoaderP.Core.Sites
             if ($"{json.page_count}".ToInt() > 1)
             {
                 var q = $"{api}/multi";
-                var json2 = await Net.GetJsonAsync(q, token);
+                var json2 = await Net.GetJsonAsync(q, token: token);
 
                 var child1 = new MoeItem(this,img.Para);
                 child1.Width = img.Width;
@@ -111,7 +111,7 @@ namespace MoeLoaderP.Core.Sites
                 {"page", $"{para.PageIndex}"},
                 {"tags",para.Keyword.ToEncodedUrl() }
             };
-            var json = await Net.GetJsonAsync(api, token, pairs);
+            var json = await Net.GetJsonAsync(api, pairs,token : token);
             if (json?.posts == null) return null;
             var imgs = new SearchedPage();
             foreach (var post in json.posts)

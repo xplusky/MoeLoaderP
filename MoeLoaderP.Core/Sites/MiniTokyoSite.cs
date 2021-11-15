@@ -13,8 +13,8 @@ namespace MoeLoaderP.Core.Sites
     {
         public override string HomeUrl => "http://www.minitokyo.net";
 
-        public string HomeGalleryUrl => "http://gallery.minitokyo.net";
-        public string HomeBrowseUrl => "http://browse.minitokyo.net";
+        public static string HomeGalleryUrl => "http://gallery.minitokyo.net";
+        public static string HomeBrowseUrl => "http://browse.minitokyo.net";
         public override string DisplayName => "MiniTokyo";
 
         public override string ShortName => "minitokyo";
@@ -22,13 +22,13 @@ namespace MoeLoaderP.Core.Sites
         private readonly string[] _user = { "miniuser2", "miniuser3" };
         private readonly string[] _pass = { "minipass", "minipass3" };
 
-        public string GetSort(SearchPara para)
+        public static string GetSort(SearchPara para)
         {
             var sorts = new[] {"wallpapers", "scans", "mobile", "indy-art"};
             return sorts[para.Lv2MenuIndex];
         }
 
-        public string GetOrder(SearchPara para)
+        public static string GetOrder(SearchPara para)
         {
             var orders = new[] { "id", "favorites" };
             return orders[para.Lv3MenuIndex];
@@ -169,7 +169,7 @@ namespace MoeLoaderP.Core.Sites
             for (var i = 0; i < lines.Length && i < 8; i++)
             {
                 if (lines[i].IsEmpty()) continue;
-                items.Add(lines[i].Substring(0, lines[i].IndexOf('|')).Trim());
+                items.Add(lines[i][..lines[i].IndexOf('|')].Trim());
             }
             return items;
         }

@@ -23,7 +23,7 @@ namespace MoeLoaderP.Core.Sites
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var ahis = new AutoHintItems();
-            var jsonlist = await new NetOperator(Settings).GetJsonAsync(GetHintQuery(para), token);
+            var jsonlist = await new NetOperator(Settings).GetJsonAsync(GetHintQuery(para), token: token);
             foreach (var item in Ex.GetList(jsonlist))
             {
                 ahis.Add(new AutoHintItem

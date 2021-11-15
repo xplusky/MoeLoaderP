@@ -52,7 +52,7 @@ namespace MoeLoaderP.Core.Sites
                     }
                     return list;
                 case SiteTypeEnum.Json:
-                    var json = await net.GetJsonAsync(GetHintQuery(para), token);
+                    var json = await net.GetJsonAsync(GetHintQuery(para), token :token);
                     foreach (var item in Ex.GetList(json))
                     {
                         list.Add(new AutoHintItem
@@ -128,7 +128,7 @@ namespace MoeLoaderP.Core.Sites
 
         public async Task<SearchedPage> GetRealPageImagesAsyncFromJson(SearchPara para, CancellationToken token)
         {
-            var list = await new NetOperator(Settings).GetJsonAsync(GetPageQuery(para), token);
+            var list = await new NetOperator(Settings).GetJsonAsync(GetPageQuery(para), token: token);
 
             return await Task.Run(() =>
             {

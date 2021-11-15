@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoeLoaderP.Core;
+using System;
 using System.Windows;
 
 namespace MoeLoaderP.Wpf
@@ -20,6 +21,7 @@ namespace MoeLoaderP.Wpf
                 MessageTextBox = { Text = ex.ToString() },
                 Owner = owner
             };
+            Ex.Log(mes);
             return wnd.ShowDialog();
         }
 

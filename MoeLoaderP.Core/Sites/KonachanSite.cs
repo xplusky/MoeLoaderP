@@ -36,7 +36,7 @@ namespace MoeLoaderP.Core.Sites
 
             var query = $"{homeUrl}/post.json{pairs.ToPairsString()}";
             var net = new NetOperator(Settings);
-            var json = await net.GetJsonAsync(query, token);
+            var json = await net.GetJsonAsync(query, token: token);
             var imageItems = new SearchedPage();
             foreach (var item in Ex.GetList(json))
             {
@@ -78,7 +78,7 @@ namespace MoeLoaderP.Core.Sites
                     {"name", para.Keyword}
                 };
             var query =  $"{HomeUrl}/tag.json{pairs.ToPairsString()}";
-            var json =await net.GetJsonAsync(query, token);
+            var json =await net.GetJsonAsync(query, token: token);
 
             var items = new AutoHintItems();
 

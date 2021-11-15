@@ -169,7 +169,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 var meapi = "https://capi-v2.sankakucomplex.com/users/me?lang=en";
                 var menet = CloneNet();
-                var mejson = await menet.GetJsonAsync(meapi, token);
+                var mejson = await menet.GetJsonAsync(meapi, token: token);
                 var username = mejson?.user?.name;
                 if (username != null)
                 {
@@ -205,7 +205,7 @@ namespace MoeLoaderP.Core.Sites
                 pairs.Add("tags", kw2);
             }
 
-            var json = await net.GetJsonAsync($"{Api}/posts/keyset", token, pairs);
+            var json = await net.GetJsonAsync($"{Api}/posts/keyset", pairs, token : token);
             if (json == null) return null;
             //if($"{json.suce}")
             page.NextPageIndexCursor = $"{json.meta?.next}";
@@ -258,7 +258,7 @@ namespace MoeLoaderP.Core.Sites
                 { "target", "post" },
                 { "show_meta", "1" }
             };
-            var json = await net.GetJsonAsync($"{api}/tags/autosuggestCreating", token, pairs);
+            var json = await net.GetJsonAsync($"{api}/tags/autosuggestCreating",  pairs , token : token);
             foreach (var jitem in Ex.GetList(json))
             {
                 var ahitem = new AutoHintItem();

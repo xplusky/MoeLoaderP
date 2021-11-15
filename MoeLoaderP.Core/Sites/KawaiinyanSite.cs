@@ -56,7 +56,7 @@ namespace MoeLoaderP.Core.Sites
                 {"page", $"{para.PageIndex}"}
             };
             var imageItems = new SearchedPage();
-            var json = await  Net.GetJsonAsync($"{HomeUrl}/index.json", token, pair);
+            var json = await  Net.GetJsonAsync($"{HomeUrl}/index.json",  pair, token: token);
             if (json?.images == null) return imageItems;
             foreach (var image in json.images)
             {

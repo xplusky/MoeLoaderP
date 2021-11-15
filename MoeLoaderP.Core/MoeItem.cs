@@ -659,6 +659,7 @@ namespace MoeLoaderP.Core
         public void AddRange(MoeItems items)
         {
             foreach (var moeItem in items) Add(moeItem);
+            
         }
     }
 }

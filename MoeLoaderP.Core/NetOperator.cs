@@ -133,7 +133,7 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<dynamic> GetJsonAsync(string api, CancellationToken token = default, Pairs parapairs = null, bool showSearchMessage = true)
+        public async Task<dynamic> GetJsonAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
         {
             var query = parapairs.ToPairsString();
             try

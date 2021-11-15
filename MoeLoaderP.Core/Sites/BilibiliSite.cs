@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
 using System.Net;
-using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -59,16 +59,16 @@ namespace MoeLoaderP.Core.Sites
             var imgs = new SearchedPage();
             if (para.Keyword.IsEmpty())
             {
-                await SearchByNewOrHot(para, token, imgs);
+                await SearchByNewOrHot(para, imgs, token);
             }
             else
             {
-                await SearchByKeyword(para, token, imgs);
+                await SearchByKeyword(para,  imgs, token);
             }
             return imgs;
         }
 
-        public async Task SearchByNewOrHot(SearchPara para, CancellationToken token, MoeItems imgs)
+        public async Task SearchByNewOrHot(SearchPara para,  MoeItems imgs,CancellationToken token)
         {
             const string api = "https://api.vc.bilibili.com/link_draw/v2";
             var type = para.Lv3MenuIndex == 0 ? "new" : "hot";
@@ -85,13 +85,13 @@ namespace MoeLoaderP.Core.Sites
                     break;
             }
             var net = new NetOperator(Settings);
-            var json = await net.GetJsonAsync(api2, token, new Pairs
+            var json = await net.GetJsonAsync(api2,  new Pairs
             {
                 {"category", para.Lv2MenuIndex == 0 ? "all" : (para.Lv2MenuIndex == 1 ? "cos" : "sifu")},
                 {"type", type},
                 {"page_num", $"{para.PageIndex - 1}"},
                 {"page_size", $"{count}"}
-            });
+            }, token: token);
 
 
             foreach (var item in Ex.GetList(json?.data?.items))
@@ -125,7 +125,7 @@ namespace MoeLoaderP.Core.Sites
                         img.ChildrenItems.Add(child);
                     }
                 }
-                img.GetDetailTaskFunc = async (t) => await GetSearchByNewOrHotDetailTask(img, t, para);
+                img.GetDetailTaskFunc = async (t) => await GetSearchByNewOrHotDetailTask(img, t);
                 img.OriginString = $"{item}";
                 imgs.Add(img);
             }
@@ -134,7 +134,7 @@ namespace MoeLoaderP.Core.Sites
             Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.CountLimit}页", null, Ex.MessagePos.InfoBar);
         }
 
-        public async Task SearchByKeyword(SearchPara para, CancellationToken token, MoeItems imgs)
+        public async Task SearchByKeyword(SearchPara para, MoeItems imgs, CancellationToken token)
         {
             const string api = "https://api.bilibili.com/x/web-interface/search/type";
             var newOrHotOrder = para.Lv3MenuIndex == 0? "pubdate" : "stow";
@@ -148,7 +148,7 @@ namespace MoeLoaderP.Core.Sites
                 {"category_id",drawOrPhotoCatId },
             };
             var net = new NetOperator(Settings);
-            var json = await net.GetJsonAsync(api, token, pairs);
+            var json = await net.GetJsonAsync(api,  pairs , token: token);
             if(json == null) return;
             foreach (var item in Ex.GetList(json.data?.result))
             {
@@ -161,7 +161,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Rank = $"{item.rank_offset}".ToInt();
                 img.Title = $"{item.title}";
                 img.Uploader = $"{item.uname}";
-                img.GetDetailTaskFunc = async (t) => await GetSearchByKeywordDetailTask(img, t, para);
+                img.GetDetailTaskFunc = async (token) => await GetSearchByKeywordDetailTask(img,  para, token);
                 img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                 img.OriginString = $"{item}";
                 imgs.Add(img);
@@ -171,10 +171,10 @@ namespace MoeLoaderP.Core.Sites
             Ex.ShowMessage($"共搜索到{c}张，已加载至{para.PageIndex}页，共{c / para.CountLimit}页", null, Ex.MessagePos.InfoBar);
         }
 
-        public async Task GetSearchByKeywordDetailTask(MoeItem img,CancellationToken token,SearchPara para)
+        public async Task GetSearchByKeywordDetailTask(MoeItem img,SearchPara para, CancellationToken token)
         {
             var query = $"https://api.vc.bilibili.com/link_draw/v1/doc/detail?doc_id={img.Id}";
-            var json = await new NetOperator(Settings).GetJsonAsync(query,token);
+            var json = await new NetOperator(Settings).GetJsonAsync(query, token: token);
             var item = json.data?.item;
             if (item == null )return;
             if ((item.pictures as JArray)?.Count > 1)
@@ -212,10 +212,10 @@ namespace MoeLoaderP.Core.Sites
             if (img.Date == null) img.DateString = $"{item.upload_time}";
         }
 
-        public async Task GetSearchByNewOrHotDetailTask(MoeItem img, CancellationToken token, SearchPara para)
+        public async Task GetSearchByNewOrHotDetailTask(MoeItem img, CancellationToken token)
         {
             var query = $"https://api.vc.bilibili.com/link_draw/v1/doc/detail?doc_id={img.Id}";
-            var json = await new NetOperator(Settings).GetJsonAsync(query, token, showSearchMessage: false);
+            var json = await new NetOperator(Settings).GetJsonAsync(query, showSearchMessage: false, token: token);
             var item = json.data?.item;
             if (item == null) return;
             foreach (var tag in Ex.GetList(item.tags))

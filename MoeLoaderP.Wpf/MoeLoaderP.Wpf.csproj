@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
     <AssemblyName>MoeLoaderP</AssemblyName>
@@ -252,7 +252,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Helper\MoeLoaderP.Helper\MoeLoaderP.Helper.csproj" />
     <ProjectReference Include="..\MoeLoaderP.Core\MoeLoaderP.Core.csproj" />
+    <ProjectReference Include="..\MoeLoaderP.Helper\MoeLoaderP.Helper.csproj" />
   </ItemGroup>
 </Project>

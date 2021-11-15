@@ -78,6 +78,7 @@ namespace MoeLoaderP.Wpf
                 case "margin":
                     path = "(FrameworkElement.Margin)";
                     break;
+                   
             }
 
             var el = (UIElement)target;

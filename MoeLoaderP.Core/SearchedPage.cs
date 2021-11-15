@@ -9,7 +9,6 @@ namespace MoeLoaderP.Core
     /// </summary>
     public class SearchedPage : MoeItems
     {
-        private string _api;
         public SearchPara Para { get; set; }
         public SearchPara NextPagePara { get; set; }
         public bool? HasNextPage { get; set; } 
@@ -17,16 +16,7 @@ namespace MoeLoaderP.Core
         public int? TotalPageCount { get; set; }
         public string Message { get; set; }
         public Exception SearchException { get; set; }
-
-        public string Api
-        {
-            get => _api;
-            set
-            {
-                _api = value;
-                Ex.ShowMessage($"正在获取 {value}", pos: Ex.MessagePos.Searching);
-            }
-        }
+        
 
         public void GenNextPagePara()
         {

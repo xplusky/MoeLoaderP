@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,7 +67,7 @@ namespace MoeLoaderP.Core.Sites
             if (!IsUserLogin) await LoginAsync(token);
             if (!IsUserLogin) return new SearchedPage();
             var query = $"{_idolQuery}page={para.PageIndex}&limit={para.CountLimit}&tags={para.Keyword.ToEncodedUrl()}";
-            var list = await Net.GetJsonAsync(query, token);
+            var list = await Net.GetJsonAsync(query, token: token);
             if (list == null) return new SearchedPage { Message = "获取Json失败"};
             var imgs = new SearchedPage();
             const string https = "https:";
@@ -129,7 +130,7 @@ namespace MoeLoaderP.Core.Sites
         {
             try
             {
-                System.Security.Cryptography.SHA1 sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider();
+                var sha1 = SHA1.Create();
                 var bytesIn = encode.GetBytes(content);
                 var bytesOut = sha1.ComputeHash(bytesIn);
                 var result = BitConverter.ToString(bytesOut);

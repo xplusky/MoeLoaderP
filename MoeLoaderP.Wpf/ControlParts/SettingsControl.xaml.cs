@@ -45,8 +45,9 @@ namespace MoeLoaderP.Wpf.ControlParts
         public static void ChangeBgImage()
         {
             if (Application.Current.MainWindow is not MainWindow mw) return;
-            var files = App.BackgroundImagesDir.GetDirFiles()
+            var files = App.BackgroundImagesDir.GetDirFiles()?
                 .Where(info => info.Extension.Equals(".png", StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (files is null) return;
             if (files.Length == 0) return;
             var rndfile = files[new Random().Next(0, files.Length)];
             mw.BgImage.Source = new BitmapImage(new Uri(rndfile.FullName, UriKind.Absolute));

@@ -53,7 +53,7 @@ namespace MoeLoaderP.Core.Sites
             // images
 
             var imgs = new SearchedPage();
-            var json = await Net.GetJsonAsync(url, token, pairs);
+            var json = await Net.GetJsonAsync(url, pairs, token: token);
             if (json?.list == null) return imgs;
             foreach (var jitem in json.list)
             {

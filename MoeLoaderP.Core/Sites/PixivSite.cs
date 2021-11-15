@@ -169,7 +169,7 @@ namespace MoeLoaderP.Core.Sites
             {
                 replaceTo = "https://pixiv-image-lv.pwp.link";
             }
-            var json = await net.GetJsonAsync(api, token);
+            var json = await net.GetJsonAsync(api, token: token);
             dynamic list = null;
             if (para.MirrorSite.Name == "pixiviz")
             {
@@ -257,7 +257,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             net.SetReferer(referer);
-            var json = await net.GetJsonAsync(api, token, pairs);
+            var json = await net.GetJsonAsync(api, pairs ,token: token);
             var list = para.Keyword.IsEmpty()
                 ? (json?.body?.illusts)
                 : (isIllust ? (json?.body?.illust?.data) : (json?.body?.manga?.data));
@@ -319,7 +319,7 @@ namespace MoeLoaderP.Core.Sites
             var mi2 = isIllust ? "illusts" : "manga";
             var mi3 = isIllust ? "插画" : "漫画";
             net.SetReferer($"{HomeUrl}/users/{uid}/{mi}");
-            var allJson = await net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/all", token);
+            var allJson = await net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/all", token: token);
             if ($"{allJson?.error}".ToLower() == "true")
             {
                 Ex.ShowMessage($"搜索失败，网站信息：“{$"{allJson?.message}".ToDecodedUrl()}”", null, Ex.MessagePos.Window);
@@ -334,7 +334,7 @@ namespace MoeLoaderP.Core.Sites
             foreach (var pic in picCurrentPage) pairs.Add("ids[]".ToEncodedUrl(), pic);
             pairs.Add("work_category", mi2);
             pairs.Add("is_first_page", "1");
-            var picsJson = await net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/illusts", token, pairs);
+            var picsJson = await net.GetJsonAsync($"{HomeUrl}/ajax/user/{uid}/profile/illusts",  pairs, token: token);
             var works = picsJson?.body?.works;
             foreach (var item in Ex.GetList(works))
             {
@@ -381,7 +381,7 @@ namespace MoeLoaderP.Core.Sites
                 {"p", $"{para.PageIndex}"},
                 {"format", "json"}
             };
-            var json = await net.GetJsonAsync(q, token, pair);
+            var json = await net.GetJsonAsync(q,  pair, token: token);
             foreach (var illus in Ex.GetList(json?.contents))
             {
                 var img = new MoeItem(this, para);
@@ -419,7 +419,7 @@ namespace MoeLoaderP.Core.Sites
         public async Task GetDetailPageTask( MoeItem img, SearchPara para,CancellationToken token)
         {
             var net = Net.CreateNewWithOldCookie();
-            var json = await net.GetJsonAsync($"{HomeUrl}/ajax/illust/{img.Id}/pages", token,showSearchMessage:false);
+            var json = await net.GetJsonAsync($"{HomeUrl}/ajax/illust/{img.Id}/pages", showSearchMessage:false, token: token);
             var img1 = json?.body?[0];
             var refer = $"{HomeUrl}/artworks/{img.Id}";
             if (img1 != null)
@@ -545,7 +545,7 @@ namespace MoeLoaderP.Core.Sites
             var items = new AutoHintItems();
             if (para.Lv2MenuIndex != 0 && para.Lv2MenuIndex != 5) return items;
             var url = $"{HomeUrl}/rpc/cps.php?keyword={para.Keyword}";
-            var jList = await net.GetJsonAsync(url, token);
+            var jList = await net.GetJsonAsync(url, token: token);
             foreach (var obj in Ex.GetList(jList?.candidates)) items.Add($"{obj.tag_name}");
             return items;
         }

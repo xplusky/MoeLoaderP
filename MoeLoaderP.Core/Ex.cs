@@ -243,7 +243,7 @@ namespace MoeLoaderP.Core
             catch (Exception e)
             {
                 Log(e);
-                if(Debugger.IsAttached) throw;
+                //if(Debugger.IsAttached) throw;
                 return null;
             }
         }
