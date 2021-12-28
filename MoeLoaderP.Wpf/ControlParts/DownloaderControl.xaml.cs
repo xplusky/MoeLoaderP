@@ -72,7 +72,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void RetryButtonOnClick(object sender, RoutedEventArgs e)
         {
-            Downloader.Retry(CastSelectToDownloadItems());
+            MoeDownloader.Retry(CastSelectToDownloadItems());
             ContextMenuPopup.IsOpen = false;
         }
 
@@ -85,7 +85,7 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private void StopButtonOnClick(object sender, RoutedEventArgs e)
         {
-            Downloader.Stop(CastSelectToDownloadItems());
+            MoeDownloader.Stop(CastSelectToDownloadItems());
 
             ContextMenuPopup.IsOpen = false;
         }

@@ -41,6 +41,7 @@ namespace MoeLoaderP.Core
                 {
                     if (history.Count > Settings.HistoryKeywordsMaxCount) history.RemoveAt(Settings.HistoryKeywordsMaxCount - 1);
                     history.Insert(0, new AutoHintItem { IsHistory = true, Word = key });
+                    
                 }
             }
         }
@@ -126,7 +127,7 @@ namespace MoeLoaderP.Core
             return vp;
         }
 
-        private void SearchLog(string message)
+        private static void SearchLog(string message)
         {
             Ex.ShowMessage(message, pos: Ex.MessagePos.Searching);
         }

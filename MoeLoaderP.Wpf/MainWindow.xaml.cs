@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using MoeLoaderP.Core;
 using MoeLoaderP.Helper;
@@ -90,12 +89,7 @@ namespace MoeLoaderP.Wpf
             LogoImage2.Visibility = Settings.IsCustomSiteMode ? Visibility.Visible : Visibility.Collapsed;
         }
 
-
-        private void LogListBoxOnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            //if (LogListBox.SelectedIndex == -1) return;
-            //if (LogListBox.SelectedItem is TextBlock tb) tb.Text.CopyToClipboard();
-        }
+        
 
         private void LogoImageButtonOnClick(object sender, RoutedEventArgs e)
         {

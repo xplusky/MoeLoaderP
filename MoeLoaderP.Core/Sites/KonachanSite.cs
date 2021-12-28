@@ -68,6 +68,16 @@ namespace MoeLoaderP.Core.Sites
             return imageItems;
         }
 
+        public string GenMultiKeywords(params string[] keys)
+        {
+            var s = "";
+            foreach (var key in keys)
+            {
+                s+=key+ " ";
+            }
+            return s[..^2];
+        }
+
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
             var net = new NetOperator(para.Site.Settings);

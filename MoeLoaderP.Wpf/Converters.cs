@@ -185,7 +185,8 @@ namespace MoeLoaderP.Wpf
             var text = (string)value;
             if ((parameter as string) == "reverse")
             {
-                return text.IsEmpty() ? Visibility.Visible : Visibility.Collapsed;
+                var b2 = text.IsEmpty() ? Visibility.Visible : Visibility.Collapsed;
+                return b2;
             }
 
             var b = text.IsEmpty();

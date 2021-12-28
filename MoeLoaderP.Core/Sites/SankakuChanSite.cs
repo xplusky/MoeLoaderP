@@ -12,23 +12,23 @@ namespace MoeLoaderP.Core.Sites
     /// </summary>
     public class SankakuChanSite : MoeSite
     {
-        public override string HomeUrl => "https://chan.sankakucomplex.com";
+        public override string HomeUrl => "https://sankaku.app";
 
         public override string DisplayName => "SankakuComplex[Chan]";
 
         public override string ShortName => "sankakucomplex-chan";
         public override string[] GetCookieUrls()
         {
-            return new[]{ "https://beta.sankakucomplex.com" };
+            return new[]{ "https://sankaku.app","https://beta.sankakucomplex.com" };
         }
 
         public string Api = "https://capi-v2.sankakucomplex.com";
-        public string BetaApi = "https://beta.sankakucomplex.com";
+        public string BetaApi = "https://sankaku.app";
 
         public SankakuChanSite()
         {
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
-            LoginPageUrl = "https://beta.sankakucomplex.com/home";
+            LoginPageUrl = "https://login.sankakucomplex.com/login";
 
             Config = new MoeSiteConfig
             {
@@ -69,7 +69,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var net = CloneNet();
             net.SetReferer(BetaApi);
-            var res = await net.PostAsync($"https://capi-v2.sankakucomplex.com/posts/{moe.Id}/favorite?lang=en", token);
+            var res = await net.PostAsync($"https://capi-v2.sankakucomplex.com/posts/{moe.Id}/favorite?lang=en", token:token);
             var job = res as JObject;
             var b = job?["success"]?.Value<bool?>();
 

@@ -52,7 +52,7 @@ namespace MoeLoaderP.Wpf
             thisWnd.Init(moeitem, imgSource);
         }
 
-        public async void Init(MoeItem moeitem,ImageSource imgSource)
+        public async void Init(MoeItem moeitem, ImageSource imgSource)
         {
             CurrentMoeItem = moeitem;
             Settings = moeitem.Site.Settings;
@@ -191,7 +191,7 @@ namespace MoeLoaderP.Wpf
         {
             // client
 
-            var net = CurrentMoeItem.Site.GetNet(CurrentMoeItem.ThumbnailUrlInfo.Referer, 30d);
+            var net = CurrentMoeItem.Site.GetCloneNet(CurrentMoeItem.ThumbnailUrlInfo.Referer, 30d);
             net.ProgressMessageHandler.HttpReceiveProgress += ProgressMessageHandlerOnHttpReceiveProgress;
             Exception loadEx = null;
             try

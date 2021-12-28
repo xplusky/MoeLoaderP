@@ -38,7 +38,7 @@ namespace MoeLoaderP.Core.Sites
             switch (SiteType)
             {
                 case SiteTypeEnum.Xml:
-                    var xml = await net.GetXmlAsync(GetHintQuery(para), token);
+                    var xml = await net.GetXmlAsync(GetHintQuery(para), token:token);
                     if (xml == null) return list;
                     var root = xml.SelectSingleNode("tags");
                     if (root?.ChildNodes == null) return list;
@@ -85,9 +85,10 @@ namespace MoeLoaderP.Core.Sites
         {
             var net = new NetOperator(Settings);
             var query = GetPageQuery(para);
-            var xml =await net.GetXDocAsync(query, token);
-            var imageItems = new SearchedPage();
-            if (xml.Root == null) return imageItems;
+            var xml =await net.GetXDocAsync(query, token: token);
+            if (xml?.Root == null) return null;
+
+            var imageItems = new SearchedPage();            
             foreach (var post in xml.Root.Elements())
             {
                 token.ThrowIfCancellationRequested();
@@ -130,7 +131,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var list = await new NetOperator(Settings).GetJsonAsync(GetPageQuery(para), token: token);
 
-            return await Task.Run(() =>
+            SearchedPage GetImgsFromJson()
             {
                 token.ThrowIfCancellationRequested();
                 var imageItems = new SearchedPage();
@@ -156,20 +157,22 @@ namespace MoeLoaderP.Core.Sites
                     if (img.Date == null) img.DateString = $"{item.created_at}";
                     img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{item.preview_file_url}", GetThumbnailReferer(img));
                     img.Urls.Add(DownloadTypeEnum.Large, $"{item.large_file_url}", GetThumbnailReferer(img));
-                    img.Urls.Add(DownloadTypeEnum.Origin, $"{item.file_url}", img.DetailUrl,filesize: $"{item.file_size}".ToUlong());
+                    img.Urls.Add(DownloadTypeEnum.Origin, $"{item.file_url}", img.DetailUrl, filesize: $"{item.file_size}".ToUlong());
                     img.Copyright = $"{item.tag_string_copyright}";
                     img.Character = $"{item.tag_string_character}";
                     img.Artist = $"{item.tag_string_artist}";
-                    img.OriginString = $"{item}"; 
+                    img.OriginString = $"{item}";
                     if (GetDetailTaskFunc != null)
                     {
-                        img.GetDetailTaskFunc = async (t) => await GetDetailTaskFunc(img, para,t);
+                        img.GetDetailTaskFunc = async (t) => await GetDetailTaskFunc(img, para, t);
                     }
                     imageItems.Add(img);
                 }
 
                 return imageItems;
-            }, token);
+            }
+
+            return await Task.Run(GetImgsFromJson, token);
         }
 
         public virtual string UrlPre => null;

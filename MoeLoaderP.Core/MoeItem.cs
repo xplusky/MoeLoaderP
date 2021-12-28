@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoeLoaderP.Core.Sites;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -8,7 +9,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MoeLoaderP.Core.Sites;
 
 namespace MoeLoaderP.Core
 {
@@ -119,7 +119,6 @@ namespace MoeLoaderP.Core
         ///     图源
         /// </summary>
         public string Source { get; set; }
-
         public string Description { get; set; }
         public List<string> Tags { get; set; } = new();
         public bool IsExplicit { get; set; }
@@ -175,7 +174,7 @@ namespace MoeLoaderP.Core
         }
 
         /// <summary>
-        ///     分辨率文字
+        /// 分辨率文字
         /// </summary>
         public string ResolutionText => Width != 0 && Height != 0 ? $"{Width} × {Height}" : null;
 
@@ -195,12 +194,12 @@ namespace MoeLoaderP.Core
         #region 辅助属性及方法
 
         /// <summary>
-        ///     是否显示注释
+        /// 是否显示注释
         /// </summary>
         public bool TipHighLight { get; set; }
 
         /// <summary>
-        ///     注释，显示在左上角
+        /// 注释，显示在左上角
         /// </summary>
         public string Tip
         {
@@ -213,7 +212,7 @@ namespace MoeLoaderP.Core
         }
 
         /// <summary>
-        ///     获取详细信息Task委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
+        /// 获取详细信息Task委托 (图片的某些信息需要单独获取，例如原图URL可能位于详情页面）
         /// </summary>
         public Func<CancellationToken, Task> GetDetailTaskFunc { get; set; }
 
@@ -250,23 +249,23 @@ namespace MoeLoaderP.Core
 
 
         /// <summary>
-        ///     子项目专用 ---- 父级对象
+        /// 子项目专用 ---- 父级对象
         /// </summary>
         public MoeItem FatherItem { get; set; }
 
         /// <summary>
-        ///     子项目专用--子项目所在列表中的位置（从1开始）
+        /// 子项目专用--子项目所在列表中的位置（从1开始）
         /// </summary>
         public int SubIndex { get; set; }
 
         /// <summary>
-        ///     bitmap image 用于绑定显示下载图片图标
+        /// Bitmap image 用于绑定显示下载图片图标
         /// </summary>
         public dynamic BitImg { get; set; }
 
         public async Task<Stream> TryLoadThumbnailStreamAsync(CancellationToken token)
         {
-            var net = Site.GetNet(ThumbnailUrlInfo.Referer, 20d);
+            var net = Site.GetCloneNet(ThumbnailUrlInfo.Referer, 20d);
             var url = ThumbnailUrlInfo.Url;
             var response = await net.Client.GetAsync(url, token);
             return await response.Content.ReadAsStreamAsync(token);
@@ -277,12 +276,12 @@ namespace MoeLoaderP.Core
         public Func<CancellationToken, Task<MoeItems>> GetNextItemsTaskFunc { get; set; }
 
         /// <summary>
-        ///     网站上原始文件名
+        /// 网站上原始文件名
         /// </summary>
         public string OriginFileName { get; set; }
 
         /// <summary>
-        ///     网站上原始文件名（不含后缀）
+        /// 网站上原始文件名（不含后缀）
         /// </summary>
         public string OriginFileNameWithoutExtension { get; set; }
 
@@ -326,7 +325,7 @@ namespace MoeLoaderP.Core
         private DownloadStatus _dlStatus = DownloadStatus.WaitForDownload;
 
         /// <summary>
-        ///     设置或获取下载状态
+        /// 设置或获取下载状态
         /// </summary>
         public DownloadStatus DlStatus
         {
@@ -367,12 +366,12 @@ namespace MoeLoaderP.Core
         }
 
         /// <summary>
-        ///     当前下载指示器
+        /// 当前下载指示器
         /// </summary>
         public CancellationTokenSource CurrentDownloadTaskCts { get; set; } = new();
 
         /// <summary>
-        ///     异步下载图片
+        /// 异步下载图片
         /// </summary>
         /// <returns></returns>
         public async Task DownloadFileAsync(CancellationToken token)
@@ -507,7 +506,7 @@ namespace MoeLoaderP.Core
             }
 
             // 设置下载网络
-            var net = Site.GetNet(durl.Referer, 500d);
+            var net = Site.GetCloneNet(durl.Referer, 500d);
             net.ProgressMessageHandler.HttpReceiveProgress += (_, args) =>
             {
                 Progress = args.ProgressPercentage;
@@ -616,8 +615,8 @@ namespace MoeLoaderP.Core
 
             sb.Replace("%tag", $"{tags}");
             sb.Replace("%title", img.Title ?? "no-title");
-            sb.Replace("%uploader", img.Uploader ?? "no-uploader");
             sb.Replace("%uploader_id", img.UploaderId ?? "no-uploader-id");
+            sb.Replace("%uploader", img.Uploader ?? "no-uploader");            
             sb.Replace("%date", img.DateString ?? "no-date");
             sb.Replace("%origin", OriginFileNameWithoutExtension);
             sb.Replace("%character", img.Character ?? "no-character");
@@ -654,8 +653,7 @@ namespace MoeLoaderP.Core
 
     public class MoeItems : ObservableCollection<MoeItem>
     {
-        //public enum ResponseMode { Ok, Fail, OkAndOver }
-        //public ResponseMode Response { get; set; }
+        
         public void AddRange(MoeItems items)
         {
             foreach (var moeItem in items) Add(moeItem);

@@ -35,8 +35,7 @@ namespace MoeLoaderP.Wpf.ControlParts
         
         public MoeExplorerControl()
         {
-            InitializeComponent();
-            
+            InitializeComponent();            
         }
 
         public void Init(Settings settings)
@@ -199,6 +198,10 @@ namespace MoeLoaderP.Wpf.ControlParts
 
         private async void NextPageButtonOnClick(object sender, RoutedEventArgs e)
         {
+            if(Settings.CurrentSession.RealPages.LastOrDefault().HasNextPage == false)
+            {
+                return;
+            }
             foreach (PagingButtonControl control in PagingStackPanel.Children)
             {
                 control.VisualPage.IsCurrentPage = false;

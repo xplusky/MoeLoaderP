@@ -100,13 +100,13 @@ namespace MoeLoaderP.Core.Sites
             else
             {
                 var q = $"{HomeUrl}/search?q={para.Keyword}";
-                var net = GetNet();
+                var net = GetCloneNet();
                 net.SetReferer(HomeUrl);
                 net.HttpClientHandler.AllowAutoRedirect = false;
                 var res = await net.Client.GetAsync(q, token);
                 var loc303 = res.Headers.Location?.OriginalString;
-                var net2 = GetNet();
-                var doc1 = await net2.GetHtmlAsync($"{HomeUrl}{loc303}", token);
+                var net2 = GetCloneNet();
+                var doc1 = await net2.GetHtmlAsync($"{HomeUrl}{loc303}", token: token);
                 var tabnodes = doc1.DocumentNode.SelectNodes("*//ul[@id='tabs']//a");
                 var url = tabnodes[1].Attributes["href"]?.Value;
                 var reg = new Regex(@"(?:^|\?|&)tid=(\d*)(?:&|$)");
@@ -116,7 +116,7 @@ namespace MoeLoaderP.Core.Sites
 
             }
 
-            var doc = await Net.GetHtmlAsync(query, token);
+            var doc = await Net.GetHtmlAsync(query, token: token);
             var docnode = doc.DocumentNode;
             var empty = docnode.SelectSingleNode("*//p[@class='empty']")?.InnerText.ToLower().Trim();
             if (empty == "no items to display") return imgs;

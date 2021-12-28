@@ -1,4 +1,4 @@
 ﻿[*.{cs,vb}]
 
 # IDE0017: 简化对象初始化
-dotnet_style_object_initializer = true:suggestion
+dotnet_diagnostic.IDE0017.severity = none

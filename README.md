@@ -12,12 +12,12 @@
 ## 注意事项
 
 本软件支持的系统为Windows 7以上64位系统。
-需要系统安装.Net 5版本的框架。
-> **https://dotnet.microsoft.com/download/dotnet/5.0**
+需要系统安装.Net 6版本的框架。
+> **https://dotnet.microsoft.com/download/dotnet/6.0**
 
 ## 关于 MoeLoader-P 
 
-MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。 MoeLoader 原作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，作者已销声匿迹失多年，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
+MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。此版本由桂叶君进行更新。原软件 MoeLoader 作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，作者已销声匿迹失多年，已停止更新，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
 
 ### 站点支持情况：
   
@@ -77,9 +77,9 @@ QQ群：173707488 验证：MoeLoaderP
 ## 更新记录
 
 ### 待定 10.0.1-(正在施工中，敬请期待)
-- 更新至.Net5框架（可能需要下载.net5 runtime才能运行软件，以后考虑升级到.Net6后通过MAUI来实现手机端）
+- 更新至.Net6框架（可能需要下载.net6 runtime才能运行软件，以后考虑通过Xamarin MAUI来实现手机端）
 - 登录功能切换至WebView2（首次使用需下载），不再使用CefSharp
-- 新增自定义站点功能（右键LOGO进入），通过JSON文件就可以自定义自己站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）
+- 新增自定义站点功能（右键LOGO进入），通过JSON文件《简单》设置一下就可以自定义自己图片站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）
 - 完善登录功能，支持Pixiv、SankakuComplex登录搜索
 - 新增站点全名、作者ID等名称命名格式(via 咸鱼)
 - 设置完善、支持亚克力效果开关选项。

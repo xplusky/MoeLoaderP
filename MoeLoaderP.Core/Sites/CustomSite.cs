@@ -48,7 +48,7 @@ namespace MoeLoaderP.Core.Sites
                 }
             }
             var rapi = api.Replace("{pagenum}", $"{para.PageIndex}").Replace("{pagenum-1}", $"{para.PageIndex-1}");
-            var html = await net.GetHtmlAsync(rapi, token);
+            var html = await net.GetHtmlAsync(rapi, token: token);
             if (html == null) return null;
             var pa = cat.OverridePagePara ?? CustomConfig.PagePara;
             var list = (HtmlNodeCollection)html.DocumentNode.GetValue(pa.ImagesList);
@@ -97,7 +97,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var newItems = new MoeItems();
             var net = Net.CreateNewWithOldCookie();
-            var html = await net.GetHtmlAsync(url, token, showSearchMessage:false);
+            var html = await net.GetHtmlAsync(url, token: token, showSearchMessage:false);
             if (html == null) return newItems;
             var root = html.DocumentNode;
             var imgOrImgs = root.GetValue(pa.DetailImagesList);
@@ -183,7 +183,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var url = currentItem.DetailUrl;
             var net = Net.CreateNewWithOldCookie();
-            var html = await net.GetHtmlAsync(url, token, showSearchMessage:false);
+            var html = await net.GetHtmlAsync(url, null, false, token);
             if (pa.DetailLv2ImageOriginUrl != null)
             {
                 var originUrl = html.DocumentNode.GetValue(pa.DetailLv2ImageOriginUrl);

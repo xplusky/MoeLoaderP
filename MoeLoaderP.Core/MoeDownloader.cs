@@ -52,7 +52,7 @@ namespace MoeLoaderP.Core
         }
 
 
-        public void Stop(MoeItems items)
+        public static void Stop(MoeItems items)
         {
             foreach (var item in items)
             {
@@ -87,7 +87,7 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public void Retry(MoeItems items)
+        public static void Retry(MoeItems items)
         {
             for (var i = 0; i < items.Count; i++)
             {
@@ -107,20 +107,22 @@ namespace MoeLoaderP.Core
 
         public static Pairs GenRenamePairs()
         {
-            var pairs = new Pairs();
-            pairs.Add("站点缩略名", "%site");
-            pairs.Add("站点显示名", "%sitedispname");
-            pairs.Add("搜索关键字", "%keyword");
-            pairs.Add("作品ID", "%id");
-            pairs.Add("作者", "%uploader");
-            pairs.Add("作者ID", "%uploader_id");
-            pairs.Add("标题", "%title");
-            pairs.Add("标签", "%tag");
-            pairs.Add("日期", "%date");
-            pairs.Add("原始文件名", "%origin");
-            pairs.Add("作品名", "%copyright");
-            pairs.Add("角色名", "%character");
-            pairs.Add("画师名", "%artist");
+            var pairs = new Pairs
+            {
+                { "站点缩略名", "%site" },
+                { "站点显示名", "%sitedispname" },
+                { "搜索关键字", "%keyword" },
+                { "作品ID", "%id" },
+                { "作者", "%uploader" },
+                { "作者ID", "%uploader_id" },
+                { "标题", "%title" },
+                { "标签", "%tag" },
+                { "日期", "%date" },
+                { "原始文件名", "%origin" },
+                { "作品名", "%copyright" },
+                { "角色名", "%character" },
+                { "画师名", "%artist" }
+            };
 
             return pairs;
         }

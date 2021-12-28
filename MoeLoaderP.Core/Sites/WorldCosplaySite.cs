@@ -6,13 +6,13 @@ namespace MoeLoaderP.Core.Sites
     /// <summary>
     /// worldcosplay.net
     /// </summary>
-    public class WCosplaySite : MoeSite
+    public class WorldCosplaySite : MoeSite
     {
         public override string HomeUrl => "https://worldcosplay.net";
         public override string DisplayName => "WorldCosplay";
         public override string ShortName => "worldcosplay";
 
-        public WCosplaySite()
+        public WorldCosplaySite()
         {
             DownloadTypes.Add("大图", DownloadTypeEnum.Large);
             Config = new MoeSiteConfig

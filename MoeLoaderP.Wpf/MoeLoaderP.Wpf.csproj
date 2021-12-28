@@ -246,10 +246,13 @@
   <PropertyGroup />
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <NoWin32Manifest>true</NoWin32Manifest>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link="Properties\.editorconfig" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MoeLoaderP.Core\MoeLoaderP.Core.csproj" />

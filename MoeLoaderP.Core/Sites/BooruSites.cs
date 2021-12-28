@@ -1,7 +1,16 @@
-﻿using System.Threading;
+﻿// Booru 类型通用站点集合
+// yande.re 
+// behoimi.org
+// safebooru.org
+// danbooru.donmai.us
+// lolibooru.moe
+// atfbooru.ninja 
+// rule34.xxx
+
+using System.Threading;
 using System.Threading.Tasks;
 
-// Booru 类型通用站点集合
+
 namespace MoeLoaderP.Core.Sites
 {
     /// <summary>

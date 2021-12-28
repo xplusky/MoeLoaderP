@@ -105,9 +105,9 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
-        
 
-        public async Task<HttpResponseMessage> GetAsync(string api, CancellationToken token = default,bool showSearchMessage = true)
+
+        public async Task<HttpResponseMessage> GetAsync(string api, bool showSearchMessage = true, CancellationToken token = default)
         {
             if(showSearchMessage) Ex.ShowMessage($"正在获取 {api}", pos: Ex.MessagePos.Searching);
             
@@ -115,13 +115,13 @@ namespace MoeLoaderP.Core
             
         }
 
-        public async Task<string> GetStringAsync(string api, CancellationToken token = default, Pairs parapairs = null, bool showSearchMessage = true)
+        public async Task<string> GetStringAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
         {
             var query = parapairs.ToPairsString();
             try
             {
                 var q = $"{api}{query}";
-                var response = await GetAsync(q, token, showSearchMessage);
+                var response = await GetAsync(q, showSearchMessage, token);
                 var s = await response.Content.ReadAsStringAsync(token);
                 return s;
             }
@@ -138,7 +138,7 @@ namespace MoeLoaderP.Core
             var query = parapairs.ToPairsString();
             try
             {
-                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
+                var response = await GetAsync($"{api}{query}", showSearchMessage, token);
                 
                 var s = await response.Content.ReadAsStringAsync(token);
                 return JsonConvert.DeserializeObject(s);
@@ -150,13 +150,13 @@ namespace MoeLoaderP.Core
                 return null;
             }
         }
-        public async Task<HtmlDocument> GetHtmlAsync(string api, CancellationToken token = default, Pairs parapairs = null, bool showSearchMessage = true)
+        public async Task<HtmlDocument> GetHtmlAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
         {
             var query = parapairs.ToPairsString();
             var doc = new HtmlDocument();
             try
             {
-                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
+                var response = await GetAsync($"{api}{query}", showSearchMessage, token);
                 var s = await response.Content.ReadAsStringAsync(token);
                 doc.LoadHtml(s);
                 return doc;
@@ -169,13 +169,13 @@ namespace MoeLoaderP.Core
             }
         }
 
-        public async Task<XmlDocument> GetXmlAsync(string api, CancellationToken token = default, Pairs pairs = null, bool showSearchMessage = true)
+        public async Task<XmlDocument> GetXmlAsync(string api, Pairs pairs = null, bool showSearchMessage = true, CancellationToken token = default)
         {
             var query = pairs.ToPairsString();
             var xml = new XmlDocument();
             try
             {
-                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
+                var response = await GetAsync($"{api}{query}", showSearchMessage, token);
                 var s = await response.Content.ReadAsStringAsync(token);
                 xml.LoadXml(s);
             }
@@ -188,13 +188,13 @@ namespace MoeLoaderP.Core
             return xml;
         }
 
-        public async Task<XDocument> GetXDocAsync(string api, CancellationToken token = default, Pairs pairs = null, bool showSearchMessage = true)
+        public async Task<XDocument> GetXDocAsync(string api, Pairs pairs = null, bool showSearchMessage = true, CancellationToken token = default)
         {
             var query = pairs.ToPairsString();
             XDocument xml ;
             try
             {
-                var response = await GetAsync($"{api}{query}", token, showSearchMessage);
+                var response = await GetAsync($"{api}{query}", showSearchMessage, token);
                 var s = await response.Content.ReadAsStreamAsync(token);
                 xml = XDocument.Load(s);
             }
@@ -207,7 +207,7 @@ namespace MoeLoaderP.Core
             return xml;
         }
 
-        public async Task<dynamic> PostAsync(string api, CancellationToken token = default, Pairs pairs = null)
+        public async Task<dynamic> PostAsync(string api, Pairs pairs = null, CancellationToken token = default)
         {
             var query = pairs.ToPairsString();
             var content = new StringContent($"{query}", Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -235,4 +235,5 @@ namespace MoeLoaderP.Core
             Add(new KeyValuePair<string, string>(str1, str2));
         }
     }
+
 }

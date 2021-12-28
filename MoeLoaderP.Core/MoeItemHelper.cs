@@ -40,18 +40,39 @@ namespace MoeLoaderP.Core
             FileSize = fileSize;
         }
 
+        //public string GetFileExtFromUrl()
+        //{
+        //    if (Url.IsEmpty()) return null;
+        //    var type = Path.GetExtension(Url)?.Delete(".").ToUpper();
+        //    if (type == null) return null;
+        //    if (type.Contains("?"))
+        //    {
+        //        type = type.Split('?')[0];
+        //    }
+        //    return type.Length < 5 ? type : null;
+        //}
         public string GetFileExtFromUrl()
         {
             if (Url.IsEmpty()) return null;
-            var type = Path.GetExtension(Url)?.Delete(".").ToUpper();
-            if (type == null) return null;
-            if (type.Contains("?"))
+            var url = "";
+            if (Url.Contains('?'))
             {
-                type = type.Split('?')[0];
+                url = Url.Split('?')[0];
+                if (url[^1] == '/')
+                {
+                    url = url[..^1];
+                }
             }
+            else
+            {
+                url = Url;
+            }
+
+            var type = Path.GetExtension(url)?.Delete(".").ToLower();
+            if (type == null) return null;
+            
             return type.Length < 5 ? type : null;
         }
-
 
         public string FormattedFileSize
         {
@@ -130,6 +151,14 @@ namespace MoeLoaderP.Core
         public string NameCn { get; set; }
         public int PicTotalCount { get; set; }
         public override string ToString() => Name;
+
+        public TagInfo() { }
+
+        public TagInfo(string tagName,int id = default)
+        {
+            NameEn = tagName;
+            Id = id;
+        }
     }
 
     public class TagInfos : List<TagInfo>

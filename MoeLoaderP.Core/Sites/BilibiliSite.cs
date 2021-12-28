@@ -56,16 +56,16 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
-            var imgs = new SearchedPage();
+            var page = new SearchedPage();
             if (para.Keyword.IsEmpty())
             {
-                await SearchByNewOrHot(para, imgs, token);
+                await SearchByNewOrHot(para, page, token);
             }
             else
             {
-                await SearchByKeyword(para,  imgs, token);
+                await SearchByKeyword(para,  page, token);
             }
-            return imgs;
+            return page;
         }
 
         public async Task SearchByNewOrHot(SearchPara para,  MoeItems imgs,CancellationToken token)
@@ -161,7 +161,7 @@ namespace MoeLoaderP.Core.Sites
                 img.Rank = $"{item.rank_offset}".ToInt();
                 img.Title = $"{item.title}";
                 img.Uploader = $"{item.uname}";
-                img.GetDetailTaskFunc = async (token) => await GetSearchByKeywordDetailTask(img,  para, token);
+                img.GetDetailTaskFunc = async (cancellationToken) => await GetSearchByKeywordDetailTask(img,  para, cancellationToken);
                 img.DetailUrl = $"https://h.bilibili.com/{img.Id}";
                 img.OriginString = $"{item}";
                 imgs.Add(img);

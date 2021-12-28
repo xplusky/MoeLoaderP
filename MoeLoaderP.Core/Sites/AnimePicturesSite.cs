@@ -12,7 +12,7 @@ namespace MoeLoaderP.Core.Sites
     /// <summary>
     /// anime-pictures.net
     /// </summary>
-    public class AnimePicsSite : MoeSite
+    public class AnimePicturesSite : MoeSite
     {
         public override string HomeUrl => "https://anime-pictures.net";
         public override string DisplayName => "Anime-Pictures";
@@ -23,7 +23,7 @@ namespace MoeLoaderP.Core.Sites
         private readonly string[] _pass = { "mjvpass" };
         private bool IsLogon { get; set; }
 
-        public AnimePicsSite()
+        public AnimePicturesSite()
         {
             DownloadTypes.Add("原图", DownloadTypeEnum.Origin);
             Config = new MoeSiteConfig
@@ -75,7 +75,7 @@ namespace MoeLoaderP.Core.Sites
 
             var imgs = new SearchedPage();
 
-            var doc = await Net.GetHtmlAsync(url, token);
+            var doc = await Net.GetHtmlAsync(url, token:token);
             if (doc == null) return null;
             var pre = "https:";
             var listnode = doc.DocumentNode.SelectNodes("//*[@id='posts']/div[@class='posts_block']/span[@class='img_block_big']");
@@ -89,13 +89,13 @@ namespace MoeLoaderP.Core.Sites
                 img.Id = reg.ToInt();
                 var src = imgnode.GetAttributeValue("src", "");
                 if (!src.IsEmpty()) img.Urls.Add(new UrlInfo( DownloadTypeEnum.Thumbnail, $"{pre}{src}", url));
-                var resstrs = node.SelectSingleNode("div[@class='img_block_text']/a")?.InnerText.Trim().Split('x');
+                var resstrs = node.GetInnerText("div[@class = 'img_block_text'] / a").Split('x');
                 if (resstrs?.Length == 2)
                 {
                     img.Width = resstrs[0].ToInt();
                     img.Height = resstrs[1].ToInt();
                 }
-                var scorestr = node.SelectSingleNode("div[@class='img_block_text']/span")?.InnerText.Trim();
+                var scorestr = node.GetInnerText("div[@class='img_block_text']/span");
                 var match = Regex.Replace(scorestr ?? "0", @"[^0-9]+", "");
                 img.Score = match.ToInt();
                 var detail = node.SelectSingleNode("a").GetAttributeValue("href", "");
@@ -113,11 +113,10 @@ namespace MoeLoaderP.Core.Sites
         public async Task GetDetailTask(MoeItem img,CancellationToken token)
         {
             var detialurl = img.DetailUrl;
-            var net = Net.CreateNewWithOldCookie();
-            net.SetTimeOut(30);
+            var net = GetCloneNet(timeout: 30);
             try
             {
-                var subdoc = await net.GetHtmlAsync(detialurl, token);
+                var subdoc = await net.GetHtmlAsync(detialurl, null, false, token);
                 var docnodes = subdoc.DocumentNode;
                 if (docnodes == null) return;
                 var downnode = docnodes.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");
@@ -140,33 +139,34 @@ namespace MoeLoaderP.Core.Sites
 
         public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
         {
-            AutoHintNet ??= new NetOperator(Settings);
-            AutoHintNet.SetReferer($"{HomeUrl}/?lang=zh_CN");
-            //AutoHintNet.Client.DefaultRequestHeaders.Add("content-type", "multipart/form-data; boundary=----WebKitFormBoundaryzFqgWZTqudUG0vBb");
-            var re = new AutoHintItems();
-            var mulform = new MultipartFormDataContent("----WebKitFormBoundaryzFqgWZTqudUG0vBb");
-            var content = new FormUrlEncodedContent(new Pairs
+            if(AutoHintNet == null)
+            {
+                AutoHintNet = new NetOperator(Settings);
+                AutoHintNet.SetReferer($"{HomeUrl}");
+            }
+            
+            var re = new AutoHintItems();            
+            var pairs = new Pairs
             {
                 {"tag",para.Keyword.Trim() }
-            });
-            mulform.Add(content);
+            };
+            var content = new FormUrlEncodedContent(pairs);            
             var url = $"{HomeUrl}/pictures/autocomplete_tag";
-            var response = await AutoHintNet.Client.PostAsync(url, mulform, token);
+            var response = await AutoHintNet.Client.PostAsync(url, content, token);
 
-            // todo 这里post数据获取失败，希望有大神能够解决
             if (!response.IsSuccessStatusCode) return new AutoHintItems();
             var txt = await response.Content.ReadAsStringAsync(token);
-            //JSON format response
-
             dynamic json = JsonConvert.DeserializeObject(txt);
-            dynamic list = ((JProperty)json)?.Value;
+            dynamic list = json?.tags_list;
             foreach (var item in Ex.GetList(list))
             {
-                re.Add(new AutoHintItem
+                var i = new AutoHintItem
                 {
-                    Word = $"{item.t}".Delete("<br>", "</br>"),
+                    Word = $"{item.t}".Delete("<b>", "</b>"),
                     Count = $"{item.c}"
-                });
+                };
+
+                re.Add(i);
             }
 
             return re;

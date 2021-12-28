@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PublishUrlHistory>D:\Code\GitHub\xplusky\app-store\trunk\moeloaderp-publish\|D:\Code\GitHub\xplusky\app-store\trunk\|moeloader-publish\|moeloader-p-publish\|publish\</PublishUrlHistory>
+    <InstallUrlHistory>https://raw.githubusercontent.com/xplusky/app-store/master/moeloaderp-publish/|https://raw.githubusercontent.com/xplusky/app-store/master/moeloader-publish/|https://raw.githubusercontent.com/xplusky/app-store/master/|http://source.leaful.com/moeloader-publish/|http://source.leaful.com/moeloader--publish/</InstallUrlHistory>
+    <SupportUrlHistory>http://leaful.com/moeloader-p</SupportUrlHistory>
+    <UpdateUrlHistory />
+    <BootstrapperUrlHistory />
+    <ErrorReportUrlHistory />
+    <FallbackCulture>zh-CN</FallbackCulture>
+    <VerifyUploadedFiles>false</VerifyUploadedFiles>
+  </PropertyGroup>
+  <PropertyGroup>
+    <EnableSecurityDebugging>false</EnableSecurityDebugging>
+    <_LastSelectedProfileId>D:\Projects\MoeLoaderP\MoeLoaderP-Solution-dotNet5up\MoeLoaderP.Wpf\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="ControlParts\PagingButtonControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ControlParts\SearchControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ControlParts\SearchMessageControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="LogWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="LogWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>

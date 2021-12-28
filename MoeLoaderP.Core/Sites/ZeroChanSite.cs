@@ -35,7 +35,7 @@ namespace MoeLoaderP.Core.Sites
         
         public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
-            var net = GetNet();
+            var net = GetCloneNet();
 
             string url = $"{HomeUrl}/";
 
@@ -62,7 +62,7 @@ namespace MoeLoaderP.Core.Sites
             
             pairs.Add("p",para.PageIndex.ToString());
             
-            var doc = await net.GetHtmlAsync(url, token,pairs);
+            var doc = await net.GetHtmlAsync(url, pairs , true,token);
 
             // images
             var imgs = new SearchedPage();
@@ -97,7 +97,7 @@ namespace MoeLoaderP.Core.Sites
                 {
                     foreach (var s in resAndFileSize.Split(' '))
                     {
-                        if (!s.Contains("x")) continue;
+                        if (!s.Contains('x')) continue;
                         var res = s.Split('x');
                         if (res.Length != 2) continue;
                         img.Width = res[0].ToInt();
@@ -130,9 +130,9 @@ namespace MoeLoaderP.Core.Sites
         {
             var kw = para.Keyword.Replace(" ", "+");
 
-            var net = GetNet();
+            var net = GetCloneNet();
             var api = $"{HomeUrl}/suggest?q={kw}&limit=10";
-            var str = await net.GetStringAsync(api, token);
+            var str = await net.GetStringAsync(api,token: token);
             if (str == null) return null;
             var aitems = new AutoHintItems();
             foreach (var s in str.Split("\n"))

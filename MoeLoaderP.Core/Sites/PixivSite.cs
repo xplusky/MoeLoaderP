@@ -112,8 +112,6 @@ namespace MoeLoaderP.Core.Sites
             return false;
         }
 
-
-
         public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
         {
             var islogin = CheckIsLogin();
@@ -295,7 +293,7 @@ namespace MoeLoaderP.Core.Sites
             }
         }
 
-        public DateTime GetDateFromUrl(string url)
+        public static DateTime GetDateFromUrl(string url)
         {
             try
             {
@@ -485,7 +483,7 @@ namespace MoeLoaderP.Core.Sites
             var fi = new FileInfo(gifPath);
             await using var stream = new FileStream(item.LocalFileFullPath, FileMode.Open);
             item.StatusText = "正在转换为GIF..";
-            await Task.Run(() =>
+            void ConvertPixivZipToGif()
             {
                 // ConvertPixivZipToGif
                 var delayList = new List<int>();
@@ -520,7 +518,9 @@ namespace MoeLoaderP.Core.Sites
                 images.Quantize(set);
                 images.Optimize();
                 images.Write(fi, MagickFormat.Gif);
-            }, token);
+            }
+
+            await Task.Run(ConvertPixivZipToGif, token);
         }
 
         private NetOperator AutoHintNet { get; set; }

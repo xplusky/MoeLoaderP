@@ -235,7 +235,7 @@
                     <CheckBox x:Name="AboutMenuCheckBox" Template="{DynamicResource MoeMenuCheckBoxControlTemplate}" FontSize="14">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xF129;" Foreground="{DynamicResource SystemBaseHighColorBrush}" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" Width="14" TextAlignment="Center" />
-                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseHighColorBrush}"><Run Text="关于/帮助"/></TextBlock>
+                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SystemBaseHighColorBrush}"><Run Text="关于/捐助"/></TextBlock>
                         </StackPanel>
                     </CheckBox>
                     <Popup x:Name="AboutPopup" IsOpen="{Binding IsChecked, ElementName=AboutMenuCheckBox}" Focusable="True" StaysOpen="False" AllowsTransparency="True" HorizontalOffset="-200">

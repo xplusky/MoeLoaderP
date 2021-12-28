@@ -1,0 +1,9 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=51501EA2_002DEE6D_002D44A2_002D8E3C_002DE512C1DF1C01_002Fd_003AControlParts_002Ff_003AMoeExplorerControl_002Examl_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=51501EA2_002DEE6D_002D44A2_002D8E3C_002DE512C1DF1C01_002Fd_003AControlParts_002Ff_003AMoeItemControl_002Examl_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=51501EA2_002DEE6D_002D44A2_002D8E3C_002DE512C1DF1C01_002Fd_003AControlParts_002Ff_003ASearchControl_002Examl_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=51501EA2_002DEE6D_002D44A2_002D8E3C_002DE512C1DF1C01_002Ff_003AMainWindow_002Examl_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=BBBFD6D0_002DFCA3_002D4ABD_002D858B_002DF9A702A2999E_002Ff_003ASettings_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Lin\.nuget\packages\fluentwpf\0.10.0\lib\netcoreapp3.0\FluentWPF.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

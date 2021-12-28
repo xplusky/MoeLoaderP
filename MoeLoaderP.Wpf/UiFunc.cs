@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -243,10 +244,14 @@ namespace MoeLoaderP.Wpf
 
         public static BitmapImage PngLoadBitmapImage(Stream stream)
         {
-            var bitmap = new draw.Bitmap(stream);
-            var ms = new MemoryStream();
-            bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
-            return SafeLoadBitmapImage(ms);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var bitmap = new draw.Bitmap(stream);
+                var ms = new MemoryStream();
+                bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
+                return SafeLoadBitmapImage(ms);
+            }
+                return null;
         }
     }
 }

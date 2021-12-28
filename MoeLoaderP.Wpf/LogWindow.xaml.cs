@@ -73,11 +73,6 @@ namespace MoeLoaderP.Wpf
             sv?.ScrollToEnd();
         }
 
-        private void LogAction(string obj)
-        {
-            var sv = LogListBox.Template.Resources["HostScrollViewer"] as ScrollViewer;
-            sv?.ScrollToBottom();
-        }
 
         public void Log(string text)
         {

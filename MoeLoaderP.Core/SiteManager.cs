@@ -28,26 +28,29 @@ namespace MoeLoaderP.Core
 
             Sites.Add(new PixivSite());
             if (x) Sites.Add(new PixivR18Site());
-            Sites.Add(new BilibiliSite());
+            
             Sites.Add(new KonachanSite());
             Sites.Add(new KonachanNetSite());
             Sites.Add(new YandeSite());
+            Sites.Add(new GelbooruSite());
             Sites.Add(new SankakuChanSite());
             if (x) Sites.Add(new SankakuIdolSite());
+            Sites.Add(new DeviantartSite());
+            Sites.Add(new DonmaiSite());
+            Sites.Add(new BilibiliSite());
             Sites.Add(new YuriimgSite());
             Sites.Add(new BehoimiSite());
             Sites.Add(new SafebooruSite());
-            Sites.Add(new DonmaiSite());
             if (x) Sites.Add(new LolibooruSite());
             if (x) Sites.Add(new AtfbooruSite());
             if (x) Sites.Add(new Rule34Site());
-            Sites.Add(new GelbooruSite());
+            
             Sites.Add(new KawaiinyanSite());
             Sites.Add(new MiniTokyoSite());
             Sites.Add(new EshuuSite());
             Sites.Add(new ZeroChanSite());
-            if (x) Sites.Add(new AnimePicsSite());
-            Sites.Add(new WCosplaySite());
+            if (x) Sites.Add(new AnimePicturesSite());
+            Sites.Add(new WorldCosplaySite());
         }
         
         public async void SetCustomSitesFormJson(string dir)

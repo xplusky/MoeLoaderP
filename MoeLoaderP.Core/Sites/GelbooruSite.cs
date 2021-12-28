@@ -41,7 +41,7 @@ namespace MoeLoaderP.Core.Sites
         {
             var url = img.DetailUrl;
             var net = new NetOperator(img.Site.Settings);
-            var html = await net.GetHtmlAsync(url,token);
+            var html = await net.GetHtmlAsync(url,null,false, token);
             if(html == null )return;
             var nodes = html.DocumentNode;
             img.Artist = nodes.SelectSingleNode("*//li[@class='tag-type-artist']/a[2]")?.InnerText.Trim();

@@ -66,7 +66,7 @@ namespace MoeLoaderP.Core.Sites
             }
 
             // images
-            var doc = await Net.GetHtmlAsync(url, token);
+            var doc = await Net.GetHtmlAsync(url, token:token);
             if (doc == null) return new SearchedPage
             {
                 Message = "获取HTML失败"
@@ -90,7 +90,7 @@ namespace MoeLoaderP.Core.Sites
                 var dimension = meta.SelectSingleNode(".//dd[4]").InnerText;
                 foreach (var s in dimension.Split(' '))
                 {
-                    if(!s.Contains("x"))continue;
+                    if(!s.Contains('x'))continue;
                     var res = s.Split('x');
                     if(res.Length!=2)continue;
                     img.Width = res[0].ToInt();
@@ -134,7 +134,7 @@ namespace MoeLoaderP.Core.Sites
             var url = $"{HomeUrl}/httpreq.php{pairs.ToPairsString()}";
             var net = Net.CreateNewWithOldCookie();
             var res = await net.Client.GetAsync(url, token);
-            var txt = await res.Content.ReadAsStringAsync();
+            var txt = await res.Content.ReadAsStringAsync(token);
             var lines = txt.Split('\n');
             for (var i = 0; i < lines.Length && i < 8; i++)
             {

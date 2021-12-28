@@ -3,6 +3,9 @@ using System.Collections.ObjectModel;
 
 namespace MoeLoaderP.Core.Sites
 {
+    /// <summary>
+    /// 自定义站点配置
+    /// </summary>
     public class CustomSiteConfig
     {
         public string ShortName { get; set; }
@@ -29,16 +32,30 @@ namespace MoeLoaderP.Core.Sites
 
     public class CustomCategories : List<CustomCategory>
     {
-        public void AddRange(string first, string follow, params string[] content)
+        //public void AddRange(string first, string follow, params string[] content)
+        //{
+        //    if (content.Length % 2 != 0) return;
+        //    for (var i = 0; i < content.Length; i += 2)
+        //    {
+        //        var cat = new CustomCategory
+        //        {
+        //            FirstPageApi = first.Replace("{name}", content[i]),
+        //            FollowUpPageApi = follow.Replace("{name}", content[i]),
+        //            Name = content[i + 1]
+        //        };
+        //        Add(cat);
+        //    }
+        //}
+
+        public void AddRange(string first, string follow, Pairs pairs)
         {
-            if (content.Length % 2 != 0) return;
-            for (var i = 0; i < content.Length; i += 2)
+            foreach(var pair in pairs)
             {
                 var cat = new CustomCategory
                 {
-                    FirstPageApi = first.Replace("{name}", content[i]),
-                    FollowUpPageApi = follow.Replace("{name}", content[i]),
-                    Name = content[i + 1]
+                    Name = pair.Value,
+                    FirstPageApi = first.Replace("{name}", pair.Key),
+                    FollowUpPageApi = follow.Replace("{name}", pair.Key),                    
                 };
                 Add(cat);
             }
