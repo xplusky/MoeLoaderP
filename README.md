@@ -74,6 +74,10 @@ QQ群：173707488 验证：MoeLoaderP
 
 -----
 
+## 捐助
+![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/alipay-qrcode.jpg)
+![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/weixinpay-qrcode.png)
+
 ## 更新记录
 
 ### 待定 10.0.1-(正在施工中，敬请期待)
