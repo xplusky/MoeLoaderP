@@ -75,6 +75,7 @@ QQ群：173707488 验证：MoeLoaderP
 -----
 
 ## 捐助
+如果你喜欢这个软件，欢迎请我喝杯饮料
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/alipay-qrcode.jpg)
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/weixinpay-qrcode.png)
 
@@ -101,6 +102,17 @@ QQ群：173707488 验证：MoeLoaderP
 - 可以框选右键批量刷新图片了(via xx.p)
 - sankaku chan 支持多关键字搜索了，只要在录入关键字后打空格就可以添加进关键字中
 - 历史记录改为分别不同站点存储
+- 新增单独设置每个站点代理，并且可以直观在下拉菜单中显示
+- 搜索结果界面优化，多图显示叠加效果
+- 支持性能模式设置，减少动画数量
+- 新增deviantart站点
+- 新增konachan.net站点
+- 获取图片上限提高到500
+- 分页模式改进，支持显示每页图片数量信息
+- 新增搜索左下角弹出提示
+- 下载图片类型改进，支持优先下载大图模式
+- 部分站点搜索参数支持排序
+- 参数设置窗口改进，整合至搜索框内
 
 ### 2021-4-12 9.5.1
 - 修复文件名规则框

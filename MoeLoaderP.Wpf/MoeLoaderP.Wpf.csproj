@@ -67,6 +67,7 @@
     <None Remove="Assets\banner2.png" />
     <None Remove="Assets\SiteIcon\default.png" />
     <None Remove="Assets\SiteIcon\deviantart.ico" />
+    <None Remove="Assets\SiteIcon\konachan-g.ico" />
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
@@ -110,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\gelbooru.ico" />
+    <Resource Include="Assets\SiteIcon\konachan-g.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\sankakucomplex-idol.ico" />
@@ -247,6 +249,7 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Nullable>disable</Nullable>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

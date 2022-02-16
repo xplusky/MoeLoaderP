@@ -201,6 +201,30 @@
                 <VisualState x:Name="NormalState"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+        <Grid x:Name="MultiPicBgGrid" Margin="4,4,0,0" Visibility="Collapsed">
+            <Border BorderThickness="1" BorderBrush="#FF666666" CornerRadius="8" Margin="4,4,0,0" >
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFF3F3F3" Offset="0"/>
+                        <GradientStop Color="White" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="0" Color="#FF00B9FF" BlurRadius="6" Opacity="0"/>
+                </Border.Effect>
+            </Border>
+            <Border BorderThickness="1" BorderBrush="#FF666666" CornerRadius="8" Margin="0,0,4,4" >
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFF3F3F3" Offset="0"/>
+                        <GradientStop Color="White" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="0" Color="#FF00B9FF" BlurRadius="6" Opacity="0"/>
+                </Border.Effect>
+            </Border>
+        </Grid>
         <CheckBox x:Name="ImageCheckBox" Template="{DynamicResource ImageItemCheckBoxControlTemplate}" 
                   Background="{DynamicResource MoeImageBorderBrush}">
             <Grid x:Name="ImageGrid">
@@ -256,7 +280,7 @@
                 </Grid>
                 <StackPanel x:Name="LeftBottomStackPanel" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Bottom" Margin="4,0,0,4">
                     <Border x:Name="ResolutionBorder" CornerRadius="5" Padding="1"
-                        Visibility="{Binding MoeItem.ResolutionText, Converter={StaticResource StringToVisibilityConverter},Mode=OneWay}" 
+                        Visibility="{Binding MoeItem.ResolutionText, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}" 
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <Border.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -323,10 +347,7 @@
                                     <GradientStop Color="#A8404040" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <TextBlock x:Name="ImagesCountTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                                <Run Text="&#xF302; " FontFamily="{DynamicResource FontAwesomeSolid}" />
-                                <Run Text="{Binding MoeItem.ChildrenItemsCount, Mode=OneWay}" />
-                            </TextBlock>
+                            <TextBlock x:Name="ImagesCountTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF302; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text=" "/><Run Text="{Binding MoeItem.ChildrenItemsCount, Mode=OneWay}" /></TextBlock>
                         </Border>
                         <Border x:Name="ScoreBorder" 
                                 Visibility="{Binding MoeItem.Score, Converter={StaticResource DoubleToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Left"  VerticalAlignment="Top" CornerRadius="5" Padding="1" Margin="0,0,4,0" >
@@ -336,10 +357,7 @@
                                     <GradientStop Color="#A8404040" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <TextBlock x:Name="ScoreTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                                <Run Text="&#xf06d; " FontFamily="{DynamicResource FontAwesomeSolid}" />
-                                <Run Text="{Binding MoeItem.Score}" />
-                            </TextBlock>
+                            <TextBlock x:Name="ScoreTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF06D; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text=" "/><Run Text="{Binding MoeItem.Score}" /></TextBlock>
                         </Border>
                         <Border x:Name="FavBorder" 
                                 Visibility="{Binding MoeItem.FavCount, Converter={StaticResource IntToVisibilityConverter}, Mode=OneWay}" 
@@ -350,10 +368,7 @@
                                     <GradientStop Color="#A8404040" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
-                            <TextBlock x:Name="FavTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                                <Run Text="&#xF005; " FontFamily="{DynamicResource FontAwesomeSolid}" />
-                                <Run Text="{Binding MoeItem.FavCount}" />
-                            </TextBlock>
+                            <TextBlock x:Name="FavTextBlock" Margin="2" Foreground="White" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" ><Run Text="&#xF005; " FontFamily="{DynamicResource FontAwesomeSolid}" /><Run Text=" "/><Run Text="{Binding MoeItem.FavCount}" /></TextBlock>
                         </Border>
                     </StackPanel>
                     <Border  x:Name="TipBorder" 

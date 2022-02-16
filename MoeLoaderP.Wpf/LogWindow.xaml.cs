@@ -13,76 +13,75 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MoeLoaderP.Core;
 
-namespace MoeLoaderP.Wpf
+namespace MoeLoaderP.Wpf;
+
+/// <summary>
+/// LogWindow.xaml 的交互逻辑
+/// </summary>
+public partial class LogWindow : Window
 {
-    /// <summary>
-    /// LogWindow.xaml 的交互逻辑
-    /// </summary>
-    public partial class LogWindow : Window
+    public Settings Settings { get; set; }
+    public LogWindow()
     {
-        public Settings Settings { get; set; }
-        public LogWindow()
+        InitializeComponent();
+        CopyButton.Click+= CopyButtonOnClick;
+        ClearButton.Click+= ClearButtonOnClick;
+        LogListBox.SelectionChanged += LogListBoxOnSelectionChanged;
+    }
+
+    private void LogListBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (LogListBox.SelectedItems.Count > 0)
         {
-            InitializeComponent();
-            CopyButton.Click+= CopyButtonOnClick;
-            ClearButton.Click+= ClearButtonOnClick;
-            LogListBox.SelectionChanged += LogListBoxOnSelectionChanged;
+            CopyButton.IsEnabled = true;
+        }
+        else
+        {
+            CopyButton.IsEnabled = false;
         }
 
-        private void LogListBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        CopyButton.Content = $"复制{LogListBox.SelectedItems.Count}项";
+    }
+
+    private void ClearButtonOnClick(object sender, RoutedEventArgs e)
+    {
+        Ex.LogCollection.Clear();
+    }
+
+    private void CopyButtonOnClick(object sender, RoutedEventArgs e)
+    {
+        var col = LogListBox.SelectedItems;
+        var strs = "";
+        foreach (var str in col)
         {
-            if (LogListBox.SelectedItems.Count > 0)
-            {
-                CopyButton.IsEnabled = true;
-            }
-            else
-            {
-                CopyButton.IsEnabled = false;
-            }
-
-            CopyButton.Content = $"复制{LogListBox.SelectedItems.Count}项";
+            strs += str + "\r\n";
         }
+        strs.CopyToClipboard();
+    }
 
-        private void ClearButtonOnClick(object sender, RoutedEventArgs e)
+    public void Init(Settings settings)
+    {
+        LogListBox.ItemsSource = Ex.LogCollection;
+        Settings = settings;
+        DataContext = Settings;
+        Ex.LogCollection.CollectionChanged += LogCollection_CollectionChanged;
+    }
+
+    private void LogCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        var sv = LogListBox.Template.FindName("HostScrollViewer", LogListBox) as ScrollViewer;
+        sv?.ScrollToEnd();
+    }
+
+
+    public void Log(string text)
+    {
+        var tb = new TextBlock
         {
-            Ex.LogCollection.Clear();
-        }
-
-        private void CopyButtonOnClick(object sender, RoutedEventArgs e)
-        {
-            var col = LogListBox.SelectedItems;
-            var strs = "";
-            foreach (var str in col)
-            {
-                strs += str + "\r\n";
-            }
-            strs.CopyToClipboard();
-        }
-
-        public void Init(Settings settings)
-        {
-            LogListBox.ItemsSource = Ex.LogCollection;
-            Settings = settings;
-            DataContext = Settings;
-            Ex.LogCollection.CollectionChanged += LogCollection_CollectionChanged;
-        }
-
-        private void LogCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            var sv = LogListBox.Template.FindName("HostScrollViewer", LogListBox) as ScrollViewer;
-            sv?.ScrollToEnd();
-        }
-
-
-        public void Log(string text)
-        {
-            var tb = new TextBlock
-            {
-                Text = text
-            };
-            LogListBox.Items.Add(tb);
-            LogListBox.ScrollIntoView(tb);
-            if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
-        }
+            Text = text
+        };
+        LogListBox.Items.Add(tb);
+        LogListBox.ScrollIntoView(tb);
+        if (LogListBox.Items.Count > 500) LogListBox.Items.RemoveAt(0);
     }
 }

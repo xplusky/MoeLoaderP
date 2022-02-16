@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="MoePopupBorderStyle" TargetType="Border">
+        <Setter Property="BorderThickness" Value="1,1,1,1"></Setter>
+        <Setter Property="Margin" Value="10"></Setter>
+        <Setter Property="Padding" Value="6"></Setter>
+        <Setter Property="Background" Value="{DynamicResource MoeImageBorderBrush}"></Setter>
+        <Setter Property="BorderBrush" Value="{DynamicResource MoeButtonStrokeBrush}"></Setter>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect ShadowDepth="0" Opacity="0.65" BlurRadius="10"></DropShadowEffect>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="CornerRadius" Value="8"></Setter>
+    </Style>
+</ResourceDictionary>

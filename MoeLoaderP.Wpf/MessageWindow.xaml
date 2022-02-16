@@ -30,6 +30,9 @@
         <Expander x:Name="MessageTextBoxExpander" Header="展开详细异常信息" Grid.Row="1">
             <Grid Background="#FFE5E5E5">
                 <TextBox x:Name="MessageTextBox" TextWrapping="Wrap" Text="" Height="300" VerticalScrollBarVisibility="Auto" FontSize="11" IsReadOnly="True"  />
+                <TabControl x:Name="MessageTabControl" Visibility="Collapsed">
+                    
+                </TabControl>
             </Grid>
         </Expander>
         <Border BorderBrush="Black" Grid.Row="2">

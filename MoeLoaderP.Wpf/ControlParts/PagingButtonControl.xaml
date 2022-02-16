@@ -39,29 +39,36 @@
         <Button
                 x:Name="PageButton"
                  Template="{DynamicResource NextButtonTemplate}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock x:Name="PageNumTextBlock" Text="XX" TextWrapping="Wrap"  FontSize="14"/>
-                <TextBlock x:Name="NextIconTextBlock" TextWrapping="Wrap" Text="&#xF101;" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="18" Margin="8,0,0,0" Visibility="Visible"/>
-            </StackPanel>
+            <Grid VerticalAlignment="Stretch">
+                <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="UniformToFill" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                    <Viewbox.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="0.9" ScaleY="0.9"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </Viewbox.RenderTransform>
+                    <TextBlock x:Name="LoadingIcon" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="96" RenderTransformOrigin="0.5,0.5" Foreground="Black" Width="96" Height="96" Opacity="0" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                        <TextBlock.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="0"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </TextBlock.RenderTransform><Run Text="&#xF110;"/></TextBlock>
+                </Viewbox>
+                <Grid x:Name="PageNumGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <TextBlock x:Name="PageNumTextBlock" Text="XX" TextWrapping="Wrap"  FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Grid x:Name="MultiPageNumTextGrid">
+                        <TextBlock x:Name="PageStartNumTextBlock" Text="Start" TextWrapping="Wrap"  FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-25,15,0"/>
+                        <TextBlock Text="~" TextWrapping="Wrap"  FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PageEndNumTextBlock" Text="End" TextWrapping="Wrap"  FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,25,-15,0"/>
+                    </Grid>
+                </Grid>
+                <TextBlock x:Name="NextIconTextBlock" TextWrapping="Wrap" Text="&#xF101;" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="18" Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center" d:IsHidden="True"/>
+            </Grid>
         </Button>
-        <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,6,6,6" Stretch="UniformToFill" RenderTransformOrigin="0.5,0.5">
-            <Viewbox.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleX="0.9" ScaleY="0.9"/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Viewbox.RenderTransform>
-            <TextBlock x:Name="LoadingIcon" FontFamily="{DynamicResource FontAwesomeSolid}" FontSize="96" RenderTransformOrigin="0.5,0.5" Foreground="Black" Width="96" Height="96" Opacity="0" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                <TextBlock.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform Angle="0"/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </TextBlock.RenderTransform><Run Text="&#xF110;"/></TextBlock>
-        </Viewbox>
     </Grid>
 </UserControl>

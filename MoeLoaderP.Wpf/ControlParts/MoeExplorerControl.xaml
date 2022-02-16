@@ -90,24 +90,15 @@ d:DesignHeight="450" d:DesignWidth="800">
                 </VisualStateGroup.Transitions>
                 <VisualState x:Name="NoSelectedItemState">
                     <Storyboard>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SelectImageGrid">
-                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SelectImageOperationStackPanel" Storyboard.TargetProperty="(FrameworkElement.Width)">
+                            <EasingDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="SelectImageGrid">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="SelectImageGrid">
-                            <EasingDoubleKeyFrame KeyTime="0" Value="20"/>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SelectImageOperationStackPanel" Storyboard.TargetProperty="(UIElement.Opacity)">
+                            <EasingDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
-                <VisualState x:Name="HasSelectedItemState">
-                    <Storyboard>
-                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SelectImageGrid">
-                            <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
+                <VisualState x:Name="HasSelectedItemState"/>
             </VisualStateGroup>
             <VisualStateGroup x:Name="NextPageVSG">
                 <VisualStateGroup.Transitions>
@@ -252,7 +243,7 @@ d:DesignHeight="450" d:DesignWidth="800">
         </ScrollViewer>
 
         <Popup x:Name="ContextMenuPopup" d:IsOpen="true"  Placement="Mouse" Focusable="True"
-               StaysOpen="False" AllowsTransparency="True" VerticalOffset="-25" HorizontalOffset="-15">
+               StaysOpen="False" AllowsTransparency="True" VerticalOffset="-25" HorizontalOffset="-15" PopupAnimation="Fade">
             <Grid x:Name="ContextMenuPopupGrid" RenderTransformOrigin="0.5,0.5">
                 <Grid.RenderTransform>
                     <TransformGroup>
@@ -262,7 +253,7 @@ d:DesignHeight="450" d:DesignWidth="800">
                         <TranslateTransform/>
                     </TransformGroup>
                 </Grid.RenderTransform>
-                <controlParts:MoeFloatBorder>
+                <Border Style="{DynamicResource MoePopupBorderStyle}">
                     <StackPanel x:Name="ContextMenuRootStackPanel" Width="220">
                         <Grid Height="32">
                             <Grid.ColumnDefinitions>
@@ -292,7 +283,7 @@ d:DesignHeight="450" d:DesignWidth="800">
                         <StackPanel x:Name="SpPanel" Margin="2,4,2,2"/>
                         <StackPanel x:Name="ContextMenuImageInfoStackPanel"/>
                     </StackPanel>
-                </controlParts:MoeFloatBorder>
+                </Border>
             </Grid>
         </Popup>
         <Grid x:Name="ResultTipGrid" Visibility="Collapsed" Grid.RowSpan="2">
@@ -310,10 +301,27 @@ d:DesignHeight="450" d:DesignWidth="800">
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel x:Name="PagingStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <controlParts:PagingButtonControl x:Name="NextButtonControl" Width="64" Height="64" Grid.Column="1"/>
+                <ScrollViewer x:Name="PagingScrollViewer" HorizontalAlignment="Left" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" Template="{DynamicResource MoeScrollViewerControlTemplate}" >
+                    <StackPanel x:Name="PagingStackPanel" Orientation="Horizontal" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" CanHorizontallyScroll="True"/>
+                </ScrollViewer>
+                <controlParts:PagingButtonControl x:Name="NextButtonControl" Width="72" Height="72" Grid.Column="1"/>
+                <Popup x:Name="PageTipPopup" d:IsOpen="true"  Placement="Top" Focusable="True" AllowsTransparency="True" Grid.ColumnSpan="2" HorizontalAlignment="Left" PopupAnimation="Fade">
+                    <Border Style="{DynamicResource MoePopupBorderStyle}">
+                        <Grid>
+                            <StackPanel x:Name="PageTipRootStackPanel" Visibility="Collapsed"/>
+                            <DataGrid x:Name="PageTipDataGrid" AutoGenerateColumns="False"  d:ItemsSource="{d:SampleData ItemCount=5}" CanUserAddRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="页码" Binding="{Binding CurrentPageNum}"/>
+                                    <DataGridTextColumn Header="本页图片（过滤后/前）" Binding="{Binding CurrentPagePicCount}"/>
+                                    <DataGridTextColumn Header="本页范围（过滤前）" Binding="{Binding CurrentPagePicNumRange}"/>
+                                    <DataGridTextColumn Header="图片ID范围（过滤前）" Binding="{Binding CurrentPagePicIdRange}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Popup>
             </Grid>
-            <Grid x:Name="SelectImageGrid" HorizontalAlignment="Right" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Grid.Column="1" Margin="0,0,18,0">
+            <Grid x:Name="DownloadOperationGrid" HorizontalAlignment="Right" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Grid.Column="1" Margin="0,0,18,0">
                 <Grid.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
@@ -324,25 +332,41 @@ d:DesignHeight="450" d:DesignWidth="800">
                 </Grid.RenderTransform>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
-                    <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Border BorderThickness="1" Grid.RowSpan="2" Background="#660092FF" BorderBrush="#99C4C4C4" CornerRadius="10"/>
+                <Border BorderThickness="1" Background="#9999D4FF" BorderBrush="#99C4C4C4" CornerRadius="10" Margin="0,0,4,4">
+                    <StackPanel Orientation="Horizontal" Margin="4,4,4,4">
+                        <StackPanel x:Name="SelectImageOperationStackPanel" Orientation="Vertical" Width="152">
+                            <TextBlock x:Name="ImageCountTextBlock" TextWrapping="Wrap" Text="SelectItems" FontWeight="Bold" Foreground="Black" Height="18" Width="152">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="White" ShadowDepth="0" BlurRadius="6"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
 
-                <TextBlock x:Name="ImageCountTextBlock" TextWrapping="Wrap" Text="TextBlock" Margin="5" FontWeight="Bold" Foreground="Black">
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="White" ShadowDepth="0" BlurRadius="6"/>
-                    </TextBlock.Effect>
-                </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Button x:Name="DownloadSelectedImagesButton" Template="{DynamicResource MoeButtonControlTemplate}" Height="26" FontSize="14">
+                                    <TextBlock x:Name="DownloadSelectedImagesButtonTextBlock" TextWrapping="Wrap" Text="下载所选" Margin="8,0"/>
+                                </Button>
+                                <Button x:Name="OutputSelectedImagesUrlsButton" Template="{DynamicResource MoeButtonControlTemplate}" Height="26" FontSize="14" Margin="4,0,0,0">
+                                    <TextBlock TextWrapping="Wrap" Text="导出地址" Margin="8,0"/>
+                                </Button>
 
-                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,5">
-                    <Button x:Name="DownloadSelectedImagesButton" Template="{DynamicResource MoeButtonControlTemplate}" Height="32" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="14" Margin="4,0">
-                        <TextBlock x:Name="DownloadSelectedImagesButtonTextBlock" TextWrapping="Wrap" Text="下载所选图片" Margin="8,0"/>
-                    </Button>
-                    <Button x:Name="OutputSelectedImagesUrlsButton" Template="{DynamicResource MoeButtonControlTemplate}" Height="32" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="14" Margin="4,0">
-                        <TextBlock TextWrapping="Wrap" Text="导出下载地址" Margin="8,0"/>
-                    </Button>
+                            </StackPanel>
 
-                </StackPanel>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Stretch" Margin="4,0,0,0">
+                            <TextBlock TextWrapping="Wrap" Text="下载图片类型" Height="18" Foreground="Black"/>
+                            <ComboBox x:Name="DownloadTypeComboBox" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Height="26" SelectedIndex="0" Width="100" Margin="0,4,0,0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <TextBlock TextWrapping="NoWrap" Text="{Binding Name}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
             </Grid>
         </Grid>
