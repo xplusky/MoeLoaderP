@@ -19,6 +19,13 @@ namespace MoeLoaderP.Core;
 /// </summary>
 public class NetOperator
 {
+    public HttpClientHandler HttpClientHandler { get; set; }
+    public ProgressMessageHandler ProgressMessageHandler { get; set; }
+    public HttpClient Client { get; set; }
+    public Settings Settings { get; set; }
+    public MoeSite Site { get; set; }
+
+    public double Timeout { get; set; }
     public NetOperator()
     {
         HttpClientHandler = new HttpClientHandler();
@@ -30,57 +37,65 @@ public class NetOperator
     {
         Settings = settings;
         Site = site;
-        HttpClientHandler = new HttpClientHandler {Proxy = Proxy};
-        //if (cookieurl != null)
+        Timeout = timeout;
+
+
+        HttpClientHandler = new HttpClientHandler
+        {
+            Proxy = GetProxy(),
+            // ServerCertificateCustomValidationCallback = delegate { return true; },
+
+        };
+        //if (GetProxyMode(Settings, Site.SiteSettings) != Settings.ProxyModeEnum.None)
         //{
-        //    var cookie = new CookieContainer();
-        //    var cookies = cookie.GetCookies(new Uri(cookieurl));
-        //    HttpClientHandler.CookieContainer.Add(cookies);
+        //    HttpClientHandler.SslProtocols = SslProtocols.Tls12;
         //}
-        //const string agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36";
-        const string agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36";
         ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
         Client = new HttpClient(ProgressMessageHandler);
+        var agent = Agents[new Random().Next(0, Agents.Length - 1)];
         Client.DefaultRequestHeaders.UserAgent.ParseAdd(agent);
-        Client.Timeout = TimeSpan.FromSeconds(timeout);
+        Client.Timeout = TimeSpan.FromSeconds(Timeout);
     }
+    
 
-    public HttpClientHandler HttpClientHandler { get; set; }
-    public ProgressMessageHandler ProgressMessageHandler { get; set; }
-    public HttpClient Client { get; set; }
-    public Settings Settings { get; set; }
-
-    public MoeSite Site { get; set; }
-
-    public IWebProxy Proxy
+    public static string[] Agents =
     {
-        get
-        {
-            switch (GetProxyMode(Settings,Site.SiteSettings))
-            {
-                case Settings.ProxyModeEnum.None: return new WebProxy();
-                case Settings.ProxyModeEnum.Custom:
-                {
-                    try
-                    {
-                        var strs = Settings.ProxySetting.Split(':');
-                        var port = strs[1].ToInt();
-                        if (port == 0) return WebRequest.DefaultWebProxy;
-                        var address = IPAddress.Parse(strs[0]);
-                        var proxy = new WebProxy(address.ToString(), port);
-                        return proxy;
-                    }
-                    catch (Exception e)
-                    {
-                        Ex.Log(e);
-                        return WebRequest.DefaultWebProxy;
-                    }
-                }
-                case Settings.ProxyModeEnum.Ie: return WebRequest.DefaultWebProxy;
-            }
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36",
+    };
 
-            return null;
+    public IWebProxy GetProxy()
+    {
+        switch (GetProxyMode(Settings, Site.SiteSettings))
+        {
+            case Settings.ProxyModeEnum.None: return new WebProxy();
+            case Settings.ProxyModeEnum.Custom:
+            {
+                try
+                {
+                    var strs = Settings.ProxySetting.Split(':');
+                    var port = strs[1].ToInt();
+                    if (port == 0) return WebRequest.DefaultWebProxy;
+                    var address = IPAddress.Parse(strs[0]);
+                    var proxy = new WebProxy(address.ToString(), port);
+                    return proxy;
+                }
+                catch (Exception e)
+                {
+                    Ex.Log(e);
+                    return WebRequest.DefaultWebProxy;
+                }
+            }
+            case Settings.ProxyModeEnum.Ie: return WebRequest.DefaultWebProxy;
         }
+
+        return null;
     }
 
     public static Settings.ProxyModeEnum GetProxyMode(Settings settings,IndividualSiteSettings individualSiteSettings)
@@ -108,35 +123,50 @@ public class NetOperator
         if (cc != null) HttpClientHandler.CookieContainer = cc;
     }
 
+
+
     public NetOperator CloneWithCookie()
     {
+        var cc = HttpClientHandler.CookieContainer;
         var net = new NetOperator(Settings,Site)
         {
-            HttpClientHandler =
+            HttpClientHandler = 
             {
-                CookieContainer = HttpClientHandler.CookieContainer
+                CookieContainer = cc
             }
         };
         return net;
     }
 
 
-    public async Task<HttpResponseMessage> GetAsync(string api, bool showSearchMessage = true,
-        CancellationToken token = default)
+    public async Task<HttpResponseMessage> GetAsync(string api, bool showSearchMessage = true,int retrytimes = 1, CancellationToken token = default)
     {
         if (showSearchMessage) Ex.ShowMessage($"正在获取 {api}", pos: Ex.MessagePos.Searching);
+        
+        var times = retrytimes;
+        while (times>=0)
+        {
+            try
+            {
+                return await Client.GetAsync(api, token);
+            }
+            catch (Exception)
+            {
+                if (times == 0) throw;
+                times--;
+            }
+        }
 
-        return await Client.GetAsync(api, token);
+        return null;
     }
 
-    public async Task<string> GetStringAsync(string api, Pairs parapairs = null, bool showSearchMessage = true,
-        CancellationToken token = default)
+    public async Task<string> GetStringAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
     {
         var query = parapairs.ToPairsString();
         try
         {
             var q = $"{api}{query}";
-            var response = await GetAsync(q, showSearchMessage, token);
+            var response = await GetAsync(q, showSearchMessage, token: token);
             var s = await response.Content.ReadAsStringAsync(token);
             return s;
         }
@@ -148,13 +178,12 @@ public class NetOperator
         }
     }
 
-    public async Task<dynamic> GetJsonAsync(string api, Pairs parapairs = null, bool showSearchMessage = true,
-        CancellationToken token = default)
+    public async Task<dynamic> GetJsonAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
     {
         var query = parapairs.ToPairsString();
         try
         {
-            var response = await GetAsync($"{api}{query}", showSearchMessage, token);
+            var response = await GetAsync($"{api}{query}", showSearchMessage, 3,token: token);
 
             var s = await response.Content.ReadAsStringAsync(token);
             return JsonConvert.DeserializeObject(s);
@@ -167,14 +196,13 @@ public class NetOperator
         }
     }
 
-    public async Task<HtmlDocument> GetHtmlAsync(string api, Pairs parapairs = null, bool showSearchMessage = true,
-        CancellationToken token = default)
+    public async Task<HtmlDocument> GetHtmlAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
     {
         var query = parapairs.ToPairsString();
         var doc = new HtmlDocument();
         try
         {
-            var response = await GetAsync($"{api}{query}", showSearchMessage, token);
+            var response = await GetAsync($"{api}{query}", showSearchMessage, token:token);
             var s = await response.Content.ReadAsStringAsync(token);
             doc.LoadHtml(s);
             return doc;
@@ -187,14 +215,13 @@ public class NetOperator
         }
     }
 
-    public async Task<XmlDocument> GetXmlAsync(string api, Pairs pairs = null, bool showSearchMessage = true,
-        CancellationToken token = default)
+    public async Task<XmlDocument> GetXmlAsync(string api, Pairs pairs = null, bool showSearchMessage = true, CancellationToken token = default)
     {
         var query = pairs.ToPairsString();
         var xml = new XmlDocument();
         try
         {
-            var response = await GetAsync($"{api}{query}", showSearchMessage, token);
+            var response = await GetAsync($"{api}{query}", showSearchMessage, token: token);
             var s = await response.Content.ReadAsStringAsync(token);
             xml.LoadXml(s);
         }
@@ -215,7 +242,7 @@ public class NetOperator
         XDocument xml;
         try
         {
-            var response = await GetAsync($"{api}{query}", showSearchMessage, token);
+            var response = await GetAsync($"{api}{query}", showSearchMessage, token: token);
             var s = await response.Content.ReadAsStreamAsync(token);
             xml = XDocument.Load(s);
         }

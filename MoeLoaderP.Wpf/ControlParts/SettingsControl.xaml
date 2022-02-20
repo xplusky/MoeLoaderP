@@ -28,28 +28,33 @@
                 <GroupBox.Header>
                     <TextBlock Text="{DynamicResource TextSettingsProxyGroup}" Foreground="Black"/>
                 </GroupBox.Header>
-                <Grid>
+                <Grid Margin="4,0,4,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <ComboBox x:Name="ProxyModeComboBox" Margin="4" 
-                              SelectedIndex="{Binding ProxyMode, Converter={StaticResource ProxyModeToSelectIndexConverter}, Mode=TwoWay}" 
-                              Height="24" Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
-                        ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}">
+                    <ComboBox x:Name="ProxyModeComboBox" 
+                        SelectedIndex="{Binding ProxyMode, Converter={StaticResource ProxyModeToSelectIndexConverter}, Mode=TwoWay}" 
+                              Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
+                        ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}" Grid.Column="1" Height="26" Width="150">
                         <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeNone}" />
                         <ComboBoxItem Content="{DynamicResource TextSettingsProxyModeCustom}" />
                         <ComboBoxItem Content="系统代理"/>
                     </ComboBox>
                     <TextBox
                         x:Name="CustomProxyTextBox"
-                        Width="138"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
                         Text="127.0.0.1:1080"
                         TextWrapping="NoWrap" 
                         Template="{DynamicResource MoeSingleLineTextBoxControlTemplate}"
-                        Grid.Column="1" Margin="4" Height="24" ToolTip="格式为 ip:端口" />
+                        Grid.Column="1" ToolTip="格式为 ip:端口" Grid.Row="1" Height="26" Width="150" />
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Text="全局代理设置" Foreground="Black"/>
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Text="自定义代理地址及端口" Foreground="Black" Grid.Row="1"/>
                 </Grid>
             </GroupBox>
 
@@ -59,24 +64,24 @@
                     <TextBlock Text="{DynamicResource TextSettingsGroupSearch}" Foreground="Black"/>
                 </GroupBox.Header>
                 <StackPanel Margin="4">
-                    <Grid Height="66.24">
+                    <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="30"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,10,0,7.88" Text="{DynamicResource TextSettingsParallelLoadMaxCount}" Foreground="Black"/>
+                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Text="{DynamicResource TextSettingsParallelLoadMaxCount}" Foreground="Black"/>
                         <controlParts:VariableCountControl x:Name="ImageParallelLoadMaxCountBox" Grid.Row="0"
                                                            Grid.Column="1" MinCount="5" MaxCount="20" 
-                                                           NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="24"/>
+                                                           NumCount="{Binding MaxOnLoadingImageCount, Mode=TwoWay}" Width="150" Height="26"/>
                         <TextBlock TextWrapping="Wrap" 
                                    Text="{DynamicResource TextSettingsHistoryMaxCount}" 
-                                   VerticalAlignment="Center" Height="15.24" Margin="0,7.228,0,10.652" Grid.Row="1"
+                                   VerticalAlignment="Center" Grid.Row="1"
                                    Grid.Column="0" Foreground="Black"/>
-                        <controlParts:VariableCountControl x:Name="HistoryMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="30" NumCount="{Binding HistoryKeywordsMaxCount, Mode=TwoWay}" Grid.Row="1" Width="150" Height="24"/>
+                        <controlParts:VariableCountControl x:Name="HistoryMaxCountBox" Grid.Column="1" MinCount="5" MaxCount="30" NumCount="{Binding HistoryKeywordsMaxCount, Mode=TwoWay}" Grid.Row="1" Width="150" Height="26"/>
                     </Grid>
                     <Button x:Name="ClearHistoryButton" 
                             Content="{DynamicResource TextSettingsClearHistory}" 
@@ -84,7 +89,7 @@
                             Height="24" Margin="0,4,0,0"/>
                     <CheckBox x:Name="ClearImgsWhenSerachNextPageCheckBox" Content="搜索下一页时清除当前页图片" 
                               IsChecked="{Binding IsClearImagesWhenSearchNextPage}" 
-                              Margin="0,6,0,0" Foreground="Black"/>
+                              Margin="0,6,0,0" Foreground="Black" Visibility="Collapsed"/>
                 </StackPanel>
             </GroupBox>
 
@@ -215,18 +220,18 @@
                         <CheckBox x:Name="IsShowBgImage" Content="显示软件背景图片"
                                   IsChecked="{Binding IsShowBgImage}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                         <Button x:Name="BgImageChangeButton"
-                            Width="24" Height="24"
+                            Width="22" Height="22"
                             Content="&#xF2F1;" 
                             Template="{DynamicResource MoeButtonControlTemplate}" 
                             FontFamily="{DynamicResource FontAwesomeSolid}" VerticalAlignment="Center" Margin="0,0,4,0" ToolTip="随机变换" />
                         <Button x:Name="BgImageOpenDirButton"
-                            Width="24" Height="24"
+                            Width="22" Height="22"
                             Content="&#xF07C;" Template="{DynamicResource MoeButtonControlTemplate}" 
                             FontFamily="{DynamicResource FontAwesomeSolid}"
                             ToolTip="打开背景图片文件夹" VerticalAlignment="Center" Margin="0,0,4,0" />
                     </StackPanel>
                     <CheckBox x:Name="IsEnableAcrylicStyleCheckBox" Content="显示亚克力毛玻璃效果" IsChecked="{Binding IsEnableAcrylicStyle}" Margin="0,4,0,0"/>
-                    <CheckBox x:Name="IsEnableLowPerformanceMode" Content="低性能模式（去除动画等效果）" IsChecked="{Binding IsLowPerformanceMode}" Margin="0,4,0,0"/>
+                    <CheckBox x:Name="IsEnableLowPerformanceMode" Content="低性能模式（去除动画等效果）" IsChecked="{Binding IsLowPerformanceMode}" Margin="0,6,0,0"/>
                 </StackPanel>
             </GroupBox>
 

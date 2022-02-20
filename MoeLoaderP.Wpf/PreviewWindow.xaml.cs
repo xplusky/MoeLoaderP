@@ -202,7 +202,7 @@ public partial class PreviewWindow
             await using Stream stream = await response.Content.ReadAsStreamAsync();
             BitmapImage Func()
             {
-                return UiFunc.GetBitmapImageFromStream(stream);
+                return UiUtility.GetBitmapImageFromStream(stream);
             }
             var source = await Task.Run(Func, Cts.Token);
 

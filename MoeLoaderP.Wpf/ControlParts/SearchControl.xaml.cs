@@ -105,7 +105,7 @@ public partial class SearchControl
         
 
         InitParaControl();
-        PopopHelper.SetPopupPlacementTarget(SearchHintParaPopup, KeywordGridRoot);
+        PopupHelper.SetPopupPlacementTarget(SearchHintParaPopup, KeywordGridRoot);
 
         for (var i = 1; i < 5; i++)
         {

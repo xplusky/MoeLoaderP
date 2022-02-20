@@ -20,8 +20,15 @@ public partial class AboutControl
 
     private async void OnInitialized(object sender, EventArgs e)
     {
-        await CheckUpdateAsync();
-        await CheckThankListAsync();
+        try
+        {
+            await CheckUpdateAsync();
+            await CheckThankListAsync();
+        }
+        catch (Exception ex)
+        {
+            Ex.Log(ex);
+        }
     }
 
 
@@ -40,7 +47,7 @@ public partial class AboutControl
             AboutDonateWeixinImageGrid.Visibility = Visibility.Collapsed;
         };
         AboutHomeLinkButton.Click += delegate { "http://leaful.com/moeloader-p/?tab=1".GoUrl(); };
-        AboutReportButton.Click += delegate { "http://leaful.com/moeloader-p/?tab=2".GoUrl(); };
+        AboutReportButton.Click += delegate { "http://leaful.com/moeloader-p/#respond".GoUrl(); };
     }
 
     public async Task CheckUpdateAsync()
@@ -62,12 +69,13 @@ public partial class AboutControl
         if (json == null) return;
         foreach (var user in json)
         {
+            var hot = $"{user.strong}".Equals("true", StringComparison.OrdinalIgnoreCase);
             var text = $"{user.name}";
             var texblock = new TextBlock
             {
                 FontSize = 12,
                 Margin = new Thickness(4),
-                Foreground = Brushes.White,
+                Foreground = hot?Brushes.Red: Brushes.White,
                 Text = text
             };
             var button = new Button

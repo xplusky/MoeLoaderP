@@ -46,9 +46,7 @@ public class SearchedPage : MoeItems
     }
 }
 
-public class SearchedPages : ObservableCollection<SearchedPage>
-{
-}
+public class SearchedPages : ObservableCollection<SearchedPage>{}
 
 
 public class PageButtonTipData

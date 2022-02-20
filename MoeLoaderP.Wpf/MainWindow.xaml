@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
     xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
     xmlns:controlParts="clr-namespace:MoeLoaderP.Wpf.ControlParts"
     x:Class="MoeLoaderP.Wpf.MainWindow"
@@ -14,9 +13,6 @@
     d:DesignWidth="1045" 
     d:DesignHeight="651.667"
     WindowStartupLocation="CenterScreen"
-    fw:AcrylicWindow.Enabled="True"
-    fw:AcrylicWindow.AcrylicWindowStyle="NoIcon"
-    fw:AcrylicWindow.AcrylicAccentState="{Binding IsEnableAcrylicStyle,Converter={StaticResource BoolToAcrylicAccentStateConvertor}}" Background="#4CFFFFFF"
     >
     <Window.Resources>
         <Storyboard x:Key="BeginSearchSb">
@@ -146,8 +142,7 @@
             <BeginStoryboard x:Name="LogoAnimateSbBeginStoryboard" Storyboard="{StaticResource LogoAnimateSb}"/>
         </EventTrigger>
     </Window.Triggers>
-    <Grid x:Name="LayoutRoot" fw:PointerTracker.Enabled="True">
-
+    <Grid x:Name="LayoutRoot">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="DownloadPanelVSG">
                 <VisualStateGroup.Transitions>

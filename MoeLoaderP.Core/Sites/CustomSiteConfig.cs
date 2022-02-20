@@ -15,7 +15,7 @@ public class CustomSiteConfig
 
     public string LoginUrl { get; set; }
     public string CookieLoginAuthKey { get; set; }
-    public CustomCategories Categories { get; set; } = new CustomCategories();
+    public CustomCategories Categories { get; set; } = new();
 
     public MoeSiteConfig Config { get; set; } = new()
     {
@@ -62,7 +62,6 @@ public class CustomCategory : Category
 
 public class CustomCategories : List<CustomCategory>
 {
-    public MoeSiteConfig Config { get; set; }
     
     public void Add(string name, string firstPageApi,string followUpPageApi, CustomPagePara overridePara = null)
     {

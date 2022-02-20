@@ -4,10 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
-        fw:AcrylicWindow.Enabled="True"
         Title="信息" Width="589" WindowStartupLocation="CenterOwner" 
-        fw:AcrylicWindow.AcrylicAccentState="Disabled"
 
         SizeToContent="Height" ResizeMode="NoResize">
     <Grid x:Name="LayouRoot" VerticalAlignment="Top">

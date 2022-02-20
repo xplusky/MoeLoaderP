@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using MoeLoaderP.Core;
 using MoeLoaderP.Core.Sites;
@@ -17,11 +18,29 @@ namespace MoeLoaderP.Wpf.ControlParts;
 /// </summary>
 public partial class MoeItemControl : IDisposable
 {
+    private LoadingStateEnum _loadingState = LoadingStateEnum.Waiting;
+
+    public enum LoadingStateEnum
+    {
+        Waiting, Loading,  Loaded
+    }
+
+    public LoadingStateEnum LoadingState
+    {
+        get => _loadingState;
+        set
+        {
+            if(value == _loadingState) return;
+            _loadingState = value;
+            ImageLoadingStateChangedEvent?.Invoke(this);
+        }
+    }
+
     public MoeItem MoeItem { get; set; }
 
     public Settings Settings { get; set; }
 
-    public event Action<MoeItemControl> ImageLoadEnd;
+    public event Action<MoeItemControl> ImageLoadingStateChangedEvent;
 
     public MoeItemControl(Settings settings, MoeItem item)
     {
@@ -62,15 +81,16 @@ public partial class MoeItemControl : IDisposable
 
     public void InitVisual()
     {
+        OperationBorder.Opacity = 0;
         MoeItemOnPropertyChanged(this, new PropertyChangedEventArgs(nameof(MoeItem.IsFav)));
         SiteOnPropertyChanged(this, new PropertyChangedEventArgs(nameof(MoeSite.IsUserLogin)));
         if (MoeItem.ChildrenItemsCount > 1)
         {
-            SetMutiPicVisual();
+            SetMultiPicVisual();
         }
     }
 
-    public void SetMutiPicVisual()
+    public void SetMultiPicVisual()
     {
         ImageCheckBox.Margin = new Thickness(0, 0, 8, 8);
         MultiPicBgGrid.Visibility = Visibility.Visible;
@@ -86,7 +106,7 @@ public partial class MoeItemControl : IDisposable
         {
             if (MoeItem.ChildrenItemsCount > 1)
             {
-                SetMutiPicVisual();
+                SetMultiPicVisual();
             }
         }
     }
@@ -120,15 +140,30 @@ public partial class MoeItemControl : IDisposable
         
 
     public CancellationTokenSource DetailAndImgLoadCts { get; set; }
-        
+
+    public bool LowPerformanceMode => Settings.IsLowPerformanceMode;
+
+    public void Show()
+    {
+        if(!LowPerformanceMode) ShowSb.Begin();
+    }
+
+    public Storyboard LoadingSb => this.Sb("LoadingSb");
+    public Storyboard ShowSb => this.Sb("ShowSb");
+    public Storyboard LoadingStartSb => this.Sb("LoadingStartSb");
+    public Storyboard LoadedImageSb => this.Sb("LoadedImageSb");
+    public Storyboard LoadFailSb => this.Sb("LoadFailSb");
+    public Storyboard LoadedAllSb => this.Sb("LoadedAllSb");
+
     public async Task TryLoad()
     {
-        var low = Settings.IsLowPerformanceMode;
+        LoadingState = LoadingStateEnum.Loading;
         DetailAndImgLoadCts?.Cancel();
         DetailAndImgLoadCts = new CancellationTokenSource();
-        var loadingsb = this.Sb("LoadingSb");
-        loadingsb.Begin();
-        this.Sb("LoadingStartSb").Begin();
+        LoadingSb.Begin();
+        if(LowPerformanceMode) LoadingSb.Pause();
+        LoadingStartSb.Begin();
+        if (LowPerformanceMode) LoadingStartSb.SkipToFill();
         var imgTask = LoadDisplayImageAsync(DetailAndImgLoadCts.Token);
         var detailTask = LoadDetailTask(DetailAndImgLoadCts.Token);
             
@@ -145,21 +180,14 @@ public partial class MoeItemControl : IDisposable
 
         if (imgB)
         {
-            if (low)
-            {
-                this.Sb("LoadedImageSb").Begin();
-                this.Sb("LoadedImageSb").SkipToFill();
-            }
-            else
-            {
-                this.Sb("LoadedImageSb").Begin();
-            }
-                
+            LoadedImageSb.Begin();
+            if (LowPerformanceMode) LoadedImageSb.SkipToFill();
         }
             
         else
         {
-            this.Sb("LoadFailSb").Begin();
+            LoadFailSb.Begin();
+            if (LowPerformanceMode) LoadFailSb.SkipToFill();
             RefreshButton.Visibility = Visibility.Visible;
         }
         try
@@ -178,11 +206,11 @@ public partial class MoeItemControl : IDisposable
         {
             RefreshButton.Visibility = Visibility.Collapsed;
         }
-            
-        var loadedsb = this.Sb("LoadedAllSb");
-        loadedsb.Completed += delegate { loadingsb.Stop(); };
-        loadedsb.Begin();
-        ImageLoadEnd?.Invoke(this);
+
+        LoadedAllSb.Completed += delegate { LoadingSb.Stop(); };
+        LoadedAllSb.Begin();
+        if(LowPerformanceMode) LoadedAllSb.SkipToFill();
+        LoadingState = LoadingStateEnum.Loaded;
     }
 
     public async Task<bool> LoadDetailTask(CancellationToken token)
@@ -208,7 +236,7 @@ public partial class MoeItemControl : IDisposable
         if (stream == null) return false;
         BitmapImage GetBitmapFunc()
         {
-            return UiFunc.GetBitmapImageFromStream(stream);
+            return UiUtility.GetBitmapImageFromStream(stream);
         }
 
         var bitimg = await Task.Run(GetBitmapFunc, token);

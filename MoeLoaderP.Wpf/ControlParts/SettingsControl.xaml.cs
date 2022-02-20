@@ -24,7 +24,7 @@ public partial class SettingsControl
         CustomProxyTextBox.GotFocus += delegate { _tempCustomProxyText = CustomProxyTextBox.Text; };
         CustomProxyTextBox.LostFocus += CustomProxyTextBlockOnLostFocus;
 
-        ProxyModeComboBox.SelectionChanged += delegate { CustomProxyTextBox.IsEnabled = ProxyModeComboBox.SelectedIndex == 1; };
+        //ProxyModeComboBox.SelectionChanged += delegate { CustomProxyTextBox.IsEnabled = ProxyModeComboBox.SelectedIndex == 1; };
         FileNameFormatTextBox.LostFocus += FileNameFormatTextBoxOnLostFocus;
         FileNameFormatTextBox.GotKeyboardFocus += delegate { SetRenameButtons(FileNameFormatButtonsPanel, FileNameFormatTextBox); };
         FileNameFormatTextBox.LostKeyboardFocus += delegate { RemoveRenameButtons(); };

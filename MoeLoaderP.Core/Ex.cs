@@ -8,8 +8,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -113,20 +111,23 @@ public static class Ex
         if (xpath.Pre != null) str = $"{xpath.Pre}{str}";
         if (xpath.After != null) str = $"{str}{xpath.After}";
 
-        if (xpath.RegexPattern != null)
+        if (xpath.RegexPattern != null && str!=null)
         {
             var matches = new Regex(xpath.RegexPattern).Matches(str);
             str = matches.Any() ? matches[0].Value : str;
         }
 
-        if (xpath.Replace != null && xpath.ReplaceTo != null) str = str.Replace(xpath.Replace, xpath.ReplaceTo);
+        if (xpath.Replace != null && xpath.ReplaceTo != null && str != null) str = str.Replace(xpath.Replace, xpath.ReplaceTo);
 
         return str;
     }
 
     public static string Delete(this string text, params string[] deleteStrs)
     {
-        foreach (var deleteStr in deleteStrs) text = text.Replace(deleteStr, "");
+        foreach (var deleteStr in deleteStrs)
+        {
+            text = text.Replace(deleteStr, "");
+        }
 
         return text;
     }
@@ -412,37 +413,3 @@ public static class Ex
     }
 }
 
-
-
-public class ContinueTask
-{
-    public string Title { get; set; }
-    public Func<Task> Task { get; set; }
-    public Func<Task> CancelAfterTask { get; set; }
-    public CancellationTokenSource Cts { get; set; } = new();
-
-    public void Run()
-    {
-
-    }
-}
-
-public class ContinueTasks : ObservableCollection<ContinueTask>
-{
-    public bool IsRunning { get; set; }
-
-    public void AddRun(ContinueTask task,bool cancelOtherTasks = false)
-    {
-        var run = Count == 0;
-        Add(task);
-        if (run) Run();
-    }
-
-    public void Run()
-    {
-        if (Count == 0) return;
-        IsRunning = true;
-
-
-    }
-}

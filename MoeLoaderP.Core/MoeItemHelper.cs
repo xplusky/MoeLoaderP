@@ -52,18 +52,7 @@ public class UrlInfo
             return $"{Math.Round(temp, 2)}MB";
         }
     }
-
-    //public string GetFileExtFromUrl()
-    //{
-    //    if (Url.IsEmpty()) return null;
-    //    var type = Path.GetExtension(Url)?.Delete(".").ToUpper();
-    //    if (type == null) return null;
-    //    if (type.Contains("?"))
-    //    {
-    //        type = type.Split('?')[0];
-    //    }
-    //    return type.Length < 5 ? type : null;
-    //}
+    
     public string GetFileExtFromUrl()
     {
         if (Url.IsEmpty()) return null;
@@ -91,8 +80,10 @@ public class UrlInfos : ObservableCollection<UrlInfo>
         if (Count == 1) return this.FirstOrDefault();
         var min = GetMin();
         foreach (var urlInfo in this.OrderBy(u => u.DownloadType))
-            if (urlInfo.DownloadType > min.DownloadType)
-                return urlInfo;
+        {
+            if (urlInfo.DownloadType > min.DownloadType) return urlInfo;
+
+        }
         return null;
     }
 
@@ -113,15 +104,13 @@ public class UrlInfos : ObservableCollection<UrlInfo>
         return info;
     }
 
-    public void Add(DownloadTypeEnum p, string url, string referer = null, AfterEffectsDelegate afterEffects = null,
-        ResolveUrlDelegate resolveUrlFunc = null, ulong filesize = 0)
+    public void Add(DownloadTypeEnum p, string url, string referer = null, AfterEffectsDelegate afterEffects = null, ResolveUrlDelegate resolveUrlFunc = null, ulong filesize = 0)
     {
         var urlinfo = new UrlInfo(p, url, referer, afterEffects, resolveUrlFunc, filesize);
         Add(urlinfo);
     }
 
-    public void Add(int p, string url, string referer = null, AfterEffectsDelegate afterEffects = null,
-        ResolveUrlDelegate resolveUrlFunc = null, ulong filesize = 0)
+    public void Add(int p, string url, string referer = null, AfterEffectsDelegate afterEffects = null, ResolveUrlDelegate resolveUrlFunc = null, ulong filesize = 0)
     {
         var urlinfo = new UrlInfo((DownloadTypeEnum) p, url, referer, afterEffects, resolveUrlFunc, filesize);
         Add(urlinfo);
@@ -131,40 +120,6 @@ public class UrlInfos : ObservableCollection<UrlInfo>
 public delegate Task AfterEffectsDelegate(MoeItem item, CancellationToken token);
 
 public delegate Task ResolveUrlDelegate(MoeItem item, UrlInfo url, CancellationToken token);
-
-public class TagInfo
-{
-    public TagInfo()
-    {
-    }
-
-    public TagInfo(string tagName, int id = default)
-    {
-        NameEn = tagName;
-        Id = id;
-    }
-
-    public int Id { get; set; }
-    public string Name => NameCn.IsEmpty() ? NameEn : NameCn;
-    public string NameEn { get; set; }
-    public string NameJp { get; set; }
-    public string NameCn { get; set; }
-    public int PicTotalCount { get; set; }
-
-    public override string ToString()
-    {
-        return Name;
-    }
-}
-
-public class TagInfos : List<TagInfo>
-{
-    public void AddTag(string name)
-    {
-        var tag = new TagInfo {NameEn = name};
-        Add(tag);
-    }
-}
 
 public class TextFileInfo
 {

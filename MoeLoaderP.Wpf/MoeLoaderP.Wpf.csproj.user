@@ -13,8 +13,15 @@
   <PropertyGroup>
     <EnableSecurityDebugging>false</EnableSecurityDebugging>
     <_LastSelectedProfileId>D:\Projects\MoeLoaderP\MoeLoaderP-Solution\MoeLoaderP.Wpf\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+    <ActiveDebugProfile>MoeLoaderP.Wpf</ActiveDebugProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Update="ControlParts\MoeContextMenuControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="ControlParts\PagingButtonControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -32,6 +39,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="ControlParts\MoeContextMenuControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="LogWindow.xaml">
       <SubType>Designer</SubType>
     </Page>

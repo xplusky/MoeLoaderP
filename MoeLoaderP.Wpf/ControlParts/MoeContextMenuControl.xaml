@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="MoeLoaderP.Wpf.ControlParts.MoeContextMenuControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MoeLoaderP.Wpf.ControlParts"
+             mc:Ignorable="d" 
+             d:DesignHeight="297.993" d:DesignWidth="241.639">
+    <StackPanel x:Name="ContextMenuRootStackPanel" Width="220">
+        <Grid Height="32">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="ContextSelectAllButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}" Margin="0">
+                <StackPanel Height="22" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" Text="&#xF560;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0" FontSize="14"/>
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Text="全选" Margin="3,0" FontSize="14"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="ContextSelectNoneButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}" Grid.Column="1" Margin="0">
+                <StackPanel Height="22" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" Text="&#xF05E;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0" FontSize="14"/>
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="3,0" Text="全不选" FontSize="14"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="ContextSelectReverseButton" Template="{DynamicResource MoeContextMenuButtonControlTemplate}" Grid.Column="2" Margin="0">
+                <StackPanel Height="22" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock TextWrapping="Wrap" Text="&#xF074;" FontFamily="{DynamicResource FontAwesomeSolid}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0" FontSize="14"/>
+                    <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="3,0" Text="反选" FontSize="14"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+        <StackPanel x:Name="SpPanel" Margin="2,4,2,2"/>
+        <StackPanel x:Name="ContextMenuImageInfoStackPanel"/>
+    </StackPanel>
+</UserControl>

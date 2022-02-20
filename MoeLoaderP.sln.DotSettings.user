@@ -6,4 +6,5 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=BBBFD6D0_002DFCA3_002D4ABD_002D858B_002DF9A702A2999E_002Ff_003ASettings_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\Lin\.nuget\packages\fluentwpf\0.10.0\lib\netcoreapp3.0\FluentWPF.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Lin\.nuget\packages\fluentwpf\0.10.2\lib\netcoreapp3.0\FluentWPF.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

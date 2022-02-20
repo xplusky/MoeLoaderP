@@ -41,7 +41,7 @@
             </ObjectAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="PreviewImage">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0.995"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="PreviewImage">
                 <EasingDoubleKeyFrame KeyTime="0" Value="1.2"/>
@@ -60,8 +60,8 @@
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="ImageBgBorder">
-                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="0.8">
+                <EasingDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="00:00:00.6000000" Value="0.8">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseOut"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -228,7 +228,7 @@
         <CheckBox x:Name="ImageCheckBox" Template="{DynamicResource ImageItemCheckBoxControlTemplate}" 
                   Background="{DynamicResource MoeImageBorderBrush}">
             <Grid x:Name="ImageGrid">
-                <Border x:Name="ImageBgBorder" Opacity="0.8"  ClipToBounds="True">
+                <Border x:Name="ImageBgBorder" Opacity="0"  ClipToBounds="True">
                     <Border.Effect>
                         <BlurEffect Radius="20"/>
                     </Border.Effect>
@@ -238,7 +238,7 @@
                 </Border>
                 <TextBlock x:Name="LoadFailIcon" 
                            FontFamily="{DynamicResource FontAwesomeSolid}" 
-                           HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="72" RenderTransformOrigin="0.5,0.5" Opacity="0" >
+                           HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="48" RenderTransformOrigin="0.5,0.5" Opacity="0" >
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="0" BlurRadius="15"/>
                     </TextBlock.Effect>
@@ -386,7 +386,14 @@
                 <Grid x:Name="RankGrid" Margin="0,-40,-40,0" 
                       Visibility="{Binding MoeItem.Rank, Converter={StaticResource IntToVisibilityConverter}}" 
                       Width="80" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <Ellipse HorizontalAlignment="Right" Height="80" VerticalAlignment="Top" Width="80" Fill="#660078D7"/>
+                    <Ellipse HorizontalAlignment="Center" Height="96" VerticalAlignment="Center" Width="96">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#CC8FE8FF" Offset="0.599"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
                     <TextBlock x:Name="RankTextBlock" TextWrapping="Wrap" Text="{Binding MoeItem.Rank}" 
                                HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="-29,36,0,0"/>
                 </Grid>
@@ -411,7 +418,7 @@
                 </Grid>
             </Grid>
         </CheckBox>
-        <Border x:Name="OperationBorder" VerticalAlignment="Center" HorizontalAlignment="Right" CornerRadius="6" Margin="3" Opacity="0">
+        <Border x:Name="OperationBorder" VerticalAlignment="Center" HorizontalAlignment="Right" CornerRadius="6" Margin="3" Opacity="1">
             <StackPanel>
                 <Button x:Name="RefreshButton" 
                         Template="{DynamicResource MoeImageOperateButtonControlTemplate}"

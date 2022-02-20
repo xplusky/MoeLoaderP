@@ -30,7 +30,7 @@ public class EshuuSite : MoeSite
 
     public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
     {
-        var imgs = new SearchedPage();
+        var rp = new SearchedPage();
         var url = $"{HomeUrl}/?page={para.PageIndex}";
         Net ??= new NetOperator(Settings, this);
         if (!para.Keyword.IsEmpty())
@@ -51,7 +51,7 @@ public class EshuuSite : MoeSite
             });
             var net = Net.CloneWithCookie();
             var r = await net.Client.GetAsync(HomeUrl, token);
-            if (r.IsSuccessStatusCode == false) return imgs;
+            if (r.IsSuccessStatusCode == false) return rp;
 
             net = net.CloneWithCookie();
             net.SetReferer($"{HomeUrl}/search");
@@ -67,12 +67,15 @@ public class EshuuSite : MoeSite
         // images
         var doc = await Net.GetHtmlAsync(url, token: token);
         if (doc == null)
+        {
             return new SearchedPage
             {
                 Message = "获取HTML失败"
             };
+        }
+
         var nodes = doc.DocumentNode.SelectNodes("//div[@class='image_thread display']");
-        if (nodes == null) return imgs;
+        if (nodes == null) return rp;
 
         foreach (var imgNode in nodes)
         {
@@ -114,10 +117,10 @@ public class EshuuSite : MoeSite
             img.DetailUrl = detail;
             img.Urls.Add(4, fileUrl, detail);
             img.OriginString = imgNode.OuterHtml;
-            imgs.Add(img);
+            rp.Add(img);
         }
 
-        return imgs;
+        return rp;
     }
 
     public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
@@ -139,11 +142,16 @@ public class EshuuSite : MoeSite
         var txt = await res.Content.ReadAsStringAsync(token);
         var lines = txt.Split('\n');
         for (var i = 0; i < lines.Length && i < 8; i++)
+        {
             if (lines[i].Trim().Length > 0)
+            {
                 items.Add(new AutoHintItem
                 {
                     Word = lines[i].Trim().Delete("\"")
                 });
+            }
+        }
+
         return items;
     }
 }

@@ -16,8 +16,6 @@ namespace MoeLoaderP.Wpf;
 /// </summary>
 public partial class LoginWindow
 {
-    //private Settings Setting { get; set; }
-
     private MoeSite Site { get; set; }
         
     public LoginWindow()
@@ -31,14 +29,14 @@ public partial class LoginWindow
 
     public async Task Init(Settings setting, MoeSite site)
     {
-        //Setting = setting;
         Site = site;
         DataContext = setting;
         Closing += OnClosing;
+        this.SetWindowFluent(setting);
         try
         {
-            MainBroswer.CoreWebView2InitializationCompleted += MainBroswerOnCoreWebView2InitializationCompleted;
-            if (MainBroswer == null) return;
+            MainBrowser.CoreWebView2InitializationCompleted += MainBrowserOnCoreWebView2InitializationCompleted;
+            if (MainBrowser == null) return;
             var option = new CoreWebView2EnvironmentOptions();
             switch (NetOperator.GetProxyMode(setting,site.SiteSettings))
             {
@@ -55,7 +53,7 @@ public partial class LoginWindow
                 
             AuthButton.Click += AuthButtonOnClick;
             GoToLoginPageButton.Click += GoToLoginPageButtonOnClick;
-            var _ = MainBroswer.EnsureCoreWebView2Async(Environment);
+            var _ = MainBrowser.EnsureCoreWebView2Async(Environment);
         }
         catch(Exception ex)
         {
@@ -72,18 +70,18 @@ public partial class LoginWindow
 
     private void OnClosing(object sender, CancelEventArgs e)
     {
-        MainBroswer.Dispose();
+        MainBrowser.Dispose();
     }
 
-    private void MainBroswerOnCoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+    private void MainBrowserOnCoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
     {
-        var wv = MainBroswer.CoreWebView2;
+        var wv = MainBrowser.CoreWebView2;
         wv?.Navigate(Site.LoginPageUrl);
     }
 
     private void GoToLoginPageButtonOnClick(object sender, RoutedEventArgs e)
     {
-        var wv = MainBroswer.CoreWebView2;
+        var wv = MainBrowser.CoreWebView2;
         wv?.Navigate(Site.LoginPageUrl);
     }
         
@@ -96,7 +94,7 @@ public partial class LoginWindow
         var cookies = new List<CoreWebView2Cookie>();
         foreach (var url in Site.GetCookieUrls())
         {
-            var wcookies = await MainBroswer.CoreWebView2.CookieManager.GetCookiesAsync(url);
+            var wcookies = await MainBrowser.CoreWebView2.CookieManager.GetCookiesAsync(url);
             cookies.AddRange(wcookies);
         }
                 
@@ -129,6 +127,4 @@ public partial class LoginWindow
         Site.SiteSettings.LoginCookies = ccol;
         Close();
     }
-        
-       
 }

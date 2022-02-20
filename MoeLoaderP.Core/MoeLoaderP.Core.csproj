@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.37" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.4.0" />
-    <PackageReference Include="Magick.NET.Core" Version="8.4.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="9.1.2" />
+    <PackageReference Include="Magick.NET.Core" Version="9.1.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>

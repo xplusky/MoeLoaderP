@@ -67,6 +67,7 @@ public abstract class BooruSite : MoeSite
             case SiteTypeEnum.Xml:
                 var xml = await net.GetXmlAsync(GetHintQuery(para), token: token);
                 if (xml == null) return list;
+                
                 var root = xml.SelectSingleNode("tags");
                 if (root?.ChildNodes == null) return list;
                 foreach (XmlElement child in root.ChildNodes)

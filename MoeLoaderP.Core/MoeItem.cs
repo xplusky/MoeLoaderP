@@ -27,7 +27,7 @@ public class MoeItem : BindingObject
             OnPropertyChanged(nameof(FileType));
             OnPropertyChanged(nameof(DownloadUrlInfo));
         };
-        para.Session.PropertyChanged += (sender, args) =>
+        para.Session.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(SearchSession.CurrentDownloadType))
             {
@@ -595,7 +595,7 @@ public class MoeItem : BindingObject
         }
 
         DlStatus = DownloadStatus.Downloading;
-        var data = await net.Client.GetAsync(durl.Url, token);
+        var data = await net.GetAsync(durl.Url,false,3, token);
 
         // 写入文件
         var dir = Path.GetDirectoryName(LocalFileFullPath);

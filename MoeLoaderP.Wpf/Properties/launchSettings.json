@@ -1,7 +1,16 @@
 {
   "profiles": {
     "MoeLoaderP.Wpf": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "remoteDebugEnabled": false,
+      "authenticationMode": "None"
+    },
+    "VMware": {
+      "commandName": "Project",
+      "workingDirectory": "\\\\LIN-DESKTOP\\MoeLoaderP\\MoeLoaderP-Solution\\MoeLoaderP.Wpf\\bin\\Debug\\net6.0-windows",
+      "remoteDebugEnabled": true,
+      "authenticationMode": "None",
+      "remoteDebugMachine": "WIN-ORE6UIG6VBQ:4026"
     }
   }
 }

@@ -12,7 +12,7 @@
 ## 注意事项
 
 本软件支持的系统为Windows 7以上64位系统。
-需要系统安装.Net 6版本的框架。
+需要系统安装.Net 6版本的框架(SDK)。
 > **https://dotnet.microsoft.com/download/dotnet/6.0**
 
 ## 关于 MoeLoader-P 
@@ -80,8 +80,10 @@ QQ群：173707488 验证：MoeLoaderP
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/weixinpay-qrcode.png)
 
 ## 更新记录
+### 2022-2-20 10.0.1
+- 修复win7不能运行等问题
 
-### 待定 10.0.1-(正在施工中，敬请期待)
+### 2022-2-16 10.0.0Beta
 - 更新至.Net6框架（可能需要下载.net6 runtime才能运行软件，以后考虑通过Xamarin MAUI来实现手机端）
 - 登录功能切换至WebView2（首次使用需下载），不再使用CefSharp
 - 新增自定义站点功能（右键LOGO进入），通过JSON文件《简单》设置一下就可以自定义自己图片站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）

@@ -96,7 +96,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterCount}" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black"/>
+                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black" Text="每页最少数量"/>
                 <local:VariableCountControl x:Name="FilterCountBox" NumCount="60" MaxCount="500" MinCount="10" Grid.Column="1" Width="128"/>
             </Grid>
             <StackPanel x:Name="FilterExlicitGroup" Orientation="Vertical">
