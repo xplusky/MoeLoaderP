@@ -110,9 +110,9 @@ public class MiniTokyoSite : MoeSite
             var url = tabnodes[1].Attributes["href"]?.Value;
             var reg = new Regex(@"(?:^|\?|&)tid=(\d*)(?:&|$)");
             var tid = reg.Match(url ?? "").Groups[0].Value;
-            var indexs = new[] {1, 3, 1, 2};
+            var indexs = new[] { 1, 1, 3, 2, 4 }; //Index Definition: 1-Wallpapers, 2-IndyArt, 3-Scans, 4-MobileWallpaper
             query =
-                $"{HomeBrowseUrl}/gallery{tid}index={indexs[para.Lv2MenuIndex]}&order={GetOrder(para)}&display=thumbnails";
+                $"{HomeBrowseUrl}/gallery{tid}index={indexs[para.Lv2MenuIndex]}&order={GetOrder(para)}&display=thumbnails&page={para.PageIndex}";
         }
 
         var doc = await Net.GetHtmlAsync(query, token: token);
