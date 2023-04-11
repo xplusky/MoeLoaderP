@@ -30,7 +30,7 @@ public class CustomSite : MoeSite
     }
 
 
-    public override bool VerifyCookieAndSave(CookieCollection ccol)
+    public override bool VerifyCookie(CookieCollection ccol)
     {
         return CustomConfig.CookieLoginAuthKey == null || ccol.Any(cookie => cookie.Name.Equals(CustomConfig.CookieLoginAuthKey, StringComparison.OrdinalIgnoreCase));
     }
@@ -71,6 +71,7 @@ public class CustomSite : MoeSite
                 var url = item.PageUrl ?? CustomConfig.HomeUrl;
                 var html = await net.GetHtmlAsync(url);
                 var nodes = html.DocumentNode.SelectNodes(item.Menus.Path);
+                if(nodes == null)break;
                 foreach (var node in nodes)
                 {
                     var cat = new CustomCategory();
@@ -129,8 +130,10 @@ public class CustomSite : MoeSite
         var rapi = api.Replace("{pagenum}", $"{para.PageIndex}").Replace("{pagenum-1}", $"{para.PageIndex - 1}");
         var html = await net.GetHtmlAsync(rapi, token: token);
         if (html == null) return null;
-        var moes = new SearchedPage();
-        moes.OriginString = new StringBuilder(html.Text);
+        var moes = new SearchedPage
+        {
+            OriginString = new StringBuilder(html.Text)
+        };
         var pa = cat.OverridePagePara ?? CustomConfig.PagePara;
         var list = (HtmlNodeCollection) html.DocumentNode.GetValue(pa.ImagesList);
         
@@ -225,19 +228,19 @@ public class CustomSite : MoeSite
 
     public MoeItem GetChildrenItem(HtmlNode img, CustomPagePara pa, MoeItem father)
     {
-        var newMoeitem = new MoeItem(this, father.Para);
+        var newMoeItem = new MoeItem(this, father.Para);
         if (pa.DetailImageItemOriginUrlFromDetailImagesList != null)
         {
             var imgurl = img.GetValue(pa.DetailImageItemOriginUrlFromDetailImagesList);
             if (imgurl != null)
-                newMoeitem.Urls.Add(DownloadTypeEnum.Origin, imgurl, referer: pa.DetailImageItemOriginUrlFromDetailImagesList.Referer);
+                newMoeItem.Urls.Add(DownloadTypeEnum.Origin, imgurl, referer: pa.DetailImageItemOriginUrlFromDetailImagesList.Referer);
         }
 
         if (pa.DetailImageItemThumbnailUrlFromDetailImagesList != null)
         {
             var imgurl = img.GetValue(pa.DetailImageItemThumbnailUrlFromDetailImagesList);
             if (imgurl != null)
-                newMoeitem.Urls.Add(DownloadTypeEnum.Thumbnail, imgurl,
+                newMoeItem.Urls.Add(DownloadTypeEnum.Thumbnail, imgurl,
                     referer: pa.DetailImageItemThumbnailUrlFromDetailImagesList.Referer);
         }
 
@@ -246,15 +249,15 @@ public class CustomSite : MoeSite
             var imgurl = img.GetValue(pa.DetailImageItemDetailUrlFromDetailImagesList);
             if (imgurl != null)
             {
-                newMoeitem.DetailUrl = $"{imgurl}";
+                newMoeItem.DetailUrl = $"{imgurl}";
                 var url = new UrlInfo(DownloadTypeEnum.Origin, "",
                     resolveUrlFunc: (item, url, token) => GetDetailLv2(pa, item, url, token));
 
-                newMoeitem.Urls.Add(url);
+                newMoeItem.Urls.Add(url);
             }
         }
 
-        return newMoeitem;
+        return newMoeItem;
     }
 
     public async Task GetDetailLv2(CustomPagePara pa, MoeItem currentItem, UrlInfo urlinfo, CancellationToken token)

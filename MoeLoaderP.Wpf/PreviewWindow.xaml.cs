@@ -31,6 +31,15 @@ public partial class PreviewWindow
         LargeImageThumb.DragDelta += LargeImageThumbOnDragDelta;
         LargeImage.ClearValue(MarginProperty);
         MouseLeftButtonDown += delegate { DragMove(); };
+        KeyDown += OnKeyDown;
+    }
+
+    private void OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            Close();
+        }
     }
 
     public static void Show(PreviewWindow thisWnd , Window wnd, MoeItem moeitem, ImageSource imgSource)

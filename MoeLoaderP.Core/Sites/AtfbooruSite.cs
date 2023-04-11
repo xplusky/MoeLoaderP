@@ -5,7 +5,7 @@
 /// </summary>
 public class AtfbooruSite : BooruSite
 {
-    public override string HomeUrl => "https://booru.allthefallen.moe/";
+    public override string HomeUrl => "https://booru.allthefallen.moe";
     public override string DisplayName => "Atfbooru";
     public override string ShortName => "atfbooru";
 

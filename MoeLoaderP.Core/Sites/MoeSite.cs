@@ -30,6 +30,7 @@ public abstract class MoeSite : BindingObject
     public abstract string ShortName { get; }
 
     public virtual Uri Icon => new($"/Assets/SiteIcon/{ShortName}.ico", UriKind.Relative);
+    
 
     public Categories Lv2Cat { get; set; } 
 
@@ -104,7 +105,7 @@ public abstract class MoeSite : BindingObject
         set => SetField(ref _isUserLogin, value, nameof(IsUserLogin));
     }
 
-    public virtual bool VerifyCookieAndSave(CookieCollection ccol)
+    public virtual bool VerifyCookie(CookieCollection ccol)
     {
         return false;
     }

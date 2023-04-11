@@ -89,7 +89,7 @@ public class SankakuChanSite : MoeSite
         return net;
     }
 
-    public override bool VerifyCookieAndSave(CookieCollection ccol)
+    public override bool VerifyCookie(CookieCollection ccol)
     {
         foreach (Cookie cookie in ccol)
             if (cookie.Name.Equals("accessToken", StringComparison.OrdinalIgnoreCase))
@@ -127,7 +127,9 @@ public class SankakuChanSite : MoeSite
         var safekw = ConbimeMultiKeywords("rating:safe", para.Keyword.Trim().Replace(" ", "_"));
         var explicitkw = para.Keyword.Trim().Replace(" ", "_");
 
-        var kw = para.IsShowExplicit == false ? safekw : explicitkw;
+        var kw = para.IsShowExplicit == false 
+            ?  safekw
+            : (para.IsShowExplicitOnly ? ConbimeMultiKeywords("rating:e", para.Keyword.Trim().Replace(" ", "_")) : explicitkw);
 
         var pairs = new Pairs
         {
@@ -189,7 +191,7 @@ public class SankakuChanSite : MoeSite
             img.Urls.Add(1, $"{jitem.preview_url}", BetaApi);
             img.Urls.Add(2, $"{jitem.sample_url}", BetaApi);
             img.Urls.Add(4, $"{jitem.file_url}", $"{BetaApi}/post/show/{img.Id}");
-            img.IsExplicit = $"{jitem.rating}" != "s";
+            img.IsNsfw = $"{jitem.rating}" != "s";
             img.Date = $"{jitem.created_at?.s}".ToDateTime();
             img.Uploader = $"{jitem.author?.name}";
             img.DetailUrl = $"{BetaApi}/post/show/{img.Id}";

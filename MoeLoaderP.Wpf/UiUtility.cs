@@ -222,13 +222,17 @@ public static class UiUtility
         }
     }
 
-    public static void CopyToClipboard(this string text)
+    public static void CopyToClipboard(this string text,bool isLog=true)
     {
         try
         {
             //Clipboard.SetText(text);
             Clipboard.SetDataObject(text);
-            Ex.ShowMessage("已复制到剪贴板");
+            if (isLog)
+            {
+                Ex.ShowMessage("已复制到剪贴板");
+            }
+            
         }
         catch (Exception ex)
         {

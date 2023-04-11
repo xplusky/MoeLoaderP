@@ -9,7 +9,7 @@
     Width="{Binding Settings.ImageItemControlSize}"
     Height="{Binding Settings.ImageItemControlSize}" 
     mc:Ignorable="d" 
-    d:DesignWidth="153.452" d:DesignHeight="156.449"
+    d:DesignWidth="202.044" d:DesignHeight="152.947"
     RenderTransformOrigin="0.5,0.5">
     <UserControl.Resources>
         <wpf:UlongToVisibilityConverter x:Key="UlongToVisibilityConverter"/>

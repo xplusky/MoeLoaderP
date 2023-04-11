@@ -38,8 +38,6 @@ public class NetOperator
         Settings = settings;
         Site = site;
         Timeout = timeout;
-
-
         HttpClientHandler = new HttpClientHandler
         {
             Proxy = GetProxy(),
@@ -53,21 +51,38 @@ public class NetOperator
         ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
         Client = new HttpClient(ProgressMessageHandler);
         var agent = Agents[new Random().Next(0, Agents.Length - 1)];
-        Client.DefaultRequestHeaders.UserAgent.ParseAdd(agent);
+        var header = Client.DefaultRequestHeaders;
+        //header.UserAgent.ParseAdd(agent);
+        //header.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+        //header.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
+        if (site is DanbooruSite)
+        {
+            header.TryAddWithoutValidation("User-Agent", "gdl/1.24.5");
+        }
+        else
+        {
+            header.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36");
+        }
+        //header.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
+        //header.TryAddWithoutValidation("Sec-Fetch-Dest", "document");
+        //header.TryAddWithoutValidation("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
+        //header.TryAddWithoutValidation("Connection", "keep-alive");
+        //header.TryAddWithoutValidation("Sec-Fetch-Dest", "document");
+        //header.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+        //header.TryAddWithoutValidation("Sec-Fetch-Dest", "document");
+        //header.TryAddWithoutValidation("Sec-Fetch-Dest", "document");
+        //header.TryAddWithoutValidation("Sec-Fetch-User", "?1");
+        //header.TryAddWithoutValidation("Upgrade-Insecure-Requests", "1");
+
+
         Client.Timeout = TimeSpan.FromSeconds(Timeout);
     }
     
 
     public static string[] Agents =
     {
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
-        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
     };
 
     public IWebProxy GetProxy()
@@ -148,6 +163,7 @@ public class NetOperator
         {
             try
             {
+                
                 return await Client.GetAsync(api, token);
             }
             catch (Exception)
@@ -178,15 +194,34 @@ public class NetOperator
         }
     }
 
-    public async Task<dynamic> GetJsonAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
+    public async Task<dynamic> GetJsonAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, bool saveListOriginalString = false, bool tryWebView = false,
+        CancellationToken token = default)
     {
         var query = parapairs.ToPairsString();
         try
         {
-            var response = await GetAsync($"{api}{query}", showSearchMessage, 3,token: token);
-
+            var response = await GetAsync($"{api}{query}", showSearchMessage,token: token);
+            var res = response.Headers;
             var s = await response.Content.ReadAsStringAsync(token);
-            return JsonConvert.DeserializeObject(s);
+            if (saveListOriginalString)
+            {
+                Ex.LogListOriginalString = s;
+            }
+
+            dynamic deo = JsonConvert.DeserializeObject(s); 
+            //try
+            //{
+            //    deo = JsonConvert.DeserializeObject(s);
+            //}
+            //catch (Exception e)
+            //{
+            //    if (e.Message.Contains("Unexpected character", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //       // if (WebView == null) InitWebView();
+
+            //    }
+            //}
+            return deo;
         }
         catch (Exception e)
         {
@@ -195,6 +230,45 @@ public class NetOperator
             return null;
         }
     }
+
+    //public  void InitWebView()
+    //{
+    //    WebView = new WebView2();
+    //    try
+    //    {
+    //        WebView.CoreWebView2InitializationCompleted += WebViewOnCoreWebView2InitializationCompleted;
+            
+    //        var option = new CoreWebView2EnvironmentOptions();
+    //        switch (GetProxyMode(Settings, Site.SiteSettings))
+    //        {
+    //            case Settings.ProxyModeEnum.None:
+    //                option.AdditionalBrowserArguments = "--no-proxy-server";
+    //                break;
+    //            case Settings.ProxyModeEnum.Custom:
+    //                option.AdditionalBrowserArguments = $"--proxy-server=http://{Settings.ProxySetting}";
+    //                break;
+    //            case Settings.ProxyModeEnum.Ie:
+    //                break;
+    //        }
+    //        Environment = await CoreWebView2Environment.CreateAsync(null, App.AppDataDir, option);
+
+    //        AuthButton.Click += AuthButtonOnClick;
+    //        GoToLoginPageButton.Click += GoToLoginPageButtonOnClick;
+    //        var _ = MainBrowser.EnsureCoreWebView2Async(Environment);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        var result = MessageBox.Show(this, "未找到WebView2组件，需要下载吗？（需要Webview2组件才能显示网页登录界面）", App.DisplayName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+    //        if (result == MessageBoxResult.Yes)
+    //        {
+    //            "https://go.microsoft.com/fwlink/p/?LinkId=2124703".GoUrl();
+
+    //        }
+    //        Ex.Log(ex);
+    //        Close();
+    //    }
+    //}
+    
 
     public async Task<HtmlDocument> GetHtmlAsync(string api, Pairs parapairs = null, bool showSearchMessage = true, CancellationToken token = default)
     {
@@ -235,7 +309,7 @@ public class NetOperator
         return xml;
     }
 
-    public async Task<XDocument> GetXDocAsync(string api, Pairs pairs = null, bool showSearchMessage = true,
+    public async Task<XDocument> GetXDocAsync(string api, Pairs pairs = null, bool showSearchMessage = true,bool tryWebView = false,
         CancellationToken token = default)
     {
         var query = pairs.ToPairsString();

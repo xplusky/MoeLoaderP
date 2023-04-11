@@ -7,10 +7,10 @@
     },
     "VMware": {
       "commandName": "Project",
-      "workingDirectory": "\\\\LIN-DESKTOP\\MoeLoaderP\\MoeLoaderP-Solution\\MoeLoaderP.Wpf\\bin\\Debug\\net6.0-windows",
+      "workingDirectory": "Z:\\projects\\moelaoder-p\\MoeLoaderP.Wpf\\bin\\Debug\\net6.0-windows",
       "remoteDebugEnabled": true,
       "authenticationMode": "None",
-      "remoteDebugMachine": "WIN-ORE6UIG6VBQ:4026"
+      "remoteDebugMachine": "WIN-9LEFDVH6962:4026"
     }
   }
 }

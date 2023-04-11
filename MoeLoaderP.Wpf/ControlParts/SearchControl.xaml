@@ -4,13 +4,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:sites="clr-namespace:MoeLoaderP.Core.Sites;assembly=MoeLoaderP.Core"
-             xmlns:Wpf="clr-namespace:MoeLoaderP.Wpf"
+             xmlns:wpf="clr-namespace:MoeLoaderP.Wpf"
              xmlns:cp="clr-namespace:MoeLoaderP.Wpf.ControlParts"
              x:Name="SearchControlRoot" MinHeight="32"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <Wpf:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <Wpf:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <wpf:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <wpf:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <Storyboard x:Key="SearchingSpinSb" RepeatBehavior="Forever">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)" Storyboard.TargetName="SpinTextBlock">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
@@ -246,10 +246,15 @@
                         VerticalAlignment="Bottom" Foreground="#FF00B41F" FontSize="14" FontWeight="Bold" Margin="0,0,-1,-2"  />
                 </Grid>
             </Button>
-            <ComboBox x:Name="MoeSitesLv1ComboBox" Width="156" 
+            <ComboBox  x:Name="MoeSitesLv1ComboBox" Width="156" 
                       Template="{DynamicResource MoeSitesComboBoxControlTemplate}" 
                       ItemContainerStyle="{DynamicResource MoeNormalComboBoxItemStyle}"
                       Margin="2,0" Opacity="1">
+                <ComboBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ComboBox.ItemsPanel>
                 <ComboBox.ItemTemplate>
                     <DataTemplate DataType="sites:MoeSite">
                         <Grid d:DesignWidth="175.333" d:DesignHeight="32.667">

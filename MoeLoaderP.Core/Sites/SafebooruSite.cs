@@ -14,6 +14,11 @@ public class SafebooruSite : BooruSite
 
     public override string UrlPre => "";
 
+    public SafebooruSite()
+    {
+        Config.IsSupportRating = false;
+    }
+
     public override string GetHintQuery(SearchPara para)
     {
         return $"{HomeUrl}/index.php?page=dapi&s=tag&q=index&order=name&limit=8&name={para.Keyword.ToEncodedUrl()}";

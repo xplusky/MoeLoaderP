@@ -61,6 +61,7 @@ public partial class LoginWindow
             if (result == MessageBoxResult.Yes)
             {
                 "https://go.microsoft.com/fwlink/p/?LinkId=2124703".GoUrl();
+                
             }
             Ex.Log(ex);
             Close();
@@ -105,7 +106,7 @@ public partial class LoginWindow
             ccol.Add(sc);
         }
 
-        var b = Site.VerifyCookieAndSave(ccol);
+        var b = Site.VerifyCookie(ccol);
 
         if (!b)
         {

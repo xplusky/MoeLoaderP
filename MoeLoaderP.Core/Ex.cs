@@ -21,6 +21,9 @@ namespace MoeLoaderP.Core;
 /// </summary>
 public static class Ex
 {
+    private static string _logListOriginalString;
+    private static string _logItemString;
+
     public static int GetXIntValue(this XElement el, string xpath)
     {
         return (el.XPathSelectElement(xpath)?.Value ?? "0").ToInt();
@@ -55,7 +58,29 @@ public static class Ex
 
     public static ObservableCollection<string> LogCollection { get; set; } = new();
 
+    public static string LogListOriginalString
+    {
+        get => _logListOriginalString;
+        set
+        {
+            _logListOriginalString = value;
+            if(value!=null) LogListOriginalStringAction?.Invoke(value);
+        }
+    }
+
+    public static string LogItemString
+    {
+        get => _logItemString;
+        set
+        {
+            _logItemString = value; LogItemStringAction?.Invoke(value);
+        }
+    }
+
     public static Action<string> LogAction { get; set; }
+
+    public static event Action<string> LogListOriginalStringAction;
+    public static event Action<string> LogItemStringAction;
 
     public static dynamic GetValue(this HtmlNode rootNode, CustomXpath xpath)
     {
@@ -139,7 +164,15 @@ public static class Ex
         if (pairs == null) return query;
         foreach (var para in pairs.Where(para => !para.Value.IsEmpty()))
         {
-            query += $"{(i > 0 ? "&" : "?")}{para.Key}={para.Value}";
+            if (para.Value == null)
+            {
+                query += $"{(i > 0 ? "&" : "?")}{para.Key}";
+            }
+            else
+            {
+                query += $"{(i > 0 ? "&" : "?")}{para.Key}={para.Value}";
+            }
+            
             i++;
         }
 

@@ -18,7 +18,7 @@ public class YandeSite : BooruSite
         Config.IsSupportAccount = true;
         LoginPageUrl = "https://yande.re/user/login";
     }
-    public override bool VerifyCookieAndSave(CookieCollection ccol)
+    public override bool VerifyCookie(CookieCollection ccol)
     {
         return ccol.Any(cookie => cookie.Name.Equals("user_id", StringComparison.OrdinalIgnoreCase));
     }
@@ -35,12 +35,19 @@ public class YandeSite : BooruSite
 
     public override string GetPageQuery(SearchPara para)
     {
+        var r18 = "";
+        if (!para.IsShowExplicit)
+        {
+            r18 = "%20rating%3As";
+
+        }
         var pairs = new Pairs
         {
             {"page", $"{para.PageIndex}"},
             {"limit", $"{para.CountLimit}"},
-            {"tags", para.Keyword.ToEncodedUrl()}
+            {"tags", $"{para.Keyword.ToEncodedUrl()}{r18}" }
         };
+
         return $"{HomeUrl}/post.xml{pairs.ToPairsString()}";
     }
 }

@@ -29,6 +29,22 @@ public class Settings : BindingObject
 
     #region Window size / Display
 
+    private double _logWindowWidth = 500d;
+
+    public double LogWindowWidth
+    {
+        get => _logWindowWidth;
+        set => SetField(ref _logWindowWidth, value, nameof(LogWindowWidth));
+    }
+
+    private double _logWindowHeight = 350d;
+
+    public double LogWindowHeight
+    {
+        get => _logWindowHeight;
+        set => SetField(ref _logWindowHeight, value, nameof(LogWindowHeight));
+    }
+
     private bool _isLowPerformanceMode;
 
     public bool IsLowPerformanceMode

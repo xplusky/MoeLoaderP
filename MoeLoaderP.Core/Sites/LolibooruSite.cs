@@ -16,7 +16,10 @@ public class LolibooruSite : BooruSite
 
     public override string GetPageQuery(SearchPara para)
     {
+        var r18 = para.IsShowExplicit
+            ? (para.IsShowExplicitOnly ? "%20rating:explicit" : "")
+            : "%20rating:safe";
         return
-            $"{HomeUrl}/post.xml?page={para.PageIndex}&limit={para.CountLimit}&tags={para.Keyword.ToEncodedUrl()}";
+            $"{HomeUrl}/post.xml?page={para.PageIndex}&limit={para.CountLimit}&tags={para.Keyword.ToEncodedUrl()}{r18}";
     }
 }

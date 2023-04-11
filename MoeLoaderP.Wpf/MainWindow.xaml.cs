@@ -32,7 +32,7 @@ public partial class MainWindow
         Ex.ShowMessageAction += ShowMessage;
 
         // logo
-        LogoImageButton.MouseRightButtonDown += LogoImageButtonOnMouseRightButtonDown;
+        //LogoImageButton.MouseRightButtonDown += LogoImageButtonOnMouseRightButtonDown;
 
         // menu
         DownloaderMenuCheckBox.Checked += DownloaderMenuCheckBoxCheckChanged;
@@ -41,6 +41,7 @@ public partial class MainWindow
         // user ctrl
         AboutControl.Init();
         SearchControl.Init(Settings);
+        
         MoeDownloaderControl.Init(Settings);
         MoeSettingsControl.Init(Settings);
         MoeExplorer.Init(Settings);
@@ -65,15 +66,24 @@ public partial class MainWindow
 
         // ali
         this.SetWindowFluent(settings );
+
+        Settings.SiteManager.PropertyChanged += SiteManagerOnPropertyChanged;
     }
 
-    private void LogoImageButtonOnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    private void SiteManagerOnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        Settings.IsCustomSiteMode = !Settings.IsCustomSiteMode;
-        LayoutRoot.GoElementState(Settings.IsCustomSiteMode ? nameof(CustomSitesState) : nameof(DefaultSitesState));
-        LogoImage.Visibility = Settings.IsCustomSiteMode ? Visibility.Collapsed : Visibility.Visible;
-        LogoImage2.Visibility = Settings.IsCustomSiteMode ? Visibility.Visible : Visibility.Collapsed;
+        if (e.PropertyName == nameof(Settings.SiteManager.CurrentSelectedSite))
+        {
+            var isCsm = Settings.SiteManager.CurrentSelectedSite.Config?.IsCustomSite == true;
+            if (Settings.IsCustomSiteMode == isCsm) return;
+
+            Settings.IsCustomSiteMode = isCsm;
+            LayoutRoot.GoElementState(isCsm ? nameof(CustomSitesState) : nameof(DefaultSitesState));
+            LogoImage.Visibility = isCsm ? Visibility.Collapsed : Visibility.Visible;
+            LogoImage2.Visibility = isCsm ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
+    
     
     public  async void ShowMessage(string mes, string detailMes = null, Ex.MessagePos pos = Ex.MessagePos.Popup, bool ishighlight =false)
     {

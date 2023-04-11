@@ -123,8 +123,8 @@ public partial class SearchControl
     public void InitParaControl()
     {
         var pbox = SearchHintParaControl;
-        pbox.ShowExlicitOnlyCheckBox.Checked += delegate { pbox.FilterExlicitCheckBox.IsChecked = true; };
-        pbox.FilterExlicitCheckBox.Unchecked += delegate { pbox.ShowExlicitOnlyCheckBox.IsChecked = false; };
+        pbox.ShowNsfwOnlyCheckBox.Checked += delegate { pbox.FilterNsfwCheckBox.IsChecked = true; };
+        pbox.FilterNsfwCheckBox.Unchecked += delegate { pbox.ShowNsfwOnlyCheckBox.IsChecked = false; };
         pbox.FilterCountBox.NumChange += control => { Settings.SiteManager.CurrentSelectedSite.SiteSettings.SetSetting("CountPerPage", control.NumCount.ToString()); };
         pbox.MirrorSiteComboBox.SelectionChanged += delegate
         {
@@ -366,7 +366,7 @@ public partial class SearchControl
         box.FilterResolutionGroup.Visibility = cfg.IsSupportResolution ? Visibility.Visible : Visibility.Collapsed;
 
         box.FilterResolutionCheckBox.IsEnabled = cfg.IsSupportResolution;
-        box.FilterExlicitGroup.IsEnabled = cfg.IsSupportRating;
+        box.FilterNsfwGroup.IsEnabled = cfg.IsSupportRating;
         box.FilterStartIdGrid.Visibility = cfg.IsSupportSearchByImageLastId ? Visibility.Visible : Visibility.Collapsed;
         
         var cs = Settings.SiteManager.CurrentSelectedSite;
@@ -616,8 +616,8 @@ public partial class SearchControl
             Config = CurrentConfig,
             CountLimit = pbox.FilterCountBox.NumCount,
             PageIndex = pbox.FilterStartPageBox.NumCount,
-            IsShowExplicit = Settings.IsXMode && pbox.FilterExlicitCheckBox.IsChecked == true,
-            IsShowExplicitOnly = pbox.ShowExlicitOnlyCheckBox.IsChecked == true,
+            IsShowExplicit = Settings.IsXMode && pbox.FilterNsfwCheckBox.IsChecked == true,
+            IsShowExplicitOnly = pbox.ShowNsfwOnlyCheckBox.IsChecked == true,
             IsFilterResolution = pbox.FilterResolutionCheckBox.IsChecked == true,
             MinWidth = pbox.FilterMinWidthBox.NumCount,
             MinHeight = pbox.FilterMinHeightBox.NumCount,

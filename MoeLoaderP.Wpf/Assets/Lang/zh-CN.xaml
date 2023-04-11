@@ -17,8 +17,8 @@
     <String x:Key="TextSearchControlFilter">参数</String>
     <String x:Key="TextSearchControlFilterStartPage">起始搜索页码</String>
     <String x:Key="TextSearchControlFilterCount">每页图片数量</String>
-    <String x:Key="TextSearchControlFilterShowExpicit">显示R-18图片</String>
-    <String x:Key="TextSearchControlFilterShowExpicitOnly">仅显示R-18图片</String>
+    <String x:Key="TextSearchControlFilterShowNsfw">显示限制级图片</String>
+    <String x:Key="TextSearchControlFilterShowNsfwOnly">仅显示限制级图片</String>
     <String x:Key="TextSearchControlFilterResolution">过滤掉此分辨率以下图片（宽/高）</String>
     <String x:Key="TextSearchControlFilterOrientation">图片方向</String>
     <String x:Key="TextSearchControlFilterOrientationNone">任意</String>

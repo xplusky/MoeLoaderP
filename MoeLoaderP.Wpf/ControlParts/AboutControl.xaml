@@ -38,7 +38,7 @@
             <TextBlock x:Name="AboutVersionTextBlock" TextWrapping="Wrap" Text="版本" Margin="16,2,16,0" Foreground="Black"/>
             <StackPanel x:Name="NewVersionPanel" Margin="0,4,0,0" Background="#FFFFDEDE">
                 <TextBlock x:Name="NewVersionTextBlock" TextWrapping="Wrap" Text="TextBlock" Foreground="#FF9E0000" Margin="4,4,4,0"/>
-                <Button x:Name="NewVersionDownloadButton" Content="前往下载新版" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="4"/>
+                <Button x:Name="NewVersionDownloadButton" Content="前往下载新版" Template="{DynamicResource MoeButtonControlTemplate}" Height="24" Margin="4" />
             </StackPanel>
             <Button x:Name="AboutHomeLinkButton" Content="使用帮助/更新记录" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>
             <Button x:Name="AboutReportButton" Content="反馈问题" Margin="4,5,4,0" Template="{DynamicResource MoeButtonControlTemplate}" Height="24"/>

@@ -28,6 +28,7 @@ public class SearchSession : BindingObject
 
     public string Name { get; set; }
     
+    
 
     public Settings Settings { get; set; }
 
@@ -185,7 +186,7 @@ public class SearchSession : BindingObject
         rp.CurrentPageItemsOutputCount = rp.Count(item=> item.IsLocalFilter == false);
         var mes =
             $"第{rp.CurrentPageNum}页获取到图片{rp.CurrentPageItemsOriginCount}张，条件过滤{rp.CurrentPageItemsOriginCount - rp.CurrentPageItemsOutputCount}张";
-
+        Ex.LogListOriginalString = rp.OriginString?.ToString();
         Ex.ShowMessage(mes, pos: Ex.MessagePos.Searching);
         return rp;
     }

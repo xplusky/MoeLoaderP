@@ -26,7 +26,7 @@ public class WorldCosplaySite : MoeSite
 
     public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
     {
-        Net ??= new NetOperator();
+        Net ??= new NetOperator(Settings, this);
 
         //http://worldcosplay.net/api/photo/list?page=3&limit=2&sort=created_at&direction=descend
         var url = $"{HomeUrl}/api/photo/list";

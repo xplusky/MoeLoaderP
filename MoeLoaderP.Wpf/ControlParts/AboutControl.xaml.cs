@@ -89,4 +89,5 @@ public partial class AboutControl
             ThanksUserWrapPanel.Children.Add(button);
         }
     }
+    
 }

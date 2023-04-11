@@ -65,7 +65,10 @@ public partial class MoeExplorerControl
 
     private void ImageLoadingPoolOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        if(Debugger.IsAttached) Ex.Log($"ImageLoadingPoolCount:{ImageLoadingPool.Count}");
+        if (Debugger.IsAttached)
+        {
+            Ex.Log($"ImageLoadingPoolCount:{ImageLoadingPool.Count}");
+        }
         var loadcount = ImageLoadingPool.Count(img => img.LoadingState == MoeItemControl.LoadingStateEnum.Loading);
         if (loadcount >= Settings.MaxOnLoadingImageCount) return;
         foreach (var image in ImageLoadingPool)

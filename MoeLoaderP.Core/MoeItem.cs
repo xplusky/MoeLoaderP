@@ -130,7 +130,7 @@ public class MoeItem : BindingObject
 
     public string Description { get; set; }
     public List<string> Tags { get; set; } = new();
-    public bool IsExplicit { get; set; }
+    public bool IsNsfw { get; set; }
     public string DetailUrl { get; set; }
     public string OriginString { get; set; }
 
@@ -280,8 +280,8 @@ public class MoeItem : BindingObject
         {
             switch (set.IsXMode)
             {
-                case false or false when IsExplicit:
-                case true when para.IsShowExplicitOnly && IsExplicit == false:
+                case false or false when IsNsfw:
+                case true when para.IsShowExplicitOnly && IsNsfw == false:
                     isNotFilter = false;
                     break;
             }

@@ -90,7 +90,7 @@ public class SankakuIdolSite : MoeSite
             img.DetailUrl = $"{HomeUrl}/post/show/{img.Id}";
             img.Date = $"{item.created_at?.s}".ToDateTime();
             foreach (var tag in Ex.GetList(item.tags)) img.Tags.Add($"{tag.name}");
-            img.IsExplicit = $"{item.rating}" == "e";
+            img.IsNsfw = $"{item.rating}" == "e";
             img.Urls.Add(DownloadTypeEnum.Thumbnail, $"{https}{item.preview_url}", img.DetailUrl);
             img.Urls.Add(DownloadTypeEnum.Medium, $"{https}{item.sample_url}", img.DetailUrl);
             img.Urls.Add(DownloadTypeEnum.Origin, $"{https}{item.file_url}", img.DetailUrl);

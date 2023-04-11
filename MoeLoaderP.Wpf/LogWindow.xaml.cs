@@ -13,10 +13,20 @@ public partial class LogWindow
     public LogWindow()
     {
         InitializeComponent();
+        DataContext = Settings;
+        Owner = Application.Current.MainWindow;
         CopyButton.Click+= CopyButtonOnClick;
         ClearButton.Click+= ClearButtonOnClick;
         LogListBox.SelectionChanged += LogListBoxOnSelectionChanged;
-        Owner = Application.Current.MainWindow;
+        Ex.LogItemStringAction += s =>
+        {
+            ItemStringTextBox.Text = s;
+        };
+        Ex.LogListOriginalStringAction += s =>
+        {
+            ListOriginalStringTextBox.Text = s;
+        };
+        
     }
 
     private void LogListBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -39,7 +49,7 @@ public partial class LogWindow
         {
             strs += str + "\r\n";
         }
-        strs.CopyToClipboard();
+        strs.CopyToClipboard(false);
     }
 
     public void Init(Settings settings)

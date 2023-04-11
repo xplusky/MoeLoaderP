@@ -25,7 +25,7 @@ public class DeviantartSite : MoeSite
     public override string DisplayName => "Deviantart";
     public override string ShortName => "deviantart";
 
-    public override bool VerifyCookieAndSave(CookieCollection ccol)
+    public override bool VerifyCookie(CookieCollection ccol)
     {
         var b = false;
         foreach (Cookie cookie in ccol)
@@ -79,8 +79,8 @@ public class DeviantartSite : MoeSite
         }
 
         if (!para.PageIndexCursor.IsEmpty()) pairs.Add("cursor", para.PageIndexCursor);
-        var json = await net.GetJsonAsync($"{HomeUrl}{api}", pairs, true,
-            token);
+        var json = await net.GetJsonAsync($"{HomeUrl}{api}", pairs, true, true,
+            token:token);
         foreach (var devi in Ex.GetList(json.deviations))
         {
             if (!$"{devi.type}".Equals("image", StringComparison.OrdinalIgnoreCase)) continue;

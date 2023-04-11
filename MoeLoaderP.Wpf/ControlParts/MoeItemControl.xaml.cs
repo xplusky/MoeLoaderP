@@ -129,7 +129,8 @@ public partial class MoeItemControl : IDisposable
     private void ImageCheckBoxOnClick(object sender, RoutedEventArgs e)
     {
         var wnd = Application.Current.MainWindow;
-        if(!Keyboard.IsKeyDown(Key.LeftAlt))return;
+        Ex.LogItemString = MoeItem.OriginString;
+        if (!Keyboard.IsKeyDown(Key.LeftAlt))return;
         MessageWindow.ShowDialog("原始内容",MoeItem.OriginString,wnd,true);
     }
 

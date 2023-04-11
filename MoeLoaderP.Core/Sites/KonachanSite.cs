@@ -27,16 +27,19 @@ public class KonachanSite : MoeSite
     {
         //var homeUrl = para.IsShowExplicit ? HomeUrl : SafeHomeUrl;
         var homeUrl = HomeUrl;
+        var r18 = para.IsShowExplicit
+            ? (para.IsShowExplicitOnly ? "%20rating:explicit" : "") 
+            : "%20rating:safe";
         var pairs = new Pairs
         {
             {"page", $"{para.PageIndex}"},
             {"limit", $"{para.CountLimit}"},
-            {"tags", para.Keyword.ToEncodedUrl()}
+            {"tags", $"{para.Keyword.ToEncodedUrl()}{r18}" },
         };
 
         var query = $"{homeUrl}/post.json{pairs.ToPairsString()}";
         var net = new NetOperator(Settings, this);
-        var json = await net.GetJsonAsync(query, token: token);
+        var json = await net.GetJsonAsync(query, saveListOriginalString:true, token: token);
         var imageItems = new SearchedPage();
         foreach (var item in Ex.GetList(json))
         {
@@ -50,7 +53,7 @@ public class KonachanSite : MoeSite
             foreach (var tag in $"{item.tags}".Split(' ').SkipWhile(string.IsNullOrWhiteSpace))
                 img.Tags.Add(tag.Trim());
 
-            img.IsExplicit = $"{item.rating}" == "e";
+            img.IsNsfw = $"{item.rating}" != "s";
             img.DetailUrl = $"{homeUrl}/post/show/{img.Id}";
             img.Date = $"{item.created_at}".ToDateTime();
             if (img.Date == null) img.DateString = $"{item.created_at}";

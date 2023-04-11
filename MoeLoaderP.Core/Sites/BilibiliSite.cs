@@ -31,7 +31,7 @@ public class BilibiliSite : MoeSite
 
     public override string ShortName => "bilibili";
 
-    public override bool VerifyCookieAndSave(CookieCollection ccol)
+    public override bool VerifyCookie(CookieCollection ccol)
     {
         return ccol.Any(cookie => cookie.Name.Equals("DedeUserID", StringComparison.OrdinalIgnoreCase));
     }

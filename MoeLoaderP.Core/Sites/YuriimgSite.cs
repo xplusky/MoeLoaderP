@@ -116,8 +116,8 @@ public class YuriimgSite : MoeSite
         foreach (var post in json.posts)
         {
             var img = new MoeItem(this, para);
-            img.IsExplicit = $"{post.rating}" == "e";
-            if (SiteSettings.GetCookieContainer() == null && img.IsExplicit) continue;
+            img.IsNsfw = $"{post.rating}" == "e";
+            if (SiteSettings.GetCookieContainer() == null && img.IsNsfw) continue;
             img.Id = $"{post.pid}".ToInt();
             img.Sid = $"{post.id}";
             img.Width = $"{post.width}".ToInt();

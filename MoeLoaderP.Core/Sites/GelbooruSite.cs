@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +13,24 @@ public class GelbooruSite : BooruSite
     public override string HomeUrl => "https://gelbooru.com";
     public override string DisplayName => "Gelbooru";
     public override string ShortName => "gelbooru";
+
+    public GelbooruSite()
+    {
+        Config.IsSupportAccount = true;
+        LoginPageUrl = "https://gelbooru.com/index.php?page=account&s=login&code=00";
+    }
+    public override bool VerifyCookie(CookieCollection ccol)
+    {
+        foreach (Cookie cookie in ccol)
+        {
+            if (cookie.Name.Equals("user_id", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     public override SiteTypeEnum SiteType => SiteTypeEnum.Xml2;
 
     public override Func<MoeItem, SearchPara, CancellationToken, Task> GetDetailTaskFunc { get; set; } = GetDetailTask;
@@ -28,8 +47,11 @@ public class GelbooruSite : BooruSite
 
     public override string GetPageQuery(SearchPara para)
     {
+        var r18 = para.IsShowExplicit
+            ? (para.IsShowExplicitOnly ? "%20rating%3Aexplicit" : "")
+            : "%20rating%3Ageneral";
         return
-            $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.CountLimit}&tags={para.Keyword.ToEncodedUrl()}";
+            $"{HomeUrl}/index.php?page=dapi&s=post&q=index&pid={para.PageIndex - 1}&limit={para.CountLimit}&tags={para.Keyword.ToEncodedUrl()}{r18}";
     }
 
     public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)

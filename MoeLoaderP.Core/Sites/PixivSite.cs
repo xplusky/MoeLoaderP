@@ -81,6 +81,8 @@ public class PixivSite : MoeSite
         Config.IsSupportResolution = true;
         Config.IsSupportScore = true;
         Config.IsSupportAccount = true;
+        Config.IsSupportRating = false;
+        
 
         Lv2Cat = new Categories(Config);
         // 最新/搜索 + 作者ID搜索
@@ -102,7 +104,7 @@ public class PixivSite : MoeSite
         rank.SubCategories.EachSubAdds("综合", "插画", "漫画", "动图");
     }
 
-    public override bool VerifyCookieAndSave(CookieCollection ccol)
+    public override bool VerifyCookie(CookieCollection ccol)
     {
         var b = false;
         foreach (Cookie cookie in ccol)

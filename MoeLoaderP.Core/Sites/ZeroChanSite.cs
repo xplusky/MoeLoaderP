@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -65,8 +66,8 @@ public class ZeroChanSite : MoeSite
         {
             var img = new MoeItem(this, para);
             var mo = imgNode.SelectSingleNode(".//b")?.InnerText?.Trim();
-            if (mo?.ToLower().Trim().Contains("members only") == true) continue;
-            var strId = imgNode.SelectSingleNode("a").Attributes["href"].Value;
+            if (mo?.ToLower().Trim().Contains("members only", StringComparison.OrdinalIgnoreCase) == true) continue;
+            var strId = imgNode.SelectSingleNode(".//a")?.Attributes["href"]?.Value;
             var fav = imgNode.SelectSingleNode("a/span")?.InnerText;
             if (!fav.IsEmpty()) img.Score = Regex.Replace(fav, @"[^0-9]+", "")?.ToInt() ?? 0;
             var imgHref = imgNode.SelectSingleNode(".//img");
@@ -104,7 +105,7 @@ public class ZeroChanSite : MoeSite
 
             img.Description = title;
             img.Title = title;
-            img.Id = strId[1..].ToInt();
+            if(!strId.IsEmpty())  img.Id = strId[1..].ToInt();
 
             img.Urls.Add(DownloadTypeEnum.Thumbnail, previewUrl, HomeUrl);
             img.Urls.Add(DownloadTypeEnum.Medium, sampleUrl, HomeUrl);

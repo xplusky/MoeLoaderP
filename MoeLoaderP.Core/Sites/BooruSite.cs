@@ -16,7 +16,13 @@ public abstract class BooruSite : MoeSite
     public enum SiteTypeEnum
     {
         Xml,
+        /// <summary>
+        /// gelbooru
+        /// </summary>
         Xml2,
+        /// <summary>
+        /// danbooru
+        /// </summary>
         Json
     }
 
@@ -59,6 +65,7 @@ public abstract class BooruSite : MoeSite
     public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
     {
         if(Net == null) Login();
+        if (Net == null) return null;
         var net = Net.CloneWithCookie();
         var list = new AutoHintItems();
         
@@ -78,7 +85,7 @@ public abstract class BooruSite : MoeSite
                     });
                 return list;
             case SiteTypeEnum.Json:
-                var json = await net.GetJsonAsync(GetHintQuery(para), token: token);
+                var json = await net.GetJsonAsync(GetHintQuery(para), saveListOriginalString:true, token: token);
                 foreach (var item in Ex.GetList(json))
                     list.Add(new AutoHintItem
                     {
@@ -128,7 +135,11 @@ public abstract class BooruSite : MoeSite
             img.Height = post.Attribute("height")?.Value.ToInt() ?? 0;
             img.Uploader = post.Attribute("author")?.Value;
             img.Source = post.Attribute("source")?.Value;
-            img.IsExplicit = post.Attribute("rating")?.Value.ToLower() != "s";
+            img.IsNsfw = post.Attribute("rating")?.Value.ToLower() != "s";
+            if (this is SafebooruSite)
+            {
+                img.IsNsfw = false;
+            }
             img.DetailUrl = GetDetailPageUrl(img);
             img.Date = post.Attribute("created_at")?.Value.ToDateTime();
             if (img.Date == null) img.DateString = post.Attribute("created_at")?.Value;
@@ -185,7 +196,7 @@ public abstract class BooruSite : MoeSite
             img.Height = post.GetXIntValue("height");
             img.Uploader = post.GetXStringValue("author");
             img.Source = post.GetXStringValue("source");
-            img.IsExplicit = post.GetXStringValue("rating") != "safe";
+            img.IsNsfw = post.GetXStringValue("rating") != "general";
             img.DetailUrl = GetDetailPageUrl(img);
             var dateStr = post.GetXStringValue("created_at");
             img.Date= dateStr.ToDateTime();
@@ -239,7 +250,12 @@ public abstract class BooruSite : MoeSite
     {
         
         var net = Net.CloneWithCookie();
-        var list = await net.GetJsonAsync(GetPageQuery(para), token: token);
+        var p = GetPageQuery(para);
+        //if (para.Site is DanbooruSite)
+        //{
+        //    p = "https://danbooru.donmai.us/posts.json?api_key=PzRGhnUwMjDHpgYmGqPtHwsS&login=plusky&page=1&limit=60&tags=";
+        //}
+        var list = await net.GetJsonAsync(p,saveListOriginalString:true, token: token);
 
         SearchedPage GetImgsFromJson()
         {
@@ -259,7 +275,7 @@ public abstract class BooruSite : MoeSite
                 foreach (var tag in $"{item.tag_string}".Split(' ').SkipWhile(string.IsNullOrWhiteSpace))
                     img.Tags.Add(tag.Trim());
 
-                img.IsExplicit = $"{item.rating}" == "e";
+                img.IsNsfw = $"{item.rating}" != "s";
                 img.DetailUrl = GetDetailPageUrl(img);
                 img.Date = $"{item.created_at}".ToDateTime();
                 if (img.Date == null) img.DateString = $"{item.created_at}";

@@ -44,6 +44,13 @@ public class CustomLv2MenuItem
 
 public class CustomSiteConfigList : ObservableCollection<CustomSiteConfig>
 {
+    public void Adds( CustomSiteConfig[] items)
+    {
+        foreach (var item in items)
+        {
+            Add(item);
+        }
+    }
 }
 
 public class CustomCategory : Category
@@ -161,4 +168,10 @@ public enum CustomXpathMode
     Attribute,
     InnerText,
     Node
+}
+
+public enum CustomSiteType
+{
+    Html,
+    Booru,
 }

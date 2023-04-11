@@ -62,7 +62,7 @@ public class EggWindowHelper
         switch (e.Key)
         {
             
-            case Key.F7:
+            case Key.F6:
                 if (MainWindow.Settings.IsShowEggWindowOnce) // Settings.IsShowEggWindowOnce
                 {
                     if (InstanceWnd is null) ShowEggWindow();

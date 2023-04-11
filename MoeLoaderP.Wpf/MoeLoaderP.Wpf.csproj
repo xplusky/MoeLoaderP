@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
     <AssemblyName>MoeLoaderP</AssemblyName>
@@ -104,7 +104,7 @@
     <Resource Include="Assets\SiteIcon\deviantart.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\SiteIcon\donmai.ico" />
+    <Resource Include="Assets\SiteIcon\danbooru.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\SiteIcon\e-shu.ico" />
@@ -157,9 +157,10 @@
       <Version>0.10.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1108.44" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
-    <PackageReference Include="XamlAnimatedGif" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1661.34" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
+    <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
+    <PackageReference Include="XamlAnimatedGif" Version="2.1.1" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\fa-solid-900.ttf" />
@@ -250,6 +251,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Nullable>disable</Nullable>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

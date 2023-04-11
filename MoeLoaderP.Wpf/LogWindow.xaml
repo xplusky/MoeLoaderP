@@ -4,28 +4,44 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="日志" Height="326" Width="484"
-        Background="#4CFFFFFF" WindowStartupLocation="CenterOwner"
+        Title="调试信息" Height="{Binding LogWindowHeight, Mode=TwoWay}" Width="{Binding LogWindowWidth, Mode=TwoWay}"
+        Background="#4CFFFFFF" WindowStartupLocation="CenterOwner" d:DesignHeight="231.459" d:DesignWidth="403.854"
         >
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="32"/>
-        </Grid.RowDefinitions>
-        <ListBox x:Name="LogListBox" 
-                 ScrollViewer.CanContentScroll="False"
-                 Style="{DynamicResource MoeListBoxTemplate}" 
-                 BorderBrush="{x:Null}" Background="#CCFFFFFF" 
-                 ScrollViewer.HorizontalScrollBarVisibility="Hidden" SelectionMode="Extended">
-            <ListBox.ItemTemplate>
-                <DataTemplate >
-                    <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button x:Name="CopyButton" Content="复制" Template="{DynamicResource MoeButtonControlTemplate}" Margin="8,0,8,0" Width="96" Height="28" IsEnabled="False"/>
-            <Button x:Name="ClearButton" Content="清除" Template="{DynamicResource MoeButtonControlTemplate}" Margin="8,0,8,0" Width="96" Height="28"/>
-        </StackPanel>
+        <TabControl>
+            <TabItem Header="日志">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <ListBox x:Name="LogListBox" 
+                ScrollViewer.CanContentScroll="False"
+                Style="{DynamicResource MoeListBoxTemplate}" 
+                BorderBrush="{x:Null}" Background="#CCFFFFFF" 
+                ScrollViewer.HorizontalScrollBarVisibility="Hidden" SelectionMode="Extended">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate >
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="CopyButton" Content="复制" Template="{DynamicResource MoeButtonControlTemplate}" Margin="8,0,8,0" Width="96" Height="28" IsEnabled="False"/>
+                        <Button x:Name="ClearButton" Content="清除" Template="{DynamicResource MoeButtonControlTemplate}" Margin="8,0,8,0" Width="96" Height="28"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ListOriginalString">
+                <Grid Background="#FFE5E5E5">
+                    <TextBox x:Name="ListOriginalStringTextBox"  TextWrapping="Wrap" Text="" VerticalScrollBarVisibility="Visible"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ItemString">
+                <Grid>
+                    <TextBox x:Name="ItemStringTextBox" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible"></TextBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

@@ -26,7 +26,7 @@
                     </ComboBox.ItemTemplate>
 
                 </ComboBox>
-                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black" Text="单站点代理"/>
+                <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black" Text="单站点代理"/>
             </Grid>
 
             <Grid x:Name="MirrorSiteGrid" Margin="0,4,0,0">
@@ -49,7 +49,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock TextWrapping="Wrap" Text="镜像站点" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
+                <TextBlock Grid.Column="0" TextWrapping="Wrap" Text="镜像站点" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
             </Grid>
             <Grid x:Name="OrderByGrid" Margin="0,4,0,0">
                 <Grid.ColumnDefinitions>
@@ -99,9 +99,16 @@
                 <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="Black" Text="每页最少数量"/>
                 <local:VariableCountControl x:Name="FilterCountBox" NumCount="60" MaxCount="500" MinCount="10" Grid.Column="1" Width="128"/>
             </Grid>
-            <StackPanel x:Name="FilterExlicitGroup" Orientation="Vertical">
-                <CheckBox x:Name="FilterExlicitCheckBox" Content="{DynamicResource TextSearchControlFilterShowExpicit}" IsChecked="{Binding IsDisplayExplicitImages}" Visibility="{Binding IsXMode, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,4,0,0"/>
-                <CheckBox x:Name="ShowExlicitOnlyCheckBox" Content="{DynamicResource TextSearchControlFilterShowExpicitOnly}" Visibility="{Binding Visibility, ElementName=FilterExlicitCheckBox}" Margin="0,4,0,0"/>
+            <StackPanel x:Name="FilterNsfwGroup" Orientation="Vertical">
+                <CheckBox x:Name="FilterNsfwCheckBox" 
+                          Content="{DynamicResource TextSearchControlFilterShowNsfw}" 
+                          IsChecked="{Binding IsDisplayExplicitImages}" 
+                          Visibility="{Binding IsXMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                          Margin="0,4,0,0"/>
+                <CheckBox x:Name="ShowNsfwOnlyCheckBox" 
+                          Content="{DynamicResource TextSearchControlFilterShowNsfwOnly}" 
+                          Visibility="{Binding Visibility, ElementName=FilterNsfwCheckBox}"
+                          Margin="0,4,0,0"/>
             </StackPanel>
             <StackPanel x:Name="FilterResolutionGroup" Orientation="Vertical">
                 <CheckBox x:Name="FilterResolutionCheckBox" Content="{DynamicResource TextSearchControlFilterResolution}" Margin="0,4,0,0"/>
@@ -124,11 +131,11 @@
                     <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationLandscape}"/>
                     <ComboBoxItem Content="{DynamicResource TextSearchControlFilterOrientationPortrait}"/>
                 </ComboBox>
-                <TextBlock TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterOrientation}" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
+                <TextBlock Grid.Column="0" TextWrapping="Wrap" Text="{DynamicResource TextSearchControlFilterOrientation}" VerticalAlignment="Center" Height="15.24" Margin="0,0,10,0" Foreground="Black"/>
             </Grid>
 
         </StackPanel>
-        <Grid x:Name="HintGrid">
+        <Grid Grid.Column="0" x:Name="HintGrid">
             <ListBox x:Name="KeywordListBox"  Margin="2,2,2,2" SnapsToDevicePixels="True"  Focusable="False" Template="{DynamicResource MoeSearchKeywordListBoxControlTemplate}" ItemContainerStyle="{DynamicResource SearchKeywordListBoxItemStyle}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="sites:AutoHintItem">
