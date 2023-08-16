@@ -1,4 +1,0 @@
-2023-08-16 14:20:15: == 同步开始由 User Command
-2023-08-16 14:20:15: Start only 1 threads, limited by tasks to run
-2023-08-16 14:20:15: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Wpf/Properties/AssemblyInfo.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Wpf/Properties/AssemblyInfo.cs' (2,258)
-2023-08-16 14:20:15: == 同步完成. 历时: 00:00:00, 速度: 0.00/s, 完成: 1, 错误: 0
