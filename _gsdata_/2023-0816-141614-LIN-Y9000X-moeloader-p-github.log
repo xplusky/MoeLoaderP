@@ -1,0 +1,7 @@
+2023-08-16 14:16:14: -- 分析开始 User Command
+2023-08-16 14:16:14: 左侧: State file does not exist: D:/projects/moelaoder-p/moeloader-p-sln/_gsdata_/_file_state_v4._gs
+2023-08-16 14:16:14: 右侧: State file does not exist: D:/codes/github-plusky/MoeLoaderP/_gsdata_/_file_state_v4._gs
+2023-08-16 14:16:14: /MoeLoaderP.Core/Sites/MiniTokyoSite.cs: 警告：较旧的文件将替换较新的文件
+2023-08-16 14:16:14: 变更：1,963， 冲突：0， 复制时间：0， 复制状态：145， 错误： 0, All: 2109
+2023-08-16 14:16:14: Left to Right: Copy File: 1770 Delete File: 193 
+2023-08-16 14:16:14: -- 分析已结束。历时 00:00:00, 速度： Many 文件/秒

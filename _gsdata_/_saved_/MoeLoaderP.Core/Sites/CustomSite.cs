@@ -135,23 +135,23 @@ public class CustomSite : MoeSite
             OriginString = new StringBuilder(html.Text)
         };
         var pa = cat.OverridePagePara ?? CustomConfig.PagePara;
-        var list = (HtmlNodeCollection) html.DocumentNode.GetValue(pa.MainPageImagesNodes);
+        var list = (HtmlNodeCollection) html.DocumentNode.GetValue(pa.ImagesList);
         
         if (!(list?.Count > 0)) return moes;
         foreach (var item in list)
         {
             var moe = new MoeItem(this, para);
-            var url = item.GetValue(pa.ImageItemThumbnailUrlFromMainPageSingleImageNode);
+            var url = item.GetValue(pa.ImageItemThumbnailUrlFromImagesList);
             if (url == null) continue;
-            var refer = pa.ImageItemThumbnailUrlFromMainPageSingleImageNode.Referer;
+            var refer = pa.ImageItemThumbnailUrlFromImagesList.Referer;
             moe.Urls.Add(DownloadTypeEnum.Thumbnail, url, refer);
-            moe.Title = item.GetValue(pa.ImageItemTitleFromSingleMainPageSingleImageNode);
-            var detail = item.GetValue(pa.ImageItemDetailUrlFromMainPageSingleImageNode);
+            moe.Title = item.GetValue(pa.ImageItemTitleFromImagesList);
+            var detail = item.GetValue(pa.ImageItemDetailUrlFromImagesList);
             moe.DetailUrl = detail;
             moe.GetDetailTaskFunc += t => GetDetail(moe.DetailUrl, moe, pa, true, t);
-            if (pa.ImageItemDateTimeFromMainPageSingleImageNode != null)
+            if (pa.ImageItemDateTimeFromImagesList != null)
             {
-                var date = item.GetValue(pa.ImageItemDateTimeFromMainPageSingleImageNode);
+                var date = item.GetValue(pa.ImageItemDateTimeFromImagesList);
                 moe.DateString = $"{date}";
             }
 
@@ -165,7 +165,6 @@ public class CustomSite : MoeSite
     public async Task GetDetail(string url, MoeItem father, CustomPagePara pa, bool isFirst, CancellationToken token)
     {
         var items = await GetNewItems(url, father, pa, isFirst, token);
-        
 
         foreach (var moeItem in items) father.ChildrenItems.Add(moeItem);
         if (isFirst)
@@ -178,14 +177,13 @@ public class CustomSite : MoeSite
     public async Task<MoeItems> GetNewItems(string url, MoeItem father, CustomPagePara pa, bool isFirst,
         CancellationToken token)
     {
-        var currentdir = url[..(url.LastIndexOf('/') + 1)];
         var newItems = new MoeItems();
         var net = Net.CloneWithCookie();
         var html = await net.GetHtmlAsync(url, token: token, showSearchMessage: false);
         if (html == null) return newItems;
         var root = html.DocumentNode;
-        var imgOrImgs = root.GetValue(pa.DetailPageImagesNodes);
-        if (pa.DetailPageImagesNodes.IsMultiValues)
+        var imgOrImgs = root.GetValue(pa.DetailImagesList);
+        if (pa.DetailImagesList.IsMultiValues)
         {
             var imgs = (HtmlNodeCollection) imgOrImgs;
             if (imgs?.Count > 0)
@@ -210,28 +208,19 @@ public class CustomSite : MoeSite
         //var maxPageIndex = $"{root.GetValue(pa.DetailMaxPageIndex)}".ToInt();
         if (isFirst)
         {
-            var countStr = $"{root.GetValue(pa.DetailImagesCount)}";
-            var imageCount = countStr.ToInt();
+            var imageCount = $"{root.GetValue(pa.DetailImagesCount)}".ToInt();
             if (imageCount != 0) father.ChildrenItemsCount = imageCount;
         }
 
         if (nextpageIndex == currentIndex + 1)
         {
             var nextUrl = root.GetValue(pa.DetailNextPageUrl);
-            if (pa.DetailNextPageUrl.Pre == "currentDir")
+            var last = newItems.LastOrDefault();
+            if (last != null)
             {
-                nextUrl = $"{currentdir}{nextUrl}";
+                last.IsResolveAndDownloadNextItem = true;
+                last.GetNextItemsTaskFunc += async t => await GetNewItems(nextUrl, father, pa, false, t);
             }
-            if (nextUrl != null)
-            {
-                var last = newItems.LastOrDefault();
-                if (last != null)
-                {
-                    last.IsResolveAndDownloadNextItem = true;
-                    last.GetNextItemsTaskFunc += async t => await GetNewItems(nextUrl, father, pa, false, t);
-                }
-            }
-            
         }
 
         return newItems;
@@ -247,12 +236,12 @@ public class CustomSite : MoeSite
                 newMoeItem.Urls.Add(DownloadTypeEnum.Origin, imgurl, referer: pa.DetailImageItemOriginUrlFromDetailImagesList.Referer);
         }
 
-        if (pa.DetailPageImageItemThumbnailUrlFromSingleDetailPageImageNodes != null)
+        if (pa.DetailImageItemThumbnailUrlFromDetailImagesList != null)
         {
-            var imgurl = img.GetValue(pa.DetailPageImageItemThumbnailUrlFromSingleDetailPageImageNodes);
+            var imgurl = img.GetValue(pa.DetailImageItemThumbnailUrlFromDetailImagesList);
             if (imgurl != null)
                 newMoeItem.Urls.Add(DownloadTypeEnum.Thumbnail, imgurl,
-                    referer: pa.DetailPageImageItemThumbnailUrlFromSingleDetailPageImageNodes.Referer);
+                    referer: pa.DetailImageItemThumbnailUrlFromDetailImagesList.Referer);
         }
 
         if (pa.DetailImageItemDetailUrlFromDetailImagesList != null)

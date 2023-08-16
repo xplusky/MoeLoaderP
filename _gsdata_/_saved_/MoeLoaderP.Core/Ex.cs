@@ -82,191 +82,70 @@ public static class Ex
     public static event Action<string> LogListOriginalStringAction;
     public static event Action<string> LogItemStringAction;
 
-    //public static dynamic GetValue(this HtmlNode rootNode, CustomXpath xpath)
-    //{
-    //    if (xpath == null) return null;
-    //    if (rootNode == null) return null;
-    //    var multi = xpath.IsMultiValues;
-    //    if (multi)
-    //    {
-    //        var nodes = rootNode.SelectNodes(xpath.Path);
-    //        //var child = nodes[0].ChildNodes;
-    //        //var inner = nodes[0].InnerHtml;
-    //        //var xdoc = new XmlDocument();
-    //        //xdoc.LoadXml(inner);
-    //        //var root = xdoc.DocumentElement;
-    //        if (nodes == null && xpath.PathR2 != null) nodes = rootNode.SelectNodes(xpath.PathR2);
-    //        if (nodes == null) return null;
-
-    //        var list = new List<string>();
-    //        switch (xpath.Mode)
-    //        {
-    //            case nameof(CustomXpathMode.Attribute):
-    //                list.AddRange(nodes.Select(hnode => hnode.Attributes[xpath.Attribute]?.Value));
-    //                break;
-    //            case nameof(CustomXpathMode.InnerText):
-    //                list.AddRange(nodes.Select(hnode => hnode.InnerText));
-    //                break;
-    //            case nameof(CustomXpathMode.Node):
-    //                return nodes;
-    //        }
-
-    //        if (xpath.Pre != null)
-    //            for (var i = 0; i < list.Count; i++)
-    //                list[i] = $"{xpath.Pre}{list[i]}";
-
-    //        if (xpath.After != null)
-    //            for (var i = 0; i < list.Count; i++)
-    //                list[i] = $"{list[i]}{xpath.After}";
-
-    //        return list;
-    //    }
-    //    else
-    //    {
-
-    //        return GetSingleValue(rootNode, xpath);
-
-    //    }
-
-
-    //}
-
-    //private static dynamic GetSingleValue(this HtmlNode rootNode, CustomXpath xpath)
-    //{
-    //    var node = xpath.Path.IsEmpty() ? rootNode : rootNode.SelectSingleNode(xpath.Path);
-    //    if (node == null && xpath.PathR2 != null) node = rootNode.SelectSingleNode(xpath.PathR2);
-    //    if (node == null) return null;
-    //    var str = string.Empty;
-    //    switch (xpath.Mode)
-    //    {
-    //        case nameof(CustomXpathMode.Attribute):
-    //            str = node.Attributes[xpath.Attribute]?.Value;
-    //            break;
-    //        case nameof(CustomXpathMode.InnerText):
-    //            str = node.InnerText;
-    //            break;
-    //        case nameof(CustomXpathMode.Node):
-    //            return node;
-    //    }
-
-    //    if (xpath.Pre != null) str = $"{xpath.Pre}{str}";
-    //    if (xpath.After != null) str = $"{str}{xpath.After}";
-
-    //    if (xpath.RegexPattern != null && str != null)
-    //    {
-    //        var matches = new Regex(xpath.RegexPattern).Matches(str);
-    //        str = matches.Any() ? matches[0].Value : str;
-    //    }
-
-    //    if (xpath.Replace != null && xpath.ReplaceTo != null && str != null) str = str.Replace(xpath.Replace, xpath.ReplaceTo);
-
-    //    if (xpath.GetFileName)
-    //    {
-    //        str = Path.GetFileName(str);
-    //    }
-
-    //    if (xpath.GetNumFromMatches != null)
-    //    {
-    //        var regex = new Regex("[0-9]+");
-    //        if (str != null)
-    //        {
-    //            var matches = regex.Matches(str);
-    //            if (matches.Count > xpath.GetNumFromMatches)
-    //            {
-    //                str = matches[xpath.GetNumFromMatches.Value].Value;
-    //            }
-    //        }
-    //    }
-    //    return str;
-    //}
     public static dynamic GetValue(this HtmlNode rootNode, CustomXpath xpath)
     {
         if (xpath == null) return null;
         if (rootNode == null) return null;
-        var multi = xpath.IsMultiValues;
-        var strs = new List<string>();
-        if (multi)
+        var isMulti = xpath.IsMultiValues;
+        if (isMulti)
         {
             var nodes = rootNode.SelectNodes(xpath.Path);
+            if (nodes == null && xpath.PathR2 != null) nodes = rootNode.SelectNodes(xpath.PathR2);
+            if (nodes == null) return null;
+
+            var list = new List<string>();
             switch (xpath.Mode)
             {
                 case nameof(CustomXpathMode.Attribute):
-                    strs.AddRange(nodes.Select(hnode => hnode.Attributes[xpath.Attribute]?.Value));
+                    list.AddRange(nodes.Select(hnode => hnode.Attributes[xpath.Attribute]?.Value));
                     break;
                 case nameof(CustomXpathMode.InnerText):
-                    strs.AddRange(nodes.Select(hnode => hnode.InnerText));
+                    list.AddRange(nodes.Select(hnode => hnode.InnerText));
                     break;
                 case nameof(CustomXpathMode.Node):
                     return nodes;
             }
-        }
-        else
-        {
-            var node = xpath.Path.IsEmpty() ? rootNode : rootNode.SelectSingleNode(xpath.Path);
-            if (node == null && xpath.PathR2 != null) node = rootNode.SelectSingleNode(xpath.PathR2);
-            if (node == null) return null;
-            var str = string.Empty;
-            switch (xpath.Mode)
-            {
-                case nameof(CustomXpathMode.Attribute):
-                    str = node.Attributes[xpath.Attribute]?.Value;
-                    break;
-                case nameof(CustomXpathMode.InnerText):
-                    str = node.InnerText;
-                    break;
-                case nameof(CustomXpathMode.Node):
-                    return node;
-            }
-            strs.Add(str);
-        }
 
-        // operate option
-        for (var i = 0; i < strs.Count; i++)
-        {
-            if (xpath.Pre != null && xpath.Pre != "currentDir")
-            {
-                strs[i] = $"{xpath.Pre}{strs[i]}";
-            }
+            if (xpath.Pre != null)
+                for (var i = 0; i < list.Count; i++)
+                    list[i] = $"{xpath.Pre}{list[i]}";
 
             if (xpath.After != null)
-            {
-                strs[i] = $"{strs[i]}{xpath.After}";
-            }
+                for (var i = 0; i < list.Count; i++)
+                    list[i] = $"{list[i]}{xpath.After}";
 
-            if (xpath.RegexPattern != null && strs[i] != null)
-            {
-                var matches = new Regex(xpath.RegexPattern).Matches(strs[i]);
-                strs[i] = matches.Any() ? matches[0].Value : strs[i];
-            }
-
-            if (xpath.Replace != null && xpath.ReplaceTo != null && strs[i] != null) strs[i] = strs[i].Replace(xpath.Replace, xpath.ReplaceTo);
-
-            if (xpath.GetFileName)
-            {
-                strs[i] = Path.GetFileName(strs[i]);
-            }
-
-            if (xpath.GetNumFromMatches != null)
-            {
-                var regex = new Regex("[0-9]+");
-                var matches = regex.Matches(strs[i]);
-                var m = xpath.GetNumFromMatches.Value;
-                if (m >= 0)
-                {
-                    if (matches.Count > m) strs[i] = matches[m].Value;
-                }
-                else
-                {
-                    if (matches.Count >= -m) strs[i] = matches[^-m].Value;
-                }
-            }
+            return list;
         }
 
-        // return 
-        if (multi) return strs;
-        return strs[0];
+        var node = xpath.Path.IsEmpty()? rootNode :  rootNode.SelectSingleNode(xpath.Path);
+        if (node == null && xpath.PathR2 != null) node = rootNode.SelectSingleNode(xpath.PathR2);
+        if (node == null) return null;
+        var str = string.Empty;
+        switch (xpath.Mode)
+        {
+            case nameof(CustomXpathMode.Attribute):
+                str = node.Attributes[xpath.Attribute]?.Value;
+                break;
+            case nameof(CustomXpathMode.InnerText):
+                str = node.InnerText;
+                break;
+            case nameof(CustomXpathMode.Node):
+                return node;
+        }
+
+        if (xpath.Pre != null) str = $"{xpath.Pre}{str}";
+        if (xpath.After != null) str = $"{str}{xpath.After}";
+
+        if (xpath.RegexPattern != null && str!=null)
+        {
+            var matches = new Regex(xpath.RegexPattern).Matches(str);
+            str = matches.Any() ? matches[0].Value : str;
+        }
+
+        if (xpath.Replace != null && xpath.ReplaceTo != null && str != null) str = str.Replace(xpath.Replace, xpath.ReplaceTo);
+
+        return str;
     }
-    
 
     public static string Delete(this string text, params string[] deleteStrs)
     {

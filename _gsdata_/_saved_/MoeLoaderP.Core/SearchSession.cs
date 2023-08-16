@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -161,7 +160,6 @@ public class SearchSession : BindingObject
         }
         catch (Exception e)
         {
-            if (Debugger.IsAttached) throw;
             rp = new SearchedPage();
             rp.SearchException = e;
             rp.HasNextPage = false;

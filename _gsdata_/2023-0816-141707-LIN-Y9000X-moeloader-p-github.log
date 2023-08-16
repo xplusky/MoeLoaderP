@@ -1,0 +1,14 @@
+2023-08-16 14:17:54: == 同步开始由 User Command
+2023-08-16 14:17:54: 删除文件 D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/Sites/DonmaiSite.cs
+2023-08-16 14:17:54: 删除文件 D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Wpf/Assets/SiteIcon/donmai.ico
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/Ex.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/Ex.cs' (17,697)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/NetOperator.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/NetOperator.cs' (13,529)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/MoeItem.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/MoeItem.cs' (21,554)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/SearchSession.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/SearchSession.cs' (7,575)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/Sites/MiniTokyoSite.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/Sites/MiniTokyoSite.cs' (7,382)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/Sites/CustomSite.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/Sites/CustomSite.cs' (11,166)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/Sites/CustomSiteConfig.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/Sites/CustomSiteConfig.cs' (6,158)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Wpf/MainWindow.xaml.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Wpf/MainWindow.xaml.cs' (5,267)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Wpf/Properties/AssemblyInfo.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Wpf/Properties/AssemblyInfo.cs' (2,258)
+2023-08-16 14:17:54: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Wpf/MoeLoaderP.Wpf.csproj' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Wpf/MoeLoaderP.Wpf.csproj' (10,165)
+2023-08-16 14:17:54: == 同步完成. 历时: 00:00:00, 速度: 0.00/s, 完成: 157, 错误: 0

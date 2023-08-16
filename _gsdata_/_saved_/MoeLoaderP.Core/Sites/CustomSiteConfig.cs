@@ -99,19 +99,19 @@ public class CustomCategories : List<CustomCategory>
 
 public class CustomPagePara
 {
-    // main list images 
-    public CustomXpath MainPageImagesNodes { get; set; }
+    // list
+    public CustomXpath ImagesList { get; set; }
 
-    // main one item
-    public CustomXpath ImageItemThumbnailUrlFromMainPageSingleImageNode { get; set; }
-    public CustomXpath ImageItemTitleFromSingleMainPageSingleImageNode { get; set; }
-    public CustomXpath ImageItemDetailUrlFromMainPageSingleImageNode { get; set; }
-    public CustomXpath ImageItemDateTimeFromMainPageSingleImageNode { get; set; }
-    public CustomXpath ImagesCountFromMainPageSingleImageNode { get; set; }
+    // one item
+    public CustomXpath ImageItemThumbnailUrlFromImagesList { get; set; }
+    public CustomXpath ImageItemTitleFromImagesList { get; set; }
+    public CustomXpath ImageItemDetailUrlFromImagesList { get; set; }
+    public CustomXpath ImageItemDateTimeFromImagesList { get; set; }
+    public CustomXpath ImagesCountFromImagesList { get; set; }
 
-    // lv1 detail page
-    public CustomXpath DetailPageImagesNodes { get; set; }
-    public CustomXpath DetailPageImageItemThumbnailUrlFromSingleDetailPageImageNodes { get; set; }
+    // detail page
+    public CustomXpath DetailImagesList { get; set; }
+    public CustomXpath DetailImageItemThumbnailUrlFromDetailImagesList { get; set; }
     public CustomXpath DetailImageItemOriginUrlFromDetailImagesList { get; set; }
     public CustomXpath DetailImageItemDetailUrlFromDetailImagesList { get; set; }
 
@@ -121,7 +121,7 @@ public class CustomPagePara
     public CustomXpath DetailMaxPageIndex { get; set; }
     public CustomXpath DetailImagesCount { get; set; }
 
-    // lv2 detail  page
+    // detail lv2 page
     public CustomXpath DetailLv2ImageOriginUrl { get; set; }
     public CustomXpath DetailLv2ImagePreviewUrl { get; set; }
     public CustomXpath DetailLv2ImageDetailUrl { get; set; }
@@ -134,7 +134,7 @@ public class CustomXpath
 {
     public CustomXpath(string path, CustomXpathMode mode, string attribute = null, string pre = null,
         bool mul = false, string regex = null, string replace = null, string replaceTo = null, string pathR2 = null,
-        string referer = null,string after = null,bool getFileName = false, int? getNumFromMatches = null)
+        string referer = null,string after = null)
     {
         Path = path;
         Mode = mode.ToString();
@@ -147,8 +147,6 @@ public class CustomXpath
         if (pathR2 != null) PathR2 = pathR2;
         if (referer != null) Referer = referer;
         if(after != null) After = after;
-        if(getFileName) GetFileName = true;
-        if (getNumFromMatches != null) GetNumFromMatches = getNumFromMatches.Value;
     }
 
     public string Path { get; set; }
@@ -162,11 +160,6 @@ public class CustomXpath
     public string Replace { get; set; }
     public string ReplaceTo { get; set; }
     public string Referer { get; set; }
-    public bool GetFileName { get; set; }
-    /// <summary>
-    /// 文本转换为数字数列，提取第n组数字，0开始，负数从-1开始（倒数第几组数）
-    /// </summary>
-    public int? GetNumFromMatches { get; set; }
 }
 
 

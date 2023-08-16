@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO.Compression;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Handlers;
@@ -52,7 +50,7 @@ public class NetOperator
         //}
         ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
         Client = new HttpClient(ProgressMessageHandler);
-        //var agent = Agents[new Random().Next(0, Agents.Length - 1)];
+        var agent = Agents[new Random().Next(0, Agents.Length - 1)];
         var header = Client.DefaultRequestHeaders;
         //header.UserAgent.ParseAdd(agent);
         //header.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
@@ -81,11 +79,11 @@ public class NetOperator
     }
     
 
-    //public static string[] Agents =
-    //{
-    //    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-    //    //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
-    //};
+    public static string[] Agents =
+    {
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+    };
 
     public IWebProxy GetProxy()
     {
@@ -156,7 +154,7 @@ public class NetOperator
     }
 
 
-    public async Task<HttpResponseMessage> GetAsync(string api, bool showSearchMessage = true,int retrytimes = 1,bool useGzip = false, CancellationToken token = default)
+    public async Task<HttpResponseMessage> GetAsync(string api, bool showSearchMessage = true,int retrytimes = 1, CancellationToken token = default)
     {
         if (showSearchMessage) Ex.ShowMessage($"正在获取 {api}", pos: Ex.MessagePos.Searching);
         
@@ -165,10 +163,7 @@ public class NetOperator
         {
             try
             {
-                if (useGzip)
-                {
-                    Client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
-                }
+                
                 return await Client.GetAsync(api, token);
             }
             catch (Exception)
@@ -281,19 +276,8 @@ public class NetOperator
         var doc = new HtmlDocument();
         try
         {
-            //HttpClientHandler.AutomaticDecompression = DecompressionMethods.All;
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var response = await GetAsync($"{api}{query}", showSearchMessage, token:token);
-            var strHTML = string.Empty;
-            //if (true)
-            //{
-            //    var stm = response.Content.ReadAsStreamAsync(token).Result;
-                
-            //    var gzip = new GZipStream(stm, CompressionMode.Decompress);//解压缩
-            //    using StreamReader reader = new StreamReader(gzip, Encoding.UTF8);
-            //    strHTML = await reader.ReadToEndAsync();
-            //}
-            var s = (await response.Content.ReadAsStringAsync(token));
+            var s = await response.Content.ReadAsStringAsync(token);
             doc.LoadHtml(s);
             return doc;
         }

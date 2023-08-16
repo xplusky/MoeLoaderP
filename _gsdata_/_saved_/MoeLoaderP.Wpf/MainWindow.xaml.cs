@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -22,17 +21,6 @@ public partial class MainWindow
     
     public void Init(Settings settings)
     {
-        // gen custom test 请删除后运行
-        if (Debugger.IsAttached)
-        {
-            var cus = new CustomSiteFactory();
-            cus.GenTestSites();
-            cus.OutputJson(App.CustomSiteDir);
-            Thread.Sleep(1000);
-        }
-
-        
-
         Settings = settings;
         Settings.CustomSitesDir = App.CustomSiteDir;
         Settings.SiteManager = new SiteManager(Settings);
@@ -68,7 +56,13 @@ public partial class MainWindow
         // egg
         new EggWindowHelper().Init(this);
 
-        
+        // gen custom test 请删除后运行
+        if (Debugger.IsAttached)
+        {
+            var cus = new CustomSiteFactory();
+            cus.GenTestSites();
+            cus.OutputJson(App.CustomSiteDir);
+        }
 
         // ali
         this.SetWindowFluent(settings );

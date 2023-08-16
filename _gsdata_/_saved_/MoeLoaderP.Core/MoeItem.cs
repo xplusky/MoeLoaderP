@@ -595,7 +595,7 @@ public class MoeItem : BindingObject
         }
 
         DlStatus = DownloadStatus.Downloading;
-        var data = await net.GetAsync(durl.Url,false,3, token: token);
+        var data = await net.GetAsync(durl.Url,false,3, token);
 
         // 写入文件
         var dir = Path.GetDirectoryName(LocalFileFullPath);
