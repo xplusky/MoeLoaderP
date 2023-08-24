@@ -5,21 +5,22 @@
 > 多站点图片浏览、下载工具
 
 -----
+
 ## 安装 & 使用 & 反馈
 
-> **http://leaful.com/moeloader-p**
+> **<http://leaful.com/moeloader-p>**
 
 ## 注意事项
 
 本软件支持的系统为Windows 7以上64位系统。
 需要系统安装.Net 6版本的框架(SDK)。
-> **https://dotnet.microsoft.com/download/dotnet/6.0**
+> **<https://dotnet.microsoft.com/download/dotnet/6.0>**
 
-## 关于 MoeLoader-P 
+## 关于 MoeLoader-P
 
-MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。此版本由桂叶君进行更新。原软件 MoeLoader 作者为 esonic ，项目地址为 https://github.com/esonic/moe-loader-v7 ，作者已销声匿迹失多年，已停止更新，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 https://github.com/usaginya/MoeLoader-Delta 。
+MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeloader 图片浏览和收集工具的衍生分支续命版，对原 MoeLoader 代码进行了大量重构，精简了部分功能，增强了实用功能，美化了界面。此版本由桂叶君进行更新。原软件 MoeLoader 作者为 esonic ，项目地址为 <https://github.com/esonic/moe-loader-v7> ，作者已销声匿迹失多年，已停止更新，本项目也参考了非官方版 MoeLoader Δ 项目代码，作者为 YIU ，项目地址为 <https://github.com/usaginya/MoeLoader-Delta> 。
 
-### 站点支持情况：
+### 站点支持情况
   
 - **Pixiv.net**  支持最新图片、Tag搜索、作者Id搜索、排行搜索（支持日期）、支持下载动图转为GIF格式、支持登录
 - Bilibili.com 支持画友最新、最热搜索
@@ -42,48 +43,62 @@ MoeLoader-P 全称为 MoeLoader PlusOneSecond，诞生于 2018-09 ，为 Moeload
 - 自定义站点....（支持通过Json文件创建自定义站点。默认自带4~5个）
 
 ### 预览图
+
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/SNAG-2020-4-26-8.26.49.jpg)
 
 -----
+
 ## MoeLoader-P 特点
 
 ### 代码优化
+
 代码完全重构，将原来的自定义站点的项目 MoeSite 、SitePack 整合到原项目中，使用新的语法与类库，降低代码耦合度，更符合语法规范，使用 Task 代替 Thred ， HttpClient 代替 WebClient 等，尽量减少不必要的静态类、接口的使用。booru 等类型站点引擎已重构
 
 ### 界面优化
+
 界面重构，使用了更多美化元素，使用了 Storyboard 、Effect 、VisualStateManager 、Fontawesome 、FluentWpf 等组件对软件进行美化，支持 Win10、Win11 亚克力效果，图片自动对齐，大小可调整。
 
 ### 功能增加
+
 增加了页码导航、标签识别、预览图缩放等功能，对搜索参数、过滤条件（分辨率、格式、评级等）进行了整合优化。优化右键菜单，支持标签大爆炸，搜索作者等功能，显示日期，点击后直接上搜索栏；下载支持多页子项目、动态显示进度。
 
 ### 站点增加及改进
+
 增加了B站bilibili画友、摄影站点，改进Pixiv站点，支持搜索作者，支持登录P站，优化排行显示。
 
 ### 支持自定义站点
+
 10.0版本新增自定义站点支持（右键点击LOGO进入自定义模式），只需要编辑Json文件，加上亿点点耐心，就可以拥有自己的图片站点。如果嫌麻烦，可以通过某种渠道获得现成Json。
-> **https://github.com/xplusky/MoeLoaderP-CustomSite**
+> **<https://github.com/xplusky/MoeLoaderP-CustomSite>**
 
 ### 持续更新
+
 欢迎提供建议，软件持续更新，其他功能陆续添加中，Pull Request welcome。
 
 ### 其他问题
+
 软件神秘代码： ( hit F8 ten times )
 
 ### 交流群
+
 QQ群：173707488 验证：MoeLoaderP
 
 -----
 
 ## 捐助
+
 如果你喜欢这个软件，欢迎请我喝杯饮料
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/alipay-qrcode.jpg)
 ![avatar](http://alicdn.leaful.com/wp-content/uploads/2020/04/weixinpay-qrcode.png)
 
 ## 更新记录
+
 ### 2022-2-20 10.0.1
+
 - 修复win7不能运行等问题
 
 ### 2022-2-16 10.0.0Beta
+
 - 更新至.Net6框架（可能需要下载.net6 runtime才能运行软件，以后考虑通过Xamarin MAUI来实现手机端）
 - 登录功能切换至WebView2（首次使用需下载），不再使用CefSharp
 - 新增自定义站点功能（右键LOGO进入），通过JSON文件《简单》设置一下就可以自定义自己图片站点（目前支持Html模式），详细教程等有空再弄（默认有数个自定义站点可用、可用作参考）
@@ -117,17 +132,20 @@ QQ群：173707488 验证：MoeLoaderP
 - 参数设置窗口改进，整合至搜索框内
 
 ### 2021-4-12 9.5.1
+
 - 修复文件名规则框
 - 修复pixiv
 - 修复konachan
 - 修复Minitokyo
 
 ### 2020-4-24 9.4.6
+
 - 支持b站搜索
 - 美化图片显示
 - 支持gelbooru 的artist，copyright等字段
 
 ### 2020-4-23 9.4.5
+
 - pixiv新增动图排行；
 - 支持pixiv动图下载，并自动转换为gif格式；
 - 改进文件夹分类以及文件名格式，可以自定义；
@@ -139,6 +157,7 @@ QQ群：173707488 验证：MoeLoaderP
 - 新增导出下载地址，收集箱功能，改善显示效果，背景效果更新。
 
 ### 2020-3-29 9.3.5
+
 - 改进：增加组图数量设置
 - 改进：支持p站右键搜索作者
 - 改进：支持p站排行右键选择新作
@@ -168,6 +187,7 @@ QQ群：173707488 验证：MoeLoaderP
 - 20200316 经测试，所有站点均可联通获取，若无法获取请自行挂梯子；下一步计划增加其他网站登录功能（如worldcos），根据反馈继续修复功能
 
 ### 2019-4-6 9.1.0
+
 - 更新背景Fluent磨砂设计
 - 新增自定义名称功能（zzh8362反馈）
 - 下载重复的会话跳过而不是重新命名下载（秋山若牧反馈）
@@ -175,6 +195,7 @@ QQ群：173707488 验证：MoeLoaderP
 - 增加重新开始功能（苍瞳猫反馈）
 
 ### 2018-10-13 9.0.8
+
 - 修正搜索途中取消问题
 - 修正gelbooru 详情页
 - 修正donmai下载原图问题（鸦酱 反馈）
@@ -183,23 +204,29 @@ QQ群：173707488 验证：MoeLoaderP
 - 新增图片选择数量
 
 ### 2018-10-03 9.0.6
+
 - 修正pixiv.net,可以搜索作者ID和作品Tag
 - 修正safebooru(感谢Parco94反馈)
 
 ### 2018-10-01 9.0.5
+
 - 修正pixiv、sankaku站点
 - 修正选择框bug
 
 ### 2018-09-29 9.0.4
+
 - 新增图片框选功能，（superxxx8反馈）
 
 ### 2018-09-28 9.0.3
+
 - 修正几个网站显示及下载功能
 
 ### 2018-09-24 9.0.2
+
 - 修复部分BUG
 - 修复代理设置
 - （已知bug：文件名自定义还没有实现）
 
 ### 2018-09-22 9.0.1
+
 - 第一测试版

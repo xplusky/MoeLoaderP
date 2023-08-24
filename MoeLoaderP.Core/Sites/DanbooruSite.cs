@@ -62,15 +62,32 @@ public class DanbooruSite : BooruSite
         if (Net == null) Login();
         if (Net == null) return null;
         var net = Net.CloneWithCookie();
-        var json = await net.GetJsonAsync(GetHintQuery(para), token: token);
-        foreach (var item in Ex.GetList(json))
+        var html = await net.GetHtmlAsync(GetHintQuery(para), token: token);
+        var nodes = html.DocumentNode.SelectNodes("*//div[@class='ui-menu-item-wrapper']");
+        if (!(nodes?.Count > 0)) return null;
+        foreach (var item in nodes)
         {
+            var word = $"{item.SelectSingleNode("a")?.InnerText.Trim()}";
+            if (word.Contains("→"))
+            {
+                word = word[(word.IndexOf("→", StringComparison.Ordinal)+1)..].Trim();
+            }
+
+            word = word.Delete("\\r", "\\n", "\\b");
+            word = word.Replace(" ", "_");
+
+            var count = $"{item.SelectSingleNode("span[@class='post-count']")?.InnerText.Trim()}";
+            if (word.IsEmpty()) continue;
             list.Add(new AutoHintItem
             {
-                Word = $"{item.value}",
-                Count = $"{item.post_count}"
+                Word = word,
+                Count = count
             });
         }
+
         return list;
+
     }
+
+    
 }
