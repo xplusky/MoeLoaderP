@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.0.1" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.3.0" />
     <PackageReference Include="Magick.NET.Core" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
