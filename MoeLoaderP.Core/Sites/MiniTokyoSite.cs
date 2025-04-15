@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -43,8 +43,19 @@ public class MiniTokyoSite : MoeSite
 
     public static string GetSort(SearchPara para)
     {
-        var sorts = new[] {"wallpapers", "scans", "mobile", "indy-art"};
-        return sorts[para.Lv2MenuIndex];
+        // 修改为与网站tabs顺序一致
+        var sorts = new[] {"wallpapers", "mobile", "indy-art", "scans"};
+        
+        // 如果UI顺序是：最新(0), 壁纸(1), 扫描图(2), 手机壁纸(3), Indy Art(4)
+        // 需要重新映射索引
+        switch(para.Lv2MenuIndex)
+        {
+            case 1: return "wallpapers"; // 壁纸
+            case 2: return "scans";      // 扫描图
+            case 3: return "mobile";     // 手机壁纸
+            case 4: return "indy-art";   // Indy Art
+            default: return "wallpapers"; // 默认或最新
+        }
     }
 
     public static string GetOrder(SearchPara para)
