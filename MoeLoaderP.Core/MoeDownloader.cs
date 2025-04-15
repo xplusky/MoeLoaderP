@@ -6,19 +6,14 @@ namespace MoeLoaderP.Core;
 /// <summary>
 ///     下载管理器
 /// </summary>
-public class MoeDownloader
+public class MoeDownloader(Settings set)
 {
-    public MoeDownloader(Settings set)
-    {
-        Set = set;
-    }
-
     public MoeItems DownloadItems { get; set; } = new();
 
     public bool IsDownloading => DownloadItems.Any(t
         => t.DlStatus is DownloadStatus.Downloading or DownloadStatus.WaitForDownload);
 
-    public Settings Set { get; set; }
+    public Settings Set { get; set; } = set;
 
     public void TimerOnTick(object sender, EventArgs e)
     {
@@ -29,7 +24,7 @@ public class MoeDownloader
             if (item.DlStatus == DownloadStatus.WaitForDownload)
                 if (downingCount < Set.MaxOnDownloadingImageCount)
                 {
-                    var _ = item.DownloadFileAsync(item.CurrentDownloadTaskCts?.Token ?? default);
+                    _ = item.DownloadFileAsync(item.CurrentDownloadTaskCts?.Token ?? default);
                     downingCount += 1;
                 }
         }

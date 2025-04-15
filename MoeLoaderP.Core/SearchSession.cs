@@ -178,10 +178,7 @@ public class SearchSession : BindingObject
         rp.CurrentPageNumFromOne ??= RealPageCount;
         //if(para.Config.IsSupportSearchByImageLastId)
         rp.CurrentPageNum = rp.Para.PageIndex;
-        if (rp.CurrentPageItemsStartNum == null)
-        {
-            rp.CurrentPageItemsStartNum = RealPageImageCount + 1;
-        }
+        rp.CurrentPageItemsStartNum ??= RealPageImageCount + 1;
         
         RealPageImageCount += rp.Count;
         rp.CurrentPageItemsEndNum = rp.CurrentPageItemsStartNum + rp.Count - 1;
@@ -196,7 +193,7 @@ public class SearchSession : BindingObject
     public int RealPageImageCount { get; set; }
     public async Task StopSearch()
     {
-        foreach (var cts in SearchingTasksCtsList) cts.Cancel();
+        foreach (var cts in SearchingTasksCtsList) await cts.CancelAsync();
 
         while (true)
         {
@@ -213,16 +210,22 @@ public class SearchSession : BindingObject
         if (site.Lv2Cat?.Count > 0 && para.Lv2MenuIndex > -1)
         {
             var lv2 = site.Lv2Cat?[para.Lv2MenuIndex];
-            sb += $"→{lv2.Name}";
-
-            if (lv2.SubCategories?.Count > 0 && para.Lv3MenuIndex > -1)
+            if (lv2 != null)
             {
-                var lv3 = lv2.SubCategories?[para.Lv3MenuIndex];
-                sb += $"→{lv3.Name}";
-                if (lv3.SubCategories?.Count > 0 && para.Lv4MenuIndex > -1)
+                sb += $"→{lv2.Name}";
+
+                if (lv2.SubCategories?.Count > 0 && para.Lv3MenuIndex > -1)
                 {
-                    var lv4 = lv3.SubCategories?[para.Lv4MenuIndex];
-                    sb += $"→{lv4.Name}";
+                    var lv3 = lv2.SubCategories?[para.Lv3MenuIndex];
+                    if (lv3 != null)
+                    {
+                        sb += $"→{lv3.Name}";
+                        if (lv3.SubCategories?.Count > 0 && para.Lv4MenuIndex > -1)
+                        {
+                            var lv4 = lv3.SubCategories?[para.Lv4MenuIndex];
+                            if (lv4 != null) sb += $"→{lv4.Name}";
+                        }
+                    }
                 }
             }
         }

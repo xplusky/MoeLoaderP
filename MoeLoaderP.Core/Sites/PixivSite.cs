@@ -513,7 +513,7 @@ public class PixivSite : MoeSite
 
                     var img = new MagickImage(ms)
                     {
-                        AnimationDelay = delayList[i] / 10
+                        AnimationDelay = (uint)(delayList[i] / 10)
                     };
                     images.Add(img);
                     ms.Dispose();

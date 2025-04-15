@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,9 +15,9 @@ namespace MoeLoaderP.Core.Sites;
 /// </summary>
 public class AnimePicturesSite : MoeSite
 {
-    private readonly string[] _pass = {"mjvpass"};
+    private readonly string[] _pass = ["mjvpass"];
 
-    private readonly string[] _user = {"mjvuser1"};
+    private readonly string[] _user = ["mjvuser1"];
 
     public AnimePicturesSite()
     {
@@ -24,9 +26,16 @@ public class AnimePicturesSite : MoeSite
         Config.IsSupportKeyword = true;
         Config.IsSupportRating = true;
         Config.IsSupportScore = true;
+        Config.IsSupportAccount = true;
+        LoginPageUrl = "https://anime-pictures.net/login";
     }
-
+    public override bool VerifyCookie(CookieCollection ccol)
+    {
+        return ccol.Any(cookie => cookie.Name.Equals("anime_pictures_jwt", StringComparison.OrdinalIgnoreCase));
+    }
     public override string HomeUrl => "https://anime-pictures.net";
+
+    public string Api => "https://api.anime-pictures.net/api/v3";
     public override string DisplayName => "Anime-Pictures";
 
     public override string ShortName => "anime-pictures";
@@ -34,73 +43,150 @@ public class AnimePicturesSite : MoeSite
 
     public NetOperator AutoHintNet { get; set; }
 
-    public async Task LoginAsync(CancellationToken token)
-    {
-        Net = new NetOperator(Settings,this);
-        Net.SetTimeOut(20);
-        var index = new Random().Next(0, _user.Length);
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            {"login", _user[index]},
-            {"password", _pass[index]}
-        });
-        var respose =
-            await Net.Client.PostAsync($"{HomeUrl}/login/submit", content, token); // http://mjv-art.org/login/submit
-        if (respose.IsSuccessStatusCode)
-            IsLogon = true;
-        else
-            Ex.Log("https://anime-pictures.net 网站登陆失败");
-    }
+    //public async Task LoginAsync(CancellationToken token)
+    //{
+    //    Net = new NetOperator(Settings,this);
+    //    Net.SetTimeOut(20);
+
+    //    Ex.ShowMessage("Anime-Pictures 正在自动登录中……", null, Ex.MessagePos.Searching);
+    //    var index = new Random().Next(0, _user.Length);
+    //    var content = new FormUrlEncodedContent(new Dictionary<string, string>
+    //    {
+    //        {"login", _user[index]},
+    //        {"password", _pass[index]}
+    //    });
+    //    var respose = await Net.Client.PostAsync($"{HomeUrl}/login/submit", content, token);
+    //    if (respose.IsSuccessStatusCode) IsLogon = true;
+    //    else Ex.Log("https://anime-pictures.net 网站登陆失败");
+    //    await Task.Delay(1000, token);
+    //}
 
     public override async Task<SearchedPage> GetRealPageAsync(SearchPara para, CancellationToken token)
     {
-        if (!IsLogon) await LoginAsync(token);
+        if (Net == null)
+        {
+            Net = new NetOperator(Settings, this);
+            Net.SetCookie(SiteSettings.GetCookieContainer());
+        }
 
+        var net = Net.CloneWithCookie();
+        net.SetTimeOut(40);
         // pages source
-        //http://mjv-art.org/pictures/view_posts/0?lang=en
-        var url = $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?lang=en";
 
+        var url = "";
         if (para.Keyword.Length > 0)
-            //http://mjv-art.org/pictures/view_posts/0?search_tag=suzumiya%20haruhi&order_by=date&ldate=0&lang=en
-            url =
-                $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en";
+        {
+
+        }
+        else
+        {
+            url = $"https://api.anime-pictures.net/api/v3/posts?page={para.PageIndex - 1}&order_by=date&ldate=0&lang=zh-cn";
+
+        }
 
         var imgs = new SearchedPage();
 
-        var doc = await Net.GetHtmlAsync(url, token: token);
-        if (doc == null) return null;
-        var pre = "https:";
-        var listnode =
-            doc.DocumentNode.SelectNodes("//*[@id='posts']/div[@class='posts_block']/span[@class='img_block_big']");
-        if (listnode == null) return new SearchedPage {Message = "读取HTML失败"};
-        foreach (var node in listnode)
+        var jsonlist = await Net.GetJsonAsync(url, token: token);
+        if (jsonlist == null) return null;
+        
+        foreach (var jitem in jsonlist.posts)
         {
             var img = new MoeItem(this, para);
-            var imgnode = node.SelectSingleNode("a/picture/img");
-            var idattr = imgnode.GetAttributeValue("id", "0");
-            var reg = Regex.Replace(idattr, @"[^0-9]+", "");
-            img.Id = reg.ToInt();
-            var src = imgnode.GetAttributeValue("src", "");
-            if (!src.IsEmpty()) img.Urls.Add(new UrlInfo(DownloadTypeEnum.Thumbnail, $"{pre}{src}", url));
-            var resstrs = node.GetInnerText("div[@class = 'img_block_text'] / a").Split('x');
-            if (resstrs.Length == 2)
-            {
-                img.Width = resstrs[0].ToInt();
-                img.Height = resstrs[1].ToInt();
-            }
+            img.OriginString = jitem.ToString();
 
-            var scorestr = node.GetInnerText("div[@class='img_block_text']/span");
-            var match = Regex.Replace(scorestr ?? "0", @"[^0-9]+", "");
-            img.Score = match.ToInt();
-            var detail = node.SelectSingleNode("a").GetAttributeValue("href", "");
-            if (!detail.IsEmpty())
-            {
-                img.DetailUrl = $"{HomeUrl}{detail}";
-                img.GetDetailTaskFunc = async t => await GetDetailTask(img, t);
-            }
+            var md5 = $"{jitem.md5}";
+            // id
+            img.Id= $"{jitem.id}".ToInt();
+
+            // thumb
+            var md5q3 = md5.Substring(0, 3);
+            var thumbName = $"https://opreviews.anime-pictures.net/{md5q3}/{md5}_cp{jitem.ext}";
+            img.Urls.Add(new UrlInfo(DownloadTypeEnum.Thumbnail, thumbName, url));
+
+            // resolution
+            img.Width = $"{jitem.width}".ToInt();
+            img.Height = $"{jitem.height}".ToInt();
+
+
+            // score
+            img.Score = $"{jitem.score}".ToInt();
+
+            img.Date = $"{jitem.datetime}".ToDateTime();
+
+
+            // detailurl
+            //var detail = node.SelectSingleNode("a").GetAttributeValue("href", "");
+            //if (!detail.IsEmpty())
+            //{
+            //    img.DetailUrl = $"{HomeUrl}{detail}";
+            //    img.GetDetailTaskFunc = async t => await GetDetailTask(img, t);
+            //}
+
+            // dl
+            var detail = $"https://anime-pictures.net/posts/{jitem.id}";
+            var pmd5 = $"{jitem.md5_pixels}";
+            var pmd5q3 = pmd5.Substring(0, 3);
+            img.Urls.Add(DownloadTypeEnum.Origin, $"https://oimages.anime-pictures.net/{md5q3}/{md5}{jitem.ext}", detail);
 
             imgs.Add(img);
         }
+
+
+
+
+        //? $"{HomeUrl}/pictures/view_posts/{para.PageIndex - 1}?search_tag={para.Keyword}&order_by=date&ldate=0&lang=en" 
+        //: $"{HomeUrl}/posts?page={para.PageIndex - 1}&order_by=date&ldate=0&lang=zh-cn";
+
+
+        //var imgs = new SearchedPage();
+
+        //var doc = await Net.GetHtmlAsync(url, token: token);
+        //if (doc == null) return null;
+        //var pre = "https:";
+        //var listnode = doc.DocumentNode.SelectNodes("//span[contains(@class,'img-block')]");
+        //if (listnode == null)
+        //{
+        //    return new SearchedPage {Message = "读取HTML失败"};
+        //}
+        //foreach (var node in listnode)
+        //{
+        //    var img = new MoeItem(this, para);
+        //    // id
+        //    var idnode = node.SelectSingleNode("a");
+        //    var idstrorg = idnode.GetAttributeValue("href", string.Empty);
+        //    var idstrMatch = Regex.Match(idstrorg, @"\d+");
+        //    int.TryParse(idstrMatch.Value, out var id);
+        //    if(id!=0)  img.Id = id;
+
+        //    // thumb
+        //    var thumbnode = node.SelectSingleNode("a/picture/img");
+        //    var thumb = thumbnode.GetAttributeValue("src", string.Empty);
+        //    if (!thumb.IsEmpty()) img.Urls.Add(new UrlInfo(DownloadTypeEnum.Thumbnail, $"{thumb}", url));
+
+        //    // resolution
+        //    var resstrs = node.GetInnerText("div/a").Split('x');
+        //    if (resstrs.Length == 2)
+        //    {
+        //        img.Width = resstrs[0].ToInt();
+        //        img.Height = resstrs[1].ToInt();
+        //    }
+
+
+        //    // score
+        //    var scorestr = node.GetInnerText("div/span");
+        //    var match = Regex.Replace(scorestr ?? "0", "[^0-9]+", "");
+        //    img.Score = match.ToInt();
+
+        //    // detailurl
+        //    var detail = node.SelectSingleNode("a").GetAttributeValue("href", "");
+        //    if (!detail.IsEmpty())
+        //    {
+        //        img.DetailUrl = $"{HomeUrl}{detail}";
+        //        img.GetDetailTaskFunc = async t => await GetDetailTask(img, t);
+        //    }
+
+        //    imgs.Add(img);
+        //}
 
         token.ThrowIfCancellationRequested();
         return imgs;
@@ -113,16 +199,63 @@ public class AnimePicturesSite : MoeSite
         try
         {
             var subdoc = await net.GetHtmlAsync(detialurl, null, false, token);
+
+            img.OriginString = subdoc.DocumentNode.OuterHtml;
             var docnodes = subdoc.DocumentNode;
             if (docnodes == null) return;
-            var downnode = docnodes.SelectSingleNode("//*[@id='rating']/a[@class='download_icon']");
+            var downnode = docnodes.SelectSingleNode("//a[contains(@class,'svelte-11znzur')]");
             var fileurl = downnode?.GetAttributeValue("href", "");
-            if (!fileurl.IsEmpty()) img.Urls.Add(DownloadTypeEnum.Origin, $"{HomeUrl}{fileurl}", detialurl);
+            string finalUrl = "";
+            if (!fileurl.IsEmpty())
+            {
+                try
+                {
+                    // 创建一个自定义的 HttpClientHandler
+                    HttpClientHandler handler = new HttpClientHandler
+                    {
+                        // 设置最大重定向次数
+                        MaxAutomaticRedirections = 2,
+                        // 允许自动重定向
+                        AllowAutoRedirect = true
+                    };
+
+                    var net2 = Net.CloneWithCookie();
+                    net2.HttpClientHandler.AllowAutoRedirect = true;
+                    net2.SetReferer(fileurl);
+                    net2.HttpClientHandler.MaxAutomaticRedirections = 2;
+                    
+                    // 发送 GET 请求
+                    HttpResponseMessage response = await net2.GetAsync(fileurl, token: token);
+
+                    // 获取最终的 URL
+                    finalUrl = response.RequestMessage.RequestUri.AbsoluteUri;
+
+                    Console.WriteLine($"原始 URL: {fileurl}");
+                    Console.WriteLine($"最终 URL: {finalUrl}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"发生错误: {ex.Message}");
+                }
+
+                if (!finalUrl.IsEmpty())
+                {
+                    img.Urls.Add(DownloadTypeEnum.Origin, $"{finalUrl}", detialurl);
+                }
+                
+            }
             var tagnodes = docnodes.SelectNodes("*//div[@id='post_tags']//a");
             if (tagnodes != null)
+            {
                 foreach (var tagnode in tagnodes)
+                {
                     if (!tagnode.InnerText.IsEmpty())
+                    {
                         img.Tags.Add(tagnode.InnerText);
+                    }
+
+                }
+            }
         }
         catch (Exception e)
         {

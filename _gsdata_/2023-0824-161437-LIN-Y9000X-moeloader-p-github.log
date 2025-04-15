@@ -1,5 +1,0 @@
-2023-08-24 16:14:38: == 同步开始由 User Command
-2023-08-24 16:14:38: Start only 2 threads, limited by tasks to run
-2023-08-24 16:14:38: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/MoeLoaderP.Core/Sites/DanbooruSite.cs' -> 'D:/codes/github-plusky/MoeLoaderP/MoeLoaderP.Core/Sites/DanbooruSite.cs' (3,005)
-2023-08-24 16:14:38: 覆盖复制 'D:/projects/moelaoder-p/moeloader-p-sln/README.md' -> 'D:/codes/github-plusky/MoeLoaderP/README.md' (10,160)
-2023-08-24 16:14:38: == 同步完成. 历时: 00:00:00, 速度: 0.00/s, 完成: 157, 错误: 0

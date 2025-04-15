@@ -1,4 +1,0 @@
-﻿[*.{cs,vb}]
-
-# IDE0017: 简化对象初始化
-dotnet_diagnostic.IDE0017.severity = none

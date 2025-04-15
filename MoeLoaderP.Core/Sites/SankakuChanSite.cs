@@ -12,8 +12,7 @@ namespace MoeLoaderP.Core.Sites;
 /// </summary>
 public class SankakuChanSite : MoeSite
 {
-    public string Api = "https://capi-v2.sankakucomplex.com";
-    public string BetaApi = "https://sankaku.app";
+    public string Api = "https://sankakuapi.com/v2";
 
     public SankakuChanSite()
     {
@@ -35,9 +34,9 @@ public class SankakuChanSite : MoeSite
         Lv2Cat.Adds("最新/搜索", "收藏");
     }
 
-    public override string HomeUrl => "https://sankaku.app";
+    public override string HomeUrl => "https://www.sankakucomplex.com";
 
-    public override string DisplayName => "SankakuComplex[Chan]";
+    public override string DisplayName => "SankakuComplex";
 
     public override string ShortName => "sankakucomplex-chan";
     private string AccessToken => SiteSettings.GetSetting("accessToken");
@@ -56,8 +55,8 @@ public class SankakuChanSite : MoeSite
     public override async Task<bool> StarAsync(MoeItem moe, CancellationToken token)
     {
         var net = CloneNet();
-        net.SetReferer(BetaApi);
-        var res = await net.PostAsync($"https://capi-v2.sankakucomplex.com/posts/{moe.Id}/favorite?lang=en",
+        net.SetReferer(HomeUrl);
+        var res = await net.PostAsync($"https://sankakucomplex.com/v2/posts/{moe.Id}/favorite?lang=en",
             token: token);
         var job = res as JObject;
         var b = job?["success"]?.Value<bool?>();
@@ -122,9 +121,9 @@ public class SankakuChanSite : MoeSite
         var page = new SearchedPage();
         if (Net == null) Login();
         var net = CloneNet();
-        net.SetReferer(BetaApi);
+        net.SetReferer(HomeUrl);
 
-        var safekw = ConbimeMultiKeywords("rating:safe", para.Keyword.Trim().Replace(" ", "_"));
+        var safekw = ConbimeMultiKeywords("rating:s", para.Keyword.Trim().Replace(" ", "_"));
         var explicitkw = para.Keyword.Trim().Replace(" ", "_");
 
         var kw = para.IsShowExplicit == false 
@@ -137,12 +136,12 @@ public class SankakuChanSite : MoeSite
             {"next", $"{para.PageIndexCursor}"},
             {"limit", $"{para.CountLimit}"},
             {"hide_posts_in_books", "in-larger-tags"},
-            {"default_threshold", "1"}
+            {"default_threshold", "2"}
         };
 
         if (para.Lv2MenuIndex == 1)
         {
-            var meapi = "https://capi-v2.sankakucomplex.com/users/me?lang=en";
+            var meapi = "https://sankakucomplex.com/v2/users/me?lang=en";
             var menet = CloneNet();
             var mejson = await menet.GetJsonAsync(meapi, token: token);
             var username = mejson?.user?.name;
@@ -188,13 +187,13 @@ public class SankakuChanSite : MoeSite
                 Height = $"{jitem.height}".ToInt(),
                 Score = $"{jitem.total_score}".ToInt()
             };
-            img.Urls.Add(1, $"{jitem.preview_url}", BetaApi);
-            img.Urls.Add(2, $"{jitem.sample_url}", BetaApi);
-            img.Urls.Add(4, $"{jitem.file_url}", $"{BetaApi}/post/show/{img.Id}");
+            img.Urls.Add(1, $"{jitem.preview_url}", HomeUrl);
+            img.Urls.Add(2, $"{jitem.sample_url}", HomeUrl);
+            img.Urls.Add(4, $"{jitem.file_url}", $"{HomeUrl}/v2/post/show/{img.Id}");
             img.IsNsfw = $"{jitem.rating}" != "s";
             img.Date = $"{jitem.created_at?.s}".ToDateTime();
             img.Uploader = $"{jitem.author?.name}";
-            img.DetailUrl = $"{BetaApi}/post/show/{img.Id}";
+            img.DetailUrl = $"{HomeUrl}/v2/post/show/{img.Id}";
             img.IsFav = $"{jitem.is_favorited}".ToLower() == "true";
             img.FavCount = $"{jitem.fav_count}".ToInt();
             if ($"{jitem.redirect_to_signup}".ToLower() == "true") img.Tip = "此图片需要登录查看";
@@ -212,7 +211,6 @@ public class SankakuChanSite : MoeSite
     public override async Task<AutoHintItems> GetAutoHintItemsAsync(SearchPara para, CancellationToken token)
     {
         var ahitems = new AutoHintItems();
-        const string api = "https://capi-v2.sankakucomplex.com";
         if (Net == null) Login();
         var net = CloneNet();
         var pairs = new Pairs
@@ -222,7 +220,7 @@ public class SankakuChanSite : MoeSite
             {"target", "post"},
             {"show_meta", "1"}
         };
-        var json = await net.GetJsonAsync($"{api}/tags/autosuggestCreating", pairs, token: token);
+        var json = await net.GetJsonAsync($"https://sankakuapi.com/tags/autosuggestCreating", pairs, token: token);
         foreach (var jitem in Ex.GetList(json))
         {
             var ahitem = new AutoHintItem();

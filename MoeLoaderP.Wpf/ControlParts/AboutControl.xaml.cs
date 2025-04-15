@@ -50,9 +50,9 @@ public partial class AboutControl
         AboutReportButton.Click += delegate { "http://leaful.com/moeloader-p/#respond".GoUrl(); };
     }
 
-    public async Task CheckUpdateAsync()
+    public async Task CheckUpdateAsync() 
     {
-        var json = await new NetOperator().GetJsonAsync($"{App.SaeUrl}/moeloader/update.json");
+        var json = await new NetOperator().GetJsonAsync($"https://leaful.com/info/moeloader-update.json");
         if (json == null) return;
         if (Version.Parse($"{json.NetVersion}") > App.Version)
         {
@@ -65,7 +65,7 @@ public partial class AboutControl
 
     public async Task CheckThankListAsync()
     {
-        var json = await new NetOperator().GetJsonAsync($"{App.SaeUrl}/thanklist.json");
+        var json = await new NetOperator().GetJsonAsync($"https://leaful.com/info/thanklist.json");
         if (json == null) return;
         foreach (var user in json)
         {

@@ -278,7 +278,8 @@ d:DesignHeight="450" d:DesignWidth="800">
                     <StackPanel x:Name="PagingStackPanel" Orientation="Horizontal" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True" CanHorizontallyScroll="True"/>
                 </ScrollViewer>
                 <controlParts:PagingButtonControl x:Name="NextButtonControl" Width="72" Height="72" Grid.Column="1"/>
-                <Popup x:Name="PageTipPopup" d:IsOpen="true"  Placement="Top" Focusable="True" AllowsTransparency="True" Grid.ColumnSpan="2" HorizontalAlignment="Left" PopupAnimation="Fade">
+                <Popup x:Name="PageTipPopup" d:IsOpen="true"  Placement="Top" Focusable="True" AllowsTransparency="True" Grid.ColumnSpan="2"
+                       Grid.Column="0" HorizontalAlignment="Left" PopupAnimation="Fade">
                     <Border Style="{DynamicResource MoePopupBorderStyle}">
                         <Grid>
                             <StackPanel x:Name="PageTipRootStackPanel" Visibility="Collapsed"/>

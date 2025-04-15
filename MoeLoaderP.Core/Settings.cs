@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using MoeLoaderP.Core.Sites;
 using Newtonsoft.Json;
@@ -22,10 +23,19 @@ public class Settings : BindingObject
         get => _currentSession;
         set => SetField(ref _currentSession, value, nameof(CurrentSession));
     }
-
+     
     [JsonIgnore] public SiteManager SiteManager { get; set; }
 
-    [JsonIgnore] public string CustomSitesDir { get; set; }
+    [JsonIgnore]
+    public string CustomSitesDir
+    {
+        get
+        {
+            if (!Directory.Exists(_customSitesDir)) Directory.CreateDirectory(_customSitesDir);
+            return _customSitesDir;
+        }
+        set => _customSitesDir = value;
+    }
 
     #region Window size / Display
 
@@ -219,12 +229,25 @@ public class Settings : BindingObject
         Default = 3,
     }
 
+    public enum ProxyConnectModeEnum
+    {
+        Http,
+        Socks
+    }
+
     private ProxyModeEnum _proxyMode = ProxyModeEnum.None;
 
     public ProxyModeEnum ProxyMode
     {
         get => _proxyMode;
         set => SetField(ref _proxyMode, value, nameof(ProxyMode));
+    }
+
+    private ProxyConnectModeEnum _proxyConnectMode = ProxyConnectModeEnum.Http;
+    public ProxyConnectModeEnum ProxyConnectMode
+    {
+        get => _proxyConnectMode;
+        set => SetField(ref _proxyConnectMode, value, nameof(ProxyMode));
     }
 
     private string _proxySetting = "127.0.0.1:1080";
@@ -275,6 +298,7 @@ public class Settings : BindingObject
 
 
     private bool _isCustomSiteMode;
+    private string _customSitesDir;
 
     [JsonIgnore]
     public bool IsCustomSiteMode
@@ -377,7 +401,7 @@ public class IndividualSiteSettings : BindingObject
     {
         if (!(LoginCookies?.Count > 0)) return null;
         var cc = new CookieContainer();
-        foreach (Cookie cookie in LoginCookies) cc.Add(cookie);
+        foreach (var cookie in LoginCookies.Cast<Cookie>()) cc.Add(cookie);
         return cc;
     }
 }

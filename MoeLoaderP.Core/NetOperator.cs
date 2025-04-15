@@ -22,6 +22,7 @@ namespace MoeLoaderP.Core;
 public class NetOperator
 {
     public HttpClientHandler HttpClientHandler { get; set; }
+    public SocketsHttpHandler SocketsHttpHandler { get; set; }
     public ProgressMessageHandler ProgressMessageHandler { get; set; }
     public HttpClient Client { get; set; }
     public Settings Settings { get; set; }
@@ -30,9 +31,59 @@ public class NetOperator
     public double Timeout { get; set; }
     public NetOperator()
     {
+        
         HttpClientHandler = new HttpClientHandler();
         ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
         Client = new HttpClient(ProgressMessageHandler);
+    }
+
+    public void InitProgressMessageHandler()
+    {
+        switch (GetProxyMode(Settings, Site.SiteSettings))
+        {
+            case Settings.ProxyModeEnum.None:
+            {
+                HttpClientHandler = new HttpClientHandler();
+                ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
+                break;
+            }
+            case Settings.ProxyModeEnum.Custom:
+            {
+                
+                try
+                {
+                    switch (Settings.ProxyConnectMode)
+                    {
+                        case Settings.ProxyConnectModeEnum.Http:
+                            HttpClientHandler = new HttpClientHandler
+                            {
+                                Proxy = new WebProxy($"http://{Settings.ProxySetting}")
+                            };
+                            ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
+                            break;
+                        case Settings.ProxyConnectModeEnum.Socks:
+                            ProgressMessageHandler = new ProgressMessageHandler(new SocketsHttpHandler
+                            {
+                                Proxy = new WebProxy($"socks5://{Settings.ProxySetting}")
+                            });
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Ex.Log(e);
+                    ProgressMessageHandler = new ProgressMessageHandler(new HttpClientHandler());
+                }
+                break;
+            }
+            case Settings.ProxyModeEnum.Ie:
+                ProgressMessageHandler = new ProgressMessageHandler(new HttpClientHandler { Proxy = WebRequest.DefaultWebProxy });
+                
+                break;
+        }
     }
 
     public NetOperator(Settings settings,MoeSite site, double timeout = 40)
@@ -40,18 +91,11 @@ public class NetOperator
         Settings = settings;
         Site = site;
         Timeout = timeout;
-        HttpClientHandler = new HttpClientHandler
-        {
-            Proxy = GetProxy(),
-            // ServerCertificateCustomValidationCallback = delegate { return true; },
 
-        };
-        //if (GetProxyMode(Settings, Site.SiteSettings) != Settings.ProxyModeEnum.None)
-        //{
-        //    HttpClientHandler.SslProtocols = SslProtocols.Tls12;
-        //}
-        ProgressMessageHandler = new ProgressMessageHandler(HttpClientHandler);
+        InitProgressMessageHandler();
+
         Client = new HttpClient(ProgressMessageHandler);
+        
         //var agent = Agents[new Random().Next(0, Agents.Length - 1)];
         var header = Client.DefaultRequestHeaders;
         //header.UserAgent.ParseAdd(agent);
@@ -86,34 +130,6 @@ public class NetOperator
     //    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
     //    //"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
     //};
-
-    public IWebProxy GetProxy()
-    {
-        switch (GetProxyMode(Settings, Site.SiteSettings))
-        {
-            case Settings.ProxyModeEnum.None: return new WebProxy();
-            case Settings.ProxyModeEnum.Custom:
-            {
-                try
-                {
-                    var strs = Settings.ProxySetting.Split(':');
-                    var port = strs[1].ToInt();
-                    if (port == 0) return WebRequest.DefaultWebProxy;
-                    var address = IPAddress.Parse(strs[0]);
-                    var proxy = new WebProxy(address.ToString(), port);
-                    return proxy;
-                }
-                catch (Exception e)
-                {
-                    Ex.Log(e);
-                    return WebRequest.DefaultWebProxy;
-                }
-            }
-            case Settings.ProxyModeEnum.Ie: return WebRequest.DefaultWebProxy;
-        }
-
-        return null;
-    }
 
     public static Settings.ProxyModeEnum GetProxyMode(Settings settings,IndividualSiteSettings individualSiteSettings)
     {
@@ -203,30 +219,26 @@ public class NetOperator
         CancellationToken token = default)
     {
         var query = parapairs.ToPairsString();
-        try
-        {
-            var response = await GetAsync($"{api}{query}", showSearchMessage,token: token);
+        var response = await GetAsync($"{api}{query}", showSearchMessage, token: token);
             var res = response.Headers;
             var s = await response.Content.ReadAsStringAsync(token);
-            if (saveListOriginalString)
-            {
-                Ex.LogListOriginalString = s;
-            }
-
-            dynamic deo = JsonConvert.DeserializeObject(s); 
-            //try
-            //{
-            //    deo = JsonConvert.DeserializeObject(s);
-            //}
-            //catch (Exception e)
-            //{
-            //    if (e.Message.Contains("Unexpected character", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //       // if (WebView == null) InitWebView();
-
-            //    }
-            //}
+        if (saveListOriginalString)
+        {
+            Ex.LogListOriginalString = s;
+        }
+        try
+        {
+            dynamic deo = JsonConvert.DeserializeObject(s);
+            
             return deo;
+        }
+        catch (JsonReaderException e)
+        {
+            if (Ex.IsHtml(s))
+            {
+                Ex.Log($"IsHtml:{api}{query}");
+                return null;
+            }
         }
         catch (Exception e)
         {
@@ -234,6 +246,8 @@ public class NetOperator
             Ex.ShowMessage(e.Message);
             return null;
         }
+
+        return null;
     }
 
     //public  void InitWebView()

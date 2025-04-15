@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using MoeLoaderP.Core;
 using MoeLoaderP.Wpf.ControlParts;
-using draw = System.Drawing;
+using Draw = System.Drawing;
 using SourceChord.FluentWPF;
 
 namespace MoeLoaderP.Wpf;
@@ -283,9 +283,9 @@ public static class UiUtility
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            var bitmap = new draw.Bitmap(stream);
+            var bitmap = new Draw.Bitmap(stream);
             var ms = new MemoryStream();
-            bitmap.Save(ms, draw.Imaging.ImageFormat.Png);
+            bitmap.Save(ms, Draw.Imaging.ImageFormat.Png);
             return SafeLoadBitmapImage(ms);
         }
         return null;

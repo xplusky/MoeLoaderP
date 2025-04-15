@@ -12,7 +12,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <EnableSecurityDebugging>false</EnableSecurityDebugging>
-    <_LastSelectedProfileId>D:\projects\moelaoder-p\moeloader-p-sln\MoeLoaderP.Wpf\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+    <_LastSelectedProfileId>D:\contents\SynologyDrive\vs-projects\moeloader-p-sln\MoeLoaderP.Wpf\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
     <ActiveDebugProfile>MoeLoaderP.Wpf</ActiveDebugProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

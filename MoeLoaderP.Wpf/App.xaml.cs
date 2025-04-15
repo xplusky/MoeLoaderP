@@ -42,7 +42,7 @@ public partial class App
     public static string SysAppDataDir => Environment.GetEnvironmentVariable("APPDATA");
 
     public static string MoePicFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), DisplayName);
-    public static string SaeUrl => "http://sae.leaful.com";
+    
 
     public static string CustomSiteDir => Path.Combine(AppDataDir, "CustomSites");
     public static string BackgroundImagesDir => Path.Combine(AppDataDir, "Background");
@@ -95,22 +95,7 @@ public partial class App
         var mainWin = new MainWindow();
         mainWin.Init(settings);
         mainWin.Show();
-        StatStartupTimesAsync();
     }
 
-    public static async void StatStartupTimesAsync()
-    {
-        try
-        {
-            var client = new HttpClient();
-            if (Debugger.IsAttached) await client.GetAsync("http://sae.leaful.com/func.php?arg=incr-moeloader-debug-startup");
-            else await client.GetAsync("http://sae.leaful.com/func.php?arg=incr-moeloader-startup");
-            Ex.Log("StatStartupTimesAsync ok");
-        }
-        catch (Exception ex)
-        {
-            Ex.Log(ex);
-        }
-    }
 
 }

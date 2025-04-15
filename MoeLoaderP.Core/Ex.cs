@@ -565,5 +565,13 @@ public static class Ex
         var abc = Convert.ToChar(num).ToString();
         return abc;
     }
+
+
+    public static bool IsHtml(string input)
+    {
+        var doc = new HtmlDocument();
+        doc.LoadHtml(input);
+        return doc.DocumentNode is { HasChildNodes: true };
+    }
 }
 

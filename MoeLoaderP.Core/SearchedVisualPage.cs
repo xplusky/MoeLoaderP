@@ -11,7 +11,7 @@ public class SearchedVisualPage : BindingObject
 {
     private bool _isCurrentPage;
     private int _visualIndex;
-    public SearchedPages RealPages { get; set; } = new();
+    public SearchedPages RealPages { get; set; } = [];
 
     public bool IsCurrentPage
     {

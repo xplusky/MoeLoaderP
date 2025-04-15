@@ -47,19 +47,17 @@ public class SiteManager : BindingObject
         Sites.Add(new YandeSite());
         Sites.Add(new GelbooruSite());
         Sites.Add(new SankakuChanSite());
-        if (x) Sites.Add(new SankakuIdolSite());
+        //if (x) Sites.Add(new SankakuIdolSite());
         Sites.Add(new DanbooruSite());
         Sites.Add(new DeviantartSite());
         
-        Sites.Add(new BilibiliSite());
-        Sites.Add(new YuriimgSite());
         Sites.Add(new BehoimiSite());
         Sites.Add(new SafebooruSite());
         Sites.Add(new LolibooruSite());
         if (x) Sites.Add(new AtfbooruSite());
         if (x) Sites.Add(new Rule34Site());
 
-        Sites.Add(new KawaiinyanSite());
+        //Sites.Add(new KawaiinyanSite());
         Sites.Add(new MiniTokyoSite());
         Sites.Add(new EshuuSite());
         Sites.Add(new ZeroChanSite());

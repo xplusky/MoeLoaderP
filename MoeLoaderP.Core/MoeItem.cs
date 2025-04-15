@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -339,11 +340,23 @@ public class MoeItem : BindingObject
     /// </summary>
     public dynamic BitImg { get; set; }
 
+    public ErrorInfo ErrorInfo { get; set; } = new ErrorInfo();
+
     public async Task<Stream> TryLoadThumbnailStreamAsync(CancellationToken token)
     {
         var net = Site.GetCloneNet(ThumbnailUrlInfo.Referer, 20d);
         var url = ThumbnailUrlInfo.Url;
-        var response = await net.Client.GetAsync(url, token);
+        HttpResponseMessage response;
+        try
+        { 
+            response = await net.Client.GetAsync(url, token);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        
         return await response.Content.ReadAsStreamAsync(token);
     }
 
@@ -667,6 +680,13 @@ public class MoeItem : BindingObject
         var sb = FormatText(format, img);
 
         LocalFileShortNameWithoutExt = SubIndex > 0 ? $"{sb} p{SubIndex}" : $"{sb}";
+
+        // 限制文件名长度
+        if (LocalFileShortNameWithoutExt.Length > 250)
+        {
+            LocalFileShortNameWithoutExt = LocalFileShortNameWithoutExt[..250];
+        }
+
     }
 
     public string FormatText(string format, MoeItem img, bool isFolder = false)

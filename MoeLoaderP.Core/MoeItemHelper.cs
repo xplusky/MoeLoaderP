@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -182,4 +181,27 @@ public enum DownloadTypeEnum
     /// </summary>
     Origin = 4,
     Auto = -1
+}
+
+public class ErrorInfo : BindingObject
+{
+    private bool _isError;
+    private Exception Ex { get; set; }
+
+    public bool IsError
+    {
+        get => _isError;
+        set
+        {
+            _isError = value;
+            OnPropertyChanged(nameof(IsError));
+        }
+    }
+
+    public void SetEx(Exception ex)
+    {
+
+        Ex = ex;
+        IsError = true;
+    }
 }
